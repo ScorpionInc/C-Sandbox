@@ -1,6 +1,6 @@
-#One-liners:
-##BIND / WGET / GCC
-###SETUP(as root):
+# One-liners:
+## BIND / WGET / GCC
+### SETUP(as root):
 ```console
 apt-get install --yes wget gcc binutils || yum -y install wget gcc binutils || zypper -l --no-confirm install wget gcc binutils || pacman --noconfirm -Sy wget gcc binutils
 ```
