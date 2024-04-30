@@ -82,9 +82,12 @@ int run(int argc, char** argv){
 // https://github.com/0x1CA3/bind/blob/main/bind.c
 // https://stackoverflow.com/questions/21405204/multithread-server-client-implementation-in-c
 
-#include<pthread.h>// -lpthread
+#include <string.h>
+#include <pthread.h>// -lpthread
 
+#include <fcntl.h>
 #include <unistd.h>
+#include <sys/prctl.h>
 #include <sys/wait.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -139,50 +142,84 @@ int run(int argc, char** argv){
 	return EXIT_SUCCESS;
 }
 
+// https://stackoverflow.com/a/2917911
+int setnonblock(int sock) {
+	int flags;
+	flags = fcntl(sock, F_GETFL, 0);
+	if (-1 == flags)
+		return -1;
+	return fcntl(sock, F_SETFL, flags | O_NONBLOCK);
+}
+
 void *connection_handler(void* socketDesc){
 	printf("[DEBUG]: Connection handler start.\n");//!Debugging
 	int clientSocket = (*(int*)socketDesc);
+
+	// Works but single threaded
 	//for (int i = 0; i < 3; i++) {
 	//	dup2(clientSocket, i);
 	//}
 	//char * const* blank = (char * const*)"\0\0\0\0\0\0\0\0";
 	//execve("/bin/sh", blank, blank);
-	FILE* shell = popen("/bin/sh 2>&1", "rw");
-	pid_t forkChild;
-	if((forkChild = fork()) == -1){
+
+	//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+
+	//FILE* shell = popen("/bin/sh 2>&1", "r");//Can only read or write not both.
+
+	pid_t childPID;
+	int inputPipeFD[2];
+	int outputPipeFD[2];
+	char buffer[DEFAULT_BUFFER];
+	int status;
+	ssize_t sizeResult = 0u;
+
+	pipe(inputPipeFD);
+	pipe(outputPipeFD);
+	childPID = fork();
+
+	if(childPID == -1){
 		fprintf(stderr, "[ERROR]: Process failed to fork.\n");//Debugging
-		pclose(shell);
 		close(clientSocket);
 		return NULL;
 	}
-	ssize_t sizeResult = 0u;
-	char buffer[DEFAULT_BUFFER];
-	//int pipes[2];
-	//pipe(pipes);
-	if(forkChild == 0){
+	if(childPID == 0){
 		// I am child ga-ga goo-goo
-		//close(pipes[0]);//I only write to output
-		while(!ferror(shell)){
-			printf("[DEBUG]: Child is awaiting shell input..\n");//!Debugging
-			sizeResult = fread(buffer, sizeof(char), DEFAULT_BUFFER, shell);
-			write(clientSocket, buffer, sizeResult);
-		}
-		printf("[ERROR]: Shell stream encountered an error. Child fork is exiting.\n");//!Debugging
-	} else {
-		// I am an adult!
-		//close(pipes[1]);
-		printf("[DEBUG]: Waiting for fork child.\n");//!Debugging
-		//int status = 0; waitpid(forkChild, &status, 0);
-		printf("[DEBUG]: Fork child is ready/running.\n");//!Debugging
-		do {
+		dup2(outputPipeFD[0], STDIN_FILENO);
+		dup2(inputPipeFD[1], STDOUT_FILENO);
+		dup2(inputPipeFD[1], STDERR_FILENO);
+		// Ask kernel to deliver SIGTERM in case the parent dies
+		prctl(PR_SET_PDEATHSIG, SIGTERM);
+		// Close unused pipe ends
+		close(outputPipeFD[1]);
+		close(inputPipeFD[0]);
+		execl("/bin/sh", "sh", (char*)NULL);
+		printf("[ERROR]: Child shell stream encountered an error. Child fork is exiting.\n");//!Debugging
+		return NULL;
+	}
+	// I am an adult!
+	// Close unused pipe ends
+	close(outputPipeFD[0]);
+	close(inputPipeFD[1]);
+	//setnonblock(inputPipeFD[0]);//Doesn't work?
+	//setnonblock(clientSocket);//Doesn't work?
+	while(getpgid(childPID) >= 0){
+		do{
 			printf("[DEBUG]: Parent is awaiting input from client.\n");//!Debugging
 			sizeResult = read(clientSocket, buffer, DEFAULT_BUFFER);
-			printf("[DEBUG]: Buffer: %.*s",DEFAULT_BUFFER,buffer);//!Debugging
-			fwrite(buffer, sizeof(char), sizeResult, shell);
-			fflush(shell);
-		}while(sizeResult > 0u);//>0u //!= -1
-		printf("[DEBUG]: Parent side is exiting.\n");//!Debugging
+			printf("[DEBUG]: Socket Buffer: %.*s", sizeResult, buffer);//!Debugging
+			write(outputPipeFD[1], buffer, sizeResult);
+		} while(sizeResult >= DEFAULT_BUFFER);//Read from socket to shell until done.
+		do{
+			sizeResult = read(inputPipeFD[0], buffer, DEFAULT_BUFFER);
+			printf("[DEBUG]: Shell Buffer: %.*s", sizeResult, buffer);//!Debugging
+			write(clientSocket, buffer, sizeResult);
+		} while(sizeResult >= DEFAULT_BUFFER);//Write to socket from shell until nothing is read.
+		if(sizeResult == 0u)
+			break;
 	}
+	printf("[DEBUG]: Command returned 0 output.\n");//!Debugging
+	kill(childPID, SIGKILL); // Send SIGKILL signal to the child process
+	waitpid(childPID, &status, 0);
 	close(clientSocket);
 	printf("[DEBUG]: Connection handler stop.\n");//!Debugging
 }
