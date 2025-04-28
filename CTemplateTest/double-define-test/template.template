@@ -1,0 +1,86 @@
+/* template.template
+ * Purpose: Test template generation using preprocessor #defines
+ * Created: 20241110
+ * Updated: 20250423
+//*/
+
+#include <stdio.h> //printf
+
+#ifdef __cplusplus
+extern "C" {
+#endif //__cplusplus
+
+#ifdef SI_TEMPLATE_TYPE
+
+#ifndef _STRINGIFY
+#define _STRINGIFY(s) #s
+#define DEFINED__STRINGIFY
+#endif
+#ifndef STRINGIFY
+#define STRINGIFY(s) _STRINGIFY(s)
+#define DEFINED_STRINGIFY
+#endif
+
+#ifndef PASTE_TWO_TOKENS
+#define PASTE_TWO_TOKENS(token_1, token_2) token_1 ## token_2
+#define DEFINED_PASTE_TWO_TOKENS
+#endif
+#ifndef PASTE_TWO_TOKENS_INDIRECT
+#define PASTE_TWO_TOKENS_INDIRECT(token_1, token_2) PASTE_TWO_TOKENS(token_1 , token_2)
+#define DEFINED_PASTE_TWO_TOKENS_INDIRECT
+#endif
+
+#ifdef SI_TEMPLATE_FUNCTION
+#undef SI_TEMPLATE_FUNCTION
+#endif
+#define SI_TEMPLATE_FUNCTION(F) PASTE_TWO_TOKENS_INDIRECT(SI_TEMPLATE_TYPE, F)
+
+struct SI_TEMPLATE_FUNCTION(Example) {
+	SI_TEMPLATE_TYPE item;
+};
+
+void SI_TEMPLATE_FUNCTION(Example_new)(){
+	printf("There is no cow level.\n");
+}
+
+void temp(){
+	struct SI_TEMPLATE_FUNCTION(Example) e = { 0 };
+	printf("Hello World! %i\n", e.item);
+	SI_TEMPLATE_FUNCTION(Example_new)();
+}
+
+// Clean up defines.
+#undef SI_TEMPLATE_FUNCTION
+// Only undefine these functions if they weren't defined else where(They might be using them(?))
+#ifdef DEFINED_PASTE_TWO_TOKENS_INDIRECT
+#undef PASTE_TWO_TOKENS_INDIRECT
+#undef DEFINED_PASTE_TWO_TOKENS_INDIRECT
+#endif
+
+#ifdef DEFINED_PASTE_TWO_TOKENS
+#undef PASTE_TWO_TOKENS
+#undef DEFINED_PASTE_TWO_TOKENS
+#endif
+
+#ifdef DEFINED_STRINGIFY
+#undef STRINGIFY
+#undef DEFINED_STRINGIFY
+#endif
+
+#ifdef DEFINED__STRINGIFY
+#undef _STRINGIFY
+#undef DEFINED__STRINGIFY
+#endif
+
+#undef SI_TEMPLATE_TYPE
+
+#else
+
+// Handle undefined type.
+#error "Template was included without a defined template type(SI_TEMPLATE_TYPE)."
+
+#endif//SI_TEMPLATE_TYPE
+
+#ifdef __cplusplus
+}
+#endif //__cplusplus

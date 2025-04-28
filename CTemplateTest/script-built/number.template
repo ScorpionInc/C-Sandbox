@@ -1,0 +1,9 @@
+struct #TEMPLATE_TYPENumber {
+	#TEMPLATE_TYPE value;
+};
+
+void #TEMPLATE_TYPENumber_init(struct #TEMPLATE_TYPENumber* address){
+	if(address == NULL)
+		return;
+	address->value = (#TEMPLATE_TYPE)0;
+}
