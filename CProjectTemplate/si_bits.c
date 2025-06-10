@@ -18,6 +18,65 @@
 extern "C" {
 #endif //__cplusplus
 
+/** Doxygen
+ * @brief Prints some or all of the bits in a single byte from MSB->LSB.
+ *
+ * @param p_file FILE pointer to be written to.
+ * @param byte Source of bits to be read from.
+ * @param bit_start which bit index to start printing from.
+ * @param bit_length How many bits to print. Caps at SI_BITS_COUNT.
+ *
+ * @return Doesn't return a value but fails silently.
+ */
+void fprint_byte_bits_4(FILE* p_file, const uint8_t byte,
+			const unsigned int bit_start, const size_t bit_length)
+{
+	// Local Mutable Variables
+	unsigned int mut_bit_start = bit_start;
+	size_t mut_bit_length = bit_length;
+	// Validate parameters
+	if((NULL == p_file) || (SI_BITS_COUNT <= bit_start))
+	{
+		goto END;
+	}
+	// Clamp bit_start to prevent underflow in next if
+	if(SI_BITS_COUNT < mut_bit_start)
+	{
+		mut_bit_start = SI_BITS_COUNT;
+	}
+	// Clamp bit_length to within a byte
+	if((SI_BITS_COUNT - mut_bit_start) < mut_bit_length)
+	{
+		mut_bit_length = (SI_BITS_COUNT - mut_bit_start);
+	}
+	// Begin
+	const unsigned int bit_end = (mut_bit_start + mut_bit_length);
+	for(unsigned int bit_index = mut_bit_start;bit_index < bit_end;bit_index++)
+	{
+		// Prints from MSB
+		fprintf(p_file, "%c", byte & (0x80 >> bit_index) ? '1' : '0');
+	}
+	// End
+END:
+	return;
+}
+inline void fprint_byte_bits_3(FILE* p_file, const uint8_t byte,
+			const unsigned int bit_start)
+{
+	// Default bit_len is UINT_MAX (Prints all bits after bit_start)
+	fprint_byte_bits_4(p_file, byte, bit_start, UINT_MAX);
+}
+inline void fprint_byte_bits(FILE* p_file, const uint8_t byte)
+{
+	// Default bit_start is 0u (Prints all bits)
+	fprint_byte_bits_3(p_file, byte, 0u);
+}
+
+/** Doxygen
+ * @brief Determines the ordering of the host at runtime.
+ *
+ * @return Returns true if host is little endian. False otherwise.
+ */
 bool is_host_order_le()
 {
 	int tmp = 1;
@@ -25,154 +84,306 @@ bool is_host_order_le()
 	return (*ptr == 1);
 }
 
-void fprint_le_byte_bits_4(FILE* p_file, const uint8_t byte,
-			const unsigned int spacer_position, const char spacer)
+/** Doxygen
+ * @brief Writes size bytes from p_buffer in little endian to p_file as binary chars.
+ *
+ * @param p_file FILE pointer to be written to.
+ * @param p_buffer Pointer to data buffer of size capacity to read bytes.
+ * @param buffer_size Specifies the size of the byte buffer at p_buffer.
+ *
+ * @return Doesn't return a value, but fails silently on error.
+ */
+void fprint_le_bytes_bits(FILE* p_file,
+			const uint8_t* p_buffer, const size_t buffer_size)
 {
-	// Validate Parameters
-	if(p_file == NULL)
+	// Validate parameters
+	if((NULL == p_file) || (NULL == p_buffer) || (0u == buffer_size))
 	{
 		goto END;
 	}
-	// Local Values
-	const char spacer_string[2] = { spacer, '\0' };
 	// Begin
-	for(unsigned int bit_index = 0u; bit_index < SI_BITS_COUNT; bit_index++)
+	// Little Endian prints bytes in reverse order.
+	for(size_t byte_offset = buffer_size - 1u; byte_offset >= 0u; byte_offset--)
 	{
-		const bool print_spacer = (spacer_position == bit_index);
-		const bool not_at_end = (bit_index < (SI_BITS_COUNT - 1u));
-		fprintf(p_file, "%c%s",
-		byte & (0x80 >> bit_index) ? '1' : '0',
-		print_spacer && not_at_end ? spacer_string : "");
-	}
-	// End
-END:
-	return;
-}
-inline void fprint_le_byte_bits_3(FILE* p_file, const uint8_t byte,
-			const unsigned int spacer_position)
-{
-	// Default value of spacer = ' '
-	fprint_le_byte_bits_4(p_file, byte, spacer_position, SI_BITS_DEFAULT_SPACER);
-}
-inline void fprint_le_byte_bits(FILE* p_file, const uint8_t byte)
-{
-	// Default value of spacer_position is UINT_MAX (Disables printing of spacer character)
-	fprint_le_byte_bits_3(p_file, byte, UINT_MAX);
-}
-
-void fprint_be_byte_bits_4(FILE* p_file, const uint8_t byte,
-			const unsigned int spacer_position, const char spacer)
-{
-	// Validate Parameters
-	if(p_file == NULL)
-	{
-		goto END;
-	}
-	// Local Values
-	const char spacer_string[2] = { spacer, '\0' };
-	// Begin
-	for(unsigned int bit_index = 0u; bit_index < SI_BITS_COUNT; bit_index++)
-	{
-		const bool print_spacer = (bit_index == spacer_position);
-		const bool not_at_end = (bit_index < (SI_BITS_COUNT - 1u));
-		fprintf(p_file, "%c%s",
-			byte & (0x01 << bit_index) ? '1' : '0',
-			(print_spacer && not_at_end) ? spacer_string : "");
-	}
-	// End
-END:
-	return;
-}
-inline void fprint_be_byte_bits_3(FILE* p_file, const uint8_t byte,
-	const unsigned int spacer_position)
-{
-	// Default value of spacer character is ' '
-	fprint_be_byte_bits_4(p_file, byte, spacer_position, SI_BITS_DEFAULT_SPACER);
-}
-inline void fprint_be_byte_bits(FILE* p_file, const uint8_t byte)
-{
-	// Default value of spacer_postion is UINT_MAX (Disables printing of spacer character)
-	fprint_be_byte_bits_3(p_file, byte, UINT_MAX);
-}
-
-void fprint_bits_6(FILE* p_file, const uint8_t* p_buffer, const size_t count,
-			const size_t grouping, const bool little_endian, const char spacer)
-{
-	// Validate Parameters
-	if(p_file == NULL || p_buffer == NULL)
-		return;
-	// Local Constant
-	const char spacer_string[2] = { spacer, '\0' };
-	// Start
-	if(little_endian)
-	{
-		// Little Endianness
-		for(size_t byte_index = 0u; byte_index < count; byte_index++)
+		fprint_byte_bits(p_file, p_buffer[byte_offset]);
+		if(0u == byte_offset)
 		{
-			uint8_t next_byte = p_buffer[count - 1u - byte_index];
-			if(grouping > 0u)
-				for(size_t bit_index = 0u; bit_index < SI_BITS_COUNT; bit_index++)
-				{
-					const bool print_spacer =
-						(bit_index + byte_index * SI_BITS_COUNT) % grouping == grouping - 1u;
-					const bool not_at_end = byte_index < (count - 1u) || bit_index < 7u;
-					fprintf(p_file, "%c%s",
-						next_byte & (0x80 >> bit_index) ? '1' : '0',
-						print_spacer && not_at_end ? spacer_string : "");
-				}
-			else
-				for(size_t bit_index = 0u; bit_index < SI_BITS_COUNT; bit_index++)
-				{
-					fprintf(p_file, "%c",
-					next_byte & (0x80 >> bit_index) ? '1' : '0');
-				}
+			break;
 		}
+	}
+	// End
+END:
+	return;
+}
+
+/** Doxygen
+ * @brief Writes size bytes from p_buffer in big endian to p_file as binary chars.
+ *
+ * @param p_file FILE pointer to be written to.
+ * @param p_buffer Pointer to data buffer of size capacity to read bytes.
+ * @param buffer_size Specifies the size of the byte buffer at p_buffer.
+ *
+ * @return Doesn't return a value, but fails silently on error.
+ */
+void fprint_be_bytes_bits(FILE* p_file,
+			const uint8_t* p_buffer, const size_t buffer_size)
+{
+	// Validate parameters
+	if((NULL == p_file) || (NULL == p_buffer) || (0u == buffer_size))
+	{
+		goto END;
+	}
+	// Begin
+	// Big Endian prints bytes in order.
+	for(size_t byte_offset = 0u; byte_offset < buffer_size; byte_offset++)
+	{
+		fprint_byte_bits(p_file, p_buffer[byte_offset]);
+	}
+	// End
+END:
+	return;
+}
+
+/** Doxygen
+ * @brief Writes size bytes from p_buffer in host endian to p_file as binary chars.
+ *
+ * @param p_file FILE pointer to be written to.
+ * @param p_buffer Pointer to data buffer of size capacity to read bytes.
+ * @param buffer_size Specifies the size of the byte buffer at p_buffer.
+ *
+ * @return Doesn't return a value, but fails silently on error.
+ */
+void fprint_bytes_bits(FILE* p_file,
+			const uint8_t* p_buffer, const size_t buffer_size)
+{
+	if(is_host_order_le())
+	{
+		fprint_le_bytes_bits(p_file, p_buffer, buffer_size);
 	}
 	else
 	{
-		// Big Endianness
-		for(size_t byte_index = 0u; byte_index < count; byte_index++)
-		{
-			uint8_t next_byte = p_buffer[byte_index];
-			if(grouping > 0u)
-				for(size_t bit_index = 0u; bit_index < SI_BITS_COUNT; bit_index++)
-				{
-					const bool print_spacer =
-						(bit_index + byte_index * SI_BITS_COUNT) % grouping == grouping - 1u;
-					const bool not_at_end = byte_index < (count - 1u) || bit_index < 7u;
-					fprintf(p_file, "%c%s",
-						next_byte & (0x01 << bit_index) ? '1' : '0',
-						print_spacer && not_at_end ? spacer_string : "");
-				}
-			else
-				for(size_t bit_index = 0u; bit_index < SI_BITS_COUNT; bit_index++)
-					fprintf(p_file, "%c",
-					next_byte & (0x01 << bit_index) ? '1' : '0');
-		}
+		fprint_be_bytes_bits(p_file, p_buffer, buffer_size);
 	}
 }
-inline void fprint_bits_5(FILE* file, const uint8_t* p_buffer,
-				const size_t count, const size_t grouping,
-				const bool little_endian)
+
+/** Doxygen
+ * @brief Writes bit_count bits as 1/0 chars into p_file from p_buffer in little endian
+ *
+ * @param p_file FILE pointer to be written to.
+ * @param p_buffer Pointer to data buffer of size capacity to read bytes.
+ * @param buffer_size Specifies the size of the byte buffer at p_buffer.
+ * @param bit_offset Specifies the start of the bits to be printed.
+ * @param bit_count Specifies the number of bits to be printed.
+ *
+ * @return Doesn't return a value, but fails silently on error.
+ */
+void fprint_le_bits_5(FILE* p_file,
+			const uint8_t* p_buffer, const size_t buffer_size,
+			const size_t bit_offset, const size_t bit_count)
 {
-	// Default parameter spacing = ' '
-	fprint_bits_6(file, p_buffer, count, grouping, little_endian, SI_BITS_DEFAULT_SPACER);
+	const size_t max_bit = (buffer_size * SI_BITS_COUNT);
+	// Local Variables
+	size_t mut_bit_offset = bit_offset;
+	size_t mut_bit_count = bit_count;
+	// Validate parameters
+	if((NULL == p_file) || (NULL == p_buffer))
+	{
+		goto END;
+	}
+	if(max_bit < mut_bit_offset)
+	{
+		mut_bit_offset = max_bit;
+	}
+	if(max_bit < (mut_bit_count + mut_bit_offset))
+	{
+		mut_bit_count = (max_bit - mut_bit_offset);
+	}
+	// Local Constants
+	const size_t beg_unord_index = (mut_bit_offset / SI_BITS_COUNT);
+	const size_t end_unord_index = ((mut_bit_count + mut_bit_offset) / SI_BITS_COUNT);
+	const size_t full_byte_count = (end_unord_index - beg_unord_index) - 1u;
+	const size_t beg_ord_index = buffer_size - 1u - beg_unord_index;
+	const size_t end_ord_index = buffer_size - 1u - end_unord_index;
+	const size_t bit_offset_remainder = (mut_bit_offset % SI_BITS_COUNT);
+	// Begin
+	if(beg_unord_index == end_unord_index)
+	{
+		// This is printing all or part of 1 byte.
+		fprint_byte_bits_4(p_file, p_buffer[beg_ord_index],
+			mut_bit_offset, mut_bit_count);
+		goto END;
+	}
+	fprint_byte_bits_4(p_file, p_buffer[beg_ord_index],
+			bit_offset_remainder, SI_BITS_COUNT - bit_offset_remainder);
+	fprint_le_bytes_bits(p_file, (&p_buffer[beg_unord_index + 1u]), full_byte_count);
+	fprint_byte_bits_4(p_file, p_buffer[end_ord_index],
+			0u, bit_offset_remainder);
+	// End
+END:
+	return;
 }
-inline void fprint_bits_4(FILE* file, const uint8_t* p_buffer,
-				const size_t count, const size_t grouping)
+inline void fprint_le_bits_4(FILE* p_file, const uint8_t* p_buffer,
+			const size_t buffer_size, const size_t bit_offset)
 {
-	// Default parameter little_endian = is_host_order_le()
-	fprint_bits_5(file, p_buffer, count, grouping, is_host_order_le());
+	// Default bit_count is SIZE_MAX. (Prints all bits)
+	fprint_le_bits_5(p_file, p_buffer, buffer_size, bit_offset, SIZE_MAX);
 }
-inline void fprint_bits(FILE* file, const uint8_t* p_buffer,
-				const size_t count)
+inline void fprint_le_bits(FILE* p_file, const uint8_t* p_buffer,
+			const size_t buffer_size)
 {
-	// Default parameter grouping = 8u
-	fprint_bits_4(file, p_buffer, count, SI_BITS_COUNT);
+	// Default bit_offset is 0. (Prints from the start.)
+	fprint_le_bits_4(p_file, p_buffer, buffer_size, 0u);
 }
 
+/** Doxygen
+ * @brief Writes bit_count bits as 1/0 chars into p_file from p_buffer in big endian
+ *
+ * @param p_file FILE pointer to be written to.
+ * @param p_buffer Pointer to data buffer of size capacity to read bytes.
+ * @param buffer_size Specifies the size of the byte buffer at p_buffer.
+ * @param bit_offset Specifies the start of the bits to be printed.
+ * @param bit_count Specifies the number of bits to be printed.
+ *
+ * @return Doesn't return a value, but fails silently on error.
+ */
+void fprint_be_bits_5(FILE* p_file,
+			const uint8_t* p_buffer, const size_t buffer_size,
+			const size_t bit_offset, const size_t bit_count)
+{
+	const size_t max_bit = (buffer_size * SI_BITS_COUNT);
+	// Local Variables
+	size_t mut_bit_offset = bit_offset;
+	size_t mut_bit_count = bit_count;
+	// Validate parameters
+	if((NULL == p_file) || (NULL == p_buffer))
+	{
+		goto END;
+	}
+	if(max_bit < mut_bit_offset)
+	{
+		mut_bit_offset = max_bit;
+	}
+	if(max_bit < (mut_bit_count + mut_bit_offset))
+	{
+		mut_bit_count = (max_bit - mut_bit_offset);
+	}
+	// Local Constants
+	const size_t beg_unord_index = (mut_bit_offset / SI_BITS_COUNT);
+	const size_t end_unord_index = ((mut_bit_count + mut_bit_offset) / SI_BITS_COUNT);
+	const size_t full_byte_count = (end_unord_index - beg_unord_index) - 1u;
+	const size_t bit_offset_remainder = (mut_bit_offset % SI_BITS_COUNT);
+	// Begin
+	if(beg_unord_index == end_unord_index)
+	{
+		// This is printing all or part of 1 byte.
+		fprint_byte_bits_4(p_file, p_buffer[beg_unord_index],
+			mut_bit_offset, mut_bit_count);
+		goto END;
+	}
+	fprint_byte_bits_4(p_file, p_buffer[beg_unord_index],
+			bit_offset_remainder, SI_BITS_COUNT - bit_offset_remainder);
+	fprint_be_bytes_bits(p_file, (&p_buffer[beg_unord_index + 1u]), full_byte_count);
+	fprint_byte_bits_4(p_file, p_buffer[end_unord_index],
+			0u, bit_offset_remainder);
+	// End
+END:
+	return;
+}
+inline void fprint_be_bits_4(FILE* p_file, const uint8_t* p_buffer,
+			const size_t buffer_size, const size_t bit_offset)
+{
+	// Default bit_count is SIZE_MAX. (Prints all bits)
+	fprint_le_bits_5(p_file, p_buffer, buffer_size, bit_offset, SIZE_MAX);
+}
+inline void fprint_be_bits(FILE* p_file, const uint8_t* p_buffer,
+			const size_t buffer_size)
+{
+	// Default bit_offset is 0. (Prints from the start.)
+	fprint_le_bits_4(p_file, p_buffer, buffer_size, 0u);
+}
+
+/** Doxygen
+ * @brief Writes bit_count bits as 1/0 chars into p_file from p_buffer in host order.
+ *
+ * @param p_file FILE pointer to be written to.
+ * @param p_buffer Pointer to data buffer of size capacity to read bytes.
+ * @param buffer_size Specifies the size of the byte buffer at p_buffer.
+ * @param bit_offset Specifies the start of the bits to be printed.
+ * @param bit_count Specifies the number of bits to be printed.
+ *
+ * @return Doesn't return a value, but fails silently on error.
+ */
+void fprint_bits(FILE* p_file,
+    const uint8_t* p_buffer, const size_t buffer_size,
+    const size_t bit_offset, const size_t bit_count)
+{
+	if(is_host_order_le())
+	{
+		fprint_le_bits_5(p_file, p_buffer, buffer_size, bit_offset, bit_count);
+	}
+	else
+	{
+		fprint_be_bits_5(p_file, p_buffer, buffer_size, bit_offset, bit_count);
+	}
+}
+
+/** Doxygen
+ * @brief Writes bytes as bit chars from buffer in host order to file with spacers.
+ *
+ * @param p_file FILE pointer to be written to.
+ * @param p_buffer Pointer to data buffer of size capacity to read bytes.
+ * @param buffer_size Specifies the size of the byte buffer at p_buffer.
+ * @param grouping Specifies the group size of bits before printing a spacer.
+ * @param spacer Specifies the spacer character to be printed.
+ *
+ * @return Doesn't return a value, but fails silently on error.
+ */
+void fprint_grouped_bits_5(FILE* p_file,
+    const uint8_t* p_buffer, const size_t buffer_size,
+    const size_t grouping, const char spacer)
+{
+	const size_t max_bit = (buffer_size * SI_BITS_COUNT);
+	// Validate Parameters
+	if((NULL == p_file) || (NULL == p_buffer))
+	{
+		goto END;
+	}
+	if((0u >= grouping) || (max_bit <= grouping))
+	{
+		fprint_bytes_bits(p_file, p_buffer, buffer_size);
+		goto END;
+	}
+	const size_t print_count = (max_bit / grouping);
+	// Begin
+	for(size_t print_index = 0u; print_index < print_count; print_index++)
+	{
+		fprint_bits(p_file, p_buffer, buffer_size,
+			grouping * print_index, grouping);
+		if(print_index < (print_count - 1u))
+			fprintf(p_file, "%c", spacer);
+	}
+	// End
+END:
+	return;
+}
+inline void fprint_grouped_bits_4(FILE* p_file,
+    const uint8_t* p_buffer, const size_t buffer_size,
+    const size_t grouping)
+{
+	// Default spacer = ' '
+	fprint_grouped_bits_5(p_file, p_buffer, buffer_size, grouping, SI_BITS_DEFAULT_SPACER);
+}
+inline void fprint_grouped_bits(FILE* p_file,
+    const uint8_t* p_buffer, const size_t buffer_size)
+{
+	// Default group size is SI_BITS_COUNT (8)
+	fprint_grouped_bits_4(p_file, p_buffer, buffer_size, SI_BITS_COUNT);
+}
+
+// TODO Finish Refactor Below
+
 // Returns the length of a string representing the bits of a type with
-// byte_count bytes seperated every grouping number of bits by a single space.
+// byte_count bytes seperated every grouping number of bits by a single spacer.
 size_t bits_string_length(const size_t byte_count, const size_t grouping)
 {
 	size_t spacer_count =
@@ -200,7 +411,7 @@ size_t snprint_bits_7(char* string, const size_t n,
 	FILE* stream = fmemopen(string, n, "r+");
 	if(stream == NULL)
 		return 0u;
-	fprint_bits_6(stream, p_buffer, count, grouping, little_endian, spacer);
+	fprint_grouped_bits_5(stream, p_buffer, count, grouping, spacer);
 	fclose(stream);
 	return string_length;
 }
