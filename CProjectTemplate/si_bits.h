@@ -18,8 +18,22 @@
 extern "C" {
 #endif //__cplusplus
 
+#define SI_BITS_COUNT 8u
+#define SI_BITS_DEFAULT_SPACER ' '
 
 bool is_host_order_le();
+
+void fprint_le_byte_bits_4(FILE* p_file, const uint8_t byte,
+	const unsigned int spacer_position, const char spacer)
+void fprint_le_byte_bits_3(FILE* p_file, const uint8_t byte,
+	const unsigned int spacer_position)
+void fprint_le_byte_bits(FILE* p_file, const uint8_t byte)
+
+void fprint_be_byte_bits_4(FILE* p_file, const uint8_t byte,
+	const unsigned int spacer_position, const char spacer)
+void fprint_be_byte_bits_3(FILE* p_file, const uint8_t byte,
+	const unsigned int spacer_position)
+void fprint_be_byte_bits(FILE* p_file, const uint8_t byte)
 
 void fprint_bits_6(FILE* p_file, const uint8_t* p_buffer, const size_t count,
 	const size_t grouping, const bool little_endian, const char spacer);
