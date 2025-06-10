@@ -11,7 +11,7 @@
  * Authors: ScorpionInc
  * Purpose: Bit fiddling functions.
  * Created: 20250606
- * Updated: 20250606
+ * Updated: 20250610
 //*/
 
 #ifdef __cplusplus
@@ -34,27 +34,27 @@ void fprint_le_byte_bits_4(FILE* p_file, const uint8_t byte,
 		goto END;
 	}
 	// Local Values
-	const char* spacer_string[2] = { spacer, '\0' };
+	const char spacer_string[2] = { spacer, '\0' };
 	// Begin
 	for(unsigned int bit_index = 0u; bit_index < SI_BITS_COUNT; bit_index++)
 	{
-		const bool print_spacer = (spacer_positon == bit_index);
+		const bool print_spacer = (spacer_position == bit_index);
 		const bool not_at_end = (bit_index < (SI_BITS_COUNT - 1u));
 		fprintf(p_file, "%c%s",
-		next_byte & (0x80 >> bit_index) ? '1' : '0',
+		byte & (0x80 >> bit_index) ? '1' : '0',
 		print_spacer && not_at_end ? spacer_string : "");
 	}
 	// End
 END:
 	return;
 }
-void fprint_le_byte_bits_3(FILE* p_file, const uint8_t byte,
+inline void fprint_le_byte_bits_3(FILE* p_file, const uint8_t byte,
 			const unsigned int spacer_position)
 {
 	// Default value of spacer = ' '
 	fprint_le_byte_bits_4(p_file, byte, spacer_position, SI_BITS_DEFAULT_SPACER);
 }
-void fprint_le_byte_bits(FILE* p_file, const uint8_t byte)
+inline void fprint_le_byte_bits(FILE* p_file, const uint8_t byte)
 {
 	// Default value of spacer_position is UINT_MAX (Disables printing of spacer character)
 	fprint_le_byte_bits_3(p_file, byte, UINT_MAX);
@@ -69,27 +69,28 @@ void fprint_be_byte_bits_4(FILE* p_file, const uint8_t byte,
 		goto END;
 	}
 	// Local Values
-	const char* spacer_string[2] = { spacer, '\0' };
+	const char spacer_string[2] = { spacer, '\0' };
 	// Begin
 	for(unsigned int bit_index = 0u; bit_index < SI_BITS_COUNT; bit_index++)
 	{
 		const bool print_spacer = (bit_index == spacer_position);
 		const bool not_at_end = (bit_index < (SI_BITS_COUNT - 1u));
 		fprintf(p_file, "%c%s",
-			next_byte & (0x01 << bit_index) ? '1' : '0',
+			byte & (0x01 << bit_index) ? '1' : '0',
 			(print_spacer && not_at_end) ? spacer_string : "");
 	}
 	// End
 END:
 	return;
 }
-void fprint_be_byte_bits_3(FILE* p_file, const uint8_t byte,
+inline void fprint_be_byte_bits_3(FILE* p_file, const uint8_t byte,
 	const unsigned int spacer_position)
 {
 	// Default value of spacer character is ' '
 	fprint_be_byte_bits_4(p_file, byte, spacer_position, SI_BITS_DEFAULT_SPACER);
 }
-void fprint_be_byte_bits(FILE* p_file, const uint8_t byte){
+inline void fprint_be_byte_bits(FILE* p_file, const uint8_t byte)
+{
 	// Default value of spacer_postion is UINT_MAX (Disables printing of spacer character)
 	fprint_be_byte_bits_3(p_file, byte, UINT_MAX);
 }
