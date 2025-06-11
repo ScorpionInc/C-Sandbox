@@ -210,14 +210,14 @@ void fprint_le_bits_5(FILE* p_file,
 	{
 		// This is printing all or part of 1 byte.
 		fprint_byte_bits_4(p_file, p_buffer[beg_ord_index],
-			mut_bit_offset, mut_bit_count);
+			bit_offset_remainder, mut_bit_count);
 		goto END;
 	}
 	fprint_byte_bits_4(p_file, p_buffer[beg_ord_index],
 			bit_offset_remainder, SI_BITS_COUNT - bit_offset_remainder);
 	fprint_le_bytes_bits(p_file, (&p_buffer[beg_unord_index + 1u]), full_byte_count);
 	fprint_byte_bits_4(p_file, p_buffer[end_ord_index],
-			0u, bit_offset_remainder);
+			0u, mut_bit_count - bit_offset_remainder);
 	// End
 END:
 	return;
@@ -277,14 +277,14 @@ void fprint_be_bits_5(FILE* p_file,
 	{
 		// This is printing all or part of 1 byte.
 		fprint_byte_bits_4(p_file, p_buffer[beg_unord_index],
-			mut_bit_offset, mut_bit_count);
+			bit_offset_remainder, mut_bit_count);
 		goto END;
 	}
 	fprint_byte_bits_4(p_file, p_buffer[beg_unord_index],
 			bit_offset_remainder, SI_BITS_COUNT - bit_offset_remainder);
 	fprint_be_bytes_bits(p_file, (&p_buffer[beg_unord_index + 1u]), full_byte_count);
 	fprint_byte_bits_4(p_file, p_buffer[end_unord_index],
-			0u, bit_offset_remainder);
+			0u, mut_bit_count - bit_offset_remainder);
 	// End
 END:
 	return;
@@ -360,7 +360,9 @@ void fprint_grouped_bits_5(FILE* p_file,
 		fprint_bits(p_file, p_buffer, buffer_size,
 			grouping * print_index, grouping);
 		if(print_index < (print_count - 1u))
+		{
 			fprintf(p_file, "%c", spacer);
+		}
 	}
 	// End
 END:
