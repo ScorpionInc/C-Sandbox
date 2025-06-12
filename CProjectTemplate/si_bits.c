@@ -349,7 +349,7 @@ size_t snprint_bits_6(char* string, const size_t n,
 	}
 	fprint_grouped_bits_5(p_stream, p_buffer, count, grouping, spacer);
 	written = string_length;
-	fclose(stream);
+	fclose(p_stream);
 END:
 	return written;
 }
