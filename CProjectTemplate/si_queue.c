@@ -18,7 +18,7 @@ void init_si_queue_3(si_queue* p_queue, const size_t element_size,
 	p_queue->front = 0u;
 	p_queue->back  = 0u;
 	p_queue->dynamic = (si_dynamic){};
-	init_si_dynamic_3(&(p_queue->dynamic), element_size, initial_capacity);
+	si_dynamic_new3(&(p_queue->dynamic), element_size, initial_capacity);
 	// End
 END:
 	return;
@@ -143,7 +143,7 @@ void free_si_queue(si_queue* p_queue)
 		goto END;
 	}
 	// Begin
-	free_si_dynamic(&(p_queue->dynamic));
+	si_dynamic_free(&(p_queue->dynamic));
 	// End
 END:
 	return;

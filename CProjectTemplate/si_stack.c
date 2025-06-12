@@ -4,7 +4,7 @@ void si_stack_new_3(si_stack* p_stack, const size_t element_size,
     const size_t initial_capacity)
 {
 	p_stack->count = 0u;
-	init_si_dynamic_3(&(p_stack->dynamic), element_size, initial_capacity);
+	si_dynamic_new3(&(p_stack->dynamic), element_size, initial_capacity);
 }
 inline void si_stack_new(si_stack* p_stack, const size_t element_size)
 {
@@ -79,9 +79,7 @@ void si_stack_pop(si_stack* p_stack, void* p_item)
 		goto END;
 	}
 	si_dynamic_get(&(p_stack->dynamic), p_stack->count - 1u, p_item);
-	size_t shrink_capacity = si_realloc_next_shrink_capacity(
-		&(p_stack->dynamic.settings), p_stack->dynamic.capacity);
-	if(p_stack->count < shrink_capacity)
+	if(si_dynamic_is_safe_to_shrink(&(p_stack->dynamic), p_stack->count))
 	{
 		si_dynamic_shrink(&(p_stack->dynamic));
 	}
