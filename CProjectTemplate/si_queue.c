@@ -31,15 +31,10 @@ void init_si_queue_3(si_queue* p_queue, const size_t element_size,
 END:
 	return;
 }
-inline void init_si_queue_2(si_queue* p_queue, const size_t element_size)
+inline void init_si_queue(si_queue* p_queue, const size_t element_size)
 {
 	// Default initial_capacity is 0
 	init_si_queue_3(p_queue, element_size, 0u);
-}
-inline void init_si_queue(si_queue* p_queue)
-{
-	// Default element_size = SI_DYNAMIC_DEFAULT_ELEMENT_SIZE (1)
-	init_si_queue_2(p_queue, SI_DYNAMIC_DEFAULT_ELEMENT_SIZE);
 }
 
 // Count elements

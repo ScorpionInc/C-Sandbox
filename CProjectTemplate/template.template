@@ -53,24 +53,28 @@ extern "C" {
 #ifdef SI_TEMPLATE_FUNCTION
 #undef SI_TEMPLATE_FUNCTION
 #endif
-#define SI_TEMPLATE_FUNCTION(F) PASTE_TWO_TOKENS_INDIRECT(SI_TEMPLATE_TYPE, F)
+#define SI_TEMPLATE_FUNCTION(B, E) \
+	PASTE_TWO_TOKENS_INDIRECT(B, \
+	PASTE_TWO_TOKENS_INDIRECT(SI_TEMPLATE_TYPE, E))
+
 
 // Generates: struct intExample {
-struct SI_TEMPLATE_FUNCTION(Example) {
+struct SI_TEMPLATE_FUNCTION(, Example) {
 	SI_TEMPLATE_TYPE item;
 };
 
 // Generates: void intExample_new(struct intExample* address){
-void SI_TEMPLATE_FUNCTION(Example_new)(struct SI_TEMPLATE_FUNCTION(Example)* address){
+void SI_TEMPLATE_FUNCTION(, Example_new)(struct SI_TEMPLATE_FUNCTION(, Example)* address){
 	printf("There is no cow level.\n");//!Debugging
 }
 
 void temp(){
 	// Generates: struct intExample e = { 0 };
-	struct SI_TEMPLATE_FUNCTION(Example) e = { 0 };
+	struct SI_TEMPLATE_FUNCTION(, Example) e = { 0 };
 	printf("Hello World! %i\n", e.item);//!Debugging
-	SI_TEMPLATE_FUNCTION(Example_new)();
+	SI_TEMPLATE_FUNCTION(, Example_new)();
 }
+
 
 // Clean up our preprocessor defines.
 #undef SI_TEMPLATE_FUNCTION

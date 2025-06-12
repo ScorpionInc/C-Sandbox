@@ -18,13 +18,12 @@ typedef struct si_queue {
  * @brief Initializes a queue struct
  *
  * @param p_queue Pointer to struct to be initialized.
- * @param element_size Size in bytes of the items to be stored. (1)
+ * @param element_size Size in bytes of the items to be stored.
  * @param initial_capacity Count of items to be stored in the queue. (0)
  */
 void init_si_queue_3(si_queue* p_queue, const size_t element_size,
 	const size_t initial_capacity);
-void init_si_queue_2(si_queue* p_queue, const size_t element_size);
-void init_si_queue(si_queue* p_queue);
+void init_si_queue(si_queue* p_queue, const size_t element_size);
 
 /** Doxygen
  * @brief Counts the elements in the queue

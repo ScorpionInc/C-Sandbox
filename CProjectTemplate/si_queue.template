@@ -1,0 +1,133 @@
+/* template.template
+ * Purpose: Class-like template generation using #defines for si_queue
+ * Created: 20250612
+ * Updated: 20250612
+//*/
+
+#include "si_queue.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif //__cplusplus
+
+#ifdef SI_TEMPLATE_TYPE
+
+// Used to represent a preprocessor defined value as a string.
+#ifndef _STRINGIFY
+#define _STRINGIFY(s) #s
+#define DEFINED__STRINGIFY
+#endif
+#ifndef STRINGIFY
+#define STRINGIFY(s) _STRINGIFY(s)
+#define DEFINED_STRINGIFY
+#endif
+
+// Used to join two defined preprocessor tokens without converting to a string
+#ifndef PASTE_TWO_TOKENS
+#define PASTE_TWO_TOKENS(token_1, token_2) token_1 ## token_2
+#define DEFINED_PASTE_TWO_TOKENS
+#endif
+#ifndef PASTE_TWO_TOKENS_INDIRECT
+#define PASTE_TWO_TOKENS_INDIRECT(token_1, token_2) PASTE_TWO_TOKENS(token_1 , token_2)
+#define DEFINED_PASTE_TWO_TOKENS_INDIRECT
+#endif
+
+// Used to generate function/struct type names using provided template_type
+#ifdef SI_TEMPLATE_FUNCTION
+#undef SI_TEMPLATE_FUNCTION
+#endif
+#define SI_TEMPLATE_FUNCTION(B, E) \
+	PASTE_TWO_TOKENS_INDIRECT(B, \
+	PASTE_TWO_TOKENS_INDIRECT(SI_TEMPLATE_TYPE, E))
+
+
+typedef struct si_queue SI_TEMPLATE_FUNCTION(, _queue);
+
+static inline void SI_TEMPLATE_FUNCTION(init_, _queue_2)(
+	SI_TEMPLATE_FUNCTION(, _queue)* p_queue, const size_t initial_capacity)
+{
+	init_si_queue_3((si_queue*)p_queue, sizeof(SI_TEMPLATE_TYPE), initial_capacity);
+}
+static inline void SI_TEMPLATE_FUNCTION(init_, _queue)(
+	SI_TEMPLATE_FUNCTION(, _queue)* p_queue)
+{
+	init_si_queue((si_queue*)p_queue, sizeof(SI_TEMPLATE_TYPE));
+}
+
+static inline size_t SI_TEMPLATE_FUNCTION(, _queue_count)(
+	const SI_TEMPLATE_FUNCTION(, _queue)* p_queue)
+{
+	return si_queue_count(p_queue);
+}
+
+static inline bool SI_TEMPLATE_FUNCTION(, _queue_is_empty)(
+	const SI_TEMPLATE_FUNCTION(, _queue)* p_queue)
+{
+	return si_queue_is_empty(p_queue);
+}
+
+static inline bool SI_TEMPLATE_FUNCTION(, _queue_is_full)(
+	const SI_TEMPLATE_FUNCTION(, _queue)* p_queue)
+{
+	return si_queue_is_full(p_queue);
+}
+
+static inline void SI_TEMPLATE_FUNCTION(, _queue_enqueue)(
+	SI_TEMPLATE_FUNCTION(, _queue)* p_queue,
+	const SI_TEMPLATE_TYPE p_item)
+{
+	si_queue_enqueue(p_queue, &p_item);
+}
+
+static SI_TEMPLATE_TYPE SI_TEMPLATE_FUNCTION(, _queue_dequeue)(
+	SI_TEMPLATE_FUNCTION(, _queue)* p_queue)
+{
+	SI_TEMPLATE_TYPE t;
+	si_queue_dequeue(p_queue, &t);
+	return t;
+}
+
+static inline void SI_TEMPLATE_FUNCTION(free_, _queue)(
+	SI_TEMPLATE_FUNCTION(, _queue)* p_queue)
+{
+	free_si_queue(p_queue);
+}
+
+
+// Clean up our preprocessor defines.
+#undef SI_TEMPLATE_FUNCTION
+
+// Only undefine these functions if they weren't already defined
+// Done in the reverse order of their definition.
+#ifdef DEFINED_PASTE_TWO_TOKENS_INDIRECT
+#undef PASTE_TWO_TOKENS_INDIRECT
+#undef DEFINED_PASTE_TWO_TOKENS_INDIRECT
+#endif
+
+#ifdef DEFINED_PASTE_TWO_TOKENS
+#undef PASTE_TWO_TOKENS
+#undef DEFINED_PASTE_TWO_TOKENS
+#endif
+
+#ifdef DEFINED_STRINGIFY
+#undef STRINGIFY
+#undef DEFINED_STRINGIFY
+#endif
+
+#ifdef DEFINED__STRINGIFY
+#undef _STRINGIFY
+#undef DEFINED__STRINGIFY
+#endif
+
+#undef SI_TEMPLATE_TYPE
+
+#else
+
+// Handle an undefined template type.
+#error "Template was included without a defined type(SI_TEMPLATE_TYPE)."
+
+#endif//SI_TEMPLATE_TYPE
+
+#ifdef __cplusplus
+}
+#endif //__cplusplus
