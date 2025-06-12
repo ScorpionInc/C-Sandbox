@@ -1,5 +1,5 @@
 /* template.template
- * Purpose: Demo class-like template generation using preprocessor #defines
+ * Purpose: Class-like template generation using preprocessor #defines
  * Created: 20241110
  * Updated: 20250430
 //*/
@@ -55,6 +55,7 @@ extern "C" {
 #endif
 #define SI_TEMPLATE_FUNCTION(F) PASTE_TWO_TOKENS_INDIRECT(SI_TEMPLATE_TYPE, F)
 
+// Generates: struct intExample {
 struct SI_TEMPLATE_FUNCTION(Example) {
 	SI_TEMPLATE_TYPE item;
 };
@@ -74,7 +75,7 @@ void temp(){
 // Clean up our preprocessor defines.
 #undef SI_TEMPLATE_FUNCTION
 
-// Only undefine these functions if they weren't defined else where(They might be using them(?))
+// Only undefine these functions if they weren't already defined
 // Done in the reverse order of their definition.
 #ifdef DEFINED_PASTE_TWO_TOKENS_INDIRECT
 #undef PASTE_TWO_TOKENS_INDIRECT
