@@ -14,6 +14,7 @@ extern "C" {
 #endif //__cplusplus
 
 #include <stddef.h>
+#include <stdio.h>
 
 typedef enum si_resize_mode {
 	NEVER = 0,
@@ -22,8 +23,16 @@ typedef enum si_resize_mode {
 	EXPONENTIAL,
 } si_resize_mode;
 
-#define SI_DEFAULT_RESIZE_MODE SCALAR
-#define SI_DEFAULT_RESIZE_VALUE 2.0f
+#define SI_DEFAULT_RESIZE_MODE LINEAR
+#define SI_DEFAULT_RESIZE_VALUE 32.0f
+
+/** Doxygen
+ * @brief Prints the string value of the si_resize_mode enum to file.
+ *
+ * @param p_file Pointer to file to write the string value to.
+ * @param resize_mode Enum passed by value determines the string.
+ */
+void fprint_si_resize_mode(FILE* p_file, const si_resize_mode resize_mode);
 
 typedef struct si_realloc_settings
 {
@@ -56,6 +65,14 @@ size_t si_realloc_next_grow_capacity(const si_realloc_settings* p_settings,
  */
 size_t si_realloc_next_shrink_capacity(const si_realloc_settings* p_settings,
 	const size_t current_capacity);
+
+/** Doxygen
+ * @brief Writes the formatted data from si_realloc_settings struct to file.
+ *
+ * @param p_file Pointer to file to be written to.
+ * @param p_settings Pointer to si_realloc_settings struct to be printed.
+ */
+void fprint_si_realloc_settings(FILE* p_file, const si_realloc_settings* p_settings);
 
 typedef struct si_dynamic
 {

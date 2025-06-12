@@ -1,16 +1,47 @@
 //si_dynamic.c
 
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+#include <tgmath.h>
 #include <stdlib.h>
 
 #include "si_dynamic.h"
 
-#include <stdint.h>
-#include <string.h>
-#include <tgmath.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif //__cplusplus
+
+void fprint_si_resize_mode(FILE* p_file, const si_resize_mode resize_mode)
+{
+	// Validate parameter
+	if(NULL == p_file)
+	{
+		goto END;
+	}
+	// Begin
+	switch(resize_mode)
+	{
+		case(NEVER):
+			fprintf(p_file, "%s", "NEVER");
+			break;
+		case(LINEAR):
+			fprintf(p_file, "%s", "LINEAR");
+			break;
+		case(SCALAR):
+			fprintf(p_file, "%s", "SCALAR");
+			break;
+		case(EXPONENTIAL):
+			fprintf(p_file, "%s", "EXPONENTIAL");
+			break;
+		default:
+			fprintf(p_file, "%s", "UNKNOWN");
+			break;
+	}
+	// End
+END:
+	return;
+}
 
 void init_si_realloc_settings(si_realloc_settings* p_settings)
 {
@@ -44,7 +75,7 @@ size_t si_realloc_next_grow_capacity(const si_realloc_settings* p_settings,
 			break;
 		case LINEAR:
 			// Prevent Overflows
-			if (SIZE_MAX - p_settings->grow_value > new_capacity)
+			if (SIZE_MAX - p_settings->grow_value < new_capacity)
 			{
 				// Overflow detected
 				new_capacity = SIZE_MAX;
@@ -149,7 +180,26 @@ END:
 	return new_capacity;
 }
 
-void init_si_dynamic_4(si_dynamic* p_dynamic, const size_t element_size, const size_t capacity, const si_realloc_settings* settings)
+void fprint_si_realloc_settings(FILE* p_file, const si_realloc_settings* p_settings)
+{
+	// Validate parameters
+	if((NULL == p_file) || (NULL == p_settings))
+	{
+		goto END;
+	}
+	// Begin
+	fprintf(p_file, "{Grow : ");
+	fprint_si_resize_mode(p_file, p_settings->grow_mode);
+	fprintf(p_file, " %f; ", p_settings->grow_value);
+	fprintf(p_file, "Shrink: ");
+	fprint_si_resize_mode(p_file, p_settings->shrink_mode);
+	fprintf(p_file, " %f}", p_settings->shrink_value);
+	// End
+END:
+	return;
+}
+
+void init_si_dynamic_4(si_dynamic* p_dynamic, const size_t element_size, const size_t capacity, const si_realloc_settings* p_settings)
 {
 	if (NULL == p_dynamic)
 	{
@@ -164,13 +214,13 @@ void init_si_dynamic_4(si_dynamic* p_dynamic, const size_t element_size, const s
 	p_dynamic->element_size = element_size;
 	p_dynamic->capacity = capacity;
 	p_dynamic->settings = (si_realloc_settings){};
-	if (NULL == settings)
+	if (NULL == p_settings)
 	{
 		init_si_realloc_settings(&(p_dynamic->settings));
 	}
 	else
 	{
-		memcpy(&(p_dynamic->settings), &settings, sizeof(si_realloc_settings));
+		memcpy(&(p_dynamic->settings), p_settings, sizeof(si_realloc_settings));
 	}
 	// End
 	END:
@@ -236,6 +286,7 @@ si_dynamic* si_dynamic_grow_by(si_dynamic* p_dynamic, const size_t count)
 	if (NULL != tmp)
 	{
 		p_dynamic->data = tmp;
+		p_dynamic->capacity = new_capacity;
 	}
 	// End
 END:
@@ -292,25 +343,41 @@ si_dynamic* si_dynamic_shrink(si_dynamic* p_dynamic)
 
 void si_dynamic_set(si_dynamic* p_dynamic, const size_t index, const void* p_item)
 {
-	// TODO BOUNDS CHECKING HERE
+	// Validate Parameters
 	if ((NULL == p_dynamic) || (NULL == p_item))
 	{
 		goto END;
 	}
-	memcpy(p_dynamic->data + (p_dynamic->element_size * index), p_item,
+	const size_t offset = (p_dynamic->element_size * index);
+	// Bounds Check
+	if(offset >= p_dynamic->capacity)
+	{
+		goto END;
+	}
+	// Begin
+	memcpy(p_dynamic->data + offset, p_item,
 		p_dynamic->element_size);
+	// End
 END:
 }
 
 void si_dynamic_get(const si_dynamic* p_dynamic, const size_t index, void* p_item)
 {
-	// TODO BOUNDS CHECKING HERE
+	// Validate parameters
 	if ((NULL == p_dynamic) || (NULL == p_item))
 	{
 		goto END;
 	}
-	memcpy(p_item,p_dynamic->data + (p_dynamic->element_size * index),
+	const size_t offset = (p_dynamic->element_size * index);
+	// Bounds Check
+	if(offset >= p_dynamic->capacity)
+	{
+		goto END;
+	}
+	// Begin
+	memcpy(p_item, p_dynamic->data + offset,
 		p_dynamic->element_size);
+	// End
 	END:
 }
 
