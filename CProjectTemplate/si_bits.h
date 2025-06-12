@@ -169,13 +169,9 @@ size_t bits_string_length(const size_t byte_count, const size_t grouping);
  * @param string buffer to store resulting bit string into.
  * @param string_size Size of the string buffer being written to.
  */
-size_t snprint_bits_7(char* string, const size_t string_size,
-	const uint8_t* p_buffer, const size_t count,
-	const size_t grouping, const bool little_endian,
-	const char spacer);
 size_t snprint_bits_6(char* string, const size_t string_size,
 	const uint8_t* p_buffer, const size_t count,
-	const size_t grouping, const bool little_endian);
+	const size_t grouping, const char spacer);
 size_t snprint_bits_5(char* string, const size_t string_size,
 	const uint8_t* p_buffer, const size_t count,
 	const size_t grouping);

@@ -310,61 +310,61 @@ inline void fprint_grouped_bits(FILE* p_file,
 	fprint_grouped_bits_4(p_file, p_buffer, buffer_size, SI_BITS_COUNT);
 }
 
-// TODO Finish Refactor Below
-
 // Returns the length of a string representing the bits of a type with
 // byte_count bytes seperated every grouping number of bits by a single spacer.
 size_t bits_string_length(const size_t byte_count, const size_t grouping)
 {
-	size_t spacer_count =
-			(grouping <= 0u) ?
-			0u :
-			(((SI_BITS_COUNT * byte_count) - 1u) / grouping);
+	size_t spacer_count = 0u;
+	if(grouping > 0u)
+	{
+		spacer_count = (((SI_BITS_COUNT * byte_count) - 1u) / grouping);
+	}
 	return (SI_BITS_COUNT * byte_count) + spacer_count;
 }
 
 // Writes bit string value to string parameter via fmemopen().
 // Returns number of characters written on success.
 // Returns 0u on failure/error.
-size_t snprint_bits_7(char* string, const size_t n,
+size_t snprint_bits_6(char* string, const size_t n,
 				const uint8_t* p_buffer, const size_t count,
-				const size_t grouping, const bool little_endian,
-				const char spacer)
+				const size_t grouping, const char spacer)
 {
+	size_t written = 0u;
 	// Validate Parameters
-	if(n == 0u || count == 0u)
-		return 0u;
+	if((0u == n) || (0u == count))
+	{
+		goto END;
+	}
 	const size_t string_length = bits_string_length(count, grouping);
 	if(n < string_length)
+	{
 		// Would write past the length of the buffer.
-		return 0u;
-	FILE* stream = fmemopen(string, n, "r+");
-	if(stream == NULL)
-		return 0u;
-	fprint_grouped_bits_5(stream, p_buffer, count, grouping, spacer);
+		goto END;
+	}
+	FILE* p_stream = fmemopen(string, n, "r+");
+	if(NULL == p_stream)
+	{
+		// Failed to open buffer as file.
+		goto END;
+	}
+	fprint_grouped_bits_5(p_stream, p_buffer, count, grouping, spacer);
+	written = string_length;
 	fclose(stream);
-	return string_length;
-}
-inline size_t snprint_bits_6(char* string, const size_t n,
-				const uint8_t* p_buffer, const size_t count,
-				const size_t grouping, const bool little_endian)
-{
-	// Default Parameter spacer = ' '
-	return snprint_bits_7(string, n, p_buffer,
-			count, grouping, little_endian, SI_BITS_DEFAULT_SPACER);
+END:
+	return written;
 }
 inline size_t snprint_bits_5(char* string, const size_t n,
 				const uint8_t* p_buffer, const size_t count,
 				const size_t grouping)
 {
-	// Default Parameter little_endian = is_host_order_le()
+	// Default Parameter spacer = ' '
 	return snprint_bits_6(string, n, p_buffer,
-			count, grouping, is_host_order_le());
+			count, grouping, SI_BITS_DEFAULT_SPACER);
 }
 inline size_t snprint_bits(char* string, const size_t n,
 				const uint8_t* p_buffer, const size_t count)
 {
-	// Default Parameter spacer = 8u
+	// Default Parameter spacer = SI_BITS_COUNT (8u)
 	return snprint_bits_5(string, n, p_buffer,
 			count, SI_BITS_COUNT);
 }
