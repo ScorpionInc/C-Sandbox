@@ -1,3 +1,11 @@
+/* si_bits.c
+ * Language: C
+ * Authors: ScorpionInc
+ * Purpose: Bit fiddling functions.
+ * Created: 20250606
+ * Updated: 20250612
+//*/
+
 #include <limits.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -5,14 +13,6 @@
 #include <stdio.h>
 
 #include "si_bits.h"
-
-/* si_bits.c
- * Language: C
- * Authors: ScorpionInc
- * Purpose: Bit fiddling functions.
- * Created: 20250606
- * Updated: 20250610
-//*/
 
 #ifdef __cplusplus
 extern "C" {
@@ -158,15 +158,6 @@ void fprint_le_bits_5(FILE* p_file,
 	const size_t beg_ord_index = buffer_size - 1u - beg_unord_index;
 	const size_t end_ord_index = buffer_size - 1u - end_unord_index;
 	const size_t bit_offset_remainder = (mut_bit_offset % SI_BITS_COUNT);
-	/* Debugging
-	printf("bit_offset: %lu\tbit_count: %lu\n", bit_offset, bit_count);
-	printf("beg_unord_index: %lu\tend_unord_index: %lu\n",
-		beg_unord_index, end_unord_index);
-	printf("full_byte_count: %lu\tbit_offset_remainder: %lu\n",
-		full_byte_count, bit_offset_remainder);
-	printf("beg_unord_index: %lu\tend_unord_index: %lu\n",
-		beg_unord_index, end_unord_index);
-	//*/
 	// Begin
 	if(beg_unord_index == end_unord_index)
 	{
