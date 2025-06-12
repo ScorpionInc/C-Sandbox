@@ -16,3 +16,9 @@ gcc -Wall ./si_realloc_settings.c ./si_dynamic.c ./si_queue.c ./si_queue_test.c 
 valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes -s ./test.elf &&
 rm -f ./test.elf
 echo
+
+echo 'Testing si_stack_test.c'
+gcc -Wall ./si_realloc_settings.c ./si_dynamic.c ./si_stack.c ./si_stack_test.c -o test.elf -lm &&
+valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes -s ./test.elf &&
+rm -f ./test.elf
+echo

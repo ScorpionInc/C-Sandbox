@@ -125,14 +125,17 @@ END:
 bool si_dynamic_shrink(si_dynamic* p_dynamic)
 {
 	bool result = false;
+	// Validate parameter
 	if (NULL == p_dynamic)
 	{
 		goto END;
 	}
+	// Begin
 	const size_t new_capacity = si_realloc_next_shrink_capacity(
 		&p_dynamic->settings, p_dynamic->capacity
 	);
 	result = si_dynamic_resize(p_dynamic, new_capacity);
+	// End
 END:
 		return result;
 }
@@ -140,8 +143,8 @@ END:
 bool si_dynamic_is_safe_to_shrink(si_dynamic* p_dynamic,
     const size_t current_count)
 {
-	// Validate parameter
 	bool result = false;
+	// Validate parameter
 	if(NULL == p_dynamic)
 	{
 		goto END;

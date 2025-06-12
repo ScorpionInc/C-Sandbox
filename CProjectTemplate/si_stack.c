@@ -24,7 +24,7 @@ bool si_stack_is_full(const si_stack* p_stack)
 	is_full = (p_stack->count >= p_stack->dynamic.capacity);
 	// End
 END:
-	return;
+	return is_full;
 }
 
 bool si_stack_is_empty(const si_stack* p_stack)
@@ -39,7 +39,7 @@ bool si_stack_is_empty(const si_stack* p_stack)
 	is_empty = (p_stack->count == 0u);
 	// End
 END:
-	return;
+	return is_empty;
 }
 
 void si_stack_push(si_stack* p_stack, const void* p_item)
@@ -97,7 +97,7 @@ void si_stack_free(si_stack* p_stack)
 		goto END;
 	}
 	// Begin
-	free_si_dynamic(&(p_stack->dynamic));
+	si_dynamic_free(&(p_stack->dynamic));
 	// End
 END:
 	return;
