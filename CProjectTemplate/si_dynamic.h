@@ -82,8 +82,6 @@ typedef struct si_dynamic
 	si_realloc_settings settings;
 } si_dynamic;
 
-#define SI_DYNAMIC_DEFAULT_ELEMENT_SIZE 1u
-
 /** Doxygen
  * @brief Initializes fields within si_dynamic struct being pointed at.
  *
@@ -94,8 +92,7 @@ typedef struct si_dynamic
  */
 void init_si_dynamic_4(si_dynamic* p_dynamic, const size_t element_size, const size_t capacity, const si_realloc_settings* settings);
 void init_si_dynamic_3(si_dynamic* p_dynamic, const size_t element_size, const size_t capacity);
-void init_si_dynamic_2(si_dynamic* p_dynamic, const size_t element_size);
-void init_si_dynamic  (si_dynamic* p_dynamic);
+void init_si_dynamic(si_dynamic* p_dynamic, const size_t element_size);
 
 /** Doxygen
  * @brief Calculates the size in bytes allocated for struct at p_dynamic

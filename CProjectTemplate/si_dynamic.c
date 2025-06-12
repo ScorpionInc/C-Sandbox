@@ -88,7 +88,8 @@ size_t si_realloc_next_grow_capacity(const si_realloc_settings* p_settings,
 			if (p_settings->grow_value != 0.0f)
 			{
 				// Don't divide by zero.
-				if ((new_capacity * p_settings->grow_value) / p_settings->grow_value != new_capacity )
+				if ((new_capacity * p_settings->grow_value) /
+						p_settings->grow_value != new_capacity )
 				{
 					// Overflow detected
 					new_capacity = SIZE_MAX;
@@ -99,7 +100,8 @@ size_t si_realloc_next_grow_capacity(const si_realloc_settings* p_settings,
 			break;
 		case EXPONENTIAL:
 			// Prevent Overflows
-			size_t calculated_result = pow(new_capacity, p_settings->grow_value);
+			size_t calculated_result =
+				pow(new_capacity, p_settings->grow_value);
 			if (calculated_result < new_capacity)
 			{
 				// Wrap-around detected Overflow
@@ -146,7 +148,8 @@ size_t si_realloc_next_shrink_capacity(const si_realloc_settings* p_settings,
 			if (p_settings->shrink_value != 0.0f)
 			{
 				// Don't divide by zero.
-				if ((new_capacity / p_settings->shrink_value) * p_settings->shrink_value != new_capacity)
+				if ((new_capacity / p_settings->shrink_value) *
+						p_settings->shrink_value != new_capacity)
 				{
 					// Underflow detected
 					new_capacity = 0u;
@@ -161,7 +164,8 @@ size_t si_realloc_next_shrink_capacity(const si_realloc_settings* p_settings,
 			if (p_settings->shrink_value != 0.0f)
 			{
 				// Don't divide by zero.
-				calculated_result = pow(new_capacity, 1.0f / p_settings->shrink_value);
+				calculated_result = pow(new_capacity,
+					1.0f / p_settings->shrink_value);
 				if (calculated_result > new_capacity)
 				{
 					// Wrap-around detected Underflow
@@ -180,7 +184,8 @@ END:
 	return new_capacity;
 }
 
-void fprint_si_realloc_settings(FILE* p_file, const si_realloc_settings* p_settings)
+void fprint_si_realloc_settings(FILE* p_file,
+	const si_realloc_settings* p_settings)
 {
 	// Validate parameters
 	if((NULL == p_file) || (NULL == p_settings))
@@ -199,7 +204,8 @@ END:
 	return;
 }
 
-void init_si_dynamic_4(si_dynamic* p_dynamic, const size_t element_size, const size_t capacity, const si_realloc_settings* p_settings)
+void init_si_dynamic_4(si_dynamic* p_dynamic, const size_t element_size,
+	const size_t capacity, const si_realloc_settings* p_settings)
 {
 	if (NULL == p_dynamic)
 	{
@@ -220,28 +226,25 @@ void init_si_dynamic_4(si_dynamic* p_dynamic, const size_t element_size, const s
 	}
 	else
 	{
-		memcpy(&(p_dynamic->settings), p_settings, sizeof(si_realloc_settings));
+		memcpy(&(p_dynamic->settings), p_settings,
+			sizeof(si_realloc_settings));
 	}
 	// End
 	END:
 		return;
 }
-void init_si_dynamic_3(si_dynamic* p_dynamic, const size_t element_size, const size_t capacity)
+void init_si_dynamic_3(si_dynamic* p_dynamic, const size_t element_size,
+	const size_t capacity)
 {
 	// Default value of settings is determined by init_si_realloc_settings()
 	si_realloc_settings settings = (si_realloc_settings){};
 	init_si_realloc_settings(&settings);
 	init_si_dynamic_4(p_dynamic, element_size, capacity, &settings);
 }
-inline void init_si_dynamic_2(si_dynamic* p_dynamic, const size_t element_size)
+inline void init_si_dynamic(si_dynamic* p_dynamic, const size_t element_size)
 {
 	// Default value of capacity is 0u
 	init_si_dynamic_3(p_dynamic, element_size, 0u);
-}
-inline void init_si_dynamic(si_dynamic* p_dynamic)
-{
-	// Default value of element_size is SI_DYNAMIC_DEFAULT_ELEMENT_SIZE (1u)
-	init_si_dynamic_2(p_dynamic, SI_DYNAMIC_DEFAULT_ELEMENT_SIZE);
 }
 
 size_t si_dynamic_size(const si_dynamic* p_dynamic)
@@ -302,7 +305,8 @@ si_dynamic* si_dynamic_grow(si_dynamic* p_dynamic)
 	const size_t new_capacity = si_realloc_next_grow_capacity(
 		&p_dynamic->settings, p_dynamic->capacity
 	);
-	p_dynamic = si_dynamic_grow_by(p_dynamic, new_capacity - p_dynamic->capacity);
+	p_dynamic = si_dynamic_grow_by(p_dynamic,
+		new_capacity - p_dynamic->capacity);
 END:
 	return p_dynamic;
 }
@@ -341,7 +345,8 @@ si_dynamic* si_dynamic_shrink(si_dynamic* p_dynamic)
 		return p_dynamic;
 }
 
-void si_dynamic_set(si_dynamic* p_dynamic, const size_t index, const void* p_item)
+void si_dynamic_set(si_dynamic* p_dynamic,
+	const size_t index, const void* p_item)
 {
 	// Validate Parameters
 	if ((NULL == p_dynamic) || (NULL == p_item))
@@ -361,7 +366,8 @@ void si_dynamic_set(si_dynamic* p_dynamic, const size_t index, const void* p_ite
 END:
 }
 
-void si_dynamic_get(const si_dynamic* p_dynamic, const size_t index, void* p_item)
+void si_dynamic_get(const si_dynamic* p_dynamic,
+	const size_t index, void* p_item)
 {
 	// Validate parameters
 	if ((NULL == p_dynamic) || (NULL == p_item))
