@@ -285,17 +285,22 @@ void fprint_grouped_bits_5(FILE* p_file,
 		fprint_bytes_bits(p_file, p_buffer, buffer_size);
 		goto END;
 	}
-	const size_t print_count = (max_bit / grouping);
+	const size_t full_print_count = (max_bit / grouping);
+	const size_t full_print_bits  = (full_print_count * grouping);
+	const bool has_remainder_bits = full_print_bits != max_bit;
 	// Begin
-	for(size_t print_index = 0u; print_index < print_count; print_index++)
+	for(size_t print_index = 0u; print_index < full_print_count; print_index++)
 	{
 		fprint_bits(p_file, p_buffer, buffer_size,
 			grouping * print_index, grouping);
-		if(print_index < (print_count - 1u))
+		const bool has_more_iterations = print_index < (full_print_count - 1u);
+		if(has_more_iterations || has_remainder_bits)
 		{
 			fprintf(p_file, "%c", spacer);
 		}
 	}
+	fprint_bits(p_file, p_buffer, buffer_size,
+		full_print_bits, max_bit - full_print_bits);
 	// End
 END:
 	return;
