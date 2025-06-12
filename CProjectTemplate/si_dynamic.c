@@ -324,6 +324,7 @@ si_dynamic* si_dynamic_shrink_by(si_dynamic* p_dynamic, const size_t count)
 	if (NULL != tmp)
 	{
 		p_dynamic->data = tmp;
+		p_dynamic->capacity = new_capacity;
 	}
 END:
 	return p_dynamic;
