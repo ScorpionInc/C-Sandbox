@@ -2,8 +2,6 @@
 #include <stddef.h>
 #include <string.h>
 
-#include <stdio.h> //! Debugging TODO
-
 #include "si_dynamic.h"
 #include "si_queue.h"
 
@@ -21,12 +19,6 @@ void init_si_queue_3(si_queue* p_queue, const size_t element_size,
 	p_queue->back  = 0u;
 	p_queue->dynamic = (si_dynamic){};
 	init_si_dynamic_3(&(p_queue->dynamic), element_size, initial_capacity);
-	/* Debugging
-	printf("Initialized queue with the following information:\n");
-	printf("Front: %lu\tBack: %lu\n", p_queue->front, p_queue->back);
-	printf("Element_Size: %lu\tInitial_Capacity: %lu\n\n",
-		element_size, initial_capacity);
-	//*/
 	// End
 END:
 	return;
