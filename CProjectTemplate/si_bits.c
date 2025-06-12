@@ -18,16 +18,7 @@
 extern "C" {
 #endif //__cplusplus
 
-/** Doxygen
- * @brief Prints some or all of the bits in a single byte from MSB->LSB.
- *
- * @param p_file FILE pointer to be written to.
- * @param byte Source of bits to be read from.
- * @param bit_start which bit index to start printing from.
- * @param bit_length How many bits to print. Caps at SI_BITS_COUNT.
- *
- * @return Doesn't return a value but fails silently.
- */
+// Prints some or all of the bits in a single byte from MSB->LSB.
 void fprint_byte_bits_4(FILE* p_file, const uint8_t byte,
 			const unsigned int bit_start, const size_t bit_length)
 {
@@ -72,11 +63,7 @@ inline void fprint_byte_bits(FILE* p_file, const uint8_t byte)
 	fprint_byte_bits_3(p_file, byte, 0u);
 }
 
-/** Doxygen
- * @brief Determines the ordering of the host at runtime.
- *
- * @return Returns true if host is little endian. False otherwise.
- */
+// Determines the ordering of the host at runtime.
 bool is_host_order_le()
 {
 	int tmp = 1;
@@ -84,15 +71,7 @@ bool is_host_order_le()
 	return (*ptr == 1);
 }
 
-/** Doxygen
- * @brief Writes size bytes from p_buffer in little endian to p_file as binary chars.
- *
- * @param p_file FILE pointer to be written to.
- * @param p_buffer Pointer to data buffer of size capacity to read bytes.
- * @param buffer_size Specifies the size of the byte buffer at p_buffer.
- *
- * @return Doesn't return a value, but fails silently on error.
- */
+// Writes size bytes from p_buffer in little endian to p_file as binary chars.
 void fprint_le_bytes_bits(FILE* p_file,
 			const uint8_t* p_buffer, const size_t buffer_size)
 {
@@ -116,15 +95,7 @@ END:
 	return;
 }
 
-/** Doxygen
- * @brief Writes size bytes from p_buffer in big endian to p_file as binary chars.
- *
- * @param p_file FILE pointer to be written to.
- * @param p_buffer Pointer to data buffer of size capacity to read bytes.
- * @param buffer_size Specifies the size of the byte buffer at p_buffer.
- *
- * @return Doesn't return a value, but fails silently on error.
- */
+// Writes size bytes from p_buffer in big endian to p_file as binary chars.
 void fprint_be_bytes_bits(FILE* p_file,
 			const uint8_t* p_buffer, const size_t buffer_size)
 {
@@ -144,15 +115,7 @@ END:
 	return;
 }
 
-/** Doxygen
- * @brief Writes size bytes from p_buffer in host endian to p_file as binary chars.
- *
- * @param p_file FILE pointer to be written to.
- * @param p_buffer Pointer to data buffer of size capacity to read bytes.
- * @param buffer_size Specifies the size of the byte buffer at p_buffer.
- *
- * @return Doesn't return a value, but fails silently on error.
- */
+// Writes size bytes from p_buffer in host endian to p_file as binary chars.
 void fprint_bytes_bits(FILE* p_file,
 			const uint8_t* p_buffer, const size_t buffer_size)
 {
@@ -166,17 +129,7 @@ void fprint_bytes_bits(FILE* p_file,
 	}
 }
 
-/** Doxygen
- * @brief Writes bit_count bits as 1/0 chars into p_file from p_buffer in little endian
- *
- * @param p_file FILE pointer to be written to.
- * @param p_buffer Pointer to data buffer of size capacity to read bytes.
- * @param buffer_size Specifies the size of the byte buffer at p_buffer.
- * @param bit_offset Specifies the start of the bits to be printed.
- * @param bit_count Specifies the number of bits to be printed.
- *
- * @return Doesn't return a value, but fails silently on error.
- */
+// Writes bit_count bits as 1/0 chars into p_file from p_buffer in little endian
 void fprint_le_bits_5(FILE* p_file,
 			const uint8_t* p_buffer, const size_t buffer_size,
 			const size_t bit_offset, const size_t bit_count)
@@ -186,7 +139,7 @@ void fprint_le_bits_5(FILE* p_file,
 	size_t mut_bit_offset = bit_offset;
 	size_t mut_bit_count = bit_count;
 	// Validate parameters
-	if((NULL == p_file) || (NULL == p_buffer))
+	if((NULL == p_file) || (NULL == p_buffer) || (0u == bit_count))
 	{
 		goto END;
 	}
@@ -200,11 +153,20 @@ void fprint_le_bits_5(FILE* p_file,
 	}
 	// Local Constants
 	const size_t beg_unord_index = (mut_bit_offset / SI_BITS_COUNT);
-	const size_t end_unord_index = ((mut_bit_count + mut_bit_offset) / SI_BITS_COUNT);
+	const size_t end_unord_index = ((mut_bit_count + mut_bit_offset - 1u) / SI_BITS_COUNT);
 	const size_t full_byte_count = (end_unord_index - beg_unord_index) - 1u;
 	const size_t beg_ord_index = buffer_size - 1u - beg_unord_index;
 	const size_t end_ord_index = buffer_size - 1u - end_unord_index;
 	const size_t bit_offset_remainder = (mut_bit_offset % SI_BITS_COUNT);
+	/* Debugging
+	printf("bit_offset: %lu\tbit_count: %lu\n", bit_offset, bit_count);
+	printf("beg_unord_index: %lu\tend_unord_index: %lu\n",
+		beg_unord_index, end_unord_index);
+	printf("full_byte_count: %lu\tbit_offset_remainder: %lu\n",
+		full_byte_count, bit_offset_remainder);
+	printf("beg_unord_index: %lu\tend_unord_index: %lu\n",
+		beg_unord_index, end_unord_index);
+	//*/
 	// Begin
 	if(beg_unord_index == end_unord_index)
 	{
@@ -217,7 +179,7 @@ void fprint_le_bits_5(FILE* p_file,
 			bit_offset_remainder, SI_BITS_COUNT - bit_offset_remainder);
 	fprint_le_bytes_bits(p_file, (&p_buffer[beg_unord_index + 1u]), full_byte_count);
 	fprint_byte_bits_4(p_file, p_buffer[end_ord_index],
-			0u, mut_bit_count - bit_offset_remainder);
+			0u, mut_bit_count - (SI_BITS_COUNT - bit_offset_remainder));
 	// End
 END:
 	return;
@@ -235,17 +197,7 @@ inline void fprint_le_bits(FILE* p_file, const uint8_t* p_buffer,
 	fprint_le_bits_4(p_file, p_buffer, buffer_size, 0u);
 }
 
-/** Doxygen
- * @brief Writes bit_count bits as 1/0 chars into p_file from p_buffer in big endian
- *
- * @param p_file FILE pointer to be written to.
- * @param p_buffer Pointer to data buffer of size capacity to read bytes.
- * @param buffer_size Specifies the size of the byte buffer at p_buffer.
- * @param bit_offset Specifies the start of the bits to be printed.
- * @param bit_count Specifies the number of bits to be printed.
- *
- * @return Doesn't return a value, but fails silently on error.
- */
+// Writes bit_count bits as 1/0 chars into p_file from p_buffer in big endian
 void fprint_be_bits_5(FILE* p_file,
 			const uint8_t* p_buffer, const size_t buffer_size,
 			const size_t bit_offset, const size_t bit_count)
@@ -255,7 +207,7 @@ void fprint_be_bits_5(FILE* p_file,
 	size_t mut_bit_offset = bit_offset;
 	size_t mut_bit_count = bit_count;
 	// Validate parameters
-	if((NULL == p_file) || (NULL == p_buffer))
+	if((NULL == p_file) || (NULL == p_buffer) || (0u == bit_count))
 	{
 		goto END;
 	}
@@ -269,7 +221,7 @@ void fprint_be_bits_5(FILE* p_file,
 	}
 	// Local Constants
 	const size_t beg_unord_index = (mut_bit_offset / SI_BITS_COUNT);
-	const size_t end_unord_index = ((mut_bit_count + mut_bit_offset) / SI_BITS_COUNT);
+	const size_t end_unord_index = ((mut_bit_count + mut_bit_offset - 1u) / SI_BITS_COUNT);
 	const size_t full_byte_count = (end_unord_index - beg_unord_index) - 1u;
 	const size_t bit_offset_remainder = (mut_bit_offset % SI_BITS_COUNT);
 	// Begin
@@ -284,7 +236,7 @@ void fprint_be_bits_5(FILE* p_file,
 			bit_offset_remainder, SI_BITS_COUNT - bit_offset_remainder);
 	fprint_be_bytes_bits(p_file, (&p_buffer[beg_unord_index + 1u]), full_byte_count);
 	fprint_byte_bits_4(p_file, p_buffer[end_unord_index],
-			0u, mut_bit_count - bit_offset_remainder);
+			0u, mut_bit_count - (SI_BITS_COUNT - bit_offset_remainder));
 	// End
 END:
 	return;
@@ -302,17 +254,7 @@ inline void fprint_be_bits(FILE* p_file, const uint8_t* p_buffer,
 	fprint_le_bits_4(p_file, p_buffer, buffer_size, 0u);
 }
 
-/** Doxygen
- * @brief Writes bit_count bits as 1/0 chars into p_file from p_buffer in host order.
- *
- * @param p_file FILE pointer to be written to.
- * @param p_buffer Pointer to data buffer of size capacity to read bytes.
- * @param buffer_size Specifies the size of the byte buffer at p_buffer.
- * @param bit_offset Specifies the start of the bits to be printed.
- * @param bit_count Specifies the number of bits to be printed.
- *
- * @return Doesn't return a value, but fails silently on error.
- */
+// Writes bit_count bits as 1/0 chars into p_file from p_buffer in host order.
 void fprint_bits(FILE* p_file,
     const uint8_t* p_buffer, const size_t buffer_size,
     const size_t bit_offset, const size_t bit_count)
@@ -327,17 +269,7 @@ void fprint_bits(FILE* p_file,
 	}
 }
 
-/** Doxygen
- * @brief Writes bytes as bit chars from buffer in host order to file with spacers.
- *
- * @param p_file FILE pointer to be written to.
- * @param p_buffer Pointer to data buffer of size capacity to read bytes.
- * @param buffer_size Specifies the size of the byte buffer at p_buffer.
- * @param grouping Specifies the group size of bits before printing a spacer.
- * @param spacer Specifies the spacer character to be printed.
- *
- * @return Doesn't return a value, but fails silently on error.
- */
+// Writes bytes as bit chars from buffer in host order to file with spacers.
 void fprint_grouped_bits_5(FILE* p_file,
     const uint8_t* p_buffer, const size_t buffer_size,
     const size_t grouping, const char spacer)

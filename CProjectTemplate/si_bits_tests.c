@@ -17,13 +17,15 @@ int main(int argc, char** pp_argv)
 	printf("\n");
 	
 	printf("bits          : ");
-	fprint_grouped_bits(stdout, (uint8_t *)&data_le, sizeof(uint32_t)); printf("\n");
+	fprint_grouped_bits_4(stdout, (uint8_t *)&data_le, sizeof(uint32_t), 7);
+	printf("\n");
 	
 	printf("be_bits_5 data: ");
 	for(int i = 0; i < 2; i++)printf(" ");
 	fprint_be_bits_5(stdout, (uint8_t*)&data_be, sizeof(uint32_t), 2u, 28u);
 	printf("\n");
 	
+	// 0xDEADBEEF in binary:
 	const char* expected = "11011110 10101101 10111110 11101111";
 	printf("Expected      : %s\n", expected);
 	char buffer[36];
@@ -31,8 +33,11 @@ int main(int argc, char** pp_argv)
 	snprint_bits(buffer, 36, (uint8_t*)&data_le, sizeof(uint32_t));
 	if(strcmp(buffer, expected) != 0)
 	{
+		printf("Buffer    : %s\n", buffer);
 		printf("Test Failed.\n");
-	} else {
+	}
+	else
+	{
 		printf("Test Passed.\n");
 	}
 	return 0;
