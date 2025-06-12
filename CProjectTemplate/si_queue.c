@@ -2,11 +2,14 @@
 #include <stddef.h>
 #include <string.h>
 
+#include <stdio.h> //! Debugging TODO
+
 #include "si_dynamic.h"
 #include "si_queue.h"
 
 // Set struct default values
-void init_si_queue(si_queue* p_queue)
+void init_si_queue_3(si_queue* p_queue, const size_t element_size,
+	const size_t initial_capacity)
 {
 	// Validate parameter
 	if (NULL == p_queue)
@@ -17,10 +20,26 @@ void init_si_queue(si_queue* p_queue)
 	p_queue->front = 0u;
 	p_queue->back  = 0u;
 	p_queue->dynamic = (si_dynamic){};
-	init_si_dynamic(&(p_queue->dynamic));
+	init_si_dynamic_3(&(p_queue->dynamic), element_size, initial_capacity);
+	/* Debugging
+	printf("Initialized queue with the following information:\n");
+	printf("Front: %lu\tBack: %lu\n", p_queue->front, p_queue->back);
+	printf("Element_Size: %lu\tInitial_Capacity: %lu\n\n",
+		element_size, initial_capacity);
+	//*/
 	// End
 END:
 	return;
+}
+inline void init_si_queue_2(si_queue* p_queue, const size_t element_size)
+{
+	// Default initial_capacity is 0
+	init_si_queue_3(p_queue, element_size, 0u);
+}
+inline void init_si_queue(si_queue* p_queue)
+{
+	// Default element_size = SI_DYNAMIC_DEFAULT_ELEMENT_SIZE (1)
+	init_si_queue_2(p_queue, SI_DYNAMIC_DEFAULT_ELEMENT_SIZE);
 }
 
 // Count elements
@@ -69,8 +88,13 @@ bool si_queue_is_full(const si_queue* p_queue)
 	{
 		goto END;
 	}
+	if(0u == p_queue->dynamic.capacity)
+	{
+		goto END;
+	}
 	// Begin
-	is_full = (si_queue_count(p_queue) == (p_queue->dynamic.capacity - 1u));
+	const size_t item_count = si_queue_count(p_queue);
+	is_full = (item_count == (p_queue->dynamic.capacity - 1u));
 	// End
 END:
 		return is_full;
