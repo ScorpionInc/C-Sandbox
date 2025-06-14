@@ -158,6 +158,118 @@ END:
 	return result;
 }
 
+bool si_dynamic_is_pointer_within(const si_dynamic* p_dynamic,
+	const void* p_test)
+{
+	bool result = false;
+	// Validate parameters
+	if((NULL == p_dynamic) || (NULL == p_test))
+	{
+		goto END;
+	}
+	if(NULL == p_dynamic->data)
+	{
+		goto END;
+	}
+	// Begin
+	result = (p_test >= p_dynamic->data);
+	if(result)
+	{
+		const size_t size = si_dynamic_size(p_dynamic);
+		result = (p_test < (p_dynamic->data + size));
+	}
+	// End
+END:
+	return result;
+}
+
+size_t si_dynamic_find_pointer_offset(const si_dynamic* p_dynamic,
+	const void* p_test)
+{
+	size_t offset = SIZE_MAX;
+	// Validate parameters
+	if( ! si_dynamic_is_pointer_within(p_dynamic, p_test) )
+	{
+		// is_pointer_within verifies values are not NULL.
+		goto END;
+	}
+	// Begin
+	const size_t size = si_dynamic_size(p_dynamic);
+	offset = (p_dynamic->data + size) - p_test;
+	// End
+END:
+	return offset;
+}
+
+bool si_dynamic_is_pointer_element(const si_dynamic* p_dynamic,
+	const void* p_test)
+{
+	bool result = false;
+	// Validate parameters
+	if( ! si_dynamic_is_pointer_within(p_dynamic, p_test) )
+	{
+		// is_pointer_within verifies values are not NULL.
+		goto END;
+	}
+	if(p_dynamic->element_size == 0u)
+	{
+		goto END;
+	}
+	// Begin
+	const size_t offset = si_dynamic_find_pointer_offset(p_dynamic, p_test);
+	result = ((offset % p_dynamic->element_size) == 0u);
+	// End
+END:
+	return result;
+}
+
+size_t si_dynamic_find_pointer_index(const si_dynamic* p_dynamic,
+	const void* p_test)
+{
+	size_t index = SIZE_MAX;
+	// Validate parameters
+	// Begin
+	if( ! si_dynamic_is_pointer_element(p_dynamic, p_test))
+	{
+		// is_pointer_element validates values are not NULL.
+		// is_pointer_element validates element_size > 0
+		goto END;
+	}
+	const size_t offset = si_dynamic_find_pointer_offset(p_dynamic, p_test);
+	index = offset / p_dynamic->element_size;
+	// End
+END:
+	return index;
+}
+
+void* si_dynamic_at(si_dynamic* p_dynamic,
+	const size_t index)
+{
+	void* p_item = NULL;
+	// Validate Parameters
+	if(NULL == p_dynamic)
+	{
+		goto END;
+	}
+	if(index >= p_dynamic->capacity)
+	{
+		goto END;
+	}
+	// Begin
+	p_item = (p_dynamic->data + (p_dynamic->element_size * index));
+	// End
+END:
+	return p_item;
+}
+inline void* si_dynamic_first(si_dynamic* p_dynamic)
+{
+	return si_dynamic_at(p_dynamic, 0u);
+}
+inline void* si_dynamic_last(si_dynamic* p_dynamic)
+{
+	return si_dynamic_at(p_dynamic, p_dynamic->capacity - 1u);
+}
+
 void si_dynamic_set(si_dynamic* p_dynamic,
 	const size_t index, const void* p_item)
 {

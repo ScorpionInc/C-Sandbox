@@ -94,6 +94,79 @@ bool si_dynamic_is_safe_to_shrink(si_dynamic* p_dynamic,
 	const size_t current_count);
 
 /** Doxygen
+ * @brief Determines if pointer lies with allocated data/buffer address space.
+ *
+ * @param p_dynamic Pointer to the struct to use for bounds check.
+ * @param p_test Pointer to check if it is within allocated memory.
+ *
+ * @return Returns bool true if true. Return false otherwise.
+ */
+bool si_dynamic_is_pointer_within(const si_dynamic* p_dynamic,
+	const void* p_test);
+
+/** Doxygen
+ * @brief Calculates the byte offset into the buffer of the pointer.
+ *
+ * @param p_dynamic Pointer to si_dynamic struct to do checks with.
+ * @param p_test Pointer to allocated memory to do checks on.
+ *
+ * @return On good returns offset of pointer in heap. SIZE_MAX on failure/max.
+ */
+size_t si_dynamic_find_pointer_offset(const si_dynamic* p_dynamic,
+	const void* p_test);
+
+/** Doxygen
+ * @brief Determines if pointer lies at an element starting address.
+ *
+ * @param p_dynamic Pointer to the struct to use for bounds check.
+ * @param p_test Pointer to check if it is pointing at an element.
+ *
+ * @return Returns bool true if true. Return false otherwise.
+ */
+bool si_dynamic_is_pointer_element(const si_dynamic* p_dynamic,
+	const void* p_test);
+
+/** Doxygen
+ * @brief Returns the index of pointer or SIZE_MAX if invalid.
+ *
+ * @param p_dynamic Pointer to si_dynamic struct to do checks with.
+ * @param p_test Pointer to allocated memory to do checks on.
+ *
+ * @return On good returns index of element in heap. SIZE_MAX on failure/max.
+ */
+size_t si_dynamic_find_pointer_index(const si_dynamic* p_dynamic,
+	const void* p_test);
+
+/** Doxygen
+ * @brief Determines where in allocated memory element index starts.
+ *
+ * @param p_dynamic Pointer to si_dynamic struct
+ * @param index Index of the element in the buffer to find address of.
+ *
+ * @return Success returns pointer into heap memory of element_size. Else NULL.
+ */
+void* si_dynamic_at(const si_dynamic* p_dynamic,
+	const size_t index);
+
+/** Doxygen
+ * @brief Gets and returns first elements address of allocated memory.
+ *
+ * @param p_dynamic Pointer to si_dynamic struct to read from.
+ *
+ * @return Returns pointer into heap memory of element size on success. Or NUll
+ */
+void* si_dynamic_first(si_dynamic* p_dynamic);
+
+/** Doxygen
+ * @brief Gets and returns last elements address of allocated memory.
+ *
+ * @param p_dynamic Pointer to si_dynamic struct to read from.
+ *
+ * @return Returns pointer into heap memory of element size on success. Or NUll
+ */
+void* si_dynamic_last(si_dynamic* p_dynamic);
+
+/** Doxygen
  * @brief Assigns aligned bytes inside allocated buffer to p_item bytes @ index
  *
  * @param p_dynamic Pointer to si_dynamic struct whose buffer is to be changed.
