@@ -140,7 +140,7 @@ END:
 		return result;
 }
 
-bool si_dynamic_is_safe_to_shrink(si_dynamic* p_dynamic,
+bool si_dynamic_is_safe_to_shrink(const si_dynamic* p_dynamic,
     const size_t current_count)
 {
 	bool result = false;
@@ -242,7 +242,7 @@ END:
 	return index;
 }
 
-void* si_dynamic_at(si_dynamic* p_dynamic,
+void* si_dynamic_at(const si_dynamic* p_dynamic,
 	const size_t index)
 {
 	void* p_item = NULL;
@@ -261,11 +261,11 @@ void* si_dynamic_at(si_dynamic* p_dynamic,
 END:
 	return p_item;
 }
-inline void* si_dynamic_first(si_dynamic* p_dynamic)
+inline void* si_dynamic_first(const si_dynamic* p_dynamic)
 {
 	return si_dynamic_at(p_dynamic, 0u);
 }
-inline void* si_dynamic_last(si_dynamic* p_dynamic)
+inline void* si_dynamic_last(const si_dynamic* p_dynamic)
 {
 	return si_dynamic_at(p_dynamic, p_dynamic->capacity - 1u);
 }

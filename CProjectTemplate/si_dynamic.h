@@ -90,7 +90,7 @@ bool si_dynamic_shrink(si_dynamic* p_dynamic);
  *
  * @return Returns true if buffer can be shrunk. False is returned otherwise.
  */
-bool si_dynamic_is_safe_to_shrink(si_dynamic* p_dynamic,
+bool si_dynamic_is_safe_to_shrink(const si_dynamic* p_dynamic,
 	const size_t current_count);
 
 /** Doxygen
@@ -155,7 +155,7 @@ void* si_dynamic_at(const si_dynamic* p_dynamic,
  *
  * @return Returns pointer into heap memory of element size on success. Or NUll
  */
-void* si_dynamic_first(si_dynamic* p_dynamic);
+void* si_dynamic_first(const si_dynamic* p_dynamic);
 
 /** Doxygen
  * @brief Gets and returns last elements address of allocated memory.
@@ -164,7 +164,7 @@ void* si_dynamic_first(si_dynamic* p_dynamic);
  *
  * @return Returns pointer into heap memory of element size on success. Or NUll
  */
-void* si_dynamic_last(si_dynamic* p_dynamic);
+void* si_dynamic_last(const si_dynamic* p_dynamic);
 
 /** Doxygen
  * @brief Assigns aligned bytes inside allocated buffer to p_item bytes @ index
