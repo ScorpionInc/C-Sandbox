@@ -3,7 +3,7 @@
 void test_00()
 {
 	si_queue q = {};
-	init_si_queue(&q, sizeof(char));
+	si_queue_new(&q, sizeof(char));
 	char c = 'a';
 	for(int i = 0; i < 6; i++)
 	{
@@ -16,7 +16,7 @@ void test_00()
 		si_queue_dequeue(&q, &c);
 		printf("Popped char: %c\tNew Count: %lu.\n", c, si_queue_count(&q));
 	}
-	free_si_queue(&q);
+	si_queue_free(&q);
 }
 
 
@@ -26,7 +26,7 @@ void test_00()
 void test_01()
 {
 	char_queue q = {};
-	init_char_queue(&q);
+	char_queue_new(&q);
 	for(int i = 0; i < 6; i++)
 	{
 		char_queue_enqueue(&q, 'a' + i);
@@ -36,7 +36,7 @@ void test_01()
 	{
 		printf("Popped char: %c\tNew Count: %lu.\n", char_queue_dequeue(&q), si_queue_count(&q));
 	}
-	free_char_queue(&q);
+	char_queue_free(&q);
 }//*/
 //void test_01(){}
 

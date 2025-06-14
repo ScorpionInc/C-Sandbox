@@ -4,7 +4,7 @@ void si_stack_new_3(si_stack* p_stack, const size_t element_size,
     const size_t initial_capacity)
 {
 	p_stack->count = 0u;
-	si_dynamic_new3(&(p_stack->dynamic), element_size, initial_capacity);
+	si_dynamic_new_3(&(p_stack->dynamic), element_size, initial_capacity);
 }
 inline void si_stack_new(si_stack* p_stack, const size_t element_size)
 {

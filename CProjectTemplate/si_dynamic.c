@@ -6,7 +6,7 @@
 extern "C" {
 #endif //__cplusplus
 
-void si_dynamic_new4(si_dynamic* p_dynamic, const size_t element_size,
+void si_dynamic_new_4(si_dynamic* p_dynamic, const size_t element_size,
 	const size_t capacity, const si_realloc_settings* p_settings)
 {
 	if (NULL == p_dynamic)
@@ -35,18 +35,18 @@ void si_dynamic_new4(si_dynamic* p_dynamic, const size_t element_size,
 	END:
 		return;
 }
-void si_dynamic_new3(si_dynamic* p_dynamic, const size_t element_size,
+void si_dynamic_new_3(si_dynamic* p_dynamic, const size_t element_size,
 	const size_t capacity)
 {
-	// Default value of settings is determined by init_si_realloc_settings()
+	// Default value of settings is determined by si_realloc_settings_new()
 	si_realloc_settings settings = (si_realloc_settings){};
 	si_realloc_settings_new(&settings);
-	si_dynamic_new4(p_dynamic, element_size, capacity, &settings);
+	si_dynamic_new_4(p_dynamic, element_size, capacity, &settings);
 }
 inline void si_dynamic_new(si_dynamic* p_dynamic, const size_t element_size)
 {
 	// Default value of capacity is 0u
-	si_dynamic_new3(p_dynamic, element_size, 0u);
+	si_dynamic_new_3(p_dynamic, element_size, 0u);
 }
 
 size_t si_dynamic_size(const si_dynamic* p_dynamic)
@@ -85,7 +85,7 @@ bool si_dynamic_resize(si_dynamic* p_dynamic,
 		goto END;
 	}
 	// Begin
-	const size_t new_size =	p_dynamic->element_size * new_capacity;
+	const size_t new_size =	(p_dynamic->element_size * new_capacity);
 	// Check for overflows
 	if((new_size / p_dynamic->element_size) != new_capacity)
 	{
@@ -167,8 +167,9 @@ void si_dynamic_set(si_dynamic* p_dynamic,
 		goto END;
 	}
 	const size_t offset = (p_dynamic->element_size * index);
+	const size_t allocated_size = si_dynamic_size(p_dynamic);
 	// Bounds Check
-	if(offset >= p_dynamic->capacity)
+	if(offset >= allocated_size)
 	{
 		goto END;
 	}
@@ -188,8 +189,9 @@ void si_dynamic_get(const si_dynamic* p_dynamic,
 		goto END;
 	}
 	const size_t offset = (p_dynamic->element_size * index);
+	const size_t allocated_size = si_dynamic_size(p_dynamic);
 	// Bounds Check
-	if(offset >= p_dynamic->capacity)
+	if(offset >= allocated_size)
 	{
 		goto END;
 	}

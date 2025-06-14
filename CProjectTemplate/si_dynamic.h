@@ -37,9 +37,9 @@ typedef struct si_dynamic
  * @param capacity Number of said item to be stored in the buffer.
  * @param settings si_realloc_settings determining how to reallocate.
  */
-void si_dynamic_new4(si_dynamic* p_dynamic, const size_t element_size,
+void si_dynamic_new_4(si_dynamic* p_dynamic, const size_t element_size,
 	const size_t capacity, const si_realloc_settings* settings);
-void si_dynamic_new3(si_dynamic* p_dynamic, const size_t element_size,
+void si_dynamic_new_3(si_dynamic* p_dynamic, const size_t element_size,
 	const size_t capacity);
 void si_dynamic_new (si_dynamic* p_dynamic, const size_t element_size);
 

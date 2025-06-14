@@ -21,9 +21,9 @@ typedef struct si_queue {
  * @param element_size Size in bytes of the items to be stored.
  * @param initial_capacity Count of items to be stored in the queue. (0)
  */
-void init_si_queue_3(si_queue* p_queue, const size_t element_size,
+void si_queue_new_3(si_queue* p_queue, const size_t element_size,
 	const size_t initial_capacity);
-void init_si_queue(si_queue* p_queue, const size_t element_size);
+void si_queue_new(si_queue* p_queue, const size_t element_size);
 
 /** Doxygen
  * @brief Counts the elements in the queue
@@ -67,6 +67,6 @@ size_t si_queue_dequeue(si_queue* p_queue, void* p_item);
  *
  * @param p_queue Pointer to the queue struct to be free'd.
  */
-void free_si_queue(si_queue* p_queue);
+void si_queue_free(si_queue* p_queue);
 
 #endif //SI_QUEUE_H

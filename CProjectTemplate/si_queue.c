@@ -6,7 +6,7 @@
 #include "si_queue.h"
 
 // Set struct default values
-void init_si_queue_3(si_queue* p_queue, const size_t element_size,
+void si_queue_new_3(si_queue* p_queue, const size_t element_size,
 	const size_t initial_capacity)
 {
 	// Validate parameter
@@ -18,15 +18,15 @@ void init_si_queue_3(si_queue* p_queue, const size_t element_size,
 	p_queue->front = 0u;
 	p_queue->back  = 0u;
 	p_queue->dynamic = (si_dynamic){};
-	si_dynamic_new3(&(p_queue->dynamic), element_size, initial_capacity);
+	si_dynamic_new_3(&(p_queue->dynamic), element_size, initial_capacity);
 	// End
 END:
 	return;
 }
-inline void init_si_queue(si_queue* p_queue, const size_t element_size)
+inline void si_queue_new(si_queue* p_queue, const size_t element_size)
 {
 	// Default initial_capacity is 0
-	init_si_queue_3(p_queue, element_size, 0u);
+	si_queue_new_3(p_queue, element_size, 0u);
 }
 
 // Count elements
@@ -135,7 +135,7 @@ END:
 	return new_count;
 }
 
-void free_si_queue(si_queue* p_queue)
+void si_queue_free(si_queue* p_queue)
 {
 	// Validate parameter
 	if (NULL == p_queue)
