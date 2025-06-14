@@ -11,6 +11,12 @@ valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes -s ./test.e
 rm -f ./test.elf
 echo
 
+echo 'Testing si_array_test.c'
+gcc -Wall ./si_realloc_settings.c ./si_dynamic.c ./si_array_test.c -o test.elf -lm &&
+valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes -s ./test.elf &&
+rm -f ./test.elf
+echo
+
 echo 'Testing si_queue_test.c'
 gcc -Wall ./si_realloc_settings.c ./si_dynamic.c ./si_queue.c ./si_queue_test.c -o test.elf -lm &&
 valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes -s ./test.elf &&

@@ -1,0 +1,194 @@
+/* template.template
+ * Purpose: Class-like template generation using preprocessor #defines
+ * Created: 20250614
+ * Updated: 20250614
+//*/
+
+#include "si_dynamic.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif //__cplusplus
+
+#ifdef SI_TEMPLATE_TYPE
+
+// Used to represent a preprocessor defined value as a string.
+#ifndef _STRINGIFY
+#define _STRINGIFY(s) #s
+#define DEFINED__STRINGIFY
+#endif
+#ifndef STRINGIFY
+#define STRINGIFY(s) _STRINGIFY(s)
+#define DEFINED_STRINGIFY
+#endif
+
+// Used to join/concat two defined preprocessor tokens without converting to a string
+#ifndef PASTE_TWO_TOKENS
+#define PASTE_TWO_TOKENS(token_1, token_2) token_1 ## token_2
+#define DEFINED_PASTE_TWO_TOKENS
+#endif
+#ifndef PASTE_TWO_TOKENS_INDIRECT
+#define PASTE_TWO_TOKENS_INDIRECT(token_1, token_2) PASTE_TWO_TOKENS(token_1 , token_2)
+#define DEFINED_PASTE_TWO_TOKENS_INDIRECT
+#endif
+
+// Used to generate function/struct type names using provided template_type
+#ifdef SI_TEMPLATE_FUNCTION
+#undef SI_TEMPLATE_FUNCTION
+#endif
+#define SI_TEMPLATE_FUNCTION(B, E) \
+	PASTE_TWO_TOKENS_INDIRECT(B, \
+	PASTE_TWO_TOKENS_INDIRECT(SI_TEMPLATE_TYPE, E))
+
+
+typedef struct si_dynamic SI_TEMPLATE_FUNCTION(, _array);
+
+static inline void SI_TEMPLATE_FUNCTION(, _array_new_3)(
+	SI_TEMPLATE_FUNCTION(, _array)* p_array, const size_t initial_capacity,
+	const si_realloc_settings* settings)
+{
+	si_dynamic_new_4(p_array, sizeof(SI_TEMPLATE_TYPE),
+		initial_capacity, settings);
+}
+static inline void SI_TEMPLATE_FUNCTION(, _array_new_2)(
+	SI_TEMPLATE_FUNCTION(, _array)* p_array, const size_t initial_capacity)
+{
+	si_dynamic_new_3(p_array, sizeof(SI_TEMPLATE_TYPE), initial_capacity);
+}
+static inline void SI_TEMPLATE_FUNCTION(, _array_new)(
+	SI_TEMPLATE_FUNCTION(, _array)* p_array)
+{
+	si_dynamic_new(p_array, sizeof(SI_TEMPLATE_TYPE));
+}
+
+static inline size_t SI_TEMPLATE_FUNCTION(, _array_size)(
+	const SI_TEMPLATE_FUNCTION(, _array)* p_array)
+{
+	return si_dynamic_size(p_array);
+}
+
+static inline bool SI_TEMPLATE_FUNCTION(, _array_resize)(
+	SI_TEMPLATE_FUNCTION(, _array)* p_array, const size_t new_capacity)
+{
+	return si_dynamic_resize(p_array, new_capacity);
+}
+
+static inline bool SI_TEMPLATE_FUNCTION(, _array_grow)(
+	SI_TEMPLATE_FUNCTION(, _array)* p_array)
+{
+	return si_dynamic_grow(p_array);
+}
+
+static inline bool SI_TEMPLATE_FUNCTION(, _array_shrink)(
+	SI_TEMPLATE_FUNCTION(, _array)* p_array)
+{
+	return si_dynamic_shrink(p_array);
+}
+
+static inline bool SI_TEMPLATE_FUNCTION(, _array_is_safe_to_shrink)(
+	const SI_TEMPLATE_FUNCTION(, _array)* p_array, const size_t current_count)
+{
+	return si_dynamic_is_safe_to_shrink(p_array, current_count);
+}
+
+static inline bool SI_TEMPLATE_FUNCTION(, _array_is_pointer_within)(
+	const SI_TEMPLATE_FUNCTION(, _array)* p_array, const void* p_test)
+{
+	return si_dynamic_is_pointer_within(p_array, p_test);
+}
+
+static inline size_t SI_TEMPLATE_FUNCTION(, _array_find_pointer_offset)(
+	const SI_TEMPLATE_FUNCTION(, _array)* p_array, const void* p_test)
+{
+	return si_dynamic_find_pointer_offset(p_array, p_test);
+}
+
+static inline bool SI_TEMPLATE_FUNCTION(, _array_is_pointer_element)(
+	const SI_TEMPLATE_FUNCTION(, _array)* p_array, const void* p_test)
+{
+	return si_dynamic_is_pointer_element(p_array, p_test);
+}
+
+static inline size_t SI_TEMPLATE_FUNCTION(, _array_find_pointer_index)(
+	const SI_TEMPLATE_FUNCTION(, _array)* p_array, const void* p_test)
+{
+	return si_dynamic_find_pointer_index(p_array, p_test);
+}
+
+static inline void* SI_TEMPLATE_FUNCTION(, _array_at)(
+	const SI_TEMPLATE_FUNCTION(, _array)* p_array, const size_t index)
+{
+	return si_dynamic_at(p_array, index);
+}
+
+static inline void* SI_TEMPLATE_FUNCTION(, _array_first)(
+	const SI_TEMPLATE_FUNCTION(, _array)* p_array)
+{
+	return si_dynamic_first(p_array);
+}
+
+static inline void* SI_TEMPLATE_FUNCTION(, _array_last)(
+	const SI_TEMPLATE_FUNCTION(, _array)* p_array)
+{
+	return si_dynamic_last(p_array);
+}
+
+static inline void SI_TEMPLATE_FUNCTION(, _array_set)(
+	SI_TEMPLATE_FUNCTION(, _array)* p_array, const size_t index,
+	const SI_TEMPLATE_TYPE item)
+{
+	si_dynamic_set(p_array, index, &item);
+}
+
+static SI_TEMPLATE_TYPE SI_TEMPLATE_FUNCTION(, _array_get)(
+	SI_TEMPLATE_FUNCTION(, _array)* p_array, const size_t index)
+{
+	SI_TEMPLATE_TYPE value;
+	si_dynamic_get(p_array, index, &value);
+	return value;
+}
+
+static inline void SI_TEMPLATE_FUNCTION(, _array_free)(
+	SI_TEMPLATE_FUNCTION(, _array)* p_array)
+{
+	si_dynamic_free(p_array);
+}
+
+
+// Clean up our preprocessor defines.
+#undef SI_TEMPLATE_FUNCTION
+
+// Only undefine these functions if they weren't already defined
+// Done in the reverse order of their definition.
+#ifdef DEFINED_PASTE_TWO_TOKENS_INDIRECT
+#undef PASTE_TWO_TOKENS_INDIRECT
+#undef DEFINED_PASTE_TWO_TOKENS_INDIRECT
+#endif
+
+#ifdef DEFINED_PASTE_TWO_TOKENS
+#undef PASTE_TWO_TOKENS
+#undef DEFINED_PASTE_TWO_TOKENS
+#endif
+
+#ifdef DEFINED_STRINGIFY
+#undef STRINGIFY
+#undef DEFINED_STRINGIFY
+#endif
+
+#ifdef DEFINED__STRINGIFY
+#undef _STRINGIFY
+#undef DEFINED__STRINGIFY
+#endif
+
+#undef SI_TEMPLATE_TYPE
+
+#else
+
+// Handle undefined template type.
+#error "Template was included without a defined template type(SI_TEMPLATE_TYPE)."
+
+#endif//SI_TEMPLATE_TYPE
+
+#ifdef __cplusplus
+}
+#endif //__cplusplus
