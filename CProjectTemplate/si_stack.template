@@ -4,6 +4,8 @@
  * Updated: 20250612
 //*/
 
+#include "si_stack.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif //__cplusplus
@@ -39,7 +41,50 @@ extern "C" {
 	PASTE_TWO_TOKENS_INDIRECT(SI_TEMPLATE_TYPE, E))
 
 
-// TODO
+typedef struct si_stack SI_TEMPLATE_FUNCTION(, _stack);
+
+static inline void SI_TEMPLATE_FUNCTION(, _stack_new_2)(
+	SI_TEMPLATE_FUNCTION(, _stack)* p_stack, const size_t initial_capacity)
+{
+	si_stack_new_3(p_stack, sizeof(SI_TEMPLATE_TYPE), initial_capacity);
+}
+static inline void SI_TEMPLATE_FUNCTION(, _stack_new)(
+	SI_TEMPLATE_FUNCTION(, _stack)* p_stack)
+{
+	si_stack_new(p_stack, sizeof(SI_TEMPLATE_TYPE));
+}
+
+static inline bool SI_TEMPLATE_FUNCTION(, _stack_is_full)(
+	const SI_TEMPLATE_FUNCTION(, _stack)* p_stack)
+{
+	return si_stack_is_full(p_stack);
+}
+
+static inline bool SI_TEMPLATE_FUNCTION(, _stack_is_empty)(
+	const SI_TEMPLATE_FUNCTION(, _stack)* p_stack)
+{
+	return si_stack_is_empty(p_stack);
+}
+
+static inline void SI_TEMPLATE_FUNCTION(, _stack_push)(
+	SI_TEMPLATE_FUNCTION(, _stack)* p_stack, const SI_TEMPLATE_TYPE item)
+{
+	si_stack_push(p_stack, &item);
+}
+
+static SI_TEMPLATE_TYPE SI_TEMPLATE_FUNCTION(, _stack_pop)(
+	SI_TEMPLATE_FUNCTION(, _stack)* p_stack)
+{
+	SI_TEMPLATE_TYPE value;
+	si_stack_pop(p_stack, &value);
+	return value;
+}
+
+static inline void SI_TEMPLATE_FUNCTION(, _stack_free)(
+	SI_TEMPLATE_FUNCTION(, _stack)* p_stack)
+{
+	si_stack_free(p_stack);
+}
 
 
 // Clean up our preprocessor defines.
