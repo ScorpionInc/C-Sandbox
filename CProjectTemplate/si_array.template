@@ -43,13 +43,6 @@ extern "C" {
 
 typedef struct si_dynamic SI_TEMPLATE_FUNCTION(, _array);
 
-static inline void SI_TEMPLATE_FUNCTION(, _array_new_3)(
-	SI_TEMPLATE_FUNCTION(, _array)* p_array, const size_t initial_capacity,
-	const si_realloc_settings* settings)
-{
-	si_dynamic_new_4(p_array, sizeof(SI_TEMPLATE_TYPE),
-		initial_capacity, settings);
-}
 static inline void SI_TEMPLATE_FUNCTION(, _array_new_2)(
 	SI_TEMPLATE_FUNCTION(, _array)* p_array, const size_t initial_capacity)
 {
@@ -71,24 +64,6 @@ static inline bool SI_TEMPLATE_FUNCTION(, _array_resize)(
 	SI_TEMPLATE_FUNCTION(, _array)* p_array, const size_t new_capacity)
 {
 	return si_dynamic_resize(p_array, new_capacity);
-}
-
-static inline bool SI_TEMPLATE_FUNCTION(, _array_grow)(
-	SI_TEMPLATE_FUNCTION(, _array)* p_array)
-{
-	return si_dynamic_grow(p_array);
-}
-
-static inline bool SI_TEMPLATE_FUNCTION(, _array_shrink)(
-	SI_TEMPLATE_FUNCTION(, _array)* p_array)
-{
-	return si_dynamic_shrink(p_array);
-}
-
-static inline bool SI_TEMPLATE_FUNCTION(, _array_is_safe_to_shrink)(
-	const SI_TEMPLATE_FUNCTION(, _array)* p_array, const size_t current_count)
-{
-	return si_dynamic_is_safe_to_shrink(p_array, current_count);
 }
 
 static inline bool SI_TEMPLATE_FUNCTION(, _array_is_pointer_within)(

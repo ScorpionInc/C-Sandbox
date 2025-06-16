@@ -4,14 +4,17 @@
 #include <stddef.h>
 
 #include "si_dynamic.h"
+#include "si_realloc_settings.h"
 
 #ifndef SI_QUEUE_H
 #define SI_QUEUE_H
 
-typedef struct si_queue {
-    size_t front;
-    size_t back;
-    si_dynamic dynamic;
+typedef struct si_queue
+{
+	size_t front;
+	size_t back;
+	si_realloc_settings settings;
+	si_dynamic dynamic;
 } si_queue;
 
 /** Doxygen
@@ -20,7 +23,10 @@ typedef struct si_queue {
  * @param p_queue Pointer to struct to be initialized.
  * @param element_size Size in bytes of the items to be stored.
  * @param initial_capacity Count of items to be stored in the queue. (0)
+ * @param p_settings Pointer to si_realloc_settings to read from.
  */
+void si_queue_new_4(si_queue* p_queue, const size_t element_size,
+	const size_t initial_capacity, const si_realloc_settings* p_settings);
 void si_queue_new_3(si_queue* p_queue, const size_t element_size,
 	const size_t initial_capacity);
 void si_queue_new(si_queue* p_queue, const size_t element_size);

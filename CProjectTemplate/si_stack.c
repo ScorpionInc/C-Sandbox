@@ -1,10 +1,23 @@
 #include "si_stack.h"
 
-void si_stack_new_3(si_stack* p_stack, const size_t element_size,
-    const size_t initial_capacity)
+void si_stack_new_4(si_stack* p_stack, const size_t element_size,
+    const size_t initial_capacity, const si_realloc_settings* p_settings)
 {
 	p_stack->count = 0u;
+	if(NULL == p_settings)
+	{
+		si_realloc_settings_new(&(p_stack->settings));
+	}
+	else
+	{
+		memcpy(&(p_stack->settings), p_settings, sizeof(si_realloc_settings));
+	}
 	si_dynamic_new_3(&(p_stack->dynamic), element_size, initial_capacity);
+}
+inline void si_stack_new_3(si_stack* p_stack, const size_t element_size,
+    const size_t initial_capacity)
+{
+	si_stack_new_4(p_stack, element_size, initial_capacity, NULL);
 }
 inline void si_stack_new(si_stack* p_stack, const size_t element_size)
 {
@@ -52,7 +65,7 @@ void si_stack_push(si_stack* p_stack, const void* p_item)
 	// Begin
 	if(si_stack_is_full(p_stack))
 	{
-		si_dynamic_grow(&(p_stack->dynamic));
+		si_realloc_settings_grow(&(p_stack->settings), &(p_stack->dynamic));
 		if(si_stack_is_full(p_stack))
 		{
 			// Failed to grow
@@ -79,9 +92,12 @@ void si_stack_pop(si_stack* p_stack, void* p_item)
 		goto END;
 	}
 	si_dynamic_get(&(p_stack->dynamic), p_stack->count - 1u, p_item);
-	if(si_dynamic_is_safe_to_shrink(&(p_stack->dynamic), p_stack->count))
+	const size_t next_shrink = si_realloc_settings_next_shrink_capacity(
+		&(p_stack->settings), p_stack->dynamic.capacity);
+	const bool safe_to_shrink = (p_stack->count <= next_shrink);
+	if(safe_to_shrink)
 	{
-		si_dynamic_shrink(&(p_stack->dynamic));
+		si_realloc_settings_shrink(&(p_stack->settings), &(p_stack->dynamic));
 	}
 	p_stack->count--;
 	// End

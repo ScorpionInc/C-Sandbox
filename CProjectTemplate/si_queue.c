@@ -6,8 +6,8 @@
 #include "si_queue.h"
 
 // Set struct default values
-void si_queue_new_3(si_queue* p_queue, const size_t element_size,
-	const size_t initial_capacity)
+void si_queue_new_4(si_queue* p_queue, const size_t element_size,
+    const size_t initial_capacity, const si_realloc_settings* p_settings)
 {
 	// Validate parameter
 	if (NULL == p_queue)
@@ -17,11 +17,26 @@ void si_queue_new_3(si_queue* p_queue, const size_t element_size,
 	// Begin
 	p_queue->front = 0u;
 	p_queue->back  = 0u;
+	if (NULL == p_settings)
+	{
+		p_queue->settings = (si_realloc_settings){};
+		si_realloc_settings_new(&(p_queue->settings));
+	}
+	else
+	{
+		memcpy(&(p_queue->settings), p_settings, sizeof(si_realloc_settings));
+	}
 	p_queue->dynamic = (si_dynamic){};
 	si_dynamic_new_3(&(p_queue->dynamic), element_size, initial_capacity);
 	// End
 END:
 	return;
+}
+inline void si_queue_new_3(si_queue* p_queue, const size_t element_size,
+	const size_t initial_capacity)
+{
+	// Default p_settings value is NULL (initializes with defaults)
+	si_queue_new_4(p_queue, element_size, initial_capacity, NULL);
 }
 inline void si_queue_new(si_queue* p_queue, const size_t element_size)
 {
@@ -100,7 +115,7 @@ size_t si_queue_enqueue(si_queue* p_queue, const void* p_item)
 	new_count = si_queue_count(p_queue);
 	if (si_queue_is_full(p_queue))
 	{
-		si_dynamic_grow(&(p_queue->dynamic));
+		si_realloc_settings_grow(&(p_queue->settings), &(p_queue->dynamic));
 		if (si_queue_is_full(p_queue))
 		{
 			// Failed to grow.

@@ -12,6 +12,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "si_dynamic.h"
+
 #ifndef SI_REALLOC_SETTINGS
 #define SI_REALLOC_SETTINGS
 
@@ -60,8 +62,8 @@ void si_realloc_settings_new(si_realloc_settings* p_settings);
  * @param p_settings Pointer to si_realloc_settings struct on how to grow.
  * @param current_capacity What capacity the buffer is already at.
  */
-size_t si_realloc_next_grow_capacity(const si_realloc_settings* p_settings,
-	const size_t current_capacity);
+size_t si_realloc_settings_next_grow_capacity(
+	const si_realloc_settings* p_settings, const size_t current_capacity);
 
 /** Doxygen
  * @brief Find the capacity of next shrink with settings from current_capacity.
@@ -69,8 +71,30 @@ size_t si_realloc_next_grow_capacity(const si_realloc_settings* p_settings,
  * @param p_settings Pointer to si_realloc_settings struct on how to shrink.
  * @param current_capacity What capacity the buffer is already at.
  */
-size_t si_realloc_next_shrink_capacity(const si_realloc_settings* p_settings,
-	const size_t current_capacity);
+size_t si_realloc_settings_next_shrink_capacity(
+	const si_realloc_settings* p_settings, const size_t current_capacity);
+
+/** Doxygen
+ * @brief Increases the capacity of p_dynamic by grow_value using grow_method.
+ *
+ * @param p_dynamic Pointer to struct of allocated dynamic memory to be grown.
+ * @param dynamics Pointer to si_realloc_settings struct holding grow settings.
+ *
+ * @return Returns true on success. False otherwise.
+ */
+bool si_realloc_settings_grow(
+	const si_realloc_settings* p_settings, si_dynamic* p_dynamic);
+
+/** Doxygen
+ * @brief Lowers the capacity of p_dynamic by shrink_value using shrink_method.
+ *
+ * @param p_dynamic Pointer to struct of allocated dynamic memory to be shrunk.
+ * @param dynamics Pointer to si_dynamics struct holding shrink settings.
+ *
+ * @return Returns true on success. False otherwise.
+ */
+bool si_realloc_settings_shrink(
+	const si_realloc_settings* p_settings, si_dynamic* p_dynamic);
 
 /** Doxygen
  * @brief Writes the formatted data from si_realloc_settings struct to file.

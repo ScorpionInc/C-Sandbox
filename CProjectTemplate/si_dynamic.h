@@ -8,11 +8,10 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "si_realloc_settings.h"
 
 #ifndef SI_DYNAMIC_H
 #define SI_DYNAMIC_H
@@ -26,7 +25,6 @@ typedef struct si_dynamic
 	void* data;
 	size_t element_size;
 	size_t capacity;
-	si_realloc_settings settings;
 } si_dynamic;
 
 /** Doxygen
@@ -37,8 +35,6 @@ typedef struct si_dynamic
  * @param capacity Number of said item to be stored in the buffer.
  * @param settings si_realloc_settings determining how to reallocate.
  */
-void si_dynamic_new_4(si_dynamic* p_dynamic, const size_t element_size,
-	const size_t capacity, const si_realloc_settings* settings);
 void si_dynamic_new_3(si_dynamic* p_dynamic, const size_t element_size,
 	const size_t capacity);
 void si_dynamic_new (si_dynamic* p_dynamic, const size_t element_size);
@@ -61,37 +57,6 @@ size_t si_dynamic_size(const si_dynamic* p_dynamic);
  */
 bool si_dynamic_resize(si_dynamic* p_dynamic,
 	const size_t new_capacity);
-
-/** Doxygen
- * @brief Increases the capacity of p_dynamic by grow_value using grow_method.
- *
- * @param p_dynamic Pointer to struct of allocated dynamic memory to be grown.
- * @param dynamics Pointer to si_realloc_settings struct holding grow settings.
- *
- * @return Returns true on success. False otherwise.
- */
-bool si_dynamic_grow(si_dynamic* p_dynamic);
-
-/** Doxygen
- * @brief Lowers the capacity of p_dynamic by shrink_value using shrink_method.
- *
- * @param p_dynamic Pointer to struct of allocated dynamic memory to be shrunk.
- * @param dynamics Pointer to si_dynamics struct holding shrink settings.
- *
- * @return Returns true on success. False otherwise.
- */
-bool si_dynamic_shrink(si_dynamic* p_dynamic);
-
-/** Doxygen
- * @brief Determines if count of element_size items could fit after next shrink
- *
- * @param p_dynamic Pointer to the struct to be checked if safe to shrink.
- * @param current_count Count of currently used items in buffer.
- *
- * @return Returns true if buffer can be shrunk. False is returned otherwise.
- */
-bool si_dynamic_is_safe_to_shrink(const si_dynamic* p_dynamic,
-	const size_t current_count);
 
 /** Doxygen
  * @brief Determines if pointer lies with allocated data/buffer address space.

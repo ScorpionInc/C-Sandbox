@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 
+#include "si_realloc_settings.h"
 #include "si_dynamic.h"
 
 #ifndef SI_STACK_H
@@ -10,6 +11,7 @@
 typedef struct si_stack
 {
 	size_t count;
+	si_realloc_settings settings;
 	si_dynamic dynamic;
 } si_stack;
 
@@ -19,7 +21,10 @@ typedef struct si_stack
  * @param Pointer to the struct to be initialized.
  * @param element_size Size in bytes of the items to be stacked.
  * @param initial_capacity Initial amount of items to allot for.
+ * @param p_settings Pointer to si_realloc_settings to read from.
  */
+void si_stack_new_4(si_stack* p_stack, const size_t element_size,
+	const size_t initial_capacity, const si_realloc_settings* p_settings);
 void si_stack_new_3(si_stack* p_stack, const size_t element_size,
 	const size_t initial_capacity);
 void si_stack_new(si_stack* p_stack, const size_t element_size);

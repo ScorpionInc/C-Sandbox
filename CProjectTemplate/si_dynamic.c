@@ -6,8 +6,8 @@
 extern "C" {
 #endif //__cplusplus
 
-void si_dynamic_new_4(si_dynamic* p_dynamic, const size_t element_size,
-	const size_t capacity, const si_realloc_settings* p_settings)
+void si_dynamic_new_3(si_dynamic* p_dynamic, const size_t element_size,
+	const size_t capacity)
 {
 	if (NULL == p_dynamic)
 	{
@@ -21,27 +21,9 @@ void si_dynamic_new_4(si_dynamic* p_dynamic, const size_t element_size,
 	}
 	p_dynamic->element_size = element_size;
 	p_dynamic->capacity = capacity;
-	p_dynamic->settings = (si_realloc_settings){};
-	if (NULL == p_settings)
-	{
-		si_realloc_settings_new(&(p_dynamic->settings));
-	}
-	else
-	{
-		memcpy(&(p_dynamic->settings), p_settings,
-			sizeof(si_realloc_settings));
-	}
 	// End
 	END:
 		return;
-}
-void si_dynamic_new_3(si_dynamic* p_dynamic, const size_t element_size,
-	const size_t capacity)
-{
-	// Default value of settings is determined by si_realloc_settings_new()
-	si_realloc_settings settings = (si_realloc_settings){};
-	si_realloc_settings_new(&settings);
-	si_dynamic_new_4(p_dynamic, element_size, capacity, &settings);
 }
 inline void si_dynamic_new(si_dynamic* p_dynamic, const size_t element_size)
 {
@@ -99,60 +81,6 @@ bool si_dynamic_resize(si_dynamic* p_dynamic,
 	p_dynamic->data = tmp;
 	p_dynamic->capacity = new_capacity;
 	result = true;
-	// End
-END:
-	return result;
-}
-
-bool si_dynamic_grow(si_dynamic* p_dynamic)
-{
-	bool result = false;
-	// Validate parameter
-	if (NULL == p_dynamic)
-	{
-		goto END;
-	}
-	// Begin
-	const size_t new_capacity = si_realloc_next_grow_capacity(
-		&p_dynamic->settings, p_dynamic->capacity
-	);
-	result = si_dynamic_resize(p_dynamic, new_capacity);
-	// End
-END:
-	return result;
-}
-
-bool si_dynamic_shrink(si_dynamic* p_dynamic)
-{
-	bool result = false;
-	// Validate parameter
-	if (NULL == p_dynamic)
-	{
-		goto END;
-	}
-	// Begin
-	const size_t new_capacity = si_realloc_next_shrink_capacity(
-		&p_dynamic->settings, p_dynamic->capacity
-	);
-	result = si_dynamic_resize(p_dynamic, new_capacity);
-	// End
-END:
-		return result;
-}
-
-bool si_dynamic_is_safe_to_shrink(const si_dynamic* p_dynamic,
-    const size_t current_count)
-{
-	bool result = false;
-	// Validate parameter
-	if(NULL == p_dynamic)
-	{
-		goto END;
-	}
-	// Begin
-	size_t next_shrink_capacity = si_realloc_next_shrink_capacity(
-		&(p_dynamic->settings), p_dynamic->capacity);
-	result = (current_count <= next_shrink_capacity);
 	// End
 END:
 	return result;
