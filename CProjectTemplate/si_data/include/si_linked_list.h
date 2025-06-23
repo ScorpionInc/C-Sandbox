@@ -30,7 +30,7 @@ typedef struct si_linked_list
  * @param initial_value = Pointer to si_dynamic initial value for root node.
  */
 void si_linked_list_new(si_linked_list* const p_list,
-	const si_dynamic* const initial_value);
+	const si_dynamic* const p_initial_value);
 
 /** Doxygen
  * @brief Returns the next node in the list on success. NULL otherwise.

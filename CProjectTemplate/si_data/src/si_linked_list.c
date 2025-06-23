@@ -2,7 +2,7 @@
 
 //const pointer, const pointer & value
 void si_linked_list_new(si_linked_list* const p_list,
-	const si_dynamic* const initial_value)
+	const si_dynamic* const p_initial_value)
 {
 	p_list->next = NULL;
 	if(NULL != initial_value)
