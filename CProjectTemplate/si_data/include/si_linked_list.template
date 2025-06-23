@@ -48,8 +48,8 @@ static void SI_TEMPLATE_FUNCTION(, _linked_list_new)(
 {
 	si_dynamic wrapper = {};
 	si_dynamic_new_3(&wrapper, sizeof(SI_TEMPLATE_TYPE), 1u);
-	si_dynamic_set(&wrapper, 0u, initial_value);
-	si_linked_list_new(p_list, &initial_value);
+	si_dynamic_set(&wrapper, 0u, &initial_value);
+	si_linked_list_new(p_list, &wrapper);
 	si_dynamic_free(&wrapper);
 }
 
@@ -66,7 +66,7 @@ static inline size_t SI_TEMPLATE_FUNCTION(, _linked_list_count)(
 }
 
 static SI_TEMPLATE_TYPE* SI_TEMPLATE_FUNCTION(, _linked_list_at)(
-	const SI_TEMPALTE_FUNCTION(, _linked_list) const p_list,
+	const SI_TEMPLATE_FUNCTION(, _linked_list)* const p_list,
 	const size_t index)
 {
 	SI_TEMPLATE_TYPE* p_value = NULL;
@@ -91,13 +91,13 @@ static SI_TEMPLATE_TYPE* SI_TEMPLATE_FUNCTION(, _linked_list_last)(
 		goto END;
 	}
 	// Unwrap value
-	p_value = (SI_TEMPLATE_TYPE*)p_dynamic->data
+	p_value = (SI_TEMPLATE_TYPE*)p_dynamic->data;
 END:
 	return p_value;
 }
 
 static size_t SI_TEMPLATE_FUNCTION(, _linked_list_find_next_3)(
-	const SI_TEMPLATE_FUNCTION(, _linked_list)* const p_list
+	const SI_TEMPLATE_FUNCTION(, _linked_list)* const p_list,
 	const SI_TEMPLATE_TYPE needle, const size_t current_index)
 {
 	size_t result = 0u;
@@ -117,59 +117,59 @@ static inline size_t SI_TEMPLATE_FUNCTION(, _linked_list_find_next)(
 }
 
 static bool SI_TEMPLATE_FUNCTION(, _linked_list_insert_next)(
-	SI_TEMPALTE_FUNCTION(, _linked_list)* const p_list, const SI_TEMPLATE_TYPE data)
+	SI_TEMPLATE_FUNCTION(, _linked_list)* const p_list, const SI_TEMPLATE_TYPE data)
 {
 	si_dynamic wrapper = {};
 	si_dynamic_new_3(&wrapper, sizeof(SI_TEMPLATE_TYPE), 1u);
 	si_dynamic_set(&wrapper, 0u, &data);
-	bool result = si_linked_list_insert_next(p_list, wrapper);
+	bool result = si_linked_list_insert_next(p_list, &wrapper);
 	si_dynamic_free(&wrapper);
 	return result;
 }
 
 static bool SI_TEMPLATE_FUNCTION(, _linked_list_insert)(
-	SI_TEMPALTE_FUNCTION(, _linked_list)* const p_list, const SI_TEMPLATE_TYPE data,
+	SI_TEMPLATE_FUNCTION(, _linked_list)* const p_list, const SI_TEMPLATE_TYPE data,
 	const size_t index)
 {
 	si_dynamic wrapper = {};
 	si_dynamic_new_3(&wrapper, sizeof(SI_TEMPLATE_TYPE), 1u);
 	si_dynamic_set(&wrapper, 0u, &data);
-	bool result = si_linked_list_insert(p_list, wrapper, index);
+	bool result = si_linked_list_insert(p_list, &wrapper, index);
 	si_dynamic_free(&wrapper);
 	return result;
 }
 
 static bool SI_TEMPLATE_FUNCTION(, _linked_list_append)(
-	SI_TEMPALTE_FUNCTION(, _linked_list)* const p_list, const SI_TEMPLATE_TYPE data)
+	SI_TEMPLATE_FUNCTION(, _linked_list)* const p_list, const SI_TEMPLATE_TYPE data)
 {
 	si_dynamic wrapper = {};
 	si_dynamic_new_3(&wrapper, sizeof(SI_TEMPLATE_TYPE), 1u);
 	si_dynamic_set(&wrapper, 0u, &data);
-	bool result = si_linked_list_append(p_list, wrapper);
+	bool result = si_linked_list_append(p_list, &wrapper);
 	si_dynamic_free(&wrapper);
 	return result;
 }
 
 static inline bool SI_TEMPLATE_FUNCTION(, _linked_list_remove_next)(
-	SI_TEMPALTE_FUNCTION(, _linked_list)* const p_list)
+	SI_TEMPLATE_FUNCTION(, _linked_list)* const p_list)
 {
 	return si_linked_list_remove_next(p_list);
 }
 
 static inline bool SI_TEMPLATE_FUNCTION(, _linked_list_remove_at)(
-	SI_TEMPALTE_FUNCTION(, _linked_list)* const p_list, const size_t index)
+	SI_TEMPLATE_FUNCTION(, _linked_list)* const p_list, const size_t index)
 {
 	return si_linked_list_remove_at(p_list, index);
 }
 
 static inline void SI_TEMPLATE_FUNCTION(, _linked_list_free)(
-	SI_TEMPALTE_FUNCTION(, _linked_list)* const p_list)
+	SI_TEMPLATE_FUNCTION(, _linked_list)* const p_list)
 {
 	si_linked_list_free(p_list);
 }
 
 static inline void SI_TEMPLATE_FUNCTION(, _linked_list_fprint)(
-	const SI_TEMPALTE_FUNCTION(, _linked_list)* const p_list,
+	const SI_TEMPLATE_FUNCTION(, _linked_list)* const p_list,
 	FILE* const p_file)
 {
 	si_linked_list_fprint(p_list, p_file);

@@ -5,11 +5,11 @@ void si_linked_list_new(si_linked_list* const p_list,
 	const si_dynamic* const p_initial_value)
 {
 	p_list->next = NULL;
-	if(NULL != initial_value)
+	if(NULL != p_initial_value)
 	{
 		// Copy value from initial value
-		si_dynamic_new_3(&(p_list->dynamic), initial_value->element_size, 1u);
-		si_dynamic_set(&(p_list->dynamic), 0u, initial_value->data);
+		si_dynamic_new_3(&(p_list->dynamic), p_initial_value->element_size, 1u);
+		si_dynamic_set(&(p_list->dynamic), 0u, p_initial_value->data);
 	}
 	else
 	{

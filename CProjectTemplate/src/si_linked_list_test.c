@@ -33,7 +33,6 @@ void test00(void)
 	si_linked_list_fprint(&list, stdout);
 	fprintf(stdout, "\n");
 	si_linked_list_free(&list);
-	return 0;
 }
 
 #define SI_TEMPLATE_TYPE int
@@ -43,7 +42,18 @@ void test01(void)
 {
 	int_linked_list list = {};
 	int_linked_list_new(&list, 42);
+	for(int i = 0; i < 3; i++)
+	{
+		int_linked_list_append(&list, 389 * (i + 3));
+	}
 	int_linked_list_fprint(&list, stdout);
+	printf("\n");
+	for(int i = 0; i < 2; i++)
+	{
+		int_linked_list_remove_at(&list, 0u);
+	}
+	int_linked_list_fprint(&list, stdout);
+	printf("\n");
 	int_linked_list_free(&list);
 }
 
