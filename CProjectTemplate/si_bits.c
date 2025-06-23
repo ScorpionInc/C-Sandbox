@@ -217,13 +217,13 @@ inline void fprint_be_bits_4(FILE* p_file, const uint8_t* p_buffer,
 			const size_t buffer_size, const size_t bit_offset)
 {
 	// Default bit_count is SIZE_MAX. (Prints all bits)
-	fprint_le_bits_5(p_file, p_buffer, buffer_size, bit_offset, SIZE_MAX);
+	fprint_be_bits_5(p_file, p_buffer, buffer_size, bit_offset, SIZE_MAX);
 }
 inline void fprint_be_bits(FILE* p_file, const uint8_t* p_buffer,
 			const size_t buffer_size)
 {
 	// Default bit_offset is 0. (Prints from the start.)
-	fprint_le_bits_4(p_file, p_buffer, buffer_size, 0u);
+	fprint_be_bits_4(p_file, p_buffer, buffer_size, 0u);
 }
 
 // Writes bit_count bits as 1/0 chars into p_file from p_buffer in host order.
