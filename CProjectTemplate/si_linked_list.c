@@ -1,78 +1,83 @@
 #include "si_linked_list.h"
 
-void si_linked_list_new(si_linked_list* p_list, const size_t element_size,
-	const void* initial_value)
+//const pointer, const pointer & value
+void si_linked_list_new(si_linked_list* const p_list,
+	const si_dynamic* const initial_value)
 {
-	si_dynamic_new_3(&(p_list->dynamic), element_size, 1u);
-	si_dynamic_set(&(p_list->dynamic), 0u, initial_value);
 	p_list->next = NULL;
+	if(NULL != initial_value)
+	{
+		// Copy value from initial value
+		si_dynamic_new_3(&(p_list->dynamic), initial_value->element_size, 1u);
+		si_dynamic_set(&(p_list->dynamic), 0u, initial_value->data);
+	}
+	else
+	{
+		// Initialize to an empty dynamic
+		si_dynamic_new_3(&(p_list->dynamic), 0u, 0u);
+	}
 }
 
-size_t si_linked_list_count(const si_linked_list* p_list)
+si_linked_list* si_linked_list_next(const si_linked_list* const p_list)
 {
-	size_t counter = 0u;
-	// Validate Parameter
+	si_linked_list* p_next = NULL;
+	// Validate paramter
 	if(NULL == p_list)
 	{
 		goto END;
 	}
-	counter = 1u;
-	const si_linked_list* p_tmp = p_list;
-	while(NULL != p_tmp->next)
+	p_next = p_list->next;
+END:
+	return p_next;
+}
+
+size_t si_linked_list_count(const si_linked_list* const p_list)
+{
+	size_t counter = 0u;
+	// Validate parameter
+	if(NULL == p_list)
 	{
-		p_tmp = p_tmp->next;
-		counter++;
+		goto END;
 	}
+	const si_linked_list* p_next = p_list;
+	do
+	{
+		counter++;
+	} while(NULL != (p_next = si_linked_list_next(p_next)));
 END:
 	return counter;
 }
 
-si_linked_list* si_linked_list_next(const si_linked_list* p_list)
+si_dynamic* si_linked_list_at(const si_linked_list* const p_list,
+	const size_t index)
 {
-	si_linked_list* p_tmp = NULL;
+	const si_dynamic* p_data = NULL;
 	if(NULL == p_list)
 	{
 		goto END;
 	}
-	p_tmp = p_list->next;
-END:
-	return p_tmp;
-}
-
-void* si_linked_list_at(const si_linked_list* p_list, const size_t index)
-{
-	void* p_data = NULL;
-	if(NULL == p_list)
+	size_t counter = 0u;
+	const si_linked_list* p_next = p_list;
+	do
 	{
-		goto END;
-	}
-	if(0u == index)
-	{
-		p_data = p_list->dynamic.data;
-		goto END;
-	}
-	size_t counter = 1u;
-	const si_linked_list* p_tmp = p_list;
-	while(NULL != p_tmp->next)
-	{
-		p_tmp = p_tmp->next;
-		if(index == counter)
+		if(counter == index)
 		{
-			break;
+			p_data = &(p_next->dynamic);
+			goto END;
 		}
 		counter++;
-	}
-	p_data = p_tmp->dynamic.data;
+	} while(NULL != (p_next = si_linked_list_next(p_next)));
 END:
-	return p_data;
+	return (si_dynamic*)p_data;
 }
 
-void* si_linked_list_last(const si_linked_list* p_list)
+si_dynamic* si_linked_list_last(const si_linked_list* const p_list)
 {
 	const size_t current_size = si_linked_list_count(p_list);
-	void* p_data = NULL;
+	si_dynamic* p_data = NULL;
 	if(0u == current_size)
 	{
+		// Prevent Underflow
 		goto END;
 	}
 	p_data = si_linked_list_at(p_list, current_size - 1u);
@@ -80,44 +85,57 @@ END:
 	return p_data;
 }
 
-size_t si_linked_list_find_next_3(const si_linked_list* p_list,
-	const void* p_data, const size_t current_index)
+size_t si_linked_list_find_next_3(const si_linked_list* const p_list,
+	const si_dynamic* const p_data, const size_t current_index)
 {
-	// Recursion implementation may be slower.
+	// This recursion implementation may be slower than iterative. (Profile me)
 	size_t index = current_index;
 	if((NULL == p_list) || (p_data == NULL))
 	{
 		goto END;
 	}
-	if(0u == memcmp(p_list->dynamic.data, p_data, p_list->dynamic.element_size))
+	// Is the node at index's value = to needle p_data?
+	if(0u == si_dynamic_cmp(si_linked_list_at(p_list, index), p_data))
 	{
 		goto END;
 	}
-	index = si_linked_list_find_next_3(p_list, p_data, current_index + 1u);
+	// Try next list node if defined.
+	if(index == SIZE_MAX)
+	{
+		// Prevent Overflow
+		goto END;
+	}
+	const size_t list_count = si_linked_list_count(p_list);
+	if(index + 1u < list_count)
+	{
+		index = si_linked_list_find_next_3(p_list, p_data, index + 1u);
+	}
 END:
 	return index;
 }
-inline size_t si_linked_list_find_next(const si_linked_list* p_list,
-	const void* p_data)
+inline size_t si_linked_list_find_next(const si_linked_list* const p_list,
+	const si_dynamic* const p_data)
 {
 	// Default parameter current_index=0 (Assumes this is the root node)
 	return si_linked_list_find_next_3(p_list, p_data, 0u);
 }
 
-bool si_linked_list_insert_next(si_linked_list* p_list, const void* p_data)
+bool si_linked_list_insert_next(si_linked_list* const p_list,
+	const si_dynamic* const p_data)
 {
 	bool result = false;
-	if(NULL == p_list)
+	// Validate parameters
+	if((NULL == p_list) || (NULL == p_data))
 	{
 		goto END;
 	}
+	// Begin
 	si_linked_list* next_node = calloc(1u, sizeof(si_linked_list));
 	if(NULL == next_node)
 	{
 		goto END;
 	}
-	const size_t element_size = (p_list->dynamic).element_size;
-	si_linked_list_new(next_node, element_size, p_data);
+	si_linked_list_new(next_node, p_data);
 	if(NULL == p_list->next)
 	{
 		// Is leaf node
@@ -131,12 +149,13 @@ bool si_linked_list_insert_next(si_linked_list* p_list, const void* p_data)
 		p_list->next = next_node;
 		result = true;
 	}
+	// End
 END:
 	return result;
 }
 
-bool si_linked_list_insert(si_linked_list* p_list, const void* p_data,
-	const size_t index)
+bool si_linked_list_insert(si_linked_list* const p_list,
+	const si_dynamic* const p_data, const size_t index)
 {
 	bool result = false;
 	if((NULL == p_list) || (NULL == p_data))
@@ -151,7 +170,7 @@ bool si_linked_list_insert(si_linked_list* p_list, const void* p_data,
 		{
 			goto END;
 		}
-		si_linked_list_new(next_node, p_list->dynamic.element_size, p_data);
+		si_linked_list_new(next_node, p_data);
 		void* current_data = p_list->dynamic.data;
 		p_list->dynamic.data = next_node->dynamic.data;
 		next_node->dynamic.data = current_data;
@@ -187,7 +206,7 @@ END:
 	return result;
 }
 
-bool si_linked_list_append(si_linked_list* p_list, const void* p_data)
+bool si_linked_list_append(si_linked_list* const p_list, const si_dynamic* const p_data)
 {
 	bool result = false;
 	// Validate parameters
@@ -196,6 +215,7 @@ bool si_linked_list_append(si_linked_list* p_list, const void* p_data)
 		goto END;
 	}
 	// Begin
+	// Get last node to insert data after it(next)
 	// Note: si_linked_list_last returns last value not last node.
 	si_linked_list* last_node = p_list;
 	while(NULL != last_node)
@@ -212,7 +232,7 @@ END:
 	return result;
 }
 
-bool si_linked_list_remove_next(si_linked_list* p_list)
+bool si_linked_list_remove_next(si_linked_list* const p_list)
 {
 	bool result = false;
 	// Validate parameters
@@ -241,7 +261,7 @@ END:
 	return result;
 }
 
-bool si_linked_list_remove_at(si_linked_list* p_list, const size_t index)
+bool si_linked_list_remove_at(si_linked_list* const p_list, const size_t index)
 {
 	bool result = false;
 	// Validate parameters
@@ -291,7 +311,7 @@ END:
 	return result;
 }
 
-void si_linked_list_free(si_linked_list* p_list)
+void si_linked_list_free(si_linked_list* const p_list)
 {
 	if(NULL == p_list)
 	{
@@ -307,7 +327,7 @@ END:
 	return;
 }
 
-void si_linked_list_fprint(si_linked_list* p_list, FILE* p_file)
+void si_linked_list_fprint(const si_linked_list* const p_list, FILE* const p_file)
 {
 	// Validate parameters
 	if((NULL == p_list) || (NULL == p_file))
@@ -315,16 +335,29 @@ void si_linked_list_fprint(si_linked_list* p_list, FILE* p_file)
 		goto END;
 	}
 	// Begin
-	const size_t list_count = si_linked_list_count(p_list);
-	const size_t element_size = p_list->dynamic.element_size;
-	si_linked_list* iterator = p_list;
+	const si_linked_list* iterator = p_list;
+	const size_t list_count = si_linked_list_count(iterator);
 	fprintf(p_file, "{");
 	for(size_t i = 0u; i < list_count; i++)
 	{
+		if(NULL == iterator->dynamic.data)
+		{
+			// Undefined data element.
+			iterator = iterator->next;
+			continue;
+		}
+		if(0u >= iterator->dynamic.capacity)
+		{
+			// Empty alloc
+			iterator = iterator->next;
+			continue;
+		}
 		// Ignores Byte order for simplicity.
+		const size_t element_size = iterator->dynamic.element_size;
 		for(size_t ii = 0u; ii < element_size; ii++)
 		{
-			fprintf(p_file, "%02x", ((char*)iterator->dynamic.data)[ii]);
+			const uint8_t next_byte = ((uint8_t*)iterator->dynamic.data)[ii];
+			fprintf(p_file, "%02x", next_byte);
 		}
 		if((list_count - 1u) > i)
 		{
