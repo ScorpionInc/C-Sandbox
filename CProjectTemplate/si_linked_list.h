@@ -1,4 +1,10 @@
-// si_linked_list.h
+/* si_linked_list.h
+ * Language: C
+ * Authors: ScorpionInc
+ * Purpose: Define struct with functions 4 managing dynamic single-linked lists
+ * Created: 20250618
+ * Updated: 20250623
+//*/
 
 #include <stdio.h>
 
