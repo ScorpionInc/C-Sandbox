@@ -24,11 +24,6 @@ void fprint_byte_bits_4(FILE* p_file, const uint8_t byte,
 	{
 		goto END;
 	}
-	// Clamp bit_start to prevent underflow in next if
-	if(SI_BITS_COUNT < mut_bit_start)
-	{
-		mut_bit_start = SI_BITS_COUNT;
-	}
 	// Clamp bit_length to within a byte
 	if((SI_BITS_COUNT - mut_bit_start) < mut_bit_length)
 	{
