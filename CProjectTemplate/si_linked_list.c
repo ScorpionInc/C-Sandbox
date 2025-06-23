@@ -321,6 +321,7 @@ void si_linked_list_fprint(si_linked_list* p_list, FILE* p_file)
 	fprintf(p_file, "{");
 	for(size_t i = 0u; i < list_count; i++)
 	{
+		// Ignores Byte order for simplicity.
 		for(size_t ii = 0u; ii < element_size; ii++)
 		{
 			fprintf(p_file, "%02x", ((char*)iterator->dynamic.data)[ii]);
