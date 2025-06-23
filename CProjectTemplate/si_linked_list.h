@@ -1,5 +1,7 @@
 // si_linked_list.h
 
+#include <stdio.h>
+
 #include "si_dynamic.h"
 
 #ifndef SI_LINKED_LIST_H
@@ -132,6 +134,14 @@ bool si_linked_list_remove_at(si_linked_list* p_list, const size_t index);
  * @return Returns
  */
 void si_linked_list_free(si_linked_list* p_list);
+
+/** Doxygen
+ * @brief Prints contents of list to file stream.
+ *
+ * @param p_list Pointer to list to be printed to file stream.
+ * @param p_file Pointer to file stream to be printed to.
+ */
+void si_linked_list_fprint(si_linked_list* p_list, FILE* p_file);
 
 #ifdef __cplusplus
 }
