@@ -9,6 +9,8 @@
 #ifndef SI_BITS_H_
 #define SI_BITS_H_
 
+#include <endian.h>
+#include <limits.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -36,13 +38,6 @@ void fprint_byte_bits_4(FILE* p_file, const uint8_t byte,
 void fprint_byte_bits_3(FILE* p_file, const uint8_t byte,
 	const unsigned int bit_start);
 void fprint_byte_bits(FILE* p_file, const uint8_t byte);
-
-/** Doxygen
- * @brief Determines the ordering of the host at runtime.
- *
- * @return Returns true if host is little endian. False otherwise.
- */
-bool is_host_order_le();
 
 /** Doxygen
  * @brief Writes size bytes from p_buffer in little endian to p_file as binary chars.

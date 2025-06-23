@@ -6,12 +6,6 @@
  * Updated: 20250612
 //*/
 
-#include <limits.h>
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <stdio.h>
-
 #include "si_bits.h"
 
 #ifdef __cplusplus
@@ -63,14 +57,6 @@ inline void fprint_byte_bits(FILE* p_file, const uint8_t byte)
 	fprint_byte_bits_3(p_file, byte, 0u);
 }
 
-// Determines the ordering of the host at runtime.
-bool is_host_order_le()
-{
-	int tmp = 1;
-	char *ptr = (char *)&tmp;
-	return (*ptr == 1);
-}
-
 // Writes size bytes from p_buffer in little endian to p_file as binary chars.
 void fprint_le_bytes_bits(FILE* p_file,
 			const uint8_t* p_buffer, const size_t buffer_size)
@@ -119,7 +105,7 @@ END:
 void fprint_bytes_bits(FILE* p_file,
 			const uint8_t* p_buffer, const size_t buffer_size)
 {
-	if(is_host_order_le())
+	if(BYTE_ORDER == LITTLE_ENDIAN)
 	{
 		fprint_le_bytes_bits(p_file, p_buffer, buffer_size);
 	}
@@ -250,7 +236,7 @@ void fprint_bits(FILE* p_file,
     const uint8_t* p_buffer, const size_t buffer_size,
     const size_t bit_offset, const size_t bit_count)
 {
-	if(is_host_order_le())
+	if(BYTE_ORDER == LITTLE_ENDIAN)
 	{
 		fprint_le_bits_5(p_file, p_buffer, buffer_size, bit_offset, bit_count);
 	}
