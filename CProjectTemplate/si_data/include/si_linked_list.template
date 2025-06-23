@@ -1,0 +1,126 @@
+/* template.template
+ * Purpose: Class-like template generation using preprocessor #defines
+ * Created: 20250623
+ * Updated: 20250623
+//*/
+
+#include "si_linked_list.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif //__cplusplus
+
+#ifdef SI_TEMPLATE_TYPE
+
+#ifndef _STRINGIFY
+#define _STRINGIFY(s) #s
+#define DEFINED__STRINGIFY
+#endif
+#ifndef STRINGIFY
+#define STRINGIFY(s) _STRINGIFY(s)
+#define DEFINED_STRINGIFY
+#endif
+
+#ifndef PASTE_TWO_TOKENS
+#define PASTE_TWO_TOKENS(token_1, token_2) token_1 ## token_2
+#define DEFINED_PASTE_TWO_TOKENS
+#endif
+#ifndef PASTE_TWO_TOKENS_INDIRECT
+#define PASTE_TWO_TOKENS_INDIRECT(token_1, token_2) PASTE_TWO_TOKENS(token_1 , token_2)
+#define DEFINED_PASTE_TWO_TOKENS_INDIRECT
+#endif
+
+// Used to generate function/struct type names using provided template_type
+#ifdef SI_TEMPLATE_FUNCTION
+#undef SI_TEMPLATE_FUNCTION
+#endif
+#define SI_TEMPLATE_FUNCTION(B, E) \
+	PASTE_TWO_TOKENS_INDIRECT(B, \
+	PASTE_TWO_TOKENS_INDIRECT(SI_TEMPLATE_TYPE, E))
+
+
+//! TODO
+typedef struct si_linked_list SI_TEMPLATE_FUNCTION(, _linked_list);
+
+static void SI_TEMPLATE_FUNCTION(, _linked_list_new)(
+	SI_TEMPLATE_FUNCTION(, _linked_list)* const p_list,
+	const SI_TEMPLATE_TYPE initial_value)
+{
+	si_dynamic wrapper = {};
+	si_dynamic_new_3(&wrapper, sizeof(SI_TEMPLATE_TYPE), 1u);
+	si_dynamic_set(&wrapper, 0u, initial_value);
+	si_linked_list_new(p_list, &initial_value);
+	si_dynamic_free(&wrapper);
+}
+
+static inline SI_TEMPLATE_FUNCTION(, _linked_list)* SI_TEMPLATE_FUNCTION(, _linked_list_next)(
+	const SI_TEMPLATE_FUNCTION(, _linked_list)* const p_list)
+{
+	return si_linked_list_next(p_list);
+}
+
+static inline size_t SI_TEMPLATE_FUNCTION(, _linked_list_count)(
+	const SI_TEMPLATE_FUNCTION(, _linked_list)* const p_list)
+{
+	return si_linked_list_count(p_list);
+}
+
+static SI_TEMPLATE_TYPE* SI_TEMPLATE_FUNCTION(, _linked_list_at)(
+	const SI_TEMPALTE_FUNCTION(, _linked_list) const p_list,
+	const size_t index)
+{
+	SI_TEMPLATE_TYPE* p_value = NULL;
+	si_dynamic* p_dynamic = si_linked_list_at(p_list, index);
+	if(NULL == p_dynamic)
+	{
+		goto END;
+	}
+	// Unwrap value
+	p_value = (SI_TEMPLATE_TYPE*)p_dynamic->data;
+END:
+	return p_value;
+}
+
+static SI_TEMPLATE_TYPE* SI_TEMPLATE_FUNCTION(, _linked_list_last)(
+	const SI_TEMPLATE_FUNCTION(, _linked_list)* const p_list)
+{
+	//! TODO
+}
+
+// Clean up our preprocessor defines.
+#undef SI_TEMPLATE_FUNCTION
+
+// Only undefine these functions if they weren't already defined
+// Done in the reverse order of their definition.
+#ifdef DEFINED_PASTE_TWO_TOKENS_INDIRECT
+#undef PASTE_TWO_TOKENS_INDIRECT
+#undef DEFINED_PASTE_TWO_TOKENS_INDIRECT
+#endif
+
+#ifdef DEFINED_PASTE_TWO_TOKENS
+#undef PASTE_TWO_TOKENS
+#undef DEFINED_PASTE_TWO_TOKENS
+#endif
+
+#ifdef DEFINED_STRINGIFY
+#undef STRINGIFY
+#undef DEFINED_STRINGIFY
+#endif
+
+#ifdef DEFINED__STRINGIFY
+#undef _STRINGIFY
+#undef DEFINED__STRINGIFY
+#endif
+
+#undef SI_TEMPLATE_TYPE
+
+#else
+
+// Handle undefined template type.
+#error "Template was included without a defined template type(SI_TEMPLATE_TYPE)."
+
+#endif//SI_TEMPLATE_TYPE
+
+#ifdef __cplusplus
+}
+#endif //__cplusplus
