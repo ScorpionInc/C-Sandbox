@@ -320,7 +320,32 @@ END:
 	return result;
 }
 
-void si_dynamic_free(si_dynamic* p_dynamic)
+void fprint_si_dynamic(FILE* const p_file, const si_dynamic* const p_dynamic)
+{
+	// Validate parameters
+	if((NULL == p_file) || (NULL == p_dynamic))
+	{
+		goto END;
+	}
+	// Begin
+	fprintf(p_file, "{data address: ");
+	if(NULL == p_dynamic->data)
+	{
+		fprintf(p_file, "NULL, ");
+	}
+	else
+	{
+		fprintf(p_file, "%p, ", p_dynamic->data);
+	}
+	fprintf(p_file, "element size: %lu, ", p_dynamic->element_size);
+	fprintf(p_file, "capacity: %lu", p_dynamic->capacity);
+	fprintf(p_file, "}");
+	// End
+END:
+	return;
+}
+
+void si_dynamic_free(si_dynamic* const p_dynamic)
 {
 	// Validate parameter
 	if (NULL == p_dynamic)

@@ -163,9 +163,19 @@ int si_dynamic_cmp(const si_dynamic* const p_dynamic_a,
 	const si_dynamic* const p_dynamic_b);
 
 /** Doxygen
- * @brief Frees buffer if allocated.
+ * @brief Writes values of si_dynamic struct to file for debugging.
+ *
+ * @param p_file Pointer to the FILE to be printed to.
+ * @param p_dynamic Pointer to si_dynamic struct that is to be printed to file.
  */
-void si_dynamic_free(si_dynamic* p_dynamic);
+void fprint_si_dynamic(FILE* const p_file, const si_dynamic* const p_dynamic);
+
+/** Doxygen
+ * @brief Frees buffer if allocated.
+ *
+ * @param p_dynamic Pointer to si_dynamic struct that's to have it's data freed
+ */
+void si_dynamic_free(si_dynamic* const p_dynamic);
 
 #ifdef __cplusplus
 }
