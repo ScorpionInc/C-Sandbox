@@ -323,7 +323,7 @@ void si_linked_list_fprint(si_linked_list* p_list, FILE* p_file)
 	{
 		for(size_t ii = 0u; ii < element_size; ii++)
 		{
-			fprintf(p_file, "%x", ((char*)iterator->dynamic.data)[ii]);
+			fprintf(p_file, "%02x", ((char*)iterator->dynamic.data)[ii]);
 		}
 		if((list_count - 1u) > i)
 		{
