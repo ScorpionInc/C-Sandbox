@@ -168,6 +168,13 @@ static inline void SI_TEMPLATE_FUNCTION(, _linked_list_free)(
 	si_linked_list_free(p_list);
 }
 
+static inline void SI_TEMPLATE_FUNCTION(, _linked_list_fprint)(
+	const SI_TEMPALTE_FUNCTION(, _linked_list)* const p_list,
+	FILE* const p_file)
+{
+	si_linked_list_fprint(p_list, p_file);
+}
+
 
 // Clean up our preprocessor defines.
 #undef SI_TEMPLATE_FUNCTION

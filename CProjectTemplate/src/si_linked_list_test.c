@@ -2,7 +2,7 @@
 
 #include "si_linked_list.h"
 
-int main(int argc, char** pp_argv)
+void test00(void)
 {
 	short initial_short = 42;
 	si_dynamic initial_value = {};
@@ -34,4 +34,21 @@ int main(int argc, char** pp_argv)
 	fprintf(stdout, "\n");
 	si_linked_list_free(&list);
 	return 0;
+}
+
+#define SI_TEMPLATE_TYPE int
+#include "si_linked_list.template"
+
+void test01(void)
+{
+	int_linked_list list = {};
+	int_linked_list_new(&list, 42);
+	int_linked_list_fprint(&list, stdout);
+	int_linked_list_free(&list);
+}
+
+int main(int argc, char** pp_argv)
+{
+	test00();
+	test01();
 }
