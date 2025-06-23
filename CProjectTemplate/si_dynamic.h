@@ -1,9 +1,9 @@
 /* si_dynamic.h
  * Language: C
  * Authors: ScorpionInc
- * Purpose: Defines struct with functions for managing dynamically allocated buffers.
+ * Purpose: Defines struct with functions for managing a dynamically allocated buffer.
  * Created: 20150501
- * Updated: 20250611
+ * Updated: 20250623
 //*/
 
 #include <stdbool.h>
@@ -48,7 +48,7 @@ void si_dynamic_new (si_dynamic* p_dynamic, const size_t element_size);
 size_t si_dynamic_size(const si_dynamic* p_dynamic);
 
 /* Doxygen
- * @brief Sets capacity of buffer of items to new_capacity. Ignores settings.
+ * @brief Sets capacity of buffer of items to new_capacity.
  *
  * @param p_dynamic Pointer to si_dynamic struct to have a resized capacity.
  * @param new_capacity Number of items of element_size to be stored in buffer.
@@ -150,6 +150,17 @@ void si_dynamic_set(si_dynamic* p_dynamic,
  */
 void si_dynamic_get(const si_dynamic* p_dynamic,
 	const size_t index, void* p_item);
+
+/** Doxygen
+ * @brief Compares the raw byte values of two si_dynamic structs data.
+ *
+ * @param p_dynamic_a Pointer to first si_dynamic struct to be compared.
+ * @param p_dynamic_b Pointer to the second si_dynamic struct to be compared.
+ *
+ * @return Returns int value of 0 if equal. 1 or -1 otherwise simular to memcmp
+ */
+int si_dynamic_cmp(const si_dynamic* const p_dynamic_a,
+	const si_dynamic* const p_dynamic_b);
 
 /** Doxygen
  * @brief Frees buffer if allocated.

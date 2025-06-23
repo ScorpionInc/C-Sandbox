@@ -242,6 +242,84 @@ void si_dynamic_get(const si_dynamic* p_dynamic,
 	END:
 }
 
+int si_dynamic_cmp(const si_dynamic* const p_dynamic_a,
+	const si_dynamic* const p_dynamic_b)
+{
+	int result = 0;
+	if(p_dynamic_a == p_dynamic_b)
+	{
+		// Pointing to the same struct or same memory.
+		goto END;
+	}
+	// We will treat NULL as the smallest possible value.
+	if(NULL == p_dynamic_a)
+	{
+		// a(0) < b(?)
+		result = -1;
+		goto END;
+	}
+	if(NULL == p_dynamic_b)
+	{
+		// a(?) > b(0)
+		result = 1;
+		goto END;
+	}
+	// Different non-NULL structs in memory.
+	// Determine bounds of data buffer sizes.
+	const size_t a_size = si_dynamic_size(p_dynamic_a);
+	const size_t b_size = si_dynamic_size(p_dynamic_b);
+	size_t min_size = 0u;
+	size_t max_size = 0u;
+	if(a_size >= b_size)
+	{
+		max_size = a_size;
+		min_size = b_size;
+	}
+	else
+	{
+		max_size = b_size;
+		min_size = a_size;
+	}
+	// Compare safe bounds values.
+	uint8_t next_a = 0u;
+	uint8_t next_b = 0u;
+	for(size_t i = 0u; i < min_size; i++)
+	{
+		next_a = ((uint8_t*)p_dynamic_a->data)[i];
+		next_b = ((uint8_t*)p_dynamic_b->data)[i];
+		if(next_a == next_b)
+		{
+			continue;
+		}
+		result = -1;
+		if(next_a > next_b)
+		{
+			result = 1;
+		}
+		goto END;
+	}
+	if(min_size == max_size)
+	{
+		// Equal :)
+		goto END;
+	}
+	/* Unsafe bounds (Undefined behavior in C memcmp.)
+	 * For our implementation, even if values are the same and the dynamic with
+	 * the larger element size only containing 0x00 in the extra space, we will
+	 * return a result as being not equal.
+	 * E.G.
+	 * 0xDEADBEEF != 0x00000000DEADBEEF
+	 * Instead we will return the larger allocated size as the largest.
+	 */
+	result = -1;
+	if(a_size > b_size)
+	{
+		result = 1;
+	}
+END:
+	return result;
+}
+
 void si_dynamic_free(si_dynamic* p_dynamic)
 {
 	// Validate parameter
