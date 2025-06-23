@@ -17,7 +17,6 @@ void fprint_byte_bits_4(FILE* p_file, const uint8_t byte,
 			const unsigned int bit_start, const size_t bit_length)
 {
 	// Local Mutable Variables
-	unsigned int mut_bit_start = bit_start;
 	size_t mut_bit_length = bit_length;
 	// Validate parameters
 	if((NULL == p_file) || (SI_BITS_COUNT <= bit_start))
@@ -25,13 +24,14 @@ void fprint_byte_bits_4(FILE* p_file, const uint8_t byte,
 		goto END;
 	}
 	// Clamp bit_length to within a byte
-	if((SI_BITS_COUNT - mut_bit_start) < mut_bit_length)
+	if((SI_BITS_COUNT - bit_start) < mut_bit_length)
 	{
-		mut_bit_length = (SI_BITS_COUNT - mut_bit_start);
+		mut_bit_length = (SI_BITS_COUNT - bit_start);
 	}
 	// Begin
-	const unsigned int bit_end = (mut_bit_start + mut_bit_length);
-	for(unsigned int bit_index = mut_bit_start;bit_index < bit_end;bit_index++)
+	const unsigned int bit_end = (bit_start + mut_bit_length);
+	for(unsigned int bit_index = bit_start;
+		bit_index < bit_end; bit_index++)
 	{
 		// Prints from MSB
 		fprintf(p_file, "%c", byte & (0x80 >> bit_index) ? '1' : '0');
