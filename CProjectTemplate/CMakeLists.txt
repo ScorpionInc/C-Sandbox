@@ -37,6 +37,8 @@ add_executable(queue_test src/si_queue_test.c)
 target_link_libraries(queue_test _si_data)
 add_executable(list_test src/si_linked_list_test.c)
 target_link_libraries(list_test _si_data)
+add_executable(adler_test src/si_adler_test.c)
+target_link_libraries(adler_test _si_data)
 
 add_executable(bits_test src/si_bits_test.c)
 target_link_libraries(bits_test _si_print)
