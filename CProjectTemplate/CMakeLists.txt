@@ -24,10 +24,12 @@ endif()
 
 add_subdirectory(si_print)
 add_subdirectory(si_data)
+add_subdirectory(si_thread)
 
 add_executable(project src/main.c)
 target_link_libraries(project _si_print)
 target_link_libraries(project _si_data)
+target_link_libraries(project _si_thread)
 
 add_executable(array_test src/si_array_test.c)
 target_link_libraries(array_test _si_data)
@@ -39,8 +41,15 @@ add_executable(list_test src/si_linked_list_test.c)
 target_link_libraries(list_test _si_data)
 add_executable(adler_test src/si_adler_test.c)
 target_link_libraries(adler_test _si_data)
+add_executable(map_test src/si_map_test.c)
+target_link_libraries(map_test _si_data)
+add_executable(hashmap_test src/si_hashmap_test.c)
+target_link_libraries(hashmap_test _si_data)
 
 add_executable(bits_test src/si_bits_test.c)
 target_link_libraries(bits_test _si_print)
 add_executable(hex_test src/si_hex_test.c)
 target_link_libraries(hex_test _si_print)
+
+add_executable(thread_test src/si_thread_test.c)
+target_link_libraries(thread_test _si_thread)
