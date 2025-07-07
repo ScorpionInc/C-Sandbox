@@ -15,7 +15,7 @@ make
 echo 'Running unit tests.'
 echo
 find . -mindepth 1 -maxdepth 1 -name "*_test" |
-	xargs -n1 valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes -s
+	xargs -n1 valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes -s --fair-sched=yes
 find . -mindepth 1 -maxdepth 1 -name "*_test" |
 	xargs -n1 rm -f
 cd ..
