@@ -1,0 +1,10 @@
+lib_env = Environment(CPPPATH=['./include/'])
+lib_env.VariantDir('build', 'src', duplicate=0)
+lib = lib_env.StaticLibrary('build/si_cbig', Glob('./build/*.c'))
+Alias('lib', lib)
+Default(lib)
+
+unit_env = Environment(LIBS = ['si_cbig'], LIBPATH = ['./build/'], CPPPATH=['./include/'])
+#lib_env.VariantDir('build', '.', duplicate=0)
+unit = unit_env.Program('build/test', ['./test.c'])
+Alias('unit', unit)
