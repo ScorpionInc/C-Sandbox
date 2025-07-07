@@ -1,4 +1,10 @@
-// si_queue.h
+/* si_queue.h
+ * Language: C
+ * Authors: ScorpionInc
+ * Purpose: Defines struct with functions for managing a dynamically allocated queue.
+ * Created: 20150601
+ * Updated: 20250707
+//*/
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -8,6 +14,10 @@
 
 #ifndef SI_QUEUE_H
 #define SI_QUEUE_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif //__cplusplus
 
 typedef struct si_queue
 {
@@ -35,6 +45,8 @@ void si_queue_new(si_queue* p_queue, const size_t element_size);
  * @brief Counts the elements in the queue
  *
  * @param p_queue The pointer to the struct to count from.
+ *
+ * @return Returns the number of elements in the queue as size_t.
  */
 size_t si_queue_count(const si_queue* p_queue);
 
@@ -42,6 +54,8 @@ size_t si_queue_count(const si_queue* p_queue);
  * @brief Determines if the queue is empty
  *
  * @param p_queue Pointer to the queue to check.
+ *
+ * @return Returns stdbool true if queue is empty.
  */
 bool si_queue_is_empty(const si_queue* p_queue);
 
@@ -49,6 +63,8 @@ bool si_queue_is_empty(const si_queue* p_queue);
  * @brief Determines if the queue is full
  *
  * @param p_queue Pointer to the queue to check.
+ *
+ * @return Returns stdbool true if queue is full.
  */
 bool si_queue_is_full(const si_queue* p_queue);
 
@@ -57,14 +73,20 @@ bool si_queue_is_full(const si_queue* p_queue);
  *
  * @param p_queue Pointer to the struct to add item to.
  * @param p_item Item whose data is to be added into the queue.
+ *
+ * @return Returns new count of the queue.
  */
 size_t si_queue_enqueue(si_queue* p_queue, const void* p_item);
+
+
 
 /** Doxygen
  * @brief Sets value at p_item from queue and removes the item(pop).
  *
  * @param p_queue Pointer to the queue struct to get item from.
  * @param p_item Pointer to where to save the results to.
+ *
+ * @return Returns new count of the queue.
  */
 size_t si_queue_dequeue(si_queue* p_queue, void* p_item);
 
@@ -74,5 +96,9 @@ size_t si_queue_dequeue(si_queue* p_queue, void* p_item);
  * @param p_queue Pointer to the queue struct to be free'd.
  */
 void si_queue_free(si_queue* p_queue);
+
+#ifdef __cplusplus
+}
+#endif //__cplusplus
 
 #endif //SI_QUEUE_H
