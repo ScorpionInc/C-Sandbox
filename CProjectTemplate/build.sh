@@ -14,10 +14,19 @@ echo
 make
 echo 'Running unit tests.'
 echo
-find . -mindepth 1 -maxdepth 1 -name "*_test" |
-	xargs -n1 valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes -s --fair-sched=yes
-find . -mindepth 1 -maxdepth 1 -name "*_test" |
-	xargs -n1 rm -f
+tests=$(find . -mindepth 1 -maxdepth 1 -name "*_test")
+for t in $tests
+do
+	#echo "Running Unit test: '$t'"
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes -s --fair-sched=yes --error-exitcode=1 "$t" >/tmp/valgrind_output 2>&1
+	vgec=$?
+	if [[ "$vgec" -eq 0 ]]; then
+		rm -f "$t"
+	else
+		echo "Valgrind exited with code: $vgec"
+		cat /tmp/valgrind_output
+	fi
+done
 cd ..
 echo 'Extracting binary from build folder.'
 mv ./build/project ./project
