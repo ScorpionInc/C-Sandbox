@@ -93,12 +93,13 @@ void si_tasker_new_2(si_tasker* const p_tasker, const size_t thread_count)
 	pthread_mutex_t_array_new_2(&(p_tasker->locks), priority_capacity);
 	for(size_t i = 0u; i < priority_capacity; i++)
 	{
-		pthread_mutex_t* lock= pthread_mutex_t_array_at(&(p_tasker->locks), i);
+		pthread_mutex_t* lock = pthread_mutex_t_array_at(&(p_tasker->locks), i);
 		if(NULL == lock)
 		{
 			break;
 		}
 		*lock = (pthread_mutex_t){};
+		pthread_mutex_init(lock, NULL);
 	}
 	// TODO Add a way to define a shared realloc_settings struct
 	// Initialize task queues
