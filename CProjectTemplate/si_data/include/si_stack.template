@@ -41,7 +41,7 @@ extern "C" {
 	PASTE_TWO_TOKENS_INDIRECT(SI_TEMPLATE_TYPE, E))
 
 
-typedef struct si_stack SI_TEMPLATE_FUNCTION(, _stack);
+typedef struct si_stack_t SI_TEMPLATE_FUNCTION(, _stack);
 
 static inline void SI_TEMPLATE_FUNCTION(, _stack_new_2)(
 	SI_TEMPLATE_FUNCTION(, _stack)* p_stack, const size_t initial_capacity)

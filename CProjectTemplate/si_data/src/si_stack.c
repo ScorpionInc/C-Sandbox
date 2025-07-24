@@ -1,6 +1,6 @@
 #include "si_stack.h"
 
-void si_stack_new_4(si_stack* p_stack, const size_t element_size,
+void si_stack_new_4(si_stack_t* p_stack, const size_t element_size,
     const size_t initial_capacity, const si_realloc_settings* p_settings)
 {
 	p_stack->count = 0u;
@@ -14,18 +14,18 @@ void si_stack_new_4(si_stack* p_stack, const size_t element_size,
 	}
 	si_dynamic_new_3(&(p_stack->dynamic), element_size, initial_capacity);
 }
-inline void si_stack_new_3(si_stack* p_stack, const size_t element_size,
+inline void si_stack_new_3(si_stack_t* p_stack, const size_t element_size,
     const size_t initial_capacity)
 {
 	si_stack_new_4(p_stack, element_size, initial_capacity, NULL);
 }
-inline void si_stack_new(si_stack* p_stack, const size_t element_size)
+inline void si_stack_new(si_stack_t* p_stack, const size_t element_size)
 {
 	// Default capacity is 0u
 	si_stack_new_3(p_stack, element_size, 0u);
 }
 
-bool si_stack_is_full(const si_stack* p_stack)
+bool si_stack_is_full(const si_stack_t* p_stack)
 {
 	bool is_full = true;
 	// Validate parameter
@@ -40,7 +40,7 @@ END:
 	return is_full;
 }
 
-bool si_stack_is_empty(const si_stack* p_stack)
+bool si_stack_is_empty(const si_stack_t* p_stack)
 {
 	bool is_empty = true;
 	// Validate parameter
@@ -55,7 +55,7 @@ END:
 	return is_empty;
 }
 
-void si_stack_push(si_stack* p_stack, const void* p_item)
+void si_stack_push(si_stack_t* p_stack, const void* p_item)
 {
 	// Validate parameters
 	if((NULL == p_stack) || (NULL == p_item))
@@ -79,7 +79,7 @@ END:
 	return;
 }
 
-void si_stack_pop(si_stack* p_stack, void* p_item)
+void si_stack_pop(si_stack_t* p_stack, void* p_item)
 {
 	// Validate parameter
 	if(NULL == p_stack)
@@ -105,7 +105,7 @@ END:
 	return;
 }
 
-void si_stack_free(si_stack* p_stack)
+void si_stack_free(si_stack_t* p_stack)
 {
 	// Validate parameter
 	if(p_stack == NULL)

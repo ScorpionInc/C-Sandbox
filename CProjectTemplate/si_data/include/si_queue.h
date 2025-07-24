@@ -19,13 +19,13 @@
 extern "C" {
 #endif //__cplusplus
 
-typedef struct si_queue
+typedef struct si_queue_t
 {
 	size_t front;
 	size_t back;
 	si_realloc_settings settings;
-	si_dynamic dynamic;
-} si_queue;
+	si_dynamic_t dynamic;
+} si_queue_t;
 
 /** Doxygen
  * @brief Initializes a queue struct
@@ -35,11 +35,11 @@ typedef struct si_queue
  * @param initial_capacity Count of items to be stored in the queue. (0)
  * @param p_settings Pointer to si_realloc_settings to read from.
  */
-void si_queue_new_4(si_queue* p_queue, const size_t element_size,
+void si_queue_new_4(si_queue_t* p_queue, const size_t element_size,
 	const size_t initial_capacity, const si_realloc_settings* p_settings);
-void si_queue_new_3(si_queue* p_queue, const size_t element_size,
+void si_queue_new_3(si_queue_t* p_queue, const size_t element_size,
 	const size_t initial_capacity);
-void si_queue_new(si_queue* p_queue, const size_t element_size);
+void si_queue_new(si_queue_t* p_queue, const size_t element_size);
 
 /** Doxygen
  * @brief Counts the elements in the queue
@@ -48,7 +48,7 @@ void si_queue_new(si_queue* p_queue, const size_t element_size);
  *
  * @return Returns the number of elements in the queue as size_t.
  */
-size_t si_queue_count(const si_queue* p_queue);
+size_t si_queue_count(const si_queue_t* p_queue);
 
 /** Doxygen
  * @brief Determines if the queue is empty
@@ -57,7 +57,7 @@ size_t si_queue_count(const si_queue* p_queue);
  *
  * @return Returns stdbool true if queue is empty.
  */
-bool si_queue_is_empty(const si_queue* p_queue);
+bool si_queue_is_empty(const si_queue_t* p_queue);
 
 /** Doxygen
  * @brief Determines if the queue is full
@@ -66,7 +66,7 @@ bool si_queue_is_empty(const si_queue* p_queue);
  *
  * @return Returns stdbool true if queue is full.
  */
-bool si_queue_is_full(const si_queue* p_queue);
+bool si_queue_is_full(const si_queue_t* p_queue);
 
 /** Doxygen
  * @brief Adds an item of element_size to the queue
@@ -76,7 +76,7 @@ bool si_queue_is_full(const si_queue* p_queue);
  *
  * @return Returns new count of the queue.
  */
-size_t si_queue_enqueue(si_queue* p_queue, const void* p_item);
+size_t si_queue_enqueue(si_queue_t* p_queue, const void* p_item);
 
 
 
@@ -88,14 +88,14 @@ size_t si_queue_enqueue(si_queue* p_queue, const void* p_item);
  *
  * @return Returns new count of the queue.
  */
-size_t si_queue_dequeue(si_queue* p_queue, void* p_item);
+size_t si_queue_dequeue(si_queue_t* p_queue, void* p_item);
 
 /** Doxygen
  * @brief Frees the dynamically allocated values of a queue.
  *
  * @param p_queue Pointer to the queue struct to be free'd.
  */
-void si_queue_free(si_queue* p_queue);
+void si_queue_free(si_queue_t* p_queue);
 
 #ifdef __cplusplus
 }

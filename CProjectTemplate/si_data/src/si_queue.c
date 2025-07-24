@@ -6,7 +6,7 @@
 #include "si_queue.h"
 
 // Set struct default values
-void si_queue_new_4(si_queue* p_queue, const size_t element_size,
+void si_queue_new_4(si_queue_t* p_queue, const size_t element_size,
     const size_t initial_capacity, const si_realloc_settings* p_settings)
 {
 	// Validate parameter
@@ -26,26 +26,26 @@ void si_queue_new_4(si_queue* p_queue, const size_t element_size,
 	{
 		memcpy(&(p_queue->settings), p_settings, sizeof(si_realloc_settings));
 	}
-	p_queue->dynamic = (si_dynamic){};
+	p_queue->dynamic = (si_dynamic_t){};
 	si_dynamic_new_3(&(p_queue->dynamic), element_size, initial_capacity);
 	// End
 END:
 	return;
 }
-inline void si_queue_new_3(si_queue* p_queue, const size_t element_size,
+inline void si_queue_new_3(si_queue_t* p_queue, const size_t element_size,
 	const size_t initial_capacity)
 {
 	// Default p_settings value is NULL (initializes with defaults)
 	si_queue_new_4(p_queue, element_size, initial_capacity, NULL);
 }
-inline void si_queue_new(si_queue* p_queue, const size_t element_size)
+inline void si_queue_new(si_queue_t* p_queue, const size_t element_size)
 {
 	// Default initial_capacity is 0
 	si_queue_new_3(p_queue, element_size, 0u);
 }
 
 // Count elements
-size_t si_queue_count(const si_queue* p_queue)
+size_t si_queue_count(const si_queue_t* p_queue)
 {
 	size_t result = 0u;
 	// Validate parameter
@@ -67,7 +67,7 @@ END:
 	return result;
 }
 
-bool si_queue_is_empty(const si_queue* p_queue)
+bool si_queue_is_empty(const si_queue_t* p_queue)
 {
 	bool is_empty = true;
 	// Validate Parameter
@@ -82,7 +82,7 @@ END:
 	return is_empty;
 }
 
-bool si_queue_is_full(const si_queue* p_queue)
+bool si_queue_is_full(const si_queue_t* p_queue)
 {
 	bool is_full = true;
 	// Validate Parameter
@@ -103,7 +103,7 @@ END:
 }
 
 // Returns new count of queue
-size_t si_queue_enqueue(si_queue* p_queue, const void* p_item)
+size_t si_queue_enqueue(si_queue_t* p_queue, const void* p_item)
 {
 	size_t new_count = 0u;
 	// Validate parameters
@@ -129,7 +129,7 @@ END:
 	return new_count;
 }
 
-size_t si_queue_dequeue(si_queue* p_queue, void* p_item)
+size_t si_queue_dequeue(si_queue_t* p_queue, void* p_item)
 {
 	size_t new_count = 0u;
 	// Validate parameters
@@ -150,7 +150,7 @@ END:
 	return new_count;
 }
 
-void si_queue_free(si_queue* p_queue)
+void si_queue_free(si_queue_t* p_queue)
 {
 	// Validate parameter
 	if (NULL == p_queue)

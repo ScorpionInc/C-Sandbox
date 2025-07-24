@@ -13,7 +13,7 @@ void si_task_new_5(si_task* const p_task,
 	}
 	// Begin
 	p_task->field = field;
-	p_task->return_value = (si_dynamic){};
+	p_task->return_value = (si_dynamic_t){};
 	p_task->return_value.data = NULL;
 	(p_task->p_arguments) = p_arguments;
 	p_task->p_function = p_function;

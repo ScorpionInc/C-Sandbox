@@ -2,7 +2,7 @@
 
 #include "si_singular_list.h"
 
-void si_singular_list_init_3(si_singular_list* const p_list,
+void si_singular_list_init_3(si_singular_list_t* const p_list,
 	const bool is_circular, const size_t initial_capacity)
 {
 	// Validate
@@ -18,39 +18,39 @@ void si_singular_list_init_3(si_singular_list* const p_list,
 END:
 	return;
 }
-inline void si_singular_list_init_2(si_singular_list* const p_list,
+inline void si_singular_list_init_2(si_singular_list_t* const p_list,
 	const bool is_circular)
 {
 	// Default value of initial_capacity = SI_SINGULAR_LIST_DEFAULT_CAPACITY(1)
 	si_singular_list_init_3(p_list, is_circular,
 		SI_SINGULAR_LIST_DEFAULT_CAPACITY);
 }
-inline void si_singular_list_init(si_singular_list* const p_list)
+inline void si_singular_list_init(si_singular_list_t* const p_list)
 {
 	// Default value of is_circular = SI_SINGULAR_LIST_IS_CIRCULAR(true)
 	si_singular_list_init_2(p_list, SI_SINGULAR_LIST_IS_CIRCULAR);
 }
 
-si_singular_list* si_singular_list_new_2(const bool is_circular,
+si_singular_list_t* si_singular_list_new_2(const bool is_circular,
 	const size_t initial_capacity)
 {
 	// NULL values are passed along by init function().
-	si_singular_list* p_new = calloc(1u, sizeof(si_singular_list));
+	si_singular_list_t* p_new = calloc(1u, sizeof(si_singular_list_t));
 	si_singular_list_init_3(p_new, is_circular, initial_capacity);
 	return p_new;
 }
-inline si_singular_list* si_singular_list_new_1(const bool is_circular)
+inline si_singular_list_t* si_singular_list_new_1(const bool is_circular)
 {
 	// Default value of initial_capacity = SI_SINGULAR_LIST_DEFAULT_CAPACITY(1)
 	return si_singular_list_new_2(is_circular, SI_SINGULAR_LIST_DEFAULT_CAPACITY);
 }
-inline si_singular_list* si_singular_list_new()
+inline si_singular_list_t* si_singular_list_new()
 {
 	// Default value of is_circular = SI_SINGULAR_LIST_IS_CIRCULAR(true)
 	return si_singular_list_new_1(SI_SINGULAR_LIST_IS_CIRCULAR);
 }
 
-size_t si_singular_list_count(const si_singular_list* const p_list)
+size_t si_singular_list_count(const si_singular_list_t* const p_list)
 {
 	size_t counter = 0u;
 	// Validate
@@ -59,7 +59,7 @@ size_t si_singular_list_count(const si_singular_list* const p_list)
 		goto END;
 	}
 	// Begin
-	const si_singular_list* p_next = p_list;
+	const si_singular_list_t* p_next = p_list;
 	do
 	{
 		counter++;
@@ -74,14 +74,14 @@ END:
 	return counter;
 }
 
-size_t si_singular_list_capacity(const si_singular_list* const p_list)
+size_t si_singular_list_capacity(const si_singular_list_t* const p_list)
 {
 	size_t capacity = 0u;
 	if(NULL == p_list)
 	{
 		goto END;
 	}
-	const si_singular_list* p_iterator = p_list;
+	const si_singular_list_t* p_iterator = p_list;
 	while(NULL != p_iterator)
 	{
 		capacity++;
@@ -96,10 +96,10 @@ END:
 	return capacity;
 }
 
-si_singular_list* si_singular_list_node_at(const si_singular_list* const p_list,
+si_singular_list_t* si_singular_list_node_at(const si_singular_list_t* const p_list,
 	const size_t index)
 {
-	const si_singular_list* p_result = p_list;
+	const si_singular_list_t* p_result = p_list;
 	// Validate
 	if(NULL == p_result)
 	{
@@ -116,10 +116,10 @@ si_singular_list* si_singular_list_node_at(const si_singular_list* const p_list,
 	}
 	// End
 END:
-	return (si_singular_list*)p_result;
+	return (si_singular_list_t*)p_result;
 }
 
-void* si_singular_list_at(const si_singular_list* const p_list,
+void* si_singular_list_at(const si_singular_list_t* const p_list,
 	const size_t index)
 {
 	const void* p_data = NULL;
@@ -129,7 +129,7 @@ void* si_singular_list_at(const si_singular_list* const p_list,
 		goto END;
 	}
 	// Begin
-	const si_singular_list* const p_node = si_singular_list_node_at(p_list, index);
+	const si_singular_list_t* const p_node = si_singular_list_node_at(p_list, index);
 	if(NULL == p_node)
 	{
 		goto END;
@@ -140,7 +140,7 @@ END:
 	return (void*)p_data;
 }
 
-size_t si_singular_list_find_4(const si_singular_list* const p_list,
+size_t si_singular_list_find_4(const si_singular_list_t* const p_list,
 	const void* const p_data, int (*p_cmp_f)(const void* const, const void* const),
 	const size_t start_index)
 {
@@ -152,7 +152,7 @@ size_t si_singular_list_find_4(const si_singular_list* const p_list,
 	}
 	// Begin
 	size_t counter = 0u;
-	const si_singular_list* p_iterator = p_list;
+	const si_singular_list_t* p_iterator = p_list;
 	while(NULL != p_iterator)
 	{
 		// Test data
@@ -174,14 +174,14 @@ size_t si_singular_list_find_4(const si_singular_list* const p_list,
 END:
 	return index;
 }
-inline size_t si_singular_list_find(const si_singular_list* const p_list,
+inline size_t si_singular_list_find(const si_singular_list_t* const p_list,
 	const void* const p_data, int (*p_cmp_f)(const void* const, const void* const))
 {
 	// Default value of start_index = 0u (Current node)
 	return si_singular_list_find_4(p_list, p_data, p_cmp_f, 0u);
 }
 
-bool si_singular_list_sort(si_singular_list* const p_list,
+bool si_singular_list_sort(si_singular_list_t* const p_list,
 	int (*p_cmp_f)(const void*, const void*))
 {
 	bool result = false;
@@ -194,8 +194,8 @@ bool si_singular_list_sort(si_singular_list* const p_list,
 	{
 		goto END;
 	}
-	si_singular_list* p_small_node = p_list;
-	si_singular_list* p_test_node = NULL;
+	si_singular_list_t* p_small_node = p_list;
+	si_singular_list_t* p_test_node = NULL;
 	// Simple sort
 	for(size_t i = 0u; i < capacity; i++)
 	{
@@ -218,7 +218,7 @@ END:
 	return result;
 }
 
-bool si_singular_list_insert_next(si_singular_list* const p_list,
+bool si_singular_list_insert_next(si_singular_list_t* const p_list,
 	const void* const p_data)
 {
 	bool result = false;
@@ -228,7 +228,7 @@ bool si_singular_list_insert_next(si_singular_list* const p_list,
 		goto END;
 	}
 	// Begin
-	si_singular_list* next_node = si_singular_list_new_2(false, 1u);
+	si_singular_list_t* next_node = si_singular_list_new_2(false, 1u);
 	if(NULL == next_node)
 	{
 		goto END;
@@ -251,11 +251,11 @@ END:
 	return result;
 }
 
-bool si_singular_list_insert(si_singular_list* const p_list,
+bool si_singular_list_insert(si_singular_list_t* const p_list,
 	const void* const p_data, const size_t index)
 {
 	bool result = false;
-	si_singular_list* p_node = si_singular_list_node_at(p_list, index);
+	si_singular_list_t* p_node = si_singular_list_node_at(p_list, index);
 	// Validation
 	if(NULL == p_node)
 	{
@@ -268,9 +268,9 @@ END:
 	return result;
 }
 
-si_singular_list* si_singular_list_last_node(const si_singular_list* const p_list)
+si_singular_list_t* si_singular_list_last_node(const si_singular_list_t* const p_list)
 {
-	const si_singular_list* p_node = p_list;
+	const si_singular_list_t* p_node = p_list;
 	// Validation
 	if(NULL == p_node)
 	{
@@ -288,13 +288,13 @@ si_singular_list* si_singular_list_last_node(const si_singular_list* const p_lis
 	}
 	// End
 END:
-	return (si_singular_list*)p_node;
+	return (si_singular_list_t*)p_node;
 }
 
-void si_singular_list_set_circular_2(si_singular_list* const p_list,
+void si_singular_list_set_circular_2(si_singular_list_t* const p_list,
 	const bool is_circular)
 {
-	si_singular_list* p_last = si_singular_list_last_node(p_list);
+	si_singular_list_t* p_last = si_singular_list_last_node(p_list);
 	if(NULL == p_last)
 	{
 		goto END;
@@ -303,16 +303,16 @@ void si_singular_list_set_circular_2(si_singular_list* const p_list,
 END:
 	return;
 }
-inline void si_singular_list_set_circular(si_singular_list* const p_list)
+inline void si_singular_list_set_circular(si_singular_list_t* const p_list)
 {
 	// Default value of is_circular = SI_SINGULAR_LIST_IS_CIRCULAR(true)
 	si_singular_list_set_circular_2(p_list, SI_SINGULAR_LIST_IS_CIRCULAR);
 }
 
-bool si_singular_list_is_circular(si_singular_list* const p_list)
+bool si_singular_list_is_circular(si_singular_list_t* const p_list)
 {
 	bool result = false;
-	si_singular_list* p_last = si_singular_list_last_node(p_list);
+	si_singular_list_t* p_last = si_singular_list_last_node(p_list);
 	if(NULL == p_last)
 	{
 		goto END;
@@ -322,11 +322,11 @@ END:
 	return result;
 }
 
-size_t si_singular_list_grow_by(si_singular_list* const p_list,
+size_t si_singular_list_grow_by(si_singular_list_t* const p_list,
 	const size_t amount)
 {
 	size_t result = 0u;
-	si_singular_list* p_last = si_singular_list_last_node(p_list);
+	si_singular_list_t* p_last = si_singular_list_last_node(p_list);
 	if(NULL == p_last)
 	{
 		goto END;
@@ -344,7 +344,7 @@ END:
 	return result;
 }
 
-size_t si_singular_list_grow_to(si_singular_list* const p_list,
+size_t si_singular_list_grow_to(si_singular_list_t* const p_list,
 	const size_t capacity)
 {
 	size_t result = 0u;
@@ -362,7 +362,7 @@ END:
 	return result;
 }
 
-size_t si_singular_list_shrink_by(si_singular_list* const p_list,
+size_t si_singular_list_shrink_by(si_singular_list_t* const p_list,
 	const size_t amount)
 {
 	size_t result = 0u;
@@ -372,7 +372,7 @@ size_t si_singular_list_shrink_by(si_singular_list* const p_list,
 	}
 	for(size_t i = 0u; i < amount; i++)
 	{
-		si_singular_list* const p_last = si_singular_list_last_node(p_list);
+		si_singular_list_t* const p_last = si_singular_list_last_node(p_list);
 		if(NULL == p_last)
 		{
 			break;
@@ -388,7 +388,7 @@ END:
 	return result;
 }
 
-size_t si_singular_list_shrink_to(si_singular_list* const p_list,
+size_t si_singular_list_shrink_to(si_singular_list_t* const p_list,
 	const size_t capacity)
 {
 	size_t result = 0u;
@@ -406,7 +406,7 @@ END:
 	return result;
 }
 
-void si_singular_list_resize(si_singular_list* const p_list,
+void si_singular_list_resize(si_singular_list_t* const p_list,
 	const size_t capacity)
 {
 	if(NULL == p_list)
@@ -426,7 +426,7 @@ END:
 	return;
 }
 
-bool si_singular_list_append(si_singular_list* const p_list,
+bool si_singular_list_append(si_singular_list_t* const p_list,
 	const void* const p_data)
 {
 	bool result = false;
@@ -436,7 +436,7 @@ bool si_singular_list_append(si_singular_list* const p_list,
 		goto END;
 	}
 	// Begin
-	si_singular_list* p_node = si_singular_list_last_node(p_list);
+	si_singular_list_t* p_node = si_singular_list_last_node(p_list);
 	if(NULL == p_node)
 	{
 		goto END;
@@ -447,7 +447,7 @@ END:
 	return result;
 }
 
-bool si_singular_list_remove_next(si_singular_list* const p_list)
+bool si_singular_list_remove_next(si_singular_list_t* const p_list)
 {
 	bool result = false;
 	// Validate parameters
@@ -461,7 +461,7 @@ bool si_singular_list_remove_next(si_singular_list* const p_list)
 		// Already Removed
 		goto END;
 	}
-	si_singular_list* next_node = p_list->p_next;
+	si_singular_list_t* next_node = p_list->p_next;
 	if(NULL != next_node->p_next)
 	{
 		// Continue the chain
@@ -475,7 +475,7 @@ END:
 	return result;
 }
 
-bool si_singular_list_remove(si_singular_list* p_list)
+bool si_singular_list_remove(si_singular_list_t* p_list)
 {
 	bool result = false;
 	// Validate
@@ -486,7 +486,7 @@ bool si_singular_list_remove(si_singular_list* p_list)
 	}
 	// Begin Self-Remove
 	p_list->p_data = NULL;
-	si_singular_list* p_next = p_list->p_next;
+	si_singular_list_t* p_next = p_list->p_next;
 	if(NULL == p_next)
 	{
 		// Can't redefine self as next. We free self.
@@ -511,7 +511,7 @@ END:
 	return result;
 }
 
-bool si_singular_list_remove_at(si_singular_list* p_list,
+bool si_singular_list_remove_at(si_singular_list_t* p_list,
 	const size_t index)
 {
 	bool result = false;
@@ -528,14 +528,14 @@ bool si_singular_list_remove_at(si_singular_list* p_list,
 		goto END;
 	}
 	// Next-Remove
-	si_singular_list* const p_parent = si_singular_list_node_at(p_list, index - 1);
+	si_singular_list_t* const p_parent = si_singular_list_node_at(p_list, index - 1);
 	result = si_singular_list_remove_next(p_parent);
 	// End
 END:
 	return result;
 }
 
-size_t si_singular_list_push(si_singular_list* const p_list,
+size_t si_singular_list_push(si_singular_list_t* const p_list,
 	const void* const p_data)
 {
 	size_t result = SIZE_MAX;
@@ -543,7 +543,7 @@ size_t si_singular_list_push(si_singular_list* const p_list,
 	{
 		goto END;
 	}
-	si_singular_list* p_iterator = p_list;
+	si_singular_list_t* p_iterator = p_list;
 	do
 	{
 		result++;
@@ -566,15 +566,15 @@ END:
 	return result;
 }
 
-void* si_singular_list_pop(si_singular_list* const p_list)
+void* si_singular_list_pop(si_singular_list_t* const p_list)
 {
 	void* result = NULL;
 	if(NULL == p_list)
 	{
 		goto END;
 	}
-	si_singular_list* p_iterator = p_list;
-	si_singular_list* p_next = p_list->p_next;
+	si_singular_list_t* p_iterator = p_list;
+	si_singular_list_t* p_next = p_list->p_next;
 	while(NULL != p_next)
 	{
 		if(NULL == p_next->p_data)
@@ -594,7 +594,7 @@ END:
 	return result;
 }
 
-void si_singular_list_free(si_singular_list* const p_list)
+void si_singular_list_free(si_singular_list_t* const p_list)
 {
 	// Validate
 	if(NULL == p_list)
@@ -615,7 +615,7 @@ END:
 	return;
 }
 
-void si_singular_list_free_at(si_singular_list** const pp_list)
+void si_singular_list_free_at(si_singular_list_t** const pp_list)
 {
 	if(NULL == pp_list)
 	{
@@ -627,7 +627,7 @@ END:
 	return;
 }
 
-void si_singular_list_fprint(const si_singular_list* const p_list, FILE* const p_file)
+void si_singular_list_fprint(const si_singular_list_t* const p_list, FILE* const p_file)
 {
 	// Validate parameters
 	if((NULL == p_list) || (NULL == p_file))
@@ -635,7 +635,7 @@ void si_singular_list_fprint(const si_singular_list* const p_list, FILE* const p
 		goto END;
 	}
 	// Begin
-	const si_singular_list* p_iterator = p_list;
+	const si_singular_list_t* p_iterator = p_list;
 	size_t print_count = 0u;
 	const size_t list_count = si_singular_list_count(p_iterator);
 	const size_t list_capacity = si_singular_list_capacity(p_iterator);

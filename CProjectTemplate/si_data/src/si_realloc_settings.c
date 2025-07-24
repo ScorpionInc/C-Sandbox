@@ -181,7 +181,7 @@ END:
 }
 
 bool si_realloc_settings_grow(
-	const si_realloc_settings* p_settings, si_dynamic* p_dynamic)
+	const si_realloc_settings* p_settings, si_dynamic_t* p_dynamic)
 {
 	bool result = false;
 	// Validate parameter
@@ -200,7 +200,7 @@ END:
 }
 
 bool si_realloc_settings_shrink(
-	const si_realloc_settings* p_settings, si_dynamic* p_dynamic)
+	const si_realloc_settings* p_settings, si_dynamic_t* p_dynamic)
 {
 	bool result = false;
 	// Validate parameter
