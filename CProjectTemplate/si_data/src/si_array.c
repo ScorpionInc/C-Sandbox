@@ -67,10 +67,16 @@ bool si_dynamic_resize(si_array_t* p_dynamic,
 		goto END;
 	}
 	// Begin
+	const size_t old_capacity = p_dynamic->capacity;
+	const size_t old_size = (p_dynamic->element_size * old_capacity);
 	const size_t new_size =	(p_dynamic->element_size * new_capacity);
 	// Check for overflows
 	if(0u < p_dynamic->element_size)
 	{
+		if((old_size / p_dynamic->element_size) != old_capacity)
+		{
+			goto END;
+		}
 		if((new_size / p_dynamic->element_size) != new_capacity)
 		{
 			goto END;
@@ -83,6 +89,12 @@ bool si_dynamic_resize(si_array_t* p_dynamic,
 	}
 	p_dynamic->p_data = tmp;
 	p_dynamic->capacity = new_capacity;
+	// If grown, initialize new memory to 0x00(NULL).
+	if(new_size > old_size)
+	{
+		char* p_end = &((char*)p_dynamic->p_data)[old_size];
+		memset(p_end, 0x00, new_size - old_size);
+	}
 	result = true;
 	// End
 END:
@@ -104,7 +116,7 @@ bool si_dynamic_is_pointer_within(const si_array_t* p_dynamic,
 	}
 	// Begin
 	result = (p_test >= p_dynamic->p_data);
-	if(result)
+	if(true == result)
 	{
 		const size_t size = si_dynamic_size(p_dynamic);
 		result = (p_test < (p_dynamic->p_data + size));
