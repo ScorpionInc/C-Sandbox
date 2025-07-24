@@ -1,3 +1,7 @@
+# Editor Settings
+.idea/
+.vscode/
+
 # Prerequisites
 *.d
 
