@@ -11,6 +11,19 @@ if(EXISTS "${LOC_PATH}")
 	message(FATAL_ERROR "You cannot build in a source directory (or any directory with a CMakeLists.txt file). Please make a build subdirectory. Feel free to remove CMakeCache.txt and CMakeFiles.")
 endif()
 
+### Include Unity.h for unit tests
+include(FetchContent)
+if(COMMAND FetchContent_Declare AND COMMAND FetchContent_MakeAvailable)
+	FetchContent_Declare(
+		Unity
+		GIT_REPOSITORY https://github.com/ThrowTheSwitch/Unity.git
+		GIT_TAG v2.6.1 # Specific release tag
+	)
+	FetchContent_MakeAvailable(Unity)
+else()
+	find_package(Unity REQUIRED)
+endif()
+
 ### Allow setting build type
 set(default_build_type "Release")
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
