@@ -1,0 +1,7 @@
+build/
+
+.sconsign.dblite
+*.a
+*.o
+*.obj
+*.ko
