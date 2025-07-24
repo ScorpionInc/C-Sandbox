@@ -644,15 +644,3 @@ void mod_uint_bytes(uint8_t* const p_dividend,
 END:
 	return;
 }
-
-/*
-int main(void)
-{
-	unsigned int a = 69696969u;
-	unsigned int b =  4u;
-	unsigned int c =   a;
-	//unsigned int d =  0u;
-	mod_uint_bytes((uint8_t*)&c, (uint8_t*)&b, sizeof(int));
-	printf("c=a%%b\ta: %u\tb: %u\tc: %u\n", a, b, c);
-}
-//*/
