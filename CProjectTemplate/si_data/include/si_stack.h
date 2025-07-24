@@ -12,7 +12,7 @@ typedef struct si_stack_t
 {
 	size_t count;
 	si_realloc_settings_t settings;
-	si_dynamic_t dynamic;
+	si_array_t dynamic;
 } si_stack_t;
 
 /** Doxygen

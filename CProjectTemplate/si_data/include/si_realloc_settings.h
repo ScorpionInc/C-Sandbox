@@ -83,7 +83,7 @@ size_t si_realloc_settings_next_shrink_capacity(
  * @return Returns true on success. False otherwise.
  */
 bool si_realloc_settings_grow(
-	const si_realloc_settings_t* p_settings, si_dynamic_t* p_dynamic);
+	const si_realloc_settings_t* p_settings, si_array_t* p_dynamic);
 
 /** Doxygen
  * @brief Lowers the capacity of p_dynamic by shrink_value using shrink_method.
@@ -94,7 +94,7 @@ bool si_realloc_settings_grow(
  * @return Returns true on success. False otherwise.
  */
 bool si_realloc_settings_shrink(
-	const si_realloc_settings_t* p_settings, si_dynamic_t* p_dynamic);
+	const si_realloc_settings_t* p_settings, si_array_t* p_dynamic);
 
 /** Doxygen
  * @brief Writes the formatted data from si_realloc_settings struct to file.

@@ -6,7 +6,7 @@
 
 int main(int argc, char** pp_argv)
 {
-	si_dynamic_t dynamic = {};
+	si_array_t dynamic = {};
 	// As is tradition:
 	printf("Hello World!\n");
 	return 0;

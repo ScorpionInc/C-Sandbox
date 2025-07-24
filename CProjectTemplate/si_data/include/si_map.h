@@ -37,7 +37,7 @@ si_map_pair_t* si_map_pair_new(const void* const p_key,
 
 typedef struct si_map_t
 {
-	si_dynamic_t entries;
+	si_array_t entries;
 	si_realloc_settings_t settings;
 	int  (*p_cmp_key_f)(const void* const, const void* const);
 	int  (*p_cmp_value_f)(const void* const, const void* const);

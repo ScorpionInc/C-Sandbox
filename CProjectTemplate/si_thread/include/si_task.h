@@ -24,12 +24,12 @@
 #ifndef SI_TASK_H
 #define SI_TASK_H
 
-typedef void (*si_task_t)(si_linked_list_t* optional_arguments, si_dynamic_t* stores_results);
+typedef void (*si_task_t)(si_linked_list_t* optional_arguments, si_array_t* stores_results);
 
 typedef struct si_task
 {
 	uint8_t field;
-	si_dynamic_t return_value;
+	si_array_t return_value;
 	si_linked_list_t* p_arguments;
 	si_task_t p_function;
 	size_t task_id;
