@@ -118,7 +118,7 @@ bool si_queue_is_full(const si_queue_t* p_queue)
 	}
 	// Begin
 	const size_t item_count = si_queue_count(p_queue);
-	is_full = (item_count == (p_queue->dynamic.capacity - 1u));
+	is_full = (item_count >= p_queue->dynamic.capacity);
 	// End
 END:
 		return is_full;
@@ -146,6 +146,7 @@ size_t si_queue_enqueue(si_queue_t* p_queue, const void* p_item)
 	}
 	si_dynamic_set(&(p_queue->dynamic), p_queue->back, p_item);
 	p_queue->back = (p_queue->back + 1) % p_queue->dynamic.capacity;
+	new_count++;
 	// End
 END:
 	return new_count;
@@ -167,6 +168,7 @@ size_t si_queue_dequeue(si_queue_t* p_queue, void* p_item)
 	}
 	si_dynamic_get(&(p_queue->dynamic), p_queue->front, p_item);
 	p_queue->front = (p_queue->front + 1) % p_queue->dynamic.capacity;
+	new_count--;
 	// End
 END:
 	return new_count;

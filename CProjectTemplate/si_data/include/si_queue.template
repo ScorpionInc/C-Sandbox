@@ -41,56 +41,56 @@ extern "C" {
 	PASTE_TWO_TOKENS_INDIRECT(SI_TEMPLATE_TYPE, E))
 
 
-typedef struct si_queue_t SI_TEMPLATE_FUNCTION(, _queue);
+typedef struct si_queue_t SI_TEMPLATE_FUNCTION(, _queue_t);
 
 static inline void SI_TEMPLATE_FUNCTION(, _queue_init_2)(
-	SI_TEMPLATE_FUNCTION(, _queue)* p_queue, const size_t initial_capacity)
+	SI_TEMPLATE_FUNCTION(, _queue_t)* p_queue, const size_t initial_capacity)
 {
 	si_queue_init_3((si_queue_t*)p_queue, sizeof(SI_TEMPLATE_TYPE), initial_capacity);
 }
 static inline void SI_TEMPLATE_FUNCTION(, _queue_init)(
-	SI_TEMPLATE_FUNCTION(, _queue)* p_queue)
+	SI_TEMPLATE_FUNCTION(, _queue_t)* p_queue)
 {
 	si_queue_init((si_queue_t*)p_queue, sizeof(SI_TEMPLATE_TYPE));
 }
 
-static inline SI_TEMPLATE_FUNCTION(, _queue)* SI_TEMPLATE_FUNCTION(, _queue_new_1)(
+static inline SI_TEMPLATE_FUNCTION(, _queue_t)* SI_TEMPLATE_FUNCTION(, _queue_new_1)(
 	const size_t initial_capacity)
 {
 	return si_queue_new_2(sizeof(SI_TEMPLATE_TYPE), initial_capacity);
 }
-static inline SI_TEMPLATE_FUNCTION(, _queue)* SI_TEMPLATE_FUNCTION(, _queue_new)()
+static inline SI_TEMPLATE_FUNCTION(, _queue_t)* SI_TEMPLATE_FUNCTION(, _queue_new)()
 {
 	return si_queue_new(sizeof(SI_TEMPLATE_TYPE));
 }
 
 static inline size_t SI_TEMPLATE_FUNCTION(, _queue_count)(
-	const SI_TEMPLATE_FUNCTION(, _queue)* p_queue)
+	const SI_TEMPLATE_FUNCTION(, _queue_t)* p_queue)
 {
 	return si_queue_count(p_queue);
 }
 
 static inline bool SI_TEMPLATE_FUNCTION(, _queue_is_empty)(
-	const SI_TEMPLATE_FUNCTION(, _queue)* p_queue)
+	const SI_TEMPLATE_FUNCTION(, _queue_t)* p_queue)
 {
 	return si_queue_is_empty(p_queue);
 }
 
 static inline bool SI_TEMPLATE_FUNCTION(, _queue_is_full)(
-	const SI_TEMPLATE_FUNCTION(, _queue)* p_queue)
+	const SI_TEMPLATE_FUNCTION(, _queue_t)* p_queue)
 {
 	return si_queue_is_full(p_queue);
 }
 
 static inline void SI_TEMPLATE_FUNCTION(, _queue_enqueue)(
-	SI_TEMPLATE_FUNCTION(, _queue)* p_queue,
+	SI_TEMPLATE_FUNCTION(, _queue_t)* p_queue,
 	const SI_TEMPLATE_TYPE p_item)
 {
 	si_queue_enqueue(p_queue, &p_item);
 }
 
 static SI_TEMPLATE_TYPE SI_TEMPLATE_FUNCTION(, _queue_dequeue)(
-	SI_TEMPLATE_FUNCTION(, _queue)* p_queue)
+	SI_TEMPLATE_FUNCTION(, _queue_t)* p_queue)
 {
 	SI_TEMPLATE_TYPE t;
 	si_queue_dequeue(p_queue, &t);
@@ -98,7 +98,7 @@ static SI_TEMPLATE_TYPE SI_TEMPLATE_FUNCTION(, _queue_dequeue)(
 }
 
 static inline void SI_TEMPLATE_FUNCTION(, _queue_free)(
-	SI_TEMPLATE_FUNCTION(, _queue)* p_queue)
+	SI_TEMPLATE_FUNCTION(, _queue_t)* p_queue)
 {
 	si_queue_free(p_queue);
 }
