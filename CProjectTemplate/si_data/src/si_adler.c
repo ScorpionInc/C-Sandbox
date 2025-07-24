@@ -95,7 +95,7 @@ END:
 	return;
 }
 
-void si_adler_init(si_adler* const p_hash)
+void si_adler_init(si_adler_t* const p_hash)
 {
 	// Validate parameter
 	if(NULL == p_hash)
@@ -111,7 +111,7 @@ END:
 	return;
 }
 
-void si_adler_new(si_adler* const p_hash, const size_t block_size)
+void si_adler_new(si_adler_t* const p_hash, const size_t block_size)
 {
 	// Validate parameter
 	if(NULL == p_hash)
@@ -132,7 +132,7 @@ END:
 }
 
 // Adler Varient for N-Bits
-void si_adler_update(si_adler* const p_hash, const uint8_t* const p_buffer,
+void si_adler_update(si_adler_t* const p_hash, const uint8_t* const p_buffer,
 	const size_t input_buffer_size)
 {
 	// Validate parameters
@@ -188,7 +188,7 @@ END:
 	return;
 }
 
-void si_adler_free(si_adler* const p_hash)
+void si_adler_free(si_adler_t* const p_hash)
 {
 	// Validate parameter
 	if(NULL == p_hash)
@@ -207,7 +207,7 @@ END:
 	return;
 }
 
-void si_adler_fprint(const si_adler* const p_hash, FILE* const p_file)
+void si_adler_fprint(const si_adler_t* const p_hash, FILE* const p_file)
 {
 	// Validate parameters
 	if((NULL == p_hash) || (NULL == p_file))
