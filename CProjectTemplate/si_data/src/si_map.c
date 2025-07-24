@@ -22,6 +22,13 @@ END:
 }
 
 
+static inline int si_map_default_compare(const void* const p_left,
+	const void* const p_right)
+{
+	// Simple pointer compare.
+	return (p_left == p_right);
+}
+
 void si_map_init(si_map_t* const p_map)
 {
 	if(NULL == p_map)
@@ -30,8 +37,8 @@ void si_map_init(si_map_t* const p_map)
 	}
 	si_dynamic_new_3(&p_map->entries, sizeof(void*), 0u);
 	si_realloc_settings_new(&p_map->settings);
-	p_map->p_cmp_key_f = NULL;
-	p_map->p_cmp_value_f = NULL;
+	p_map->p_cmp_key_f = si_map_default_compare;
+	p_map->p_cmp_value_f = si_map_default_compare;
 	p_map->p_free_key_f = NULL;
 	p_map->p_free_value_f = NULL;
 END:
@@ -76,21 +83,35 @@ END:
 	return result;
 }
 
-size_t si_map_index_of_raw(const si_map_t* const p_map, const void* const p_key)
+size_t si_map_index_of(const si_map_t* const p_map, const void* const p_key)
 {
-	//!TODO
 	size_t result = SIZE_MAX;
 	// Validation
 	if((NULL == p_map) || (NULL == p_key))
 	{
 		goto END;
 	}
-	// Begin
-	const size_t count = si_map_count(p_map);
-	for(size_t i = 0u; i < count; i++)
+	if(NULL == p_map->entries.p_data)
 	{
-		if(0)//TODO
+		goto END;
+	}
+	if(NULL == p_map->p_cmp_key_f)
+	{
+		goto END;
+	}
+	// Begin
+	for(size_t i = 0u; i < p_map->entries.capacity; i++)
+	{
+		si_map_pair_t* p_pair = si_dynamic_at(&p_map->entries, i);
+		if(NULL == p_pair)
 		{
+			continue;
+		}
+		if(0 == p_map->p_cmp_key_f(p_pair->p_key, p_key))
+		{
+			// Key Match Found!
+			result = i;
+			break;
 		}
 	}
 	// End
@@ -98,29 +119,134 @@ END:
 	return result;
 }
 
-size_t si_map_index_of(const si_map_t* const p_map, const void* const p_key)
-{
-	//!TODO
-}
-
 void* si_map_at(si_map_t* const p_map, const void* const p_key)
 {
-	//!TODO
+	void* p_result = NULL;
+	if((NULL == p_map) || (NULL == p_key))
+	{
+		goto END;
+	}
+	const size_t index = si_map_index_of(p_map, p_key);
+	if(index >= p_map->entries.capacity)
+	{
+		goto END;
+	}
+	const si_map_pair_t* const p_pair = si_dynamic_at(p_map, index);
+	if(NULL == p_pair)
+	{
+		goto END;
+	}
+	p_result = p_pair->p_value;
+END:
+	return p_result;
 }
 
 bool si_map_has(si_map_t* const p_map, const void* const p_key)
 {
-	//!TODO
+	bool result = false;
+	if((NULL == p_map) || (NULL == p_key))
+	{
+		goto END;
+	}
+	result = (si_map_index_of(p_map, p_key) < p_map->entries.capacity);
+END:
+	return result;
+}
+
+bool si_map_remove_at(si_map_t* const p_map, const size_t index)
+{
+	bool result = false;
+	if(NULL == p_map)
+	{
+		goto END;
+	}
+	if(index >= p_map->entries.capacity)
+	{
+		goto END;
+	}
+	si_map_pair_t* p_pair = si_dynamic_at(p_map->entries, index);
+	if(NULL != p_pair)
+	{
+		if(NULL != p_map->p_free_key_f)
+		{
+			p_map->p_free_key_f(p_pair->p_key);
+		}
+		if(NULL != p_map->p_free_value_f)
+		{
+			p_map->p_free_value_f(p_pair->p_value);
+		}
+		free(p_pair);
+		p_pair = NULL;
+	}
+	si_dynamic_set(p_map->entries, index, NULL);
+END:
+	return result;
 }
 
 bool si_map_remove(si_map_t* const p_map, const void* const p_key)
 {
-	//!TODO
+	bool result = false;
+	if((NULL == p_map) || (NULL == p_key))
+	{
+		goto END;
+	}
+	const size_t index = si_map_index_of(p_map, p_key);
+	if(index >= p_map->entries.capacity)
+	{
+		goto END;
+	}
+	result = si_map_remove_at(p_map, index);
+END:
+	return result;
 }
 
-bool si_map_insert_raw(si_map_t* const p_map, const void* const p_key, const void* const p_value)
+bool si_map_insert_pair(si_map_t* const p_map,
+	const si_map_pair_t* const p_pair)
 {
-	//!TODO
+	bool result = false;
+	if((NULL == p_map) || (NULL == p_pair))
+	{
+		goto END;
+	}
+	if(NULL == p_map->entries.p_data)
+	{
+		goto END;
+	}
+	for(size_t i = 0u; i < p_map->entries.capacity; i++)
+	{
+		si_map_pair_t* p_next = si_dynamic_at(&p_map->entries, i);
+		if(NULL == p_next)
+		{
+			// Assign
+			si_dynamic_set(&p_map->entries, i, p_pair);
+			result = true;
+			goto END;
+		}
+	}
+	// Didn't have an index to assign a new pair in map.
+	if(si_realloc_settings_grow(&p_map->settings, &p_map->entries))
+	{
+		result = si_map_insert_pair(p_map, p_pair);
+	}
+END:
+	return result;
+}
+
+bool si_map_insert(si_map_t* const p_map, const void* const p_key, const void* const p_value)
+{
+	bool result = false;
+	if(NULL == p_map)
+	{
+		goto END;
+	}
+	if((NULL == p_key) || (NULL == p_value))
+	{
+		goto END;
+	}
+	si_map_pair_t* p_pair = si_map_pair_new(p_key, p_value);
+	result = si_map_insert_pair(p_map, p_pair);
+END:
+	return result;
 }
 
 void si_map_free(si_map_t* const p_map)
