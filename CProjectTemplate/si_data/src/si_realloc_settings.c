@@ -7,7 +7,7 @@ extern "C" {
 #endif //__cplusplus
 
 
-void si_resize_mode_fprint(FILE* p_file, const si_resize_mode resize_mode)
+void si_resize_mode_fprint(FILE* p_file, const si_resize_mode_t resize_mode)
 {
 	// Validate parameter
 	if(NULL == p_file)
@@ -39,7 +39,7 @@ END:
 }
 
 
-void si_realloc_settings_new(si_realloc_settings* p_settings)
+void si_realloc_settings_new(si_realloc_settings_t* p_settings)
 {
 	// Validate parameter
 	if (NULL == p_settings)
@@ -57,7 +57,7 @@ END:
 }
 
 size_t si_realloc_settings_next_grow_capacity(
-	const si_realloc_settings* p_settings, const size_t current_capacity)
+	const si_realloc_settings_t* p_settings, const size_t current_capacity)
 {
 	size_t new_capacity = current_capacity;
 	if (NULL == p_settings)
@@ -116,7 +116,7 @@ END:
 }
 
 size_t si_realloc_settings_next_shrink_capacity(
-	const si_realloc_settings* p_settings, const size_t current_capacity)
+	const si_realloc_settings_t* p_settings, const size_t current_capacity)
 {
 	size_t new_capacity = current_capacity;
 	if (NULL == p_settings)
@@ -181,7 +181,7 @@ END:
 }
 
 bool si_realloc_settings_grow(
-	const si_realloc_settings* p_settings, si_dynamic_t* p_dynamic)
+	const si_realloc_settings_t* p_settings, si_dynamic_t* p_dynamic)
 {
 	bool result = false;
 	// Validate parameter
@@ -200,7 +200,7 @@ END:
 }
 
 bool si_realloc_settings_shrink(
-	const si_realloc_settings* p_settings, si_dynamic_t* p_dynamic)
+	const si_realloc_settings_t* p_settings, si_dynamic_t* p_dynamic)
 {
 	bool result = false;
 	// Validate parameter
@@ -220,7 +220,7 @@ END:
 
 
 void si_realloc_settings_fprint(FILE* p_file,
-	const si_realloc_settings* p_settings)
+	const si_realloc_settings_t* p_settings)
 {
 	// Validate parameters
 	if((NULL == p_file) || (NULL == p_settings))

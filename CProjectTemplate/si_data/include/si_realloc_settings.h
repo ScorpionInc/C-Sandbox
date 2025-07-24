@@ -4,7 +4,7 @@
  * Purpose: Defines struct si_realloc_settings along with several functions.
  *          These allow configuring dynamic memory grow/shrink methods/amounts.
  * Created: 20150611
- * Updated: 20250611
+ * Updated: 20250724
 //*/
 
 #include <math.h> //pow
@@ -22,13 +22,13 @@ extern "C" {
 #endif //__cplusplus
 
 
-typedef enum si_resize_mode
+typedef enum si_resize_mode_t
 {
 	NEVER = 0,
 	LINEAR,
 	SCALAR,
 	EXPONENTIAL,
-} si_resize_mode;
+} si_resize_mode_t;
 
 #define SI_DEFAULT_RESIZE_MODE LINEAR
 #define SI_DEFAULT_RESIZE_VALUE 32.0f
@@ -39,22 +39,22 @@ typedef enum si_resize_mode
  * @param p_file Pointer to file to write the string value to.
  * @param resize_mode Enum passed by value determines the string.
  */
-void si_resize_mode_fprint(FILE* p_file, const si_resize_mode resize_mode);
+void si_resize_mode_fprint(FILE* p_file, const si_resize_mode_t resize_mode);
 
 
-typedef struct si_realloc_settings
+typedef struct si_realloc_settings_t
 {
 	float grow_value;
 	float shrink_value;
-	si_resize_mode grow_mode;
-	si_resize_mode shrink_mode;
-} si_realloc_settings;
+	si_resize_mode_t grow_mode;
+	si_resize_mode_t shrink_mode;
+} si_realloc_settings_t;
 
 /** Doxygen
  * @brief Initializes si_realloc_settings struct pointed at by p_settings.
  * @param p_settings Pointer to si_realloc_settings struct to be initialized
  */
-void si_realloc_settings_new(si_realloc_settings* p_settings);
+void si_realloc_settings_new(si_realloc_settings_t* p_settings);
 
 /** Doxygen
  * @brief Finds the capacity of next grow with settings from current_capacity.
@@ -63,7 +63,7 @@ void si_realloc_settings_new(si_realloc_settings* p_settings);
  * @param current_capacity What capacity the buffer is already at.
  */
 size_t si_realloc_settings_next_grow_capacity(
-	const si_realloc_settings* p_settings, const size_t current_capacity);
+	const si_realloc_settings_t* p_settings, const size_t current_capacity);
 
 /** Doxygen
  * @brief Find the capacity of next shrink with settings from current_capacity.
@@ -72,7 +72,7 @@ size_t si_realloc_settings_next_grow_capacity(
  * @param current_capacity What capacity the buffer is already at.
  */
 size_t si_realloc_settings_next_shrink_capacity(
-	const si_realloc_settings* p_settings, const size_t current_capacity);
+	const si_realloc_settings_t* p_settings, const size_t current_capacity);
 
 /** Doxygen
  * @brief Increases the capacity of p_dynamic by grow_value using grow_method.
@@ -83,7 +83,7 @@ size_t si_realloc_settings_next_shrink_capacity(
  * @return Returns true on success. False otherwise.
  */
 bool si_realloc_settings_grow(
-	const si_realloc_settings* p_settings, si_dynamic_t* p_dynamic);
+	const si_realloc_settings_t* p_settings, si_dynamic_t* p_dynamic);
 
 /** Doxygen
  * @brief Lowers the capacity of p_dynamic by shrink_value using shrink_method.
@@ -94,7 +94,7 @@ bool si_realloc_settings_grow(
  * @return Returns true on success. False otherwise.
  */
 bool si_realloc_settings_shrink(
-	const si_realloc_settings* p_settings, si_dynamic_t* p_dynamic);
+	const si_realloc_settings_t* p_settings, si_dynamic_t* p_dynamic);
 
 /** Doxygen
  * @brief Writes the formatted data from si_realloc_settings struct to file.
@@ -103,7 +103,7 @@ bool si_realloc_settings_shrink(
  * @param p_settings Pointer to si_realloc_settings struct to be printed.
  */
 void si_realloc_settings_fprint(FILE* p_file,
-	const si_realloc_settings* p_settings);
+	const si_realloc_settings_t* p_settings);
 
 
 #ifdef __cplusplus

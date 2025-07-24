@@ -11,7 +11,7 @@
 typedef struct si_stack_t
 {
 	size_t count;
-	si_realloc_settings settings;
+	si_realloc_settings_t settings;
 	si_dynamic_t dynamic;
 } si_stack_t;
 
@@ -24,7 +24,7 @@ typedef struct si_stack_t
  * @param p_settings Pointer to si_realloc_settings to read from.
  */
 void si_stack_new_4(si_stack_t* p_stack, const size_t element_size,
-	const size_t initial_capacity, const si_realloc_settings* p_settings);
+	const size_t initial_capacity, const si_realloc_settings_t* p_settings);
 void si_stack_new_3(si_stack_t* p_stack, const size_t element_size,
 	const size_t initial_capacity);
 void si_stack_new(si_stack_t* p_stack, const size_t element_size);

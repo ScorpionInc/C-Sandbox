@@ -23,7 +23,7 @@ typedef struct si_queue_t
 {
 	size_t front;
 	size_t back;
-	si_realloc_settings settings;
+	si_realloc_settings_t settings;
 	si_dynamic_t dynamic;
 } si_queue_t;
 
@@ -36,7 +36,7 @@ typedef struct si_queue_t
  * @param p_settings Pointer to si_realloc_settings to read from.
  */
 void si_queue_init_4(si_queue_t* p_queue, const size_t element_size,
-	const size_t initial_capacity, const si_realloc_settings* p_settings);
+	const size_t initial_capacity, const si_realloc_settings_t* p_settings);
 void si_queue_init_3(si_queue_t* p_queue, const size_t element_size,
 	const size_t initial_capacity);
 void si_queue_init(si_queue_t* p_queue, const size_t element_size);
@@ -49,7 +49,7 @@ void si_queue_init(si_queue_t* p_queue, const size_t element_size);
  * @param p_settings Pointer to si_realloc_settings to read from.
  */
 si_queue_t* si_queue_new_3(const size_t element_size, const size_t initial_capacity,
-	const si_realloc_settings* p_settings);
+	const si_realloc_settings_t* p_settings);
 si_queue_t* si_queue_new_2(const size_t element_size, const size_t initial_capacity);
 si_queue_t* si_queue_new(const size_t element_size);
 

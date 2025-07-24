@@ -1,7 +1,7 @@
 #include "si_stack.h"
 
 void si_stack_new_4(si_stack_t* p_stack, const size_t element_size,
-    const size_t initial_capacity, const si_realloc_settings* p_settings)
+    const size_t initial_capacity, const si_realloc_settings_t* p_settings)
 {
 	p_stack->count = 0u;
 	if(NULL == p_settings)
@@ -10,7 +10,7 @@ void si_stack_new_4(si_stack_t* p_stack, const size_t element_size,
 	}
 	else
 	{
-		memcpy(&(p_stack->settings), p_settings, sizeof(si_realloc_settings));
+		memcpy(&(p_stack->settings), p_settings, sizeof(si_realloc_settings_t));
 	}
 	si_dynamic_new_3(&(p_stack->dynamic), element_size, initial_capacity);
 }

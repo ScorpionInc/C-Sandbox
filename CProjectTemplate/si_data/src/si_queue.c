@@ -6,7 +6,7 @@
 #include "si_queue.h"
 
 void si_queue_init_4(si_queue_t* p_queue, const size_t element_size,
-    const size_t initial_capacity, const si_realloc_settings* p_settings)
+    const size_t initial_capacity, const si_realloc_settings_t* p_settings)
 {
 	// Validate parameter
 	if (NULL == p_queue)
@@ -18,12 +18,12 @@ void si_queue_init_4(si_queue_t* p_queue, const size_t element_size,
 	p_queue->back  = 0u;
 	if (NULL == p_settings)
 	{
-		p_queue->settings = (si_realloc_settings){};
+		p_queue->settings = (si_realloc_settings_t){};
 		si_realloc_settings_new(&(p_queue->settings));
 	}
 	else
 	{
-		memcpy(&(p_queue->settings), p_settings, sizeof(si_realloc_settings));
+		memcpy(&(p_queue->settings), p_settings, sizeof(si_realloc_settings_t));
 	}
 	p_queue->dynamic = (si_dynamic_t){};
 	si_dynamic_new_3(&(p_queue->dynamic), element_size, initial_capacity);
@@ -44,7 +44,7 @@ inline void si_queue_init(si_queue_t* p_queue, const size_t element_size)
 }
 
 si_queue_t* si_queue_new_3(const size_t element_size, const size_t initial_capacity,
-	const si_realloc_settings* p_settings)
+	const si_realloc_settings_t* p_settings)
 {
 	si_queue_t* p_new = calloc(1u, sizeof(si_queue_t));
 	if(NULL == p_new)
