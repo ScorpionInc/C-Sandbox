@@ -87,7 +87,7 @@ static inline SI_TEMPLATE_FUNCTION(, _linked_list)* SI_TEMPLATE_FUNCTION(, _link
 	return si_linked_list_node_at(p_list, index);
 }
 
-static inline si_dynamic* SI_TEMPLATE_FUNCTION(, _linked_list_at)(
+static inline si_dynamic_t* SI_TEMPLATE_FUNCTION(, _linked_list_at)(
 		const SI_TEMPLATE_FUNCTION(, _linked_list)* const p_list,
 		const size_t index)
 {
@@ -103,13 +103,13 @@ static inline SI_TEMPLATE_TYPE* SI_TEMPLATE_FUNCTION(, _linked_list_raw_at)(
 
 static inline size_t SI_TEMPLATE_FUNCTION(, _linked_list_find_3)(
 	const SI_TEMPLATE_FUNCTION(, _linked_list)* const p_list,
-	const si_dynamic* const p_data, const size_t start_index)
+	const si_dynamic_t* const p_data, const size_t start_index)
 {
 	return si_linked_list_find_3(p_list, p_data, start_index);
 }
 static inline size_t SI_TEMPLATE_FUNCTION(, _linked_list_find)(
 	const SI_TEMPLATE_FUNCTION(, _linked_list)* const p_list,
-	const si_dynamic* const p_data)
+	const si_dynamic_t* const p_data)
 {
 	return si_linked_list_find(p_list, p_data);
 }
@@ -131,27 +131,27 @@ static inline size_t SI_TEMPLATE_FUNCTION(, _linked_list_find_raw)(
 
 static inline bool SI_TEMPLATE_FUNCTION(, _linked_list_assign_5)(
 	SI_TEMPLATE_FUNCTION(, _linked_list)* const p_list,
-	const si_dynamic* const p_dynamic, const bool deep_copy,
+	const si_dynamic_t* const p_dynamic, const bool deep_copy,
 	const bool do_free, const size_t index)
 {
 	return si_linked_list_assign_5(p_list, p_dynamic, deep_copy, do_free, index);
 }
 static inline bool SI_TEMPLATE_FUNCTION(, _linked_list_assign_4)(
 	SI_TEMPLATE_FUNCTION(, _linked_list)* const p_list,
-	const si_dynamic* const p_dynamic, const bool deep_copy,
+	const si_dynamic_t* const p_dynamic, const bool deep_copy,
 	const bool do_free)
 {
 	return si_linked_list_assign_4(p_list, p_dynamic, deep_copy, do_free);
 }
 static inline bool SI_TEMPLATE_FUNCTION(, _linked_list_assign_3)(
 	SI_TEMPLATE_FUNCTION(, _linked_list)* const p_list,
-	const si_dynamic* const p_dynamic, const bool deep_copy)
+	const si_dynamic_t* const p_dynamic, const bool deep_copy)
 {
 	return si_linked_list_assign_3(p_list, p_dynamic, deep_copy);
 }
 static inline bool SI_TEMPLATE_FUNCTION(, _linked_list_assign)(
 	SI_TEMPLATE_FUNCTION(, _linked_list)* const p_list,
-	const si_dynamic* const p_dynamic)
+	const si_dynamic_t* const p_dynamic)
 {
 	return si_linked_list_assign(p_list, p_dynamic);
 }
