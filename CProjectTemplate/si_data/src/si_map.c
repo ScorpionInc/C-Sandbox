@@ -2,19 +2,7 @@
 
 #include "si_map.h"
 
-typedef struct si_map_pair_t
-{
-	void* p_key;
-	void* p_value;
-} si_map_pair_t;
-
-/* Doxygen
- * @brief Initializes a new si_map_pair_t struct with values of pointers.
- *
- * @param p_key Pointer into memory to be used as a key.
- * @param p_value Pointer into memory to be stored.
- */
-static si_map_pair_t* si_map_pair_new(const void* const p_key,
+si_map_pair_t* si_map_pair_new(const void* const p_key,
 	const void* const p_value)
 {
 	si_map_pair_t* p_new = NULL;
@@ -22,7 +10,7 @@ static si_map_pair_t* si_map_pair_new(const void* const p_key,
 	{
 		goto END;
 	}
-	p_new = calloc(1u, sizeof(si_map_t));
+	p_new = calloc(1u, sizeof(si_map_pair_t));
 	if(NULL == p_new)
 	{
 		goto END;
@@ -33,6 +21,7 @@ END:
 	return p_new;
 }
 
+
 void si_map_init(si_map_t* const p_map)
 {
 	//!TODO
@@ -42,8 +31,8 @@ void si_map_init(si_map_t* const p_map)
 	}
 	p_map->p_cmp_key_f = NULL;
 	p_map->p_cmp_value_f = NULL;
-	p_map->p_free_key_f = free;
-	p_map->p_free_value_f = free;
+	p_map->p_free_key_f = NULL;
+	p_map->p_free_value_f = NULL;
 END:
 	return;
 }
@@ -68,15 +57,25 @@ size_t si_map_count(const si_map_t* const p_map)
 	{
 		goto END;
 	}
+	if(NULL == p_map->entries.p_data)
+	{
+		goto END;
+	}
 	// Begin
-	result = si_linked_list_count(&p_map->entries);
+	result++;
+	for(size_t i = 0u; i < p_map->entries.capacity; i++)
+	{
+		if(NULL != si_dynamic_at(&p_map->entries, i))
+		{
+			result++;
+		}
+	}
 	// End
 END:
 	return result;
 }
 
-size_t si_map_index_of_raw(const si_map_t* const p_map, const void* const p_key,
-	const size_t key_size)
+size_t si_map_index_of_raw(const si_map_t* const p_map, const void* const p_key)
 {
 	//!TODO
 	size_t result = SIZE_MAX;
@@ -103,50 +102,71 @@ size_t si_map_index_of(const si_map_t* const p_map, const si_dynamic_t* const p_
 	//!TODO
 }
 
-si_dynamic_t* si_map_at_raw(si_map_t* const p_map, const void* const p_key,
-	const size_t key_size)
+si_dynamic_t* si_map_at(si_map_t* const p_map, const void* const p_key)
 {
 	//!TODO
 }
 
-si_dynamic_t* si_map_at(si_map_t* const p_map, const si_dynamic_t* const p_key)
+bool si_map_has(si_map_t* const p_map, const void* const p_key)
 {
 	//!TODO
 }
 
-bool si_map_has_raw(si_map_t* const p_map, const void* const p_key,
-	const size_t key_size)
+bool si_map_remove(si_map_t* const p_map, const void* const p_key)
 {
 	//!TODO
 }
 
-bool si_map_has(si_map_t* const p_map, const si_dynamic_t* const p_key)
-{
-	//!TODO
-}
-
-bool si_map_remove_raw(si_map_t* const p_map, const void* const p_key, const size_t key_size)
-{
-	//!TODO
-}
-
-bool si_map_remove(si_map_t* const p_map, const si_dynamic_t* const p_key)
-{
-	//!TODO
-}
-
-bool si_map_insert_raw(si_map_t* const p_map, const void* const p_key,
-	const size_t key_size, const void* p_value, const size_t value_size)
-{
-	//!TODO
-}
-
-bool si_map_insert(si_map_t* const p_map, const si_map_pair_t* const p_pair)
+bool si_map_insert_raw(si_map_t* const p_map, const void* const p_key, const void* const p_value)
 {
 	//!TODO
 }
 
 void si_map_free(si_map_t* const p_map)
 {
-	//!TODO
+	if(NULL == p_map)
+	{
+		goto END;
+	}
+	p_map->p_cmp_key_f = NULL;
+	p_map->p_cmp_value_f = NULL;
+	si_realloc_settings_free(&p_map->settings);
+
+	if(NULL != p_map->p_free_key_f)
+	{
+		for(size_t i = 0u; i < p_map->keys.capacity; i++)
+		{
+			p_map->p_free_key_f(si_dynamic_at(p_map->keys, i));
+		}
+	}
+	p_map->p_free_key_f = NULL;
+	si_dynamic_free(&p_map->keys);
+
+	if(NULL != p_map->p_free_value_f)
+	{
+		for(size_t i = 0u; i < p_map->values.capacity; i++)
+		{
+			p_map->p_free_value_f(si_dynamic_at(p_map->values, i));
+		}
+	}
+	p_map->p_free_value_f = NULL;
+	si_dynamic_free(&p_map->values);
+END:
+	return;
+}
+
+void si_map_free_at(si_map_t** const pp_map)
+{
+	if(NULL == pp_map)
+	{
+		goto END;
+	}
+	if(NULL == *pp_map)
+	{
+		// Already Freed
+	}
+	si_map_free(*pp_map);
+	*pp_map = NULL;
+END:
+	return;
 }

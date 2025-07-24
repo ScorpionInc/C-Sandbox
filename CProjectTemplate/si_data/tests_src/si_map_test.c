@@ -18,8 +18,8 @@ void tearDown (void)
  */
 void si_map_test_init(void)
 {
-	TEST_ASSERT_EQUAL(NULL, NULL);
-	si_map_t* p_map = calloc(1u, sizeof(si_map_t));
+	si_map_t* p_map = si_map_new();
+	si_map_free_at(p_map);
 }
 
 /** Doxygen
