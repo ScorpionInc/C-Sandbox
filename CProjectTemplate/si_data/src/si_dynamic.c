@@ -69,9 +69,12 @@ bool si_dynamic_resize(si_dynamic_t* p_dynamic,
 	// Begin
 	const size_t new_size =	(p_dynamic->element_size * new_capacity);
 	// Check for overflows
-	if((new_size / p_dynamic->element_size) != new_capacity)
+	if(0u < p_dynamic->element_size)
 	{
-		goto END;
+		if((new_size / p_dynamic->element_size) != new_capacity)
+		{
+			goto END;
+		}
 	}
 	void* tmp = realloc(p_dynamic->data, new_size);
 	if(NULL == tmp)
