@@ -26,11 +26,11 @@
 extern "C" {
 #endif //__cplusplus
 
-typedef struct si_linked_list
+typedef struct si_linked_list_t
 {
 	si_dynamic_t dynamic;
-	struct si_linked_list* next;
-} si_linked_list;
+	struct si_linked_list_t* next;
+} si_linked_list_t;
 
 /** Doxygen
  * @brief Allocates new empty si_linked list nodes to increase list capacity.
@@ -40,7 +40,7 @@ typedef struct si_linked_list
  *
  * @return Returns stdbool true on success. False otherwise.
  */
-bool si_linked_list_grow_by(si_linked_list* const p_list,
+bool si_linked_list_grow_by(si_linked_list_t* const p_list,
 	const size_t amount);
 
 /** Doxygen
@@ -51,7 +51,7 @@ bool si_linked_list_grow_by(si_linked_list* const p_list,
  *
  * @return Returns stdbool true on success. False otherwise.
  */
-bool si_linked_list_grow_to(si_linked_list* const p_list,
+bool si_linked_list_grow_to(si_linked_list_t* const p_list,
 	const size_t capacity);
 
 /** Doxygen
@@ -60,9 +60,9 @@ bool si_linked_list_grow_to(si_linked_list* const p_list,
  * @param p_list Pointer to linked list to be initialized.
  * @param initial_capacity Number of list nodes to initialize.
  */
-void si_linked_list_new_2(si_linked_list* const p_list,
+void si_linked_list_new_2(si_linked_list_t* const p_list,
 	const size_t initial_capacity);
-void si_linked_list_new(si_linked_list* const p_list);
+void si_linked_list_new(si_linked_list_t* const p_list);
 
 /** Doxygen
  * @brief Walks the pointed at linked list counting elements.
@@ -71,7 +71,7 @@ void si_linked_list_new(si_linked_list* const p_list);
  *
  * @return Returns the number of elements in the linked list.
  */
-size_t si_linked_list_count(const si_linked_list* const p_list);
+size_t si_linked_list_count(const si_linked_list_t* const p_list);
 
 /** Doxygen
  * @brief Walks the pointed at linked list counting list nodes.
@@ -80,7 +80,7 @@ size_t si_linked_list_count(const si_linked_list* const p_list);
  *
  * @return Returns the number of nodes in the linked list.
  */
-size_t si_linked_list_capacity(const si_linked_list* const p_list);
+size_t si_linked_list_capacity(const si_linked_list_t* const p_list);
 
 /** Doxygen
  * @brief Determines if the list contains no set values. Or is empty.
@@ -89,7 +89,7 @@ size_t si_linked_list_capacity(const si_linked_list* const p_list);
  *
  * @return Returns stdbool true if empty. Returns false otherwise.
  */
-bool si_linked_list_is_empty(const si_linked_list* const p_list);
+bool si_linked_list_is_empty(const si_linked_list_t* const p_list);
 
 /** Doxygen
  * @brief Determines if the list values are at capacity. Or is full.
@@ -98,7 +98,7 @@ bool si_linked_list_is_empty(const si_linked_list* const p_list);
  *
  * @return Returns stdbool true if full. Returns false otherwise.
  */
-bool si_linked_list_is_full(const si_linked_list* const p_list);
+bool si_linked_list_is_full(const si_linked_list_t* const p_list);
 
 /** Doxygen
  * @brief Returns pointer to si_linked_list node index away from current node.
@@ -108,7 +108,7 @@ bool si_linked_list_is_full(const si_linked_list* const p_list);
  *
  * @return Returns pointer to linked list node by index. Or NULL on error.
  */
-si_linked_list* si_linked_list_node_at(const si_linked_list* const p_list,
+si_linked_list_t* si_linked_list_node_at(const si_linked_list_t* const p_list,
 	const size_t index);
 
 /** Doxygen
@@ -118,7 +118,7 @@ si_linked_list* si_linked_list_node_at(const si_linked_list* const p_list,
  *
  * @return Returns pointer to si_dynamic struct at index.
  */
-si_dynamic_t* si_linked_list_at(const si_linked_list* const p_list,
+si_dynamic_t* si_linked_list_at(const si_linked_list_t* const p_list,
 	const size_t index);
 
 /** Doxygen
@@ -128,7 +128,7 @@ si_dynamic_t* si_linked_list_at(const si_linked_list* const p_list,
  *
  * @return Returns pointer to raw heap value from list at index.
  */
-void* si_linked_list_raw_at(const si_linked_list* const p_list,
+void* si_linked_list_raw_at(const si_linked_list_t* const p_list,
 	const size_t index);
 
 /** Doxygen
@@ -140,9 +140,9 @@ void* si_linked_list_raw_at(const si_linked_list* const p_list,
  *
  * @return Returns index from p_list of first match. SIZE_MAX on error.
  */
-size_t si_linked_list_find_3(const si_linked_list* const p_list,
+size_t si_linked_list_find_3(const si_linked_list_t* const p_list,
 	const si_dynamic_t* const p_data, const size_t start_index);
-size_t si_linked_list_find(const si_linked_list* const p_list,
+size_t si_linked_list_find(const si_linked_list_t* const p_list,
 	const si_dynamic_t* const p_data);
 
 /** Doxygen
@@ -155,9 +155,9 @@ size_t si_linked_list_find(const si_linked_list* const p_list,
  *
  * @return Returns index from p_list of first match. SIZE_MAX on error.
  */
-size_t si_linked_list_find_raw_4(const si_linked_list* const p_list,
+size_t si_linked_list_find_raw_4(const si_linked_list_t* const p_list,
 	const void* const p_data, const size_t data_size, const size_t start_index);
-size_t si_linked_list_find_raw(const si_linked_list* const p_list,
+size_t si_linked_list_find_raw(const si_linked_list_t* const p_list,
 	const void* const p_data, const size_t data_size);
 
 /** Doxygen
@@ -171,15 +171,15 @@ size_t si_linked_list_find_raw(const si_linked_list* const p_list,
  *
  * @return Returns true on success. Returns false otherwise.
  */
-bool si_linked_list_assign_5(si_linked_list* const p_list,
+bool si_linked_list_assign_5(si_linked_list_t* const p_list,
 	const si_dynamic_t* const p_dynamic, const bool deep_copy,
 	const bool do_free, const size_t index);
-bool si_linked_list_assign_4(si_linked_list* const p_list,
+bool si_linked_list_assign_4(si_linked_list_t* const p_list,
 	const si_dynamic_t* const p_dynamic, const bool deep_copy,
 	const bool do_free);
-bool si_linked_list_assign_3(si_linked_list* const p_list,
+bool si_linked_list_assign_3(si_linked_list_t* const p_list,
 	const si_dynamic_t* const p_dynamic, const bool deep_copy);
-bool si_linked_list_assign(si_linked_list* const p_list,
+bool si_linked_list_assign(si_linked_list_t* const p_list,
 	const si_dynamic_t* const p_dynamic);
 
 /** Doxygen
@@ -192,9 +192,9 @@ bool si_linked_list_assign(si_linked_list* const p_list,
  *
  * @return Returns stdbool true on success. Returns false otherwise.
  */
-bool si_linked_list_assign_raw_4(si_linked_list* const p_list,
+bool si_linked_list_assign_raw_4(si_linked_list_t* const p_list,
 	const void* const p_data, const size_t data_size, const bool do_free);
-bool si_linked_list_assign_raw(si_linked_list* const p_list,
+bool si_linked_list_assign_raw(si_linked_list_t* const p_list,
 	const void* const p_data, const size_t data_size);
 
 /** Doxygen
@@ -206,9 +206,9 @@ bool si_linked_list_assign_raw(si_linked_list* const p_list,
  *
  * @return Returns true on success. False otherwise.
  */
-bool si_linked_list_insert_next_3(si_linked_list* const p_list,
+bool si_linked_list_insert_next_3(si_linked_list_t* const p_list,
 	const si_dynamic_t* const p_data, const bool deep_copy);
-bool si_linked_list_insert_next(si_linked_list* const p_list,
+bool si_linked_list_insert_next(si_linked_list_t* const p_list,
 	const si_dynamic_t* const p_data);
 
 /** Doxygen
@@ -220,7 +220,7 @@ bool si_linked_list_insert_next(si_linked_list* const p_list,
  *
  * @return Returns true on success. False otherwise.
  */
-bool si_linked_list_insert_next_raw(si_linked_list* const p_list,
+bool si_linked_list_insert_next_raw(si_linked_list_t* const p_list,
 	const void* const p_data, const size_t data_size);
 
 /** Doxygen
@@ -233,9 +233,9 @@ bool si_linked_list_insert_next_raw(si_linked_list* const p_list,
  *
  * @return Returns true on success. False otherwise.
  */
-bool si_linked_list_insert_4(si_linked_list* const p_list,
+bool si_linked_list_insert_4(si_linked_list_t* const p_list,
 	const si_dynamic_t* const p_data, const size_t index, const bool deep_copy);
-bool si_linked_list_insert(si_linked_list* const p_list,
+bool si_linked_list_insert(si_linked_list_t* const p_list,
 	const si_dynamic_t* const p_data, const size_t index);
 
 /** Doxygen
@@ -248,7 +248,7 @@ bool si_linked_list_insert(si_linked_list* const p_list,
  *
  * @return Returns true on success. False otherwise.
  */
-bool si_linked_list_insert_raw(si_linked_list* const p_list,
+bool si_linked_list_insert_raw(si_linked_list_t* const p_list,
 	const void* const p_data, const size_t data_size, const size_t index);
 
 /** Doxygen
@@ -258,7 +258,7 @@ bool si_linked_list_insert_raw(si_linked_list* const p_list,
  *
  * @return Returns pointer to last si_linked_list in p_list.
  */
-si_linked_list* si_linked_list_last_node(const si_linked_list* const p_list);
+si_linked_list_t* si_linked_list_last_node(const si_linked_list_t* const p_list);
 
 /** Doxygen
  * @brief Gets pointer to first unassigned node in p_list. NULL if full.
@@ -267,7 +267,7 @@ si_linked_list* si_linked_list_last_node(const si_linked_list* const p_list);
  *
  * @return Returns pointer to next node without assigned value in p_list.
  */
-si_linked_list* si_linked_list_next_available(const si_linked_list* const p_list);
+si_linked_list_t* si_linked_list_next_available(const si_linked_list_t* const p_list);
 
 /** Doxygen
  * @brief Inserts new linked list node with data value to the end.
@@ -278,9 +278,9 @@ si_linked_list* si_linked_list_next_available(const si_linked_list* const p_list
  *
  * @return Returns true on success. False otherwise.
  */
-bool si_linked_list_append_3(si_linked_list* const p_list,
+bool si_linked_list_append_3(si_linked_list_t* const p_list,
 	const si_dynamic_t* const p_data, const bool deep_copy);
-bool si_linked_list_append(si_linked_list* const p_list,
+bool si_linked_list_append(si_linked_list_t* const p_list,
 	const si_dynamic_t* const p_data);
 
 /** Doxygen
@@ -292,7 +292,7 @@ bool si_linked_list_append(si_linked_list* const p_list,
  *
  * @return Returns true on success. False otherwise.
  */
-bool si_linked_list_append_raw(si_linked_list* const p_list,
+bool si_linked_list_append_raw(si_linked_list_t* const p_list,
 	const void* const p_data, const size_t data_size);
 
 /** Doxygen
@@ -303,9 +303,9 @@ bool si_linked_list_append_raw(si_linked_list* const p_list,
  *
  * @return Returns True on success. Returns false otherwise.
  */
-bool si_linked_list_remove_next_2(si_linked_list* const p_list,
+bool si_linked_list_remove_next_2(si_linked_list_t* const p_list,
 	const bool do_free);
-bool si_linked_list_remove_next(si_linked_list* const p_list);
+bool si_linked_list_remove_next(si_linked_list_t* const p_list);
 
 /** Doxygen
  * @brief Removes linked list node specified by p_list.
@@ -315,8 +315,8 @@ bool si_linked_list_remove_next(si_linked_list* const p_list);
  *
  * @return Returns True on success. Returns false otherwise.
  */
-bool si_linked_list_remove_2(si_linked_list* p_list, const bool do_free);
-bool si_linked_list_remove(si_linked_list* p_list);
+bool si_linked_list_remove_2(si_linked_list_t* p_list, const bool do_free);
+bool si_linked_list_remove(si_linked_list_t* p_list);
 
 /** Doxygen
  * @brief
@@ -327,9 +327,9 @@ bool si_linked_list_remove(si_linked_list* p_list);
  *
  * @return Returns True on success, False otherwise.
  */
-bool si_linked_list_remove_at_3(si_linked_list* p_list,
+bool si_linked_list_remove_at_3(si_linked_list_t* p_list,
 	const size_t index, const bool do_free);
-bool si_linked_list_remove_at(si_linked_list* p_list,
+bool si_linked_list_remove_at(si_linked_list_t* p_list,
 	const size_t index);
 
 /** Doxygen
@@ -337,7 +337,7 @@ bool si_linked_list_remove_at(si_linked_list* p_list,
  *
  * @param p_list Pointer to a si_linked_list struct.
  */
-void si_linked_list_free(si_linked_list* const p_list);
+void si_linked_list_free(si_linked_list_t* const p_list);
 
 /** Doxygen
  * @brief Prints contents of list to file stream.
@@ -345,7 +345,7 @@ void si_linked_list_free(si_linked_list* const p_list);
  * @param p_list Pointer to list to be printed to file stream.
  * @param p_file Pointer to file stream to be printed to.
  */
-void si_linked_list_fprint(const si_linked_list* const p_list, FILE* const p_file);
+void si_linked_list_fprint(const si_linked_list_t* const p_list, FILE* const p_file);
 
 #ifdef __cplusplus
 }

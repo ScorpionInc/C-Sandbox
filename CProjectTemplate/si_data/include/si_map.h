@@ -20,7 +20,7 @@ typedef struct si_map_pair_t si_map_pair_t;
 
 typedef struct si_map_t
 {
-	si_linked_list entries;
+	si_linked_list_t entries;
 	int  (*p_cmp_key_f)(const void* const, const void* const);
 	int  (*p_cmp_value_f)(const void* const, const void* const);
 	void (*p_free_key_f)(void* const);

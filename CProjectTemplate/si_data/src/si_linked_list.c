@@ -1,6 +1,6 @@
 #include "si_linked_list.h"
 
-bool si_linked_list_grow_by(si_linked_list* const p_list,
+bool si_linked_list_grow_by(si_linked_list_t* const p_list,
 	const size_t amount)
 {
 	bool result = false;
@@ -10,7 +10,7 @@ bool si_linked_list_grow_by(si_linked_list* const p_list,
 		goto END;
 	}
 	// Begin
-	si_linked_list* p_tail = si_linked_list_last_node(p_list);
+	si_linked_list_t* p_tail = si_linked_list_last_node(p_list);
 	for(size_t i = 0u; i < amount; i++)
 	{
 		result = si_linked_list_insert_next(p_tail, NULL);
@@ -26,7 +26,7 @@ END:
 	return result;
 }
 
-bool si_linked_list_grow_to(si_linked_list* const p_list,
+bool si_linked_list_grow_to(si_linked_list_t* const p_list,
 	const size_t capacity)
 {
 	bool result = false;
@@ -47,7 +47,7 @@ END:
 	return result;
 }
 
-void si_linked_list_new_2(si_linked_list* const p_list,
+void si_linked_list_new_2(si_linked_list_t* const p_list,
 	const size_t initial_capacity)
 {
 	// Validate
@@ -64,13 +64,13 @@ void si_linked_list_new_2(si_linked_list* const p_list,
 END:
 	return;
 }
-inline void si_linked_list_new(si_linked_list* const p_list)
+inline void si_linked_list_new(si_linked_list_t* const p_list)
 {
 	// Default initial_capacity = 1u
 	si_linked_list_new_2(p_list, 1u);
 }
 
-size_t si_linked_list_count(const si_linked_list* const p_list)
+size_t si_linked_list_count(const si_linked_list_t* const p_list)
 {
 	size_t counter = 0u;
 	// Validate
@@ -79,7 +79,7 @@ size_t si_linked_list_count(const si_linked_list* const p_list)
 		goto END;
 	}
 	// Begin
-	const si_linked_list* p_next = p_list;
+	const si_linked_list_t* p_next = p_list;
 	do
 	{
 		if(NULL != p_next->dynamic.data)
@@ -97,7 +97,7 @@ END:
 	return counter;
 }
 
-size_t si_linked_list_capacity(const si_linked_list* const p_list)
+size_t si_linked_list_capacity(const si_linked_list_t* const p_list)
 {
 	size_t counter = 0u;
 	// Validate parameter
@@ -106,7 +106,7 @@ size_t si_linked_list_capacity(const si_linked_list* const p_list)
 		goto END;
 	}
 	// Begin
-	const si_linked_list* p_next = p_list;
+	const si_linked_list_t* p_next = p_list;
 	do
 	{
 		counter++;
@@ -121,7 +121,7 @@ END:
 	return counter;
 }
 
-bool si_linked_list_is_empty(const si_linked_list* const p_list)
+bool si_linked_list_is_empty(const si_linked_list_t* const p_list)
 {
 	bool result = true;
 	// Validate
@@ -130,7 +130,7 @@ bool si_linked_list_is_empty(const si_linked_list* const p_list)
 		goto END;
 	}
 	// Begin
-	const si_linked_list* p_node = p_list;
+	const si_linked_list_t* p_node = p_list;
 	do
 	{
 		if(NULL != p_node->dynamic.data)
@@ -149,7 +149,7 @@ END:
 	return result;
 }
 
-bool si_linked_list_is_full(const si_linked_list* const p_list)
+bool si_linked_list_is_full(const si_linked_list_t* const p_list)
 {
 	bool result = true;
 	// Validate
@@ -158,7 +158,7 @@ bool si_linked_list_is_full(const si_linked_list* const p_list)
 		goto END;
 	}
 	// Begin
-	const si_linked_list* p_node = p_list;
+	const si_linked_list_t* p_node = p_list;
 	do
 	{
 		if(NULL == p_node->dynamic.data)
@@ -177,10 +177,10 @@ END:
 	return result;
 }
 
-si_linked_list* si_linked_list_node_at(const si_linked_list* const p_list,
+si_linked_list_t* si_linked_list_node_at(const si_linked_list_t* const p_list,
 	const size_t index)
 {
-	const si_linked_list* p_result = p_list;
+	const si_linked_list_t* p_result = p_list;
 	// Validate
 	if(NULL == p_result)
 	{
@@ -200,7 +200,7 @@ END:
 	return p_result;
 }
 
-si_dynamic_t* si_linked_list_at(const si_linked_list* const p_list,
+si_dynamic_t* si_linked_list_at(const si_linked_list_t* const p_list,
 	const size_t index)
 {
 	const si_dynamic_t* p_data = NULL;
@@ -210,7 +210,7 @@ si_dynamic_t* si_linked_list_at(const si_linked_list* const p_list,
 		goto END;
 	}
 	// Begin
-	const si_linked_list* const p_node = si_linked_list_node_at(p_list, index);
+	const si_linked_list_t* const p_node = si_linked_list_node_at(p_list, index);
 	if(NULL == p_node)
 	{
 		goto END;
@@ -221,7 +221,7 @@ END:
 	return (si_dynamic_t*)p_data;
 }
 
-void* si_linked_list_raw_at(const si_linked_list* const p_list,
+void* si_linked_list_raw_at(const si_linked_list_t* const p_list,
 	const size_t index)
 {
 	void* p_result = NULL;
@@ -242,7 +242,7 @@ END:
 	return p_result;
 }
 
-size_t si_linked_list_find_3(const si_linked_list* const p_list,
+size_t si_linked_list_find_3(const si_linked_list_t* const p_list,
 	const si_dynamic_t* const p_data, const size_t start_index)
 {
 	// This recursion implementation may be slower than iterative.
@@ -271,14 +271,14 @@ size_t si_linked_list_find_3(const si_linked_list* const p_list,
 END:
 	return index;
 }
-inline size_t si_linked_list_find(const si_linked_list* const p_list,
+inline size_t si_linked_list_find(const si_linked_list_t* const p_list,
 	const si_dynamic_t* const p_data)
 {
 	// Default parameter current_index=0 (Assumes this is the root node)
 	return si_linked_list_find_3(p_list, p_data, 0u);
 }
 
-size_t si_linked_list_find_raw_4(const si_linked_list* const p_list,
+size_t si_linked_list_find_raw_4(const si_linked_list_t* const p_list,
 	const void* const p_data, const size_t data_size, const size_t start_index)
 {
 	size_t index = SIZE_MAX;
@@ -298,19 +298,19 @@ size_t si_linked_list_find_raw_4(const si_linked_list* const p_list,
 END:
 	return index;
 }
-inline size_t si_linked_list_find_raw(const si_linked_list* const p_list,
+inline size_t si_linked_list_find_raw(const si_linked_list_t* const p_list,
 	const void* const p_data, const size_t data_size)
 {
 	// Default value of start_index = 0u
 	return si_linked_list_find_raw_4(p_list, p_data, data_size, 0u);
 }
 
-bool si_linked_list_assign_5(si_linked_list* const p_list,
+bool si_linked_list_assign_5(si_linked_list_t* const p_list,
     const si_dynamic_t* const p_dynamic, const bool deep_copy,
     const bool do_free, const size_t index)
 {
 	bool result = false;
-	si_linked_list* p_node = si_linked_list_node_at(p_list, index);
+	si_linked_list_t* p_node = si_linked_list_node_at(p_list, index);
 	// Validate
 	if(NULL == p_node)
 	{
@@ -345,21 +345,21 @@ bool si_linked_list_assign_5(si_linked_list* const p_list,
 END:
 	return result;
 }
-inline bool si_linked_list_assign_4(si_linked_list* const p_list,
+inline bool si_linked_list_assign_4(si_linked_list_t* const p_list,
     const si_dynamic_t* const p_dynamic, const bool deep_copy,
     const bool do_free)
 {
 	// Default value of index = 0u
 	return si_linked_list_assign_5(p_list, p_dynamic, deep_copy, do_free, 0u);
 }
-inline bool si_linked_list_assign_3(si_linked_list* const p_list,
+inline bool si_linked_list_assign_3(si_linked_list_t* const p_list,
     const si_dynamic_t* const p_dynamic, const bool deep_copy)
 {
 	// Default value of do_free = DI_LL_DEF_DO_FREE(true)
 	return si_linked_list_assign_4(p_list, p_dynamic, deep_copy,
 		SI_LINKED_LIST_DEFAULT_DO_FREE);
 }
-inline bool si_linked_list_assign(si_linked_list* const p_list,
+inline bool si_linked_list_assign(si_linked_list_t* const p_list,
     const si_dynamic_t* const p_dynamic)
 {
 	// Default value of deep_copy = SI_LL_DEF_DEEP_CPY_DYN(false)
@@ -367,7 +367,7 @@ inline bool si_linked_list_assign(si_linked_list* const p_list,
 		SI_LINKED_LIST_DEFAULT_DEEP_COPY);
 }
 
-bool si_linked_list_assign_raw_4(si_linked_list* const p_list,
+bool si_linked_list_assign_raw_4(si_linked_list_t* const p_list,
     const void* const p_data, const size_t data_size, const bool do_free)
 {
 	bool result = false;
@@ -394,7 +394,7 @@ bool si_linked_list_assign_raw_4(si_linked_list* const p_list,
 END:
 	return result;
 }
-bool si_linked_list_assign_raw(si_linked_list* const p_list,
+bool si_linked_list_assign_raw(si_linked_list_t* const p_list,
     const void* const p_data, const size_t data_size)
 {
 	// Default value of do_free = DI_LL_DEF_DO_FREE(true)
@@ -402,7 +402,7 @@ bool si_linked_list_assign_raw(si_linked_list* const p_list,
 		SI_LINKED_LIST_DEFAULT_DO_FREE);
 }
 
-bool si_linked_list_insert_next_3(si_linked_list* const p_list,
+bool si_linked_list_insert_next_3(si_linked_list_t* const p_list,
 	const si_dynamic_t* const p_data, const bool deep_copy)
 {
 	bool result = false;
@@ -412,7 +412,7 @@ bool si_linked_list_insert_next_3(si_linked_list* const p_list,
 		goto END;
 	}
 	// Begin
-	si_linked_list* next_node = calloc(1u, sizeof(si_linked_list));
+	si_linked_list_t* next_node = calloc(1u, sizeof(si_linked_list_t));
 	if(NULL == next_node)
 	{
 		goto END;
@@ -435,7 +435,7 @@ bool si_linked_list_insert_next_3(si_linked_list* const p_list,
 END:
 	return result;
 }
-inline bool si_linked_list_insert_next(si_linked_list* const p_list,
+inline bool si_linked_list_insert_next(si_linked_list_t* const p_list,
 	const si_dynamic_t* const p_data)
 {
 	// Default value of deep_copy = SI_LL_DFLT_DEEP_CPY_DYNAMICS(false)
@@ -443,7 +443,7 @@ inline bool si_linked_list_insert_next(si_linked_list* const p_list,
 		SI_LINKED_LIST_DEFAULT_DEEP_COPY);
 }
 
-bool si_linked_list_insert_next_raw(si_linked_list* const p_list,
+bool si_linked_list_insert_next_raw(si_linked_list_t* const p_list,
 	const void* const p_data, const size_t data_size)
 {
 	bool result = false;
@@ -469,11 +469,11 @@ END:
 	return result;
 }
 
-bool si_linked_list_insert_4(si_linked_list* const p_list,
+bool si_linked_list_insert_4(si_linked_list_t* const p_list,
 	const si_dynamic_t* const p_data, const size_t index, const bool deep_copy)
 {
 	bool result = false;
-	si_linked_list* p_node = si_linked_list_node_at(p_list, index);
+	si_linked_list_t* p_node = si_linked_list_node_at(p_list, index);
 	// Validate
 	if(NULL == p_node)
 	{
@@ -485,7 +485,7 @@ bool si_linked_list_insert_4(si_linked_list* const p_list,
 END:
 	return result;
 }
-inline bool si_linked_list_insert(si_linked_list* const p_list,
+inline bool si_linked_list_insert(si_linked_list_t* const p_list,
 	const si_dynamic_t* const p_data, const size_t index)
 {
 	// Default value of deep_copy = SI_LL_DFLT_DEEP_CPY_DYNAMICS(false)
@@ -493,11 +493,11 @@ inline bool si_linked_list_insert(si_linked_list* const p_list,
 		SI_LINKED_LIST_DEFAULT_DEEP_COPY);
 }
 
-bool si_linked_list_insert_raw(si_linked_list* const p_list,
+bool si_linked_list_insert_raw(si_linked_list_t* const p_list,
 	const void* const p_data, const size_t data_size, const size_t index)
 {
 	bool result = false;
-	si_linked_list* p_node = si_linked_list_node_at(p_list, index);
+	si_linked_list_t* p_node = si_linked_list_node_at(p_list, index);
 	// Validation
 	if(NULL == p_node)
 	{
@@ -510,9 +510,9 @@ END:
 	return result;
 }
 
-si_linked_list* si_linked_list_last_node(const si_linked_list* const p_list)
+si_linked_list_t* si_linked_list_last_node(const si_linked_list_t* const p_list)
 {
-	si_linked_list* p_node = p_list;
+	si_linked_list_t* p_node = p_list;
 	// Validation
 	if(NULL == p_node)
 	{
@@ -533,9 +533,9 @@ END:
 	return p_node;
 }
 
-si_linked_list* si_linked_list_next_available(const si_linked_list* const p_list)
+si_linked_list_t* si_linked_list_next_available(const si_linked_list_t* const p_list)
 {
-	si_linked_list* p_node = p_list;
+	si_linked_list_t* p_node = p_list;
 	// Validation
 	if(NULL == p_node)
 	{
@@ -560,7 +560,7 @@ END:
 	return p_node;
 }
 
-bool si_linked_list_append_3(si_linked_list* const p_list,
+bool si_linked_list_append_3(si_linked_list_t* const p_list,
 	const si_dynamic_t* const p_data, const bool deep_copy)
 {
 	bool result = false;
@@ -570,7 +570,7 @@ bool si_linked_list_append_3(si_linked_list* const p_list,
 		goto END;
 	}
 	// Begin
-	si_linked_list* p_node = si_linked_list_next_available(p_list);
+	si_linked_list_t* p_node = si_linked_list_next_available(p_list);
 	if(NULL == p_node)
 	{
 		// List is full.
@@ -586,7 +586,7 @@ bool si_linked_list_append_3(si_linked_list* const p_list,
 END:
 	return result;
 }
-inline bool si_linked_list_append(si_linked_list* const p_list,
+inline bool si_linked_list_append(si_linked_list_t* const p_list,
 	const si_dynamic_t* const p_data)
 {
 	// Default value of deep_copy = SI_LL_DFLT_DEEP_CPY_DYNAMICS(false)
@@ -594,7 +594,7 @@ inline bool si_linked_list_append(si_linked_list* const p_list,
 		SI_LINKED_LIST_DEFAULT_DEEP_COPY);
 }
 
-bool si_linked_list_append_raw(si_linked_list* const p_list,
+bool si_linked_list_append_raw(si_linked_list_t* const p_list,
 	const void* const p_data, const size_t data_size)
 {
 	bool result = false;
@@ -604,7 +604,7 @@ bool si_linked_list_append_raw(si_linked_list* const p_list,
 		goto END;
 	}
 	// Begin
-	si_linked_list* p_node = si_linked_list_next_available(p_list);
+	si_linked_list_t* p_node = si_linked_list_next_available(p_list);
 	if(NULL == p_node)
 	{
 		// List is full.
@@ -621,7 +621,7 @@ END:
 	return result;
 }
 
-bool si_linked_list_remove_next_2(si_linked_list* const p_list,
+bool si_linked_list_remove_next_2(si_linked_list_t* const p_list,
 	const bool do_free)
 {
 	bool result = false;
@@ -636,7 +636,7 @@ bool si_linked_list_remove_next_2(si_linked_list* const p_list,
 		// Already Removed
 		goto END;
 	}
-	si_linked_list* next_node = p_list->next;
+	si_linked_list_t* next_node = p_list->next;
 	if(do_free)
 	{
 		si_dynamic_free(&(next_node->dynamic));
@@ -653,14 +653,14 @@ bool si_linked_list_remove_next_2(si_linked_list* const p_list,
 END:
 	return result;
 }
-inline bool si_linked_list_remove_next(si_linked_list* const p_list)
+inline bool si_linked_list_remove_next(si_linked_list_t* const p_list)
 {
 	// Default value of do_free = DI_LL_DEF_DO_FREE(true)
 	return si_linked_list_remove_next_2(p_list,
 		SI_LINKED_LIST_DEFAULT_DO_FREE);
 }
 
-bool si_linked_list_remove_2(si_linked_list* p_list, const bool do_free)
+bool si_linked_list_remove_2(si_linked_list_t* p_list, const bool do_free)
 {
 	bool result = false;
 	// Validate
@@ -675,7 +675,7 @@ bool si_linked_list_remove_2(si_linked_list* p_list, const bool do_free)
 		si_dynamic_free(&(p_list->dynamic));
 	}
 	p_list->dynamic.data = NULL;
-	si_linked_list* p_next = p_list->next;
+	si_linked_list_t* p_next = p_list->next;
 	if(NULL == p_next)
 	{
 		// Can't redefine self as next. We free self.
@@ -699,14 +699,14 @@ bool si_linked_list_remove_2(si_linked_list* p_list, const bool do_free)
 END:
 	return result;
 }
-inline bool si_linked_list_remove(si_linked_list* p_list)
+inline bool si_linked_list_remove(si_linked_list_t* p_list)
 {
 	// Default value of do_free = DI_LL_DEF_DO_FREE(true)
 	return si_linked_list_remove_2(p_list,
 		SI_LINKED_LIST_DEFAULT_DO_FREE);
 }
 
-bool si_linked_list_remove_at_3(si_linked_list* p_list,
+bool si_linked_list_remove_at_3(si_linked_list_t* p_list,
 	const size_t index, const bool do_free)
 {
 	bool result = false;
@@ -723,13 +723,13 @@ bool si_linked_list_remove_at_3(si_linked_list* p_list,
 		goto END;
 	}
 	// Next-Remove
-	si_linked_list* const p_parent = si_linked_list_node_at(p_list, index - 1);
+	si_linked_list_t* const p_parent = si_linked_list_node_at(p_list, index - 1);
 	result = si_linked_list_remove_next(p_parent);
 	// End
 END:
 	return result;
 }
-bool si_linked_list_remove_at(si_linked_list* p_list,
+bool si_linked_list_remove_at(si_linked_list_t* p_list,
 	const size_t index)
 {
 	// Default value of do_free = DI_LL_DEF_DO_FREE(true)
@@ -737,7 +737,7 @@ bool si_linked_list_remove_at(si_linked_list* p_list,
 		SI_LINKED_LIST_DEFAULT_DO_FREE);
 }
 
-void si_linked_list_free(si_linked_list* const p_list)
+void si_linked_list_free(si_linked_list_t* const p_list)
 {
 	// Validate
 	if(NULL == p_list)
@@ -756,7 +756,7 @@ END:
 	return;
 }
 
-void si_linked_list_fprint(const si_linked_list* const p_list, FILE* const p_file)
+void si_linked_list_fprint(const si_linked_list_t* const p_list, FILE* const p_file)
 {
 	// TODO
 	// Validate parameters
@@ -765,7 +765,7 @@ void si_linked_list_fprint(const si_linked_list* const p_list, FILE* const p_fil
 		goto END;
 	}
 	// Begin
-	const si_linked_list* iterator = p_list;
+	const si_linked_list_t* iterator = p_list;
 	const size_t list_count = si_linked_list_count(iterator);
 	const size_t list_capacity = si_linked_list_capacity(iterator);
 	fprintf(p_file, "{");

@@ -5,7 +5,7 @@
 void test00(void)
 {
 	const size_t initial_capacity = 69u;
-	si_linked_list list = (si_linked_list){};
+	si_linked_list_t list = (si_linked_list_t){};
 	si_linked_list_new_2(&list, initial_capacity);
 
 	for(int i = 0; i < 2; i++)

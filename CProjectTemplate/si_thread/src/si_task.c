@@ -4,7 +4,7 @@
 
 void si_task_new_5(si_task* const p_task,
 	const si_task_t const p_function, const uint8_t field,
-	const si_linked_list* const p_arguments, const size_t task_id)
+	const si_linked_list_t* const p_arguments, const size_t task_id)
 {
 	// Validate
 	if((NULL == p_task) || (NULL == p_function))
@@ -24,7 +24,7 @@ END:
 }
 inline void si_task_new_4(si_task* const p_task,
 	const si_task_t const p_function, const uint8_t field,
-	const si_linked_list* const p_arguments)
+	const si_linked_list_t* const p_arguments)
 {
 	// Default task_id = SI_TASK_DEFAULT_ID(0u)
 	si_task_new_5(p_task, p_function, field, p_arguments, SI_TASK_DEFAULT_ID);

@@ -24,23 +24,23 @@
 #ifndef SI_TASK_H
 #define SI_TASK_H
 
-typedef void (*si_task_t)(si_linked_list* optional_arguments, si_dynamic_t* stores_results);
+typedef void (*si_task_t)(si_linked_list_t* optional_arguments, si_dynamic_t* stores_results);
 
 typedef struct si_task
 {
 	uint8_t field;
 	si_dynamic_t return_value;
-	si_linked_list* p_arguments;
+	si_linked_list_t* p_arguments;
 	si_task_t p_function;
 	size_t task_id;
 } si_task;
 
 void si_task_new_5(si_task* const p_task,
 	const si_task_t const p_function, const uint8_t field,
-	const si_linked_list* const p_arguments, const size_t task_id);
+	const si_linked_list_t* const p_arguments, const size_t task_id);
 void si_task_new_4(si_task* const p_task,
 	const si_task_t const p_function, const uint8_t field,
-	const si_linked_list* const p_arguments);
+	const si_linked_list_t* const p_arguments);
 void si_task_new_3(si_task* const p_task,
 	const si_task_t const p_function, const uint8_t field);
 void si_task_new(si_task* const p_task,
