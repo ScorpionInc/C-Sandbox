@@ -114,7 +114,7 @@ void si_tasker_new_2(si_tasker* const p_tasker, const size_t thread_count)
 		si_queue_new(p_queue, sizeof(si_task));
 	}
 	p_tasker->results_lock = (pthread_mutex_t){};
-	p_tasker->results = (si_map){};
+	p_tasker->results = (si_map_t){};
 	si_map_new(&(p_tasker->results));
 	// End
 END:

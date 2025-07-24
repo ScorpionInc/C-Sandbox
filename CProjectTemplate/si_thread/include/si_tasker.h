@@ -35,7 +35,7 @@ typedef struct si_tasker
 	si_queue_array tasks;
 	//!TODO
 	pthread_mutex_t results_lock;
-	si_map results;
+	si_map_t results;
 } si_tasker;
 
 void si_tasker_new_2(si_tasker* const p_tasker, const size_t thread_count);

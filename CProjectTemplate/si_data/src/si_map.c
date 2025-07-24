@@ -2,30 +2,65 @@
 
 #include "si_map.h"
 
-void si_map_pair_new(si_map_pair* const p_pair, const void* const p_key,
-	const size_t key_size, const void* const p_value, const size_t value_size)
+typedef struct si_map_pair_t
 {
-	// Validation
-	if((NULL == p_pair) || (NULL == p_value) || (NULL == p_value))
+	void* p_key;
+	void* p_value;
+} si_map_pair_t;
+
+/* Doxygen
+ * @brief Initializes a new si_map_pair_t struct with values of pointers.
+ *
+ * @param p_key Pointer into memory to be used as a key.
+ * @param p_value Pointer into memory to be stored.
+ */
+static si_map_pair_t* si_map_pair_new(const void* const p_key,
+	const void* const p_value)
+{
+	si_map_pair_t* p_new = NULL;
+	if(NULL == p_key)
 	{
 		goto END;
 	}
-	// Begin
-	si_dynamic_new_3(&p_pair->key, key_size, 1u);
-	si_dynamic_new_3(&p_pair->value, value_size, 1u);
-	si_dynamic_set(&p_pair->key, 0u, p_key);
-	si_dynamic_set(&p_pair->value, 0u, p_value);
-	// End
+	p_new = calloc(1u, sizeof(si_map_t));
+	if(NULL == p_new)
+	{
+		goto END;
+	}
+	p_new->p_key = (void*)p_key;
+	p_new->p_value = (void*)p_value;
+END:
+	return p_new;
+}
+
+void si_map_init(si_map_t* const p_map)
+{
+	//!TODO
+	if(NULL == p_map)
+	{
+		goto END;
+	}
+	p_map->p_cmp_key_f = NULL;
+	p_map->p_cmp_value_f = NULL;
+	p_map->p_free_key_f = free;
+	p_map->p_free_value_f = free;
 END:
 	return;
 }
 
-void si_map_new(si_map* const p_map)
+si_map_t* si_map_new()
 {
-	//!TODO
+	si_map_t* p_new = calloc(1u, sizeof(si_map_t));
+	if(NULL == p_new)
+	{
+		goto END;
+	}
+	si_map_init(p_new);
+END:
+	return p_new;
 }
 
-size_t si_map_count(const si_map* const p_map)
+size_t si_map_count(const si_map_t* const p_map)
 {
 	size_t result = SIZE_MAX;
 	// Validation
@@ -40,7 +75,7 @@ END:
 	return result;
 }
 
-size_t si_map_index_of_raw(const si_map* const p_map, const void* const p_key,
+size_t si_map_index_of_raw(const si_map_t* const p_map, const void* const p_key,
 	const size_t key_size)
 {
 	//!TODO
@@ -63,55 +98,55 @@ END:
 	return result;
 }
 
-size_t si_map_index_of(const si_map* const p_map, const si_dynamic* const p_key)
+size_t si_map_index_of(const si_map_t* const p_map, const si_dynamic_t* const p_key)
 {
 	//!TODO
 }
 
-si_dynamic* si_map_at_raw(si_map* const p_map, const void* const p_key,
+si_dynamic_t* si_map_at_raw(si_map_t* const p_map, const void* const p_key,
 	const size_t key_size)
 {
 	//!TODO
 }
 
-si_dynamic* si_map_at(si_map* const p_map, const si_dynamic* const p_key)
+si_dynamic_t* si_map_at(si_map_t* const p_map, const si_dynamic_t* const p_key)
 {
 	//!TODO
 }
 
-bool si_map_has_raw(si_map* const p_map, const void* const p_key,
+bool si_map_has_raw(si_map_t* const p_map, const void* const p_key,
 	const size_t key_size)
 {
 	//!TODO
 }
 
-bool si_map_has(si_map* const p_map, const si_dynamic* const p_key)
+bool si_map_has(si_map_t* const p_map, const si_dynamic_t* const p_key)
 {
 	//!TODO
 }
 
-bool si_map_remove_raw(si_map* const p_map, const void* const p_key, const size_t key_size)
+bool si_map_remove_raw(si_map_t* const p_map, const void* const p_key, const size_t key_size)
 {
 	//!TODO
 }
 
-bool si_map_remove(si_map* const p_map, const si_dynamic* const p_key)
+bool si_map_remove(si_map_t* const p_map, const si_dynamic_t* const p_key)
 {
 	//!TODO
 }
 
-bool si_map_insert_raw(si_map* const p_map, const void* const p_key,
+bool si_map_insert_raw(si_map_t* const p_map, const void* const p_key,
 	const size_t key_size, const void* p_value, const size_t value_size)
 {
 	//!TODO
 }
 
-bool si_map_insert(si_map* const p_map, const si_map_pair* const p_pair)
+bool si_map_insert(si_map_t* const p_map, const si_map_pair_t* const p_pair)
 {
 	//!TODO
 }
 
-void si_map_free(si_map* const p_map)
+void si_map_free(si_map_t* const p_map)
 {
 	//!TODO
 }
