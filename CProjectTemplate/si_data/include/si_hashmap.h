@@ -1,6 +1,6 @@
 //si_hashmap.h
 
-#include "si_dynamic.h"
+#include "si_array.h"
 #include "si_adler.h"
 
 #ifndef SI_HASHMAP_H

@@ -2,7 +2,6 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "si_dynamic.h"
 #include "si_queue.h"
 
 void si_queue_init_4(si_queue_t* p_queue, const size_t element_size,

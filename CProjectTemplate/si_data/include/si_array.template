@@ -4,7 +4,7 @@
  * Updated: 20250614
 //*/
 
-#include "si_dynamic.h"
+#include "si_array.h"
 
 #ifdef __cplusplus
 extern "C" {

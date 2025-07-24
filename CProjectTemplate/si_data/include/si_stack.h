@@ -3,7 +3,7 @@
 #include <stdbool.h>
 
 #include "si_realloc_settings.h"
-#include "si_dynamic.h"
+#include "si_array.h"
 
 #ifndef SI_STACK_H
 #define SI_STACK_H

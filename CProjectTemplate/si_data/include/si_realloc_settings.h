@@ -12,7 +12,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include "si_dynamic.h"
+#include "si_array.h"
 
 #ifndef SI_REALLOC_SETTINGS
 #define SI_REALLOC_SETTINGS

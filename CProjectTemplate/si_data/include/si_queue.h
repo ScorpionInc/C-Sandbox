@@ -9,7 +9,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "si_dynamic.h"
+#include "si_array.h"
 #include "si_realloc_settings.h"
 
 #ifndef SI_QUEUE_H

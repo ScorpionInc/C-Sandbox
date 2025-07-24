@@ -1,6 +1,6 @@
-//si_dynamic.c
+//si_array.c
 
-#include "si_dynamic.h"
+#include "si_array.h"
 
 #ifdef __cplusplus
 extern "C" {
