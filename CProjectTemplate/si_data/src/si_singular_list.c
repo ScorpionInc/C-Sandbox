@@ -550,7 +550,7 @@ size_t si_singular_list_push(si_singular_list_t* const p_list,
 		if(NULL == p_iterator->p_data)
 		{
 			// Assign
-			p_iterator->p_data = p_data;
+			p_iterator->p_data = (void*)p_data;
 			goto END;
 		}
 		p_iterator = p_iterator->p_next;

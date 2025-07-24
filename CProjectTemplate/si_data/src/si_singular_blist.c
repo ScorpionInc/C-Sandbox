@@ -350,7 +350,7 @@ size_t si_singular_blist_push(si_singular_blist_t* const p_list,
 			if(NULL == p_iterator->p_data)
 			{
 				// Available spot. Assign data.
-				p_iterator->p_data = p_data;
+				p_iterator->p_data = (void*)p_data;
 				p_list->count++;
 				assigned = true;
 			}
