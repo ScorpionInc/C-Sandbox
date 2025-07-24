@@ -14,8 +14,8 @@ void si_dynamic_new_3(si_dynamic_t* p_dynamic, const size_t element_size,
 		goto END;
 	}
 	// Begin
-	p_dynamic->data = calloc(capacity, element_size);
-	if (NULL == p_dynamic->data)
+	p_dynamic->p_data = calloc(capacity, element_size);
+	if (NULL == p_dynamic->p_data)
 	{
 		goto END;
 	}
@@ -39,7 +39,7 @@ size_t si_dynamic_size(const si_dynamic_t* p_dynamic)
 	{
 		goto END;
 	}
-	if ((NULL == p_dynamic->data) || (0u == p_dynamic->element_size))
+	if ((NULL == p_dynamic->p_data) || (0u == p_dynamic->element_size))
 	{
 		goto END;
 	}
@@ -76,12 +76,12 @@ bool si_dynamic_resize(si_dynamic_t* p_dynamic,
 			goto END;
 		}
 	}
-	void* tmp = realloc(p_dynamic->data, new_size);
+	void* tmp = realloc(p_dynamic->p_data, new_size);
 	if(NULL == tmp)
 	{
 		goto END;
 	}
-	p_dynamic->data = tmp;
+	p_dynamic->p_data = tmp;
 	p_dynamic->capacity = new_capacity;
 	result = true;
 	// End
@@ -98,16 +98,16 @@ bool si_dynamic_is_pointer_within(const si_dynamic_t* p_dynamic,
 	{
 		goto END;
 	}
-	if(NULL == p_dynamic->data)
+	if(NULL == p_dynamic->p_data)
 	{
 		goto END;
 	}
 	// Begin
-	result = (p_test >= p_dynamic->data);
+	result = (p_test >= p_dynamic->p_data);
 	if(result)
 	{
 		const size_t size = si_dynamic_size(p_dynamic);
-		result = (p_test < (p_dynamic->data + size));
+		result = (p_test < (p_dynamic->p_data + size));
 	}
 	// End
 END:
@@ -126,7 +126,7 @@ size_t si_dynamic_find_pointer_offset(const si_dynamic_t* p_dynamic,
 	}
 	// Begin
 	const size_t size = si_dynamic_size(p_dynamic);
-	offset = (p_dynamic->data + size) - p_test;
+	offset = (p_dynamic->p_data + size) - p_test;
 	// End
 END:
 	return offset;
@@ -187,7 +187,7 @@ void* si_dynamic_at(const si_dynamic_t* p_dynamic,
 		goto END;
 	}
 	// Begin
-	p_item = (p_dynamic->data + (p_dynamic->element_size * index));
+	p_item = (p_dynamic->p_data + (p_dynamic->element_size * index));
 	// End
 END:
 	return p_item;
@@ -217,7 +217,7 @@ void si_dynamic_set(si_dynamic_t* p_dynamic,
 		goto END;
 	}
 	// Begin
-	memcpy(p_dynamic->data + offset, p_item,
+	memcpy(p_dynamic->p_data + offset, p_item,
 		p_dynamic->element_size);
 	// End
 END:
@@ -239,7 +239,7 @@ void si_dynamic_get(const si_dynamic_t* p_dynamic,
 		goto END;
 	}
 	// Begin
-	memcpy(p_item, p_dynamic->data + offset,
+	memcpy(p_item, p_dynamic->p_data + offset,
 		p_dynamic->element_size);
 	// End
 	END:
@@ -288,8 +288,8 @@ int si_dynamic_cmp(const si_dynamic_t* const p_dynamic_a,
 	uint8_t next_b = 0u;
 	for(size_t i = 0u; i < min_size; i++)
 	{
-		next_a = ((uint8_t*)p_dynamic_a->data)[i];
-		next_b = ((uint8_t*)p_dynamic_b->data)[i];
+		next_a = ((uint8_t*)p_dynamic_a->p_data)[i];
+		next_b = ((uint8_t*)p_dynamic_b->p_data)[i];
 		if(next_a == next_b)
 		{
 			continue;
@@ -332,13 +332,13 @@ void fprint_si_dynamic(FILE* const p_file, const si_dynamic_t* const p_dynamic)
 	}
 	// Begin
 	fprintf(p_file, "{data address: ");
-	if(NULL == p_dynamic->data)
+	if(NULL == p_dynamic->p_data)
 	{
 		fprintf(p_file, "NULL, ");
 	}
 	else
 	{
-		fprintf(p_file, "%p, ", p_dynamic->data);
+		fprintf(p_file, "%p, ", p_dynamic->p_data);
 	}
 	fprintf(p_file, "element size: %lu, ", p_dynamic->element_size);
 	fprintf(p_file, "capacity: %lu", p_dynamic->capacity);
@@ -356,10 +356,10 @@ void si_dynamic_free(si_dynamic_t* const p_dynamic)
 		goto END;
 	}
 	// Begin
-	if (NULL != p_dynamic->data)
+	if (NULL != p_dynamic->p_data)
 	{
-		free(p_dynamic->data);
-		p_dynamic->data = NULL;
+		free(p_dynamic->p_data);
+		p_dynamic->p_data = NULL;
 	}
 	// End
 END:

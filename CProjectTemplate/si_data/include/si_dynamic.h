@@ -22,7 +22,7 @@ extern "C" {
 
 typedef struct si_dynamic_t
 {
-	void* data;
+	void* p_data;
 	size_t element_size;
 	size_t capacity;
 } si_dynamic_t;
