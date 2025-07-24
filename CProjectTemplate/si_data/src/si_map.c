@@ -24,11 +24,12 @@ END:
 
 void si_map_init(si_map_t* const p_map)
 {
-	//!TODO
 	if(NULL == p_map)
 	{
 		goto END;
 	}
+	si_dynamic_new_3(&p_map->entries, sizeof(void*), 0u);
+	si_realloc_settings_new(&p_map->settings);
 	p_map->p_cmp_key_f = NULL;
 	p_map->p_cmp_value_f = NULL;
 	p_map->p_free_key_f = NULL;
@@ -97,12 +98,12 @@ END:
 	return result;
 }
 
-size_t si_map_index_of(const si_map_t* const p_map, const si_dynamic_t* const p_key)
+size_t si_map_index_of(const si_map_t* const p_map, const void* const p_key)
 {
 	//!TODO
 }
 
-si_dynamic_t* si_map_at(si_map_t* const p_map, const void* const p_key)
+void* si_map_at(si_map_t* const p_map, const void* const p_key)
 {
 	//!TODO
 }
@@ -130,27 +131,26 @@ void si_map_free(si_map_t* const p_map)
 	}
 	p_map->p_cmp_key_f = NULL;
 	p_map->p_cmp_value_f = NULL;
-	si_realloc_settings_free(&p_map->settings);
 
-	if(NULL != p_map->p_free_key_f)
+	for(size_t i = 0u; i < p_map->entries.capacity; i++)
 	{
-		for(size_t i = 0u; i < p_map->keys.capacity; i++)
+		si_map_pair_t* p_next_pair = si_dynamic_at(&p_map->entries, i);
+		if(NULL == p_next_pair)
 		{
-			p_map->p_free_key_f(si_dynamic_at(p_map->keys, i));
+			continue;
+		}
+		if(NULL != p_map->p_free_key_f)
+		{
+			p_map->p_free_key_f(p_next_pair->p_key);
+		}
+		if(NULL != p_map->p_free_value_f)
+		{
+			p_map->p_free_value_f(p_next_pair->p_value);
 		}
 	}
 	p_map->p_free_key_f = NULL;
-	si_dynamic_free(&p_map->keys);
-
-	if(NULL != p_map->p_free_value_f)
-	{
-		for(size_t i = 0u; i < p_map->values.capacity; i++)
-		{
-			p_map->p_free_value_f(si_dynamic_at(p_map->values, i));
-		}
-	}
 	p_map->p_free_value_f = NULL;
-	si_dynamic_free(&p_map->values);
+	si_dynamic_free(&p_map->entries);
 END:
 	return;
 }
@@ -164,8 +164,10 @@ void si_map_free_at(si_map_t** const pp_map)
 	if(NULL == *pp_map)
 	{
 		// Already Freed
+		goto END;
 	}
 	si_map_free(*pp_map);
+	free(*pp_map);
 	*pp_map = NULL;
 END:
 	return;

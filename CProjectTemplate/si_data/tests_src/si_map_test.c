@@ -19,7 +19,7 @@ void tearDown (void)
 void si_map_test_init(void)
 {
 	si_map_t* p_map = si_map_new();
-	si_map_free_at(p_map);
+	si_map_free_at(&p_map);
 }
 
 /** Doxygen
