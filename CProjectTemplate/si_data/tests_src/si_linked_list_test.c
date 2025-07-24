@@ -1,6 +1,16 @@
 #include <stdio.h>
 
+#include "unity.h"
 #include "si_linked_list.h"
+
+/* Is run before every test, put unit init calls here. */
+void setUp (void)
+{
+}
+/* Is run after every test, put unit clean-up calls here. */
+void tearDown (void)
+{
+}
 
 void test00(void)
 {
@@ -61,8 +71,15 @@ void test01(void)
 	int_linked_list_free(&list);
 }
 
+void si_linked_list_test_all(void)
+{
+	UNITY_BEGIN();
+	RUN_TEST(test00);
+	RUN_TEST(test01);
+	UNITY_END();
+}
+
 int main(int argc, char** pp_argv)
 {
-	test00();
-	//test01();
+	si_linked_list_test_all();
 }
