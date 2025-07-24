@@ -5,8 +5,7 @@
 #include "si_dynamic.h"
 #include "si_queue.h"
 
-// Set struct default values
-void si_queue_new_4(si_queue_t* p_queue, const size_t element_size,
+void si_queue_init_4(si_queue_t* p_queue, const size_t element_size,
     const size_t initial_capacity, const si_realloc_settings* p_settings)
 {
 	// Validate parameter
@@ -32,16 +31,39 @@ void si_queue_new_4(si_queue_t* p_queue, const size_t element_size,
 END:
 	return;
 }
-inline void si_queue_new_3(si_queue_t* p_queue, const size_t element_size,
+inline void si_queue_init_3(si_queue_t* p_queue, const size_t element_size,
 	const size_t initial_capacity)
 {
 	// Default p_settings value is NULL (initializes with defaults)
-	si_queue_new_4(p_queue, element_size, initial_capacity, NULL);
+	si_queue_init_4(p_queue, element_size, initial_capacity, NULL);
 }
-inline void si_queue_new(si_queue_t* p_queue, const size_t element_size)
+inline void si_queue_init(si_queue_t* p_queue, const size_t element_size)
 {
 	// Default initial_capacity is 0
-	si_queue_new_3(p_queue, element_size, 0u);
+	si_queue_init_3(p_queue, element_size, 0u);
+}
+
+si_queue_t* si_queue_new_3(const size_t element_size, const size_t initial_capacity,
+	const si_realloc_settings* p_settings)
+{
+	si_queue_t* p_new = calloc(1u, sizeof(si_queue_t));
+	if(NULL == p_new)
+	{
+		goto END;
+	}
+	si_queue_init_4(p_new, element_size, initial_capacity, p_settings);
+END:
+	return p_new;
+}
+inline si_queue_t* si_queue_new_2(const size_t element_size, const size_t initial_capacity)
+{
+	// Default p_settings value is NULL (initializes with defaults)
+	return si_queue_new_3(element_size, initial_capacity, NULL);
+}
+inline si_queue_t* si_queue_new(const size_t element_size)
+{
+	// Default initial_capacity is 0
+	return si_queue_new_2(element_size, 0u);
 }
 
 // Count elements

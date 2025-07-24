@@ -14,7 +14,7 @@ void si_queue_test_modify(void)
 {
 	// TODO Use TEST macro from unity.
 	si_queue_t q = {};
-	si_queue_new(&q, sizeof(char));
+	si_queue_init(&q, sizeof(char));
 	char c = 'a';
 	for(int i = 0; i < 6; i++)
 	{
