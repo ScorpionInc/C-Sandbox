@@ -6,7 +6,7 @@
 extern "C" {
 #endif //__cplusplus
 
-void si_dynamic_new_3(si_array_t* p_dynamic, const size_t element_size,
+void si_array_new_3(si_array_t* p_dynamic, const size_t element_size,
 	const size_t capacity)
 {
 	if (NULL == p_dynamic)
@@ -25,13 +25,13 @@ void si_dynamic_new_3(si_array_t* p_dynamic, const size_t element_size,
 	END:
 		return;
 }
-inline void si_dynamic_new(si_array_t* p_dynamic, const size_t element_size)
+inline void si_array_new(si_array_t* p_dynamic, const size_t element_size)
 {
 	// Default value of capacity is 0u
-	si_dynamic_new_3(p_dynamic, element_size, 0u);
+	si_array_new_3(p_dynamic, element_size, 0u);
 }
 
-size_t si_dynamic_size(const si_array_t* p_dynamic)
+size_t si_array_size(const si_array_t* p_dynamic)
 {
 	size_t result = 0u;
 	// Validate Parameters
@@ -57,7 +57,7 @@ END:
 	return result;
 }
 
-bool si_dynamic_resize(si_array_t* p_dynamic,
+bool si_array_resize(si_array_t* p_dynamic,
     const size_t new_capacity)
 {
 	bool result = false;
@@ -101,7 +101,7 @@ END:
 	return result;
 }
 
-bool si_dynamic_is_pointer_within(const si_array_t* p_dynamic,
+bool si_array_is_pointer_within(const si_array_t* p_dynamic,
 	const void* p_test)
 {
 	bool result = false;
@@ -118,7 +118,7 @@ bool si_dynamic_is_pointer_within(const si_array_t* p_dynamic,
 	result = (p_test >= p_dynamic->p_data);
 	if(true == result)
 	{
-		const size_t size = si_dynamic_size(p_dynamic);
+		const size_t size = si_array_size(p_dynamic);
 		result = (p_test < (p_dynamic->p_data + size));
 	}
 	// End
@@ -126,30 +126,30 @@ END:
 	return result;
 }
 
-size_t si_dynamic_find_pointer_offset(const si_array_t* p_dynamic,
+size_t si_array_find_pointer_offset(const si_array_t* p_dynamic,
 	const void* p_test)
 {
 	size_t offset = SIZE_MAX;
 	// Validate parameters
-	if( ! si_dynamic_is_pointer_within(p_dynamic, p_test) )
+	if( ! si_array_is_pointer_within(p_dynamic, p_test) )
 	{
 		// is_pointer_within verifies values are not NULL.
 		goto END;
 	}
 	// Begin
-	const size_t size = si_dynamic_size(p_dynamic);
+	const size_t size = si_array_size(p_dynamic);
 	offset = (p_dynamic->p_data + size) - p_test;
 	// End
 END:
 	return offset;
 }
 
-bool si_dynamic_is_pointer_element(const si_array_t* p_dynamic,
+bool si_array_is_pointer_element(const si_array_t* p_dynamic,
 	const void* p_test)
 {
 	bool result = false;
 	// Validate parameters
-	if( ! si_dynamic_is_pointer_within(p_dynamic, p_test) )
+	if( ! si_array_is_pointer_within(p_dynamic, p_test) )
 	{
 		// is_pointer_within verifies values are not NULL.
 		goto END;
@@ -159,33 +159,33 @@ bool si_dynamic_is_pointer_element(const si_array_t* p_dynamic,
 		goto END;
 	}
 	// Begin
-	const size_t offset = si_dynamic_find_pointer_offset(p_dynamic, p_test);
+	const size_t offset = si_array_find_pointer_offset(p_dynamic, p_test);
 	result = ((offset % p_dynamic->element_size) == 0u);
 	// End
 END:
 	return result;
 }
 
-size_t si_dynamic_find_pointer_index(const si_array_t* p_dynamic,
+size_t si_array_find_pointer_index(const si_array_t* p_dynamic,
 	const void* p_test)
 {
 	size_t index = SIZE_MAX;
 	// Validate parameters
 	// Begin
-	if( ! si_dynamic_is_pointer_element(p_dynamic, p_test))
+	if( ! si_array_is_pointer_element(p_dynamic, p_test))
 	{
 		// is_pointer_element validates values are not NULL.
 		// is_pointer_element validates element_size > 0
 		goto END;
 	}
-	const size_t offset = si_dynamic_find_pointer_offset(p_dynamic, p_test);
+	const size_t offset = si_array_find_pointer_offset(p_dynamic, p_test);
 	index = offset / p_dynamic->element_size;
 	// End
 END:
 	return index;
 }
 
-void* si_dynamic_at(const si_array_t* p_dynamic,
+void* si_array_at(const si_array_t* p_dynamic,
 	const size_t index)
 {
 	void* p_item = NULL;
@@ -204,16 +204,16 @@ void* si_dynamic_at(const si_array_t* p_dynamic,
 END:
 	return p_item;
 }
-inline void* si_dynamic_first(const si_array_t* p_dynamic)
+inline void* si_array_first(const si_array_t* p_dynamic)
 {
-	return si_dynamic_at(p_dynamic, 0u);
+	return si_array_at(p_dynamic, 0u);
 }
-inline void* si_dynamic_last(const si_array_t* p_dynamic)
+inline void* si_array_last(const si_array_t* p_dynamic)
 {
-	return si_dynamic_at(p_dynamic, p_dynamic->capacity - 1u);
+	return si_array_at(p_dynamic, p_dynamic->capacity - 1u);
 }
 
-void si_dynamic_set(si_array_t* p_dynamic,
+void si_array_set(si_array_t* p_dynamic,
 	const size_t index, const void* p_item)
 {
 	// Validate Parameters
@@ -222,7 +222,7 @@ void si_dynamic_set(si_array_t* p_dynamic,
 		goto END;
 	}
 	const size_t offset = (p_dynamic->element_size * index);
-	const size_t allocated_size = si_dynamic_size(p_dynamic);
+	const size_t allocated_size = si_array_size(p_dynamic);
 	// Bounds Check
 	if(offset >= allocated_size)
 	{
@@ -235,7 +235,7 @@ void si_dynamic_set(si_array_t* p_dynamic,
 END:
 }
 
-void si_dynamic_get(const si_array_t* p_dynamic,
+void si_array_get(const si_array_t* p_dynamic,
 	const size_t index, void* p_item)
 {
 	// Validate parameters
@@ -244,7 +244,7 @@ void si_dynamic_get(const si_array_t* p_dynamic,
 		goto END;
 	}
 	const size_t offset = (p_dynamic->element_size * index);
-	const size_t allocated_size = si_dynamic_size(p_dynamic);
+	const size_t allocated_size = si_array_size(p_dynamic);
 	// Bounds Check
 	if(offset >= allocated_size)
 	{
@@ -257,7 +257,7 @@ void si_dynamic_get(const si_array_t* p_dynamic,
 	END:
 }
 
-int si_dynamic_cmp(const si_array_t* const p_dynamic_a,
+int si_array_cmp(const si_array_t* const p_dynamic_a,
 	const si_array_t* const p_dynamic_b)
 {
 	int result = 0;
@@ -281,8 +281,8 @@ int si_dynamic_cmp(const si_array_t* const p_dynamic_a,
 	}
 	// Different non-NULL structs in memory.
 	// Determine bounds of data buffer sizes.
-	const size_t a_size = si_dynamic_size(p_dynamic_a);
-	const size_t b_size = si_dynamic_size(p_dynamic_b);
+	const size_t a_size = si_array_size(p_dynamic_a);
+	const size_t b_size = si_array_size(p_dynamic_b);
 	size_t min_size = 0u;
 	size_t max_size = 0u;
 	if(a_size >= b_size)
@@ -360,7 +360,7 @@ END:
 	return;
 }
 
-void si_dynamic_free(si_array_t* const p_dynamic)
+void si_array_free(si_array_t* const p_dynamic)
 {
 	// Validate parameter
 	if (NULL == p_dynamic)

@@ -25,7 +25,7 @@ void si_queue_init_4(si_queue_t* p_queue, const size_t element_size,
 		memcpy(&(p_queue->settings), p_settings, sizeof(si_realloc_settings_t));
 	}
 	p_queue->dynamic = (si_array_t){};
-	si_dynamic_new_3(&(p_queue->dynamic), element_size, initial_capacity);
+	si_array_new_3(&(p_queue->dynamic), element_size, initial_capacity);
 	// End
 END:
 	return;
@@ -143,7 +143,7 @@ size_t si_queue_enqueue(si_queue_t* p_queue, const void* p_item)
 			goto END;
 		}
 	}
-	si_dynamic_set(&(p_queue->dynamic), p_queue->back, p_item);
+	si_array_set(&(p_queue->dynamic), p_queue->back, p_item);
 	p_queue->back = (p_queue->back + 1) % p_queue->dynamic.capacity;
 	new_count++;
 	// End
@@ -165,7 +165,7 @@ size_t si_queue_dequeue(si_queue_t* p_queue, void* p_item)
 	{
 		goto END;
 	}
-	si_dynamic_get(&(p_queue->dynamic), p_queue->front, p_item);
+	si_array_get(&(p_queue->dynamic), p_queue->front, p_item);
 	p_queue->front = (p_queue->front + 1) % p_queue->dynamic.capacity;
 	new_count--;
 	// End
@@ -181,7 +181,7 @@ void si_queue_free(si_queue_t* p_queue)
 		goto END;
 	}
 	// Begin
-	si_dynamic_free(&(p_queue->dynamic));
+	si_array_free(&(p_queue->dynamic));
 	// End
 END:
 	return;

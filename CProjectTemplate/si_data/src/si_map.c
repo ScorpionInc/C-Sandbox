@@ -35,7 +35,7 @@ void si_map_init(si_map_t* const p_map)
 	{
 		goto END;
 	}
-	si_dynamic_new_3(&p_map->entries, sizeof(void*), 0u);
+	si_array_new_3(&p_map->entries, sizeof(void*), 0u);
 	si_realloc_settings_new(&p_map->settings);
 	p_map->p_cmp_key_f = si_map_default_compare;
 	p_map->p_cmp_value_f = si_map_default_compare;
@@ -73,7 +73,7 @@ size_t si_map_count(const si_map_t* const p_map)
 	result++;
 	for(size_t i = 0u; i < p_map->entries.capacity; i++)
 	{
-		si_map_pair_t** pp_next = si_dynamic_at(&p_map->entries, i);
+		si_map_pair_t** pp_next = si_array_at(&p_map->entries, i);
 		if(NULL == pp_next)
 		{
 			continue;
@@ -107,7 +107,7 @@ size_t si_map_index_of(const si_map_t* const p_map, const void* const p_key)
 	// Begin
 	for(size_t i = 0u; i < p_map->entries.capacity; i++)
 	{
-		si_map_pair_t** pp_pair = si_dynamic_at(&p_map->entries, i);
+		si_map_pair_t** pp_pair = si_array_at(&p_map->entries, i);
 		if(NULL == pp_pair)
 		{
 			continue;
@@ -147,7 +147,7 @@ size_t si_map_find(const si_map_t* const p_map, const void* const p_value)
 	// Begin
 	for(size_t i = 0u; i < p_map->entries.capacity; i++)
 	{
-		si_map_pair_t** pp_pair = si_dynamic_at(&p_map->entries, i);
+		si_map_pair_t** pp_pair = si_array_at(&p_map->entries, i);
 		if(NULL == pp_pair)
 		{
 			continue;
@@ -180,7 +180,7 @@ void* si_map_at(si_map_t* const p_map, const void* const p_key)
 	{
 		goto END;
 	}
-	const si_map_pair_t** const pp_pair = si_dynamic_at(&p_map->entries, index);
+	const si_map_pair_t** const pp_pair = si_array_at(&p_map->entries, index);
 	if(NULL == pp_pair)
 	{
 		goto END;
@@ -217,7 +217,7 @@ bool si_map_remove_at(si_map_t* const p_map, const size_t index)
 	{
 		goto END;
 	}
-	si_map_pair_t** pp_pair = si_dynamic_at(&p_map->entries, index);
+	si_map_pair_t** pp_pair = si_array_at(&p_map->entries, index);
 	if(NULL == pp_pair)
 	{
 		goto END;
@@ -236,7 +236,7 @@ bool si_map_remove_at(si_map_t* const p_map, const size_t index)
 		*pp_pair = NULL;
 	}
 	// Redundant: (?)
-	//si_dynamic_set(&p_map->entries, index, NULL);
+	//si_array_set(&p_map->entries, index, NULL);
 END:
 	return result;
 }
@@ -272,7 +272,7 @@ bool si_map_insert_pair(si_map_t* const p_map,
 	}
 	for(size_t i = 0u; i < p_map->entries.capacity; i++)
 	{
-		si_map_pair_t** pp_next = si_dynamic_at(&p_map->entries, i);
+		si_map_pair_t** pp_next = si_array_at(&p_map->entries, i);
 		if(NULL == pp_next)
 		{
 			continue;
@@ -280,7 +280,7 @@ bool si_map_insert_pair(si_map_t* const p_map,
 		if(NULL == *pp_next)
 		{
 			// Assign
-			si_dynamic_set(&p_map->entries, i, &p_pair);
+			si_array_set(&p_map->entries, i, &p_pair);
 			result = true;
 			goto END;
 		}
@@ -322,7 +322,7 @@ void si_map_free(si_map_t* const p_map)
 
 	for(size_t i = 0u; i < p_map->entries.capacity; i++)
 	{
-		si_map_pair_t** pp_next_pair = si_dynamic_at(&p_map->entries, i);
+		si_map_pair_t** pp_next_pair = si_array_at(&p_map->entries, i);
 		if(NULL == pp_next_pair)
 		{
 			// Failed to get next pair
@@ -350,7 +350,7 @@ void si_map_free(si_map_t* const p_map)
 	}
 	p_map->p_free_key_f = NULL;
 	p_map->p_free_value_f = NULL;
-	si_dynamic_free(&p_map->entries);
+	si_array_free(&p_map->entries);
 END:
 	return;
 }

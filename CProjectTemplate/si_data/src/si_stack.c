@@ -12,7 +12,7 @@ void si_stack_new_4(si_stack_t* p_stack, const size_t element_size,
 	{
 		memcpy(&(p_stack->settings), p_settings, sizeof(si_realloc_settings_t));
 	}
-	si_dynamic_new_3(&(p_stack->dynamic), element_size, initial_capacity);
+	si_array_new_3(&(p_stack->dynamic), element_size, initial_capacity);
 }
 inline void si_stack_new_3(si_stack_t* p_stack, const size_t element_size,
     const size_t initial_capacity)
@@ -72,7 +72,7 @@ void si_stack_push(si_stack_t* p_stack, const void* p_item)
 			goto END;
 		}
 	}
-	si_dynamic_set(&(p_stack->dynamic), p_stack->count, p_item);
+	si_array_set(&(p_stack->dynamic), p_stack->count, p_item);
 	p_stack->count++;
 	// End
 END:
@@ -91,7 +91,7 @@ void si_stack_pop(si_stack_t* p_stack, void* p_item)
 	{
 		goto END;
 	}
-	si_dynamic_get(&(p_stack->dynamic), p_stack->count - 1u, p_item);
+	si_array_get(&(p_stack->dynamic), p_stack->count - 1u, p_item);
 	const size_t next_shrink = si_realloc_settings_next_shrink_capacity(
 		&(p_stack->settings), p_stack->dynamic.capacity);
 	const bool safe_to_shrink = (p_stack->count <= next_shrink);
@@ -113,7 +113,7 @@ void si_stack_free(si_stack_t* p_stack)
 		goto END;
 	}
 	// Begin
-	si_dynamic_free(&(p_stack->dynamic));
+	si_array_free(&(p_stack->dynamic));
 	// End
 END:
 	return;

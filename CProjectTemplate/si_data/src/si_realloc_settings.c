@@ -193,7 +193,7 @@ bool si_realloc_settings_grow(
 	const size_t new_capacity = si_realloc_settings_next_grow_capacity(
 		p_settings, p_dynamic->capacity
 	);
-	result = si_dynamic_resize(p_dynamic, new_capacity);
+	result = si_array_resize(p_dynamic, new_capacity);
 	// End
 END:
 	return result;
@@ -212,7 +212,7 @@ bool si_realloc_settings_shrink(
 	const size_t new_capacity = si_realloc_settings_next_shrink_capacity(
 		p_settings, p_dynamic->capacity
 	);
-	result = si_dynamic_resize(p_dynamic, new_capacity);
+	result = si_array_resize(p_dynamic, new_capacity);
 	// End
 END:
 	return result;
