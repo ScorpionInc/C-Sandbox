@@ -224,19 +224,22 @@ bool si_map_remove_at(si_map_t* const p_map, const size_t index)
 	}
 	if(NULL != *pp_pair)
 	{
-		if(NULL != p_map->p_free_key_f)
+		if((NULL != p_map->p_free_key_f) &&
+			(NULL != (*pp_pair)->p_key))
 		{
 			p_map->p_free_key_f((*pp_pair)->p_key);
 		}
-		if(NULL != p_map->p_free_value_f)
+		(*pp_pair)->p_key = NULL;
+		if((NULL != p_map->p_free_value_f) &&
+			(NULL != (*pp_pair)->p_value))
 		{
 			p_map->p_free_value_f((*pp_pair)->p_value);
 		}
+		(*pp_pair)->p_value = NULL;
 		free(*pp_pair);
 		*pp_pair = NULL;
+		result = true;
 	}
-	// Redundant: (?)
-	//si_array_set(&p_map->entries, index, NULL);
 END:
 	return result;
 }
@@ -322,31 +325,7 @@ void si_map_free(si_map_t* const p_map)
 
 	for(size_t i = 0u; i < p_map->entries.capacity; i++)
 	{
-		si_map_pair_t** pp_next_pair = si_array_at(&p_map->entries, i);
-		if(NULL == pp_next_pair)
-		{
-			// Failed to get next pair
-			continue;
-		}
-		if(NULL == *pp_next_pair)
-		{
-			// Next pair is already NULL
-			continue;
-		}
-		if((NULL != p_map->p_free_key_f) &&
-			(NULL != (*pp_next_pair)->p_key))
-		{
-			p_map->p_free_key_f((*pp_next_pair)->p_key);
-		}
-		(*pp_next_pair)->p_key = NULL;
-		if((NULL != p_map->p_free_value_f) &&
-			(NULL != (*pp_next_pair)->p_value))
-		{
-			p_map->p_free_value_f((*pp_next_pair)->p_value);
-		}
-		(*pp_next_pair)->p_value = NULL;
-		free(*pp_next_pair);
-		*pp_next_pair = NULL;
+		si_map_remove_at(p_map, i);
 	}
 	p_map->p_free_key_f = NULL;
 	p_map->p_free_value_f = NULL;
