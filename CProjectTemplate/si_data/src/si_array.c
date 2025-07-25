@@ -373,6 +373,7 @@ void si_dynamic_free(si_array_t* const p_dynamic)
 		free(p_dynamic->p_data);
 		p_dynamic->p_data = NULL;
 	}
+	p_dynamic->capacity = 0u;
 	// End
 END:
 	return;

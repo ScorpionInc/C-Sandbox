@@ -73,7 +73,12 @@ size_t si_map_count(const si_map_t* const p_map)
 	result++;
 	for(size_t i = 0u; i < p_map->entries.capacity; i++)
 	{
-		if(NULL != si_dynamic_at(&p_map->entries, i))
+		si_map_pair_t** pp_next = si_dynamic_at(&p_map->entries, i);
+		if(NULL == pp_next)
+		{
+			continue;
+		}
+		if(NULL != *pp_next)
 		{
 			result++;
 		}
@@ -102,14 +107,58 @@ size_t si_map_index_of(const si_map_t* const p_map, const void* const p_key)
 	// Begin
 	for(size_t i = 0u; i < p_map->entries.capacity; i++)
 	{
-		si_map_pair_t* p_pair = si_dynamic_at(&p_map->entries, i);
-		if(NULL == p_pair)
+		si_map_pair_t** pp_pair = si_dynamic_at(&p_map->entries, i);
+		if(NULL == pp_pair)
 		{
 			continue;
 		}
-		if(0 == p_map->p_cmp_key_f(p_pair->p_key, p_key))
+		if(NULL == *pp_pair)
+		{
+			continue;
+		}
+		if(0 == p_map->p_cmp_key_f((*pp_pair)->p_key, p_key))
 		{
 			// Key Match Found!
+			result = i;
+			break;
+		}
+	}
+	// End
+END:
+	return result;
+}
+
+size_t si_map_find(const si_map_t* const p_map, const void* const p_value)
+{
+	size_t result = SIZE_MAX;
+	// Validation
+	if((NULL == p_map) || (NULL == p_value))
+	{
+		goto END;
+	}
+	if(NULL == p_map->entries.p_data)
+	{
+		goto END;
+	}
+	if(NULL == p_map->p_cmp_value_f)
+	{
+		goto END;
+	}
+	// Begin
+	for(size_t i = 0u; i < p_map->entries.capacity; i++)
+	{
+		si_map_pair_t** pp_pair = si_dynamic_at(&p_map->entries, i);
+		if(NULL == pp_pair)
+		{
+			continue;
+		}
+		if(NULL == *pp_pair)
+		{
+			continue;
+		}
+		if(0 == p_map->p_cmp_value_f((*pp_pair)->p_value, p_value))
+		{
+			// Value Match Found!
 			result = i;
 			break;
 		}
@@ -131,12 +180,16 @@ void* si_map_at(si_map_t* const p_map, const void* const p_key)
 	{
 		goto END;
 	}
-	const si_map_pair_t* const p_pair = si_dynamic_at(p_map, index);
-	if(NULL == p_pair)
+	const si_map_pair_t** const pp_pair = si_dynamic_at(&p_map->entries, index);
+	if(NULL == pp_pair)
 	{
 		goto END;
 	}
-	p_result = p_pair->p_value;
+	if(NULL == *pp_pair)
+	{
+		goto END;
+	}
+	p_result = (*pp_pair)->p_value;
 END:
 	return p_result;
 }
@@ -164,21 +217,26 @@ bool si_map_remove_at(si_map_t* const p_map, const size_t index)
 	{
 		goto END;
 	}
-	si_map_pair_t* p_pair = si_dynamic_at(p_map->entries, index);
-	if(NULL != p_pair)
+	si_map_pair_t** pp_pair = si_dynamic_at(&p_map->entries, index);
+	if(NULL == pp_pair)
+	{
+		goto END;
+	}
+	if(NULL != *pp_pair)
 	{
 		if(NULL != p_map->p_free_key_f)
 		{
-			p_map->p_free_key_f(p_pair->p_key);
+			p_map->p_free_key_f((*pp_pair)->p_key);
 		}
 		if(NULL != p_map->p_free_value_f)
 		{
-			p_map->p_free_value_f(p_pair->p_value);
+			p_map->p_free_value_f((*pp_pair)->p_value);
 		}
-		free(p_pair);
-		p_pair = NULL;
+		free(*pp_pair);
+		*pp_pair = NULL;
 	}
-	si_dynamic_set(p_map->entries, index, NULL);
+	// Redundant: (?)
+	//si_dynamic_set(&p_map->entries, index, NULL);
 END:
 	return result;
 }
@@ -214,11 +272,15 @@ bool si_map_insert_pair(si_map_t* const p_map,
 	}
 	for(size_t i = 0u; i < p_map->entries.capacity; i++)
 	{
-		si_map_pair_t* p_next = si_dynamic_at(&p_map->entries, i);
-		if(NULL == p_next)
+		si_map_pair_t** pp_next = si_dynamic_at(&p_map->entries, i);
+		if(NULL == pp_next)
+		{
+			continue;
+		}
+		if(NULL == *pp_next)
 		{
 			// Assign
-			si_dynamic_set(&p_map->entries, i, p_pair);
+			si_dynamic_set(&p_map->entries, i, &p_pair);
 			result = true;
 			goto END;
 		}
@@ -260,19 +322,31 @@ void si_map_free(si_map_t* const p_map)
 
 	for(size_t i = 0u; i < p_map->entries.capacity; i++)
 	{
-		si_map_pair_t* p_next_pair = si_dynamic_at(&p_map->entries, i);
-		if(NULL == p_next_pair)
+		si_map_pair_t** pp_next_pair = si_dynamic_at(&p_map->entries, i);
+		if(NULL == pp_next_pair)
 		{
+			// Failed to get next pair
 			continue;
 		}
-		if(NULL != p_map->p_free_key_f)
+		if(NULL == *pp_next_pair)
 		{
-			p_map->p_free_key_f(p_next_pair->p_key);
+			// Next pair is already NULL
+			continue;
 		}
-		if(NULL != p_map->p_free_value_f)
+		if((NULL != p_map->p_free_key_f) &&
+			(NULL != (*pp_next_pair)->p_key))
 		{
-			p_map->p_free_value_f(p_next_pair->p_value);
+			p_map->p_free_key_f((*pp_next_pair)->p_key);
 		}
+		(*pp_next_pair)->p_key = NULL;
+		if((NULL != p_map->p_free_value_f) &&
+			(NULL != (*pp_next_pair)->p_value))
+		{
+			p_map->p_free_value_f((*pp_next_pair)->p_value);
+		}
+		(*pp_next_pair)->p_value = NULL;
+		free(*pp_next_pair);
+		*pp_next_pair = NULL;
 	}
 	p_map->p_free_key_f = NULL;
 	p_map->p_free_value_f = NULL;

@@ -79,6 +79,16 @@ size_t si_map_count(const si_map_t* const p_map);
 size_t si_map_index_of(const si_map_t* const p_map, const void* const p_key);
 
 /* Doxygen
+ * @brief Finds the index of a entry that contains key/value pair with p_value
+ *
+ * @param p_map Pointer to the si_map_t to search for entry from.
+ * @param p_value Pointer to value to search for.
+ *
+ * @return Returns entry index on success. SIZE_MAX otherwise.
+ */
+size_t si_map_find(const si_map_t* const p_map, const void* const p_value);
+
+/* Doxygen
  * @brief Finds dynamic value by it's raw key value in a si_map_t.
  *
  * @param p_map Pointer to si_map_t struct that is to be read from.
