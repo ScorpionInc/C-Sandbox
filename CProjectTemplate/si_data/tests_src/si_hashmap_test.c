@@ -14,7 +14,8 @@ void tearDown (void)
 
 void si_hashmap_test_init(void)
 {
-	//TODO
+	si_hashmap_t* p_hashmap = si_hashmap_new();
+	si_hashmap_free_at(&p_hashmap);
 }
 
 void si_hashmap_test_all(void)
