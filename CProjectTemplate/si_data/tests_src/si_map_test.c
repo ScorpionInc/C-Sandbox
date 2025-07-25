@@ -81,7 +81,7 @@ void si_map_test_modify(void)
 		TEST_ASSERT_EQUAL_size_t(i, si_map_find(p_map, values[i]));
 	}
 
-	printf("Testing remove()/count():");
+	printf("Testing remove()/count():\n");
 	TEST_ASSERT_FALSE(si_map_remove(NULL, NULL));
 	TEST_ASSERT_FALSE(si_map_remove(NULL, keys[0u]));
 	TEST_ASSERT_FALSE(si_map_remove(p_map, NULL));
