@@ -98,11 +98,16 @@ static SI_TEMPLATE_TYPE SI_TEMPLATE_FUNCTION(, _queue_dequeue)(
 }
 
 static inline void SI_TEMPLATE_FUNCTION(, _queue_free)(
-	SI_TEMPLATE_FUNCTION(, _queue_t)* p_queue)
+	SI_TEMPLATE_FUNCTION(, _queue_t)* const p_queue)
 {
 	si_queue_free(p_queue);
 }
 
+static inline void SI_TEMPLATE_FUNCTION(, _queue_free_at)(
+	SI_TEMPLATE_FUNCTION(, _queue_t)** pp_queue)
+{
+	si_queue_free_at(pp_queue);
+}
 
 // Clean up our preprocessor defines.
 #undef SI_TEMPLATE_FUNCTION

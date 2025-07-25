@@ -173,7 +173,7 @@ END:
 	return new_count;
 }
 
-void si_queue_free(si_queue_t* p_queue)
+void si_queue_free(si_queue_t* const p_queue)
 {
 	// Validate parameter
 	if (NULL == p_queue)
@@ -183,6 +183,24 @@ void si_queue_free(si_queue_t* p_queue)
 	// Begin
 	si_array_free(&(p_queue->dynamic));
 	// End
+END:
+	return;
+}
+
+void si_queue_free_at(si_queue_t** pp_queue)
+{
+	if(NULL == pp_queue)
+	{
+		goto END;
+	}
+	if(NULL == *pp_queue)
+	{
+		// Already freed
+		goto END;
+	}
+	si_queue_free(*pp_queue);
+	free(*pp_queue);
+	*pp_queue = NULL;
 END:
 	return;
 }

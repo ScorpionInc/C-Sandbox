@@ -107,7 +107,9 @@ size_t si_queue_dequeue(si_queue_t* p_queue, void* p_item);
  *
  * @param p_queue Pointer to the queue struct to be free'd.
  */
-void si_queue_free(si_queue_t* p_queue);
+void si_queue_free(si_queue_t* const p_queue);
+
+void si_queue_free_at(si_queue_t** pp_queue);
 
 #ifdef __cplusplus
 }
