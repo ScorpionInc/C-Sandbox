@@ -152,6 +152,18 @@ bool si_map_insert(si_map_t* const p_map, const void* const p_key,
 	const void* const p_value);
 
 /* Doxygen
+ * @brief In p_map, sets first key match's value to p_value.
+ *
+ * @param p_map Pointer to the si_map_t to have a value set in.
+ * @param p_key Pointer to the key value to identify the pair.
+ * @param p_value New pointer value to be assigned to key in map.
+ * 
+ * @return Returns true on success. Returns false otherwise.
+ */
+bool si_map_assign(si_map_t* const p_map, const void* const p_key,
+	const void* const p_value);
+
+/* Doxygen
  * @brief Frees memory allocated within a si_map_t and its entry pairs.
  *
  * @param p_map Pointer to si_map_t struct to have it's contents freed.

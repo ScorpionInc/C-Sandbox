@@ -273,6 +273,12 @@ bool si_map_insert_pair(si_map_t* const p_map,
 	{
 		goto END;
 	}
+	// Ensure key is unique
+	if(SIZE_MAX != si_map_index_of(p_map, p_pair->p_key))
+	{
+		goto END;
+	}
+	// Insert pair at first open slot
 	for(size_t i = 0u; i < p_map->entries.capacity; i++)
 	{
 		si_map_pair_t** pp_next = si_array_at(&p_map->entries, i);
@@ -300,16 +306,49 @@ END:
 bool si_map_insert(si_map_t* const p_map, const void* const p_key, const void* const p_value)
 {
 	bool result = false;
-	if(NULL == p_map)
-	{
-		goto END;
-	}
-	if((NULL == p_key) || (NULL == p_value))
+	if((NULL == p_map) || (NULL == p_key))
 	{
 		goto END;
 	}
 	si_map_pair_t* p_pair = si_map_pair_new(p_key, p_value);
+	if(NULL == p_pair)
+	{
+		goto END;
+	}
 	result = si_map_insert_pair(p_map, p_pair);
+	if(true != result)
+	{
+		free(p_pair);
+		p_pair = NULL;
+	}
+END:
+	return result;
+}
+
+bool si_map_assign(si_map_t* const p_map, const void* const p_key,
+	const void* const p_value)
+{
+	bool result = false;
+	if((NULL == p_map) || (NULL == p_key))
+	{
+		goto END;
+	}
+	const size_t index = si_map_index_of(p_map, p_key);
+	if(SIZE_MAX <= index)
+	{
+		goto END;
+	}
+	si_map_pair_t** pp_pair = si_array_at(&p_map->entries, index);
+	if(NULL == pp_pair)
+	{
+		goto END;
+	}
+	if(NULL == *pp_pair)
+	{
+		goto END;
+	}
+	(*pp_pair)->p_value = (void*)p_value;
+	result = true;
 END:
 	return result;
 }
