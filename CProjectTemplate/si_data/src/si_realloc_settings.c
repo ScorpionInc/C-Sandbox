@@ -51,6 +51,8 @@ void si_realloc_settings_new(si_realloc_settings_t* p_settings)
 	p_settings->grow_value = SI_DEFAULT_RESIZE_VALUE;
 	p_settings->shrink_mode = SI_DEFAULT_RESIZE_MODE;
 	p_settings->shrink_value = SI_DEFAULT_RESIZE_VALUE;
+	p_settings->max_capacity = SIZE_MAX;
+	p_settings->max_size = SIZE_MAX;
 	// End
 END:
 	return;
@@ -61,6 +63,10 @@ size_t si_realloc_settings_next_grow_capacity(
 {
 	size_t new_capacity = current_capacity;
 	if (NULL == p_settings)
+	{
+		goto END;
+	}
+	if(p_settings->max_capacity == current_capacity)
 	{
 		goto END;
 	}
@@ -109,6 +115,11 @@ size_t si_realloc_settings_next_grow_capacity(
 			// Unknown grow mode
 			//goto END;
 			break;
+	}
+	// Cap capacity to max.
+	if(new_capacity > p_settings->max_capacity)
+	{
+		new_capacity = p_settings->max_capacity;
 	}
 	// End
 END:
@@ -193,6 +204,10 @@ bool si_realloc_settings_grow(
 	const size_t new_capacity = si_realloc_settings_next_grow_capacity(
 		p_settings, p_dynamic->capacity
 	);
+	if(new_capacity == p_dynamic->capacity)
+	{
+		goto END;
+	}
 	result = si_array_resize(p_dynamic, new_capacity);
 	// End
 END:
@@ -212,6 +227,10 @@ bool si_realloc_settings_shrink(
 	const size_t new_capacity = si_realloc_settings_next_shrink_capacity(
 		p_settings, p_dynamic->capacity
 	);
+	if(new_capacity == p_dynamic->capacity)
+	{
+		goto END;
+	}
 	result = si_array_resize(p_dynamic, new_capacity);
 	// End
 END:
@@ -230,10 +249,27 @@ void si_realloc_settings_fprint(FILE* p_file,
 	// Begin
 	fprintf(p_file, "{Grow : ");
 	si_resize_mode_fprint(p_file, p_settings->grow_mode);
-	fprintf(p_file, " %f; ", p_settings->grow_value);
-	fprintf(p_file, "Shrink: ");
+	fprintf(p_file, "@%f Max Capacity: ", p_settings->grow_value);
+	if(p_settings->max_capacity == SIZE_MAX)
+	{
+		fprintf(p_file, "MAX");
+	}
+	else
+	{
+		fprintf(p_file, "%lu", p_settings->max_capacity);
+	}
+	fprintf(p_file, " Max Size: ");
+	if(p_settings->max_size == SIZE_MAX)
+	{
+		fprintf(p_file, "MAX");
+	}
+	else
+	{
+		fprintf(p_file, "%lu", p_settings->max_size);
+	}
+	fprintf(p_file, "; Shrink: ");
 	si_resize_mode_fprint(p_file, p_settings->shrink_mode);
-	fprintf(p_file, " %f}", p_settings->shrink_value);
+	fprintf(p_file, "@%f}", p_settings->shrink_value);
 	// End
 END:
 	return;

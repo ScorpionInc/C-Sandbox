@@ -48,6 +48,8 @@ typedef struct si_realloc_settings_t
 	float shrink_value;
 	si_resize_mode_t grow_mode;
 	si_resize_mode_t shrink_mode;
+	size_t max_capacity;
+	size_t max_size;
 } si_realloc_settings_t;
 
 /** Doxygen
