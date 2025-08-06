@@ -66,9 +66,9 @@ void si_server_init_5(si_server_t* const p_server, const unsigned short port,
 	initialSocket.events = 0;
 	initialSocket.revents = 0;
 	si_array_new_3(&(p_server->sockets), sizeof(struct pollfd), max_client_queue);
-	for(size_t i = 0u; i < max_client_queue; i++)
+	for(size_t iii = 0u; iii < max_client_queue; iii++)
 	{
-		si_array_set(&(p_server->sockets), i, &initialSocket);
+		si_array_set(&(p_server->sockets), iii, &initialSocket);
 	}
 	si_realloc_settings_new(&(p_server->settings));
 
@@ -301,9 +301,9 @@ bool si_server_add_socket(si_server_t* const p_server, const int socket_fd)
 		goto END;
 	}
 	const size_t current_capacity = p_server->sockets.capacity;
-	for(size_t i = 0u; i < current_capacity; i++)
+	for(size_t iii = 0u; iii < current_capacity; iii++)
 	{
-		struct pollfd* p_fd = si_array_at(&(p_server->sockets), i);
+		struct pollfd* p_fd = si_array_at(&(p_server->sockets), iii);
 		if(NULL == p_fd)
 		{
 			// Error: should never be NULL.
@@ -334,9 +334,9 @@ bool si_server_add_socket(si_server_t* const p_server, const int socket_fd)
 		initialValue.fd = SOCKET_ERROR;
 		initialValue.events = 0;
 		initialValue.revents = 0;
-		for(size_t i = 0u; i < grow_amount; i++)
+		for(size_t iii = 0u; iii < grow_amount; iii++)
 		{
-			si_array_set(&(p_server->sockets), current_capacity + i, &initialValue);
+			si_array_set(&(p_server->sockets), current_capacity + iii, &initialValue);
 		}
 		result = si_server_add_socket(p_server, socket_fd);
 	}
