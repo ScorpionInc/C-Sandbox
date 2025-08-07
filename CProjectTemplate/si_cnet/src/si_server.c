@@ -382,8 +382,8 @@ void si_server_accept(si_server_t* const p_server)
 	if((NULL != p_server->access_list) && (NULL != client_addr))
 	{
 		const bool has = si_accesslist_has(p_server->access_list, client_addr);
-		if((true == has)  && (true == p_server->access_list->is_blacklist) ||
-		   (false == has) && (false == p_server->access_list->is_blacklist))
+		if(((true  == has) && (true  == p_server->access_list->is_blacklist)) ||
+		   ((false == has) && (false == p_server->access_list->is_blacklist)))
 		{
 			is_denied = true;
 			errno = EACCES;
@@ -433,7 +433,6 @@ void si_server_free(si_server_t* p_server)
 	{
 		goto END;
 	}
-	struct pollfd* p_next = NULL;
 	pthread_mutex_destroy(&(p_server->sockets_lock));
 	si_array_free(&(p_server->sockets));
 END:
