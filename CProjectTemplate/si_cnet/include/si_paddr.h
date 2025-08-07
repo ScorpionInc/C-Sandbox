@@ -134,7 +134,7 @@ bool sockaddr_is_valid(struct sockaddr* const p_addr,
  * @param p_address Pointer to byte buffer of 4 bytes holding the raw address.
  */
 void sin_addr_fprint(FILE* const p_file,
-	const uint8_t const p_address[INET_ADDRESS_SIZE]);
+	const uint8_t p_address[INET_ADDRESS_SIZE]);
 
 /** Doxygen
  * @brief Prints the ipv6 16-byte expanded formatted address from p_address.
@@ -143,7 +143,7 @@ void sin_addr_fprint(FILE* const p_file,
  * @param p_address Pointer to byte buffer of 16 bytes holding the raw address.
  */
 void sin6_addr_fprint(FILE* const p_file,
-	const uint8_t const p_address[INET6_ADDRESS_SIZE]);
+	const uint8_t p_address[INET6_ADDRESS_SIZE]);
 
 /** Doxygen
  * @brief Prints the socket address from p_addr based upon it's socklen value.

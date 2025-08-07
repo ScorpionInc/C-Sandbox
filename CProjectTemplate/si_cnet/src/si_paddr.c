@@ -295,7 +295,7 @@ END:
 }
 
 void sin_addr_fprint(FILE* const p_file,
-	const uint8_t const p_address[INET_ADDRESS_SIZE])
+	const uint8_t p_address[INET_ADDRESS_SIZE])
 {
 	if((NULL == p_file) || (NULL == p_address))
 	{
@@ -315,7 +315,7 @@ END:
 }
 
 void sin6_addr_fprint(FILE* const p_file,
-	const uint8_t const p_address[INET6_ADDRESS_SIZE])
+	const uint8_t p_address[INET6_ADDRESS_SIZE])
 {
 	if((NULL == p_file) || (NULL == p_address))
 	{
