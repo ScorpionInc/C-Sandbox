@@ -16,7 +16,7 @@ void tearDown (void)
 /** Doxygen
  * @brief Tests creation and destruction only.
  */
-void template_test_init(void)
+void parray_test_init(void)
 {
 	size_t capacity = 0u;
 	si_parray_t pointer_array = {0};
@@ -38,7 +38,7 @@ void template_test_init(void)
 /** Doxygen
  * @brief Tests modification of contents. Add/Remove/Clear/ect.
  */
-void template_test_modify(void)
+void parray_test_modify(void)
 {
 	// TODO Finish tests
 	const int data[] = { 5, 4, 3, 2, 1, 0, 42 };
@@ -85,17 +85,17 @@ void template_test_modify(void)
 /** Doxygen
  * @brief Runs all unity tests available.
  */
-void template_test_all(void)
+void parray_test_all(void)
 {
 	UNITY_BEGIN();
-	RUN_TEST(template_test_init);
-	RUN_TEST(template_test_modify);
+	RUN_TEST(parray_test_init);
+	RUN_TEST(parray_test_modify);
 	UNITY_END();
 }
 
 int main(int argc, char** pp_argv)
 {
 	printf("Start of parray unit test.\n");
-	template_test_all();
+	parray_test_all();
 	printf("End of parray unit test.\n");
 }
