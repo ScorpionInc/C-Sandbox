@@ -3,7 +3,7 @@
  * Authors: ScorpionInc
  * Purpose: Defines struct with functions for managing a dynamically allocated buffer.
  * Created: 20150501
- * Updated: 20250708
+ * Updated: 20250813
 //*/
 
 #include <stdbool.h>
@@ -22,7 +22,7 @@ extern "C" {
 
 typedef struct si_array_t
 {
-	void* p_data;
+	void*  p_data;
 	size_t element_size;
 	size_t capacity;
 } si_array_t;

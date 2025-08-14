@@ -4,7 +4,7 @@
  * Purpose: Defines struct si_realloc_settings along with several functions.
  *          These allow configuring dynamic memory grow/shrink methods/amounts.
  * Created: 20150611
- * Updated: 20250724
+ * Updated: 20250813
 //*/
 
 #include <math.h> //pow
@@ -24,10 +24,10 @@ extern "C" {
 
 typedef enum si_resize_mode_t
 {
-	NEVER = 0,
-	LINEAR,
-	SCALAR,
-	EXPONENTIAL,
+	NEVER       = 0,
+	LINEAR      = 1,
+	SCALAR      = 2,
+	EXPONENTIAL = 3,
 } si_resize_mode_t;
 
 #define SI_DEFAULT_RESIZE_MODE LINEAR
