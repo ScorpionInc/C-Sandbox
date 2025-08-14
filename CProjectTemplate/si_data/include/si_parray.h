@@ -62,6 +62,8 @@ void** si_parray_tail(const si_parray_t* const p_array);
 
 bool si_parray_remove_at(si_parray_t* const p_array, const size_t index);
 
+void si_parray_clear(si_parray_t* const p_array);
+
 void si_parray_set(si_parray_t* const p_array, const size_t index,
 	const void* p_value);
 

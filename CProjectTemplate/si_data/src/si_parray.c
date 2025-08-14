@@ -299,6 +299,33 @@ END:
 	return result;
 }
 
+void si_parray_clear(si_parray_t* const p_array)
+{
+	if(NULL == p_array)
+	{
+		goto END;
+	}
+	for(size_t iii = 0u; iii < p_array->array.capacity; iii++)
+	{
+		void** pp_value = si_array_at(&(p_array->array), iii);
+		if(NULL == pp_value)
+		{
+			break;
+		}
+		if(NULL == *pp_value)
+		{
+			continue;
+		}
+		if(NULL != p_array->p_free_value)
+		{
+			p_array->p_free_value(*pp_value);
+		}
+		*pp_value = NULL;
+	}
+END:
+	return;
+}
+
 /** Doxygen
  * @brief Called by set_from() / append_from() funcs to take on pointer freeing
  *
@@ -521,23 +548,7 @@ void si_parray_free(si_parray_t* const p_array)
 		goto END;
 	}
 	// Free values
-	if(NULL != p_array->p_free_value)
-	{
-		for(size_t iii = 0u; iii < p_array->array.capacity; iii++)
-		{
-			void** pp_value = si_array_at(&(p_array->array), iii);
-			if(NULL == pp_value)
-			{
-				break;
-			}
-			if(NULL == *pp_value)
-			{
-				continue;
-			}
-			p_array->p_free_value(*pp_value);
-			*pp_value = NULL;
-		}
-	}
+	si_parray_clear(p_array);
 	si_array_free(&(p_array->array));
 END:
 	return;
