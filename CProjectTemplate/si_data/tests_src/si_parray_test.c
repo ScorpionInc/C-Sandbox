@@ -41,7 +41,29 @@ void template_test_init(void)
 void template_test_modify(void)
 {
 	// TODO Finish tests
-	TEST_ASSERT_NULL(NULL);
+	const int data[] = { 5, 4, 3, 2, 1, 0, 42 };
+	const size_t data_size = 7u;
+
+	si_realloc_settings_t settings = {0};
+	si_realloc_settings_new(&settings);
+
+	si_parray_t* p_array = NULL;
+	p_array = si_parray_new();
+	TEST_ASSERT_NOT_NULL(p_array);
+	p_array->p_settings = &settings;
+
+	TEST_ASSERT_EQUAL_size_t(SIZE_MAX, si_parray_append(NULL, NULL));
+	TEST_ASSERT_EQUAL_size_t(SIZE_MAX, si_parray_append(p_array, NULL));
+	TEST_ASSERT_EQUAL_size_t(SIZE_MAX, si_parray_append(NULL, &data[0u]));
+
+	for(size_t i = 0u; i < data_size; i++)
+	{
+		TEST_ASSERT_EQUAL_size_t(i, si_parray_append(p_array, &data[i]));
+	}
+	TEST_ASSERT_EQUAL_size_t(settings.grow_value, p_array->array.capacity);
+
+	si_parray_destroy(&p_array);
+	TEST_ASSERT_NULL(p_array);
 }
 
 /** Doxygen
