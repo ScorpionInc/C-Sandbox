@@ -230,6 +230,15 @@ static bool handle_shrink(si_parray_t* const p_array)
 	}
 	else
 	{
+		const size_t count = si_parray_count(p_array);
+		const size_t next_capacity = si_realloc_settings_next_shrink_capacity(
+			p_array->p_settings,
+			p_array->array.capacity
+		);
+		if(next_capacity < count)
+		{
+			goto END;
+		}
 		result = si_realloc_settings_shrink(
 			p_array->p_settings,
 			&(p_array->array)

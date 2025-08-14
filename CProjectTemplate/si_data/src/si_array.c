@@ -100,6 +100,14 @@ bool si_array_resize(si_array_t* p_array,
 			goto END;
 		}
 	}
+	if(0u == new_size)
+	{
+		free(p_array->p_data);
+		p_array->p_data = NULL;
+		p_array->capacity = 0u;
+		result = true;
+		goto END;
+	}
 	void* tmp = realloc(p_array->p_data, new_size);
 	if(NULL == tmp)
 	{
