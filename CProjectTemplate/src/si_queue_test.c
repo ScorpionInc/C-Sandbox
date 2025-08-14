@@ -2,8 +2,8 @@
 
 void test_00()
 {
-	si_queue q = {};
-	si_queue_new(&q, sizeof(char));
+	si_queue_t q = {0};
+	si_queue_init(&q, sizeof(char));
 	char c = 'a';
 	for(int i = 0; i < 6; i++)
 	{
@@ -25,7 +25,7 @@ void test_00()
 
 void test_01()
 {
-	char_queue q = {};
+	char_queue_t q = {};
 	char_queue_new(&q);
 	for(int i = 0; i < 6; i++)
 	{

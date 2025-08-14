@@ -79,7 +79,7 @@ void si_tasker_new_2(si_tasker* const p_tasker, const size_t thread_count)
 	// Begin
 	const size_t priority_capacity = SI_TASK_PRIORITY_MAX + 1u;
 	// Initialize thread pool
-	pthread_t_array_new_2(&(p_tasker->pool), thread_count);
+	pthread_t_array_init_2(&(p_tasker->pool), thread_count);
 	for(size_t i = 0u; i < thread_count; i++)
 	{
 		pthread_t* p_thread = pthread_t_array_at(&(p_tasker->pool), i);
@@ -90,7 +90,7 @@ void si_tasker_new_2(si_tasker* const p_tasker, const size_t thread_count)
 		pthread_create(p_thread, NULL, si_tasker_runner, (void*)p_tasker);
 	}
 	// Initialize priority queue locks
-	pthread_mutex_t_array_new_2(&(p_tasker->locks), priority_capacity);
+	pthread_mutex_t_array_init_2(&(p_tasker->locks), priority_capacity);
 	for(size_t i = 0u; i < priority_capacity; i++)
 	{
 		pthread_mutex_t* lock = pthread_mutex_t_array_at(&(p_tasker->locks), i);
@@ -103,15 +103,15 @@ void si_tasker_new_2(si_tasker* const p_tasker, const size_t thread_count)
 	}
 	// TODO Add a way to define a shared realloc_settings struct
 	// Initialize task queues
-	si_queue_array_new_2(&(p_tasker->tasks), priority_capacity);
+	si_queue_t_array_init_2(&(p_tasker->tasks), priority_capacity);
 	for(size_t i = 0u; i < priority_capacity; i++)
 	{
-		si_queue* p_queue = si_queue_array_at(&(p_tasker->tasks), i);
+		si_queue_t* p_queue = si_queue_t_array_at(&(p_tasker->tasks), i);
 		if(NULL == p_queue)
 		{
 			break;
 		}
-		si_queue_new(p_queue, sizeof(si_task));
+		si_queue_init(p_queue, sizeof(si_task));
 	}
 	p_tasker->results_lock = (pthread_mutex_t){};
 	p_tasker->results = (si_map_t){};
@@ -169,7 +169,7 @@ si_task* si_tasker_next_task(si_tasker* const p_tasker)
 		// Wait for the queue to become available.
 		pthread_mutex_lock(lock);
 		// Get the priority queue.
-		si_queue* p_queue = si_queue_array_at(&(p_tasker->tasks), i);
+		si_queue_t* p_queue = si_queue_t_array_at(&(p_tasker->tasks), i);
 		if(NULL == p_queue)
 		{
 			// Invalid queue.
@@ -211,7 +211,7 @@ inline size_t si_tasker_count(const si_tasker* const p_tasker)
 	const size_t priority_capacity = SI_TASK_PRIORITY_MAX + 1u;
 	for(size_t i = 0u; i < priority_capacity; i++)
 	{
-		si_queue* p_queue = si_queue_array_at(&(p_tasker->tasks), i);
+		si_queue_t* p_queue = si_queue_t_array_at(&(p_tasker->tasks), i);
 		if(NULL == p_queue)
 		{
 			continue;
@@ -296,14 +296,14 @@ void si_tasker_free(si_tasker* const p_tasker)
 	const size_t priority_capacity = SI_TASK_PRIORITY_MAX + 1u;
 	for(size_t i = 0u; i < priority_capacity; i++)
 	{
-		si_queue* p_queue = si_queue_array_at(&(p_tasker->tasks), i);
+		si_queue_t* p_queue = si_queue_t_array_at(&(p_tasker->tasks), i);
 		if(NULL == p_queue)
 		{
 			continue;
 		}
 		si_queue_free(p_queue);
 	}
-	si_queue_array_free(&(p_tasker->tasks));
+	si_queue_t_array_free(&(p_tasker->tasks));
 	si_map_free(&(p_tasker->results));
 	// End
 END:

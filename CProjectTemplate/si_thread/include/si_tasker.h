@@ -23,16 +23,16 @@
 #define SI_TEMPLATE_TYPE pthread_mutex_t
 #include "si_array.template"
 
-#define SI_TEMPLATE_TYPE si_queue
+#define SI_TEMPLATE_TYPE si_queue_t
 #include "si_array.template"
 
 size_t si_cpu_core_count();
 
 typedef struct si_tasker
 {
-	pthread_t_array pool;
-	pthread_mutex_t_array locks;
-	si_queue_array tasks;
+	pthread_t_array_t pool;
+	pthread_mutex_t_array_t locks;
+	si_queue_t_array_t tasks;
 	//!TODO
 	pthread_mutex_t results_lock;
 	si_map_t results;

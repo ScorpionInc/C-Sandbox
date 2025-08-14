@@ -4,7 +4,7 @@
 
 void test00()
 {
-	si_stack stack = {};
+	si_stack_t stack = {};
 	si_stack_new(&stack, sizeof(int));
 	for(int i = 0; i < 6; i++)
 	{
@@ -26,7 +26,7 @@ void test00()
 
 void test01()
 {
-	int_stack stack = {};
+	int_stack_t stack = {0};
 	int_stack_new(&stack);
 	for(int i = 0; i < 6; i++)
 	{

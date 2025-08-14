@@ -35,7 +35,7 @@ void si_map_init(si_map_t* const p_map)
 	{
 		goto END;
 	}
-	si_array_new_3(&p_map->entries, sizeof(void*), 0u);
+	si_array_init_3(&p_map->entries, sizeof(void*), 0u);
 	si_realloc_settings_new(&p_map->settings);
 	p_map->p_cmp_key_f = si_map_default_compare;
 	p_map->p_cmp_value_f = si_map_default_compare;

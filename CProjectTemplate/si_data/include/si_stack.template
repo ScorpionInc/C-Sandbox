@@ -41,39 +41,39 @@ extern "C" {
 	PASTE_TWO_TOKENS_INDIRECT(SI_TEMPLATE_TYPE, E))
 
 
-typedef struct si_stack_t SI_TEMPLATE_FUNCTION(, _stack);
+typedef struct si_stack_t SI_TEMPLATE_FUNCTION(, _stack_t);
 
 static inline void SI_TEMPLATE_FUNCTION(, _stack_new_2)(
-	SI_TEMPLATE_FUNCTION(, _stack)* p_stack, const size_t initial_capacity)
+	SI_TEMPLATE_FUNCTION(, _stack_t)* p_stack, const size_t initial_capacity)
 {
 	si_stack_new_3(p_stack, sizeof(SI_TEMPLATE_TYPE), initial_capacity);
 }
 static inline void SI_TEMPLATE_FUNCTION(, _stack_new)(
-	SI_TEMPLATE_FUNCTION(, _stack)* p_stack)
+	SI_TEMPLATE_FUNCTION(, _stack_t)* p_stack)
 {
 	si_stack_new(p_stack, sizeof(SI_TEMPLATE_TYPE));
 }
 
 static inline bool SI_TEMPLATE_FUNCTION(, _stack_is_full)(
-	const SI_TEMPLATE_FUNCTION(, _stack)* p_stack)
+	const SI_TEMPLATE_FUNCTION(, _stack_t)* p_stack)
 {
 	return si_stack_is_full(p_stack);
 }
 
 static inline bool SI_TEMPLATE_FUNCTION(, _stack_is_empty)(
-	const SI_TEMPLATE_FUNCTION(, _stack)* p_stack)
+	const SI_TEMPLATE_FUNCTION(, _stack_t)* p_stack)
 {
 	return si_stack_is_empty(p_stack);
 }
 
 static inline void SI_TEMPLATE_FUNCTION(, _stack_push)(
-	SI_TEMPLATE_FUNCTION(, _stack)* p_stack, const SI_TEMPLATE_TYPE item)
+	SI_TEMPLATE_FUNCTION(, _stack_t)* p_stack, const SI_TEMPLATE_TYPE item)
 {
 	si_stack_push(p_stack, &item);
 }
 
 static SI_TEMPLATE_TYPE SI_TEMPLATE_FUNCTION(, _stack_pop)(
-	SI_TEMPLATE_FUNCTION(, _stack)* p_stack)
+	SI_TEMPLATE_FUNCTION(, _stack_t)* p_stack)
 {
 	SI_TEMPLATE_TYPE value;
 	si_stack_pop(p_stack, &value);
@@ -81,7 +81,7 @@ static SI_TEMPLATE_TYPE SI_TEMPLATE_FUNCTION(, _stack_pop)(
 }
 
 static inline void SI_TEMPLATE_FUNCTION(, _stack_free)(
-	SI_TEMPLATE_FUNCTION(, _stack)* p_stack)
+	SI_TEMPLATE_FUNCTION(, _stack_t)* p_stack)
 {
 	si_stack_free(p_stack);
 }

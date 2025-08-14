@@ -12,7 +12,7 @@ void si_stack_new_4(si_stack_t* p_stack, const size_t element_size,
 	{
 		memcpy(&(p_stack->settings), p_settings, sizeof(si_realloc_settings_t));
 	}
-	si_array_new_3(&(p_stack->dynamic), element_size, initial_capacity);
+	si_array_init_3(&(p_stack->dynamic), element_size, initial_capacity);
 }
 inline void si_stack_new_3(si_stack_t* p_stack, const size_t element_size,
     const size_t initial_capacity)

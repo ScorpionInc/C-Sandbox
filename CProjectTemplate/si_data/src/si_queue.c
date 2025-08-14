@@ -24,8 +24,8 @@ void si_queue_init_4(si_queue_t* p_queue, const size_t element_size,
 	{
 		memcpy(&(p_queue->settings), p_settings, sizeof(si_realloc_settings_t));
 	}
-	p_queue->dynamic = (si_array_t){};
-	si_array_new_3(&(p_queue->dynamic), element_size, initial_capacity);
+	p_queue->dynamic = (si_array_t){0};
+	si_array_init_3(&(p_queue->dynamic), element_size, initial_capacity);
 	// End
 END:
 	return;
