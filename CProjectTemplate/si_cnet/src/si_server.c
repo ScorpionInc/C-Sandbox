@@ -20,6 +20,24 @@ END:
 	return result;
 }
 
+size_t get_client_queue_limit(void)
+{
+	unsigned long result = SIZE_MAX;
+#ifdef __linux__
+	struct rlimit nofile_limit = {0};
+	const int get_limit_result = getrlimit(RLIMIT_NOFILE, &nofile_limit);
+	if(SOCKET_SUCCESS != get_limit_result)
+	{
+		goto END;
+	}
+	const size_t soft_limit = (size_t)nofile_limit.rlim_cur;
+	const size_t kernel_limit = (size_t)SOMAXCONN;
+	result = soft_limit < kernel_limit ? soft_limit : kernel_limit;
+#endif//__linux__
+END:
+	return result;
+}
+
 void si_server_init_5(si_server_t* const p_server, const unsigned short port,
 	const int type, const int family, const int max_client_queue)
 {
@@ -36,6 +54,11 @@ void si_server_init_5(si_server_t* const p_server, const unsigned short port,
 	{
 		// Invalid family
 		goto END;
+	}
+	int mut_max_queue = max_client_queue;
+	if(0 > mut_max_queue)
+	{
+		mut_max_queue = 0;
 	}
 	p_server->family = family;
 
@@ -65,8 +88,8 @@ void si_server_init_5(si_server_t* const p_server, const unsigned short port,
 	initialSocket.fd = SOCKET_ERROR;
 	initialSocket.events = 0;
 	initialSocket.revents = 0;
-	si_array_new_3(&(p_server->sockets), sizeof(struct pollfd), max_client_queue);
-	for(size_t iii = 0u; iii < max_client_queue; iii++)
+	si_array_init_3(&(p_server->sockets), sizeof(struct pollfd), mut_max_queue);
+	for(size_t iii = 0u; iii < mut_max_queue; iii++)
 	{
 		si_array_set(&(p_server->sockets), iii, &initialSocket);
 	}
@@ -142,7 +165,7 @@ void si_server_init_5(si_server_t* const p_server, const unsigned short port,
 	}
 
 	// Mark as passive port with listen
-	if(SOCKET_SUCCESS != listen(server_fd, max_client_queue))
+	if(SOCKET_SUCCESS != listen(server_fd, mut_max_queue))
 	{
 		close(server_fd);
 		server_fd = SOCKET_ERROR;
@@ -176,10 +199,19 @@ si_server_t* si_server_new_4(const unsigned short port, const int type,
 END:
 	return p_new;
 }
-inline si_server_t* si_server_new_3(const unsigned short port, const int type,
+si_server_t* si_server_new_3(const unsigned short port, const int type,
 	const int family)
 {
-	return si_server_new_4(port, type, family, SOMAXCONN);
+	si_server_t* p_server = NULL;
+	size_t max_clients = get_client_queue_limit();
+	if(max_clients > INT_MAX)
+	{
+		p_server = si_server_new_4(port, type, family, 0);
+		goto END;
+	}
+	p_server = si_server_new_4(port, type, family, (int)max_clients);
+END:
+	return p_server;
 }
 si_server_t* si_server_new_2(const unsigned short port, const int type)
 {
@@ -382,7 +414,7 @@ void si_server_accept(si_server_t* const p_server)
 	if((NULL != p_server->access_list) && (NULL != client_addr))
 	{
 		const bool has = si_accesslist_has(p_server->access_list, client_addr);
-		if(((true  == has) && (true  == p_server->access_list->is_blacklist)) ||
+		if((( true == has) && (true  == p_server->access_list->is_blacklist)) ||
 		   ((false == has) && (false == p_server->access_list->is_blacklist)))
 		{
 			is_denied = true;

@@ -35,7 +35,7 @@ void si_accesslist_init_4(si_accesslist_t* const p_access,
 	p_access->is_ipv4 = is_ipv4;
 	const size_t addr_size = p_access->is_ipv4 ?
 		sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6);
-	si_array_new_3(&(p_access->entries), addr_size, 0u);
+	si_array_init_3(&(p_access->entries), addr_size, 0u);
 	if(NULL != p_settings)
 	{
 		memcpy(&(p_access->settings), p_settings,

@@ -14,6 +14,7 @@ extern "C" {
 
 #include <errno.h> // errno, strerror()
 #include <fcntl.h> // fcntl(), O_NONBLOCK
+#include <limits.h> // ULONG_MAX
 #include <stdbool.h> // true false
 #include <stdint.h> // SIZE_MAX
 #include <stdlib.h> // calloc()
@@ -28,7 +29,8 @@ extern "C" {
 #include <poll.h> // poll(), pollfd
 #include <pthread.h> // pthread_mutex_t
 
-#include <sys/socket.h> // socket(), listen()
+#include <sys/resource.h> // getrlimit(), rlimit
+#include <sys/socket.h> // socket(), listen(), SOMAXCONN
 #include <sys/stat.h> // stat()
 #include <sys/types.h> // ssize_t
 
@@ -55,6 +57,13 @@ extern "C" {
  * @return Returns stdbool true if ipv6 is supported. Returns false otherwise.
  */
 bool is_ipv6_supported(void);
+
+/** Doxygen
+ * @brief Gets current system client queue limit
+ * 
+ * @return Returns size_t client queue limit. SIZE_MAX on error.
+ */
+size_t get_client_queue_limit(void);
 
 typedef struct si_server_t
 {
