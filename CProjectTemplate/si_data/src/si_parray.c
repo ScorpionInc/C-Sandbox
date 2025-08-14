@@ -131,19 +131,19 @@ END:
 void* si_parray_at(const si_parray_t* const p_array,
 	const size_t index)
 {
-	void* p_result = NULL;
+	void** pp_result = NULL;
 	if(NULL == p_array)
 	{
 		goto END;
 	}
-	void** pp_value = si_array_at(&(p_array->array), index);
-	if(NULL == pp_value)
+	pp_result = si_array_at(&(p_array->array), index);
+	if(NULL == pp_result)
 	{
 		goto END;
 	}
-	p_result = (void*)(*pp_value);
+	pp_result = *pp_result;
 END:
-	return p_result;
+	return (void*)pp_result;
 }
 
 bool si_parray_has_set(const si_parray_t* const p_array, const size_t index)
@@ -382,7 +382,7 @@ void si_parray_set(si_parray_t* const p_array, const size_t index,
 			goto END;
 		}
 	}
-	si_array_set(&(p_array->array), index, p_value);
+	si_array_set(&(p_array->array), index, &p_value);
 END:
 	return;
 }

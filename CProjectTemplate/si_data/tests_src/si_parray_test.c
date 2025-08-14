@@ -43,6 +43,11 @@ void parray_test_modify(void)
 	// TODO Finish tests
 	const int data[] = { 5, 4, 3, 2, 1, 0, 42 };
 	const size_t data_size = 7u;
+	printf("Initial data conditions:\n");
+	for(size_t i = 0u; i < data_size; i++)
+	{
+		printf("\tdata[%lu]: %d @ %p\n", i, data[i], &data[i]);
+	}
 
 	si_realloc_settings_t settings = {0};
 	si_realloc_settings_new(&settings);
@@ -67,7 +72,17 @@ void parray_test_modify(void)
 	TEST_ASSERT_NULL(p_array->p_free_value);
 	printf("Done.\n");
 
-	printf("Testing remove_at/count: ");
+	printf("Testing at: ");
+	TEST_ASSERT_NULL(si_parray_at(NULL, SIZE_MAX));
+	TEST_ASSERT_NULL(si_parray_at(NULL, 0u));
+	TEST_ASSERT_NULL(si_parray_at(p_array, SIZE_MAX));
+	for(size_t i = 0u; i < data_size; i++)
+	{
+		TEST_ASSERT_EQUAL_PTR(&data[i], si_parray_at(p_array, i));
+	}
+	printf("Done.\n");
+
+	printf("Testing remove_at/count/shrink: ");
 	TEST_ASSERT_FALSE(si_parray_remove_at(NULL, SIZE_MAX));
 	TEST_ASSERT_FALSE(si_parray_remove_at(p_array, SIZE_MAX));
 	TEST_ASSERT_FALSE(si_parray_remove_at(NULL, 0u));
@@ -76,6 +91,7 @@ void parray_test_modify(void)
 		TEST_ASSERT_EQUAL_size_t(data_size - i, si_parray_count(p_array));
 		TEST_ASSERT_TRUE(si_parray_remove_at(p_array, 0u));
 	}
+	TEST_ASSERT_EQUAL_size_t(0u, p_array->array.capacity);
 	printf("Done.\n");
 
 	si_parray_destroy(&p_array);
