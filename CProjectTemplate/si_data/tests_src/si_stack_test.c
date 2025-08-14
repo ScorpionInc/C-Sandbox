@@ -13,7 +13,7 @@ void tearDown (void)
 void si_stack_test_modify(void)
 {
 	// TODO Use unity TEST macros
-	si_stack_t stack = {};
+	si_stack_t stack = {0};
 	si_stack_new(&stack, sizeof(int));
 	for(int i = 0; i < 6; i++)
 	{
@@ -36,7 +36,7 @@ void si_stack_test_modify(void)
 void si_stack_test_template(void)
 {
 	// TODO Use unity TEST macros
-	int_stack stack = {};
+	int_stack_t stack = {0};
 	int_stack_new(&stack);
 	for(int i = 0; i < 6; i++)
 	{

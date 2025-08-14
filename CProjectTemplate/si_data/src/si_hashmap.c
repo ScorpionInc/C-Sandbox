@@ -51,7 +51,7 @@ void si_hashmap_init(si_hashmap_t* const p_hashmap, const size_t capacity)
 	{
 		goto END;
 	}
-	si_array_new_3(&(p_hashmap->maps), sizeof(void*), capacity);
+	si_array_init_3(&(p_hashmap->maps), sizeof(void*), capacity);
 	if(NULL == p_hashmap->p_hash_f)
 	{
 		p_hashmap->p_hash_f = si_hashmap_default_hash;
