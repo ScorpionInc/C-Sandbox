@@ -57,10 +57,6 @@ size_t si_parray_count(const si_parray_t* const p_array)
 	{
 		goto END;
 	}
-	if(NULL == p_array->array.p_data)
-	{
-		goto END;
-	}
 	result++;
 	for(size_t iii = 0u; iii < p_array->array.capacity; iii++)
 	{
@@ -348,12 +344,11 @@ static bool claim_value_ownership(si_parray_t* const p_array)
 				p_direct = *((void**)p_indirect);
 				free(p_indirect);
 				p_indirect = NULL;
-				si_parray_remove_at(p_array, jjj);
 				si_parray_set(p_array, jjj, p_direct);
 			}
 			goto END;
 		}
-		memcpy(p_indirect, p_direct, sizeof(void*));
+		p_indirect = &p_direct;
 		si_parray_set(p_array, iii, p_indirect);
 	}
 	p_array->p_free_value = free;
@@ -373,14 +368,14 @@ void si_parray_set(si_parray_t* const p_array, const size_t index,
 	{
 		goto END;
 	}
-	const bool already_set = si_parray_has_set(p_array, index);
-	if(already_set)
+	void* p_old_value = si_parray_at(p_array, index);
+	if(NULL != p_old_value)
 	{
-		const bool is_cleared = si_parray_remove_at(p_array, index);
-		if(!is_cleared)
+		if(NULL != p_array->p_free_value)
 		{
-			goto END;
+			p_array->p_free_value(p_old_value);
 		}
+		p_old_value = NULL;
 	}
 	si_array_set(&(p_array->array), index, &p_value);
 END:
@@ -436,7 +431,10 @@ size_t si_parray_append(si_parray_t* const p_array, const void* const p_value)
 		}
 		else
 		{
-			did_grow = si_realloc_settings_grow(p_array->p_settings, &(p_array->array));
+			did_grow = si_realloc_settings_grow(
+				p_array->p_settings,
+				&(p_array->array)
+			);
 		}
 		if(!did_grow)
 		{

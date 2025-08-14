@@ -69,6 +69,7 @@ void parray_test_modify(void)
 	TEST_ASSERT_NOT_EQUAL_size_t(0u, p_array->array.capacity);
 	TEST_ASSERT_EQUAL_size_t(0u,
 		(p_array->array.capacity % (size_t)settings.grow_value));
+	TEST_ASSERT_EQUAL_size_t(data_size, si_parray_count(p_array));
 	TEST_ASSERT_NULL(p_array->p_free_value);
 	printf("Done.\n");
 
@@ -93,6 +94,27 @@ void parray_test_modify(void)
 	}
 	TEST_ASSERT_EQUAL_size_t(0u, p_array->array.capacity);
 	printf("Done.\n");
+
+	/* TODO
+	printf("Testing pointer ownership:");
+	const size_t direct_count = 3u;
+	TEST_ASSERT_NOT_EQUAL_size_t(direct_count, data_size);
+	for(size_t i = 0u; i < direct_count; i++)
+	{
+		TEST_ASSERT_EQUAL_size_t(i, si_parray_append(p_array, &data[i]));
+	}
+	// Now should become owner after cloning.
+	for(size_t i = direct_count; i < data_size; i++)
+	{
+		TEST_ASSERT_EQUAL_size_t(i, si_parray_append_from(
+			p_array,
+			&data[i],
+			sizeof(int))
+		);
+	}
+	TEST_ASSERT_EQUAL_size_t(data_size, si_parray_count(p_array));
+	printf("Done.\n");
+	//*/
 
 	si_parray_destroy(&p_array);
 	TEST_ASSERT_NULL(p_array);
