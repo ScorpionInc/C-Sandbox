@@ -1,5 +1,10 @@
 /* si_logger.h
-*/
+ * Language: C
+ * Authors: ScorpionInc
+ * Purpose: Defines struct with functions for selective logging to file stream.
+ * Created: 20250809
+ * Updated: 20250811
+//*/
 
 #include <stdarg.h> // ...
 #include <stdbool.h> // true, false
@@ -26,6 +31,10 @@
 
 #ifndef SI_LOGGER_H
 #define SI_LOGGER_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif //__cplusplus
 
 typedef struct si_logger_t
 {
@@ -122,5 +131,9 @@ void si_logger_critical(si_logger_t* const p_logger,
  * @param pp_logger Pointer to the si_logger pointer to be freed.
  */
 void si_logger_destroy(si_logger_t** pp_logger);
+
+#ifdef __cplusplus
+}
+#endif //__cplusplus
 
 #endif//SI_LOGGER_H

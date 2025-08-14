@@ -1,5 +1,10 @@
-/* Created: 20250807
-*/
+/* si_argparse.h
+ * Language: C
+ * Authors: ScorpionInc
+ * Purpose: Defines struct with functions for parsing program arguments.
+ * Created: 20250807
+ * Updated: 20250811
+//*/
 
 #include <stdbool.h>// true, false
 #include <stdio.h> // fprintf(), FILE
@@ -21,6 +26,10 @@
 
 #ifndef SI_ARGPARSE_H
 #define SI_ARGPARSE_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif //__cplusplus
 
 typedef struct si_arg_t
 {
@@ -264,5 +273,9 @@ void si_argparse_free(si_argparse_t* const p_parse);
  * @param pp_parse Pointer to the si_argparse pointer to be freed.
  */
 void si_argparse_destroy(si_argparse_t** pp_parse);
+
+#ifdef __cplusplus
+}
+#endif //__cplusplus
 
 #endif//SI_ARGPARSE_H
