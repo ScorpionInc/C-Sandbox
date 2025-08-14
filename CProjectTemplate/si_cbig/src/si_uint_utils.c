@@ -68,6 +68,7 @@ void lshift_bytes(uint8_t* const p_bytes, const size_t size)
 END:
 	return;
 }
+
 void lshift_bytes_by(uint8_t* const p_bytes, const size_t size,
 	const size_t amount)
 {
@@ -85,6 +86,7 @@ void lshift_bytes_by(uint8_t* const p_bytes, const size_t size,
 END:
 	return;
 }
+
 void rshift_bytes(uint8_t* const p_bytes, const size_t size)
 {
 	// Validation
@@ -107,6 +109,7 @@ void rshift_bytes(uint8_t* const p_bytes, const size_t size)
 END:
 	return;
 }
+
 void rshift_bytes_by(uint8_t* const p_bytes, const size_t size,
 	const size_t amount)
 {
@@ -605,6 +608,7 @@ void mod_uint_le_bytes(uint8_t* const p_dividend,
 END:
 	return;
 }
+
 void mod_uint_be_bytes(uint8_t* const p_dividend,
 	const uint8_t* const p_divisor, const size_t size)
 {
@@ -623,6 +627,7 @@ void mod_uint_be_bytes(uint8_t* const p_dividend,
 END:
 	return;
 }
+
 void mod_uint_bytes(uint8_t* const p_dividend,
 	const uint8_t* const p_divisor, const size_t size)
 {

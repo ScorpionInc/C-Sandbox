@@ -111,6 +111,7 @@ bool add_uint_bytes(uint8_t* const p_a, const uint8_t* const p_b,
  * @param size Number of bytes in the array.
  */
 void increment_le_bytes(uint8_t* const p_bytes, const size_t size);
+
 /* Doxygen
  * @brief Adds one to the byte array p_bytes in big endian order.
  *
@@ -118,6 +119,7 @@ void increment_le_bytes(uint8_t* const p_bytes, const size_t size);
  * @param size Number of bytes in the array.
  */
 void increment_be_bytes(uint8_t* const p_bytes, const size_t size);
+
 /* Doxygen
  * @brief Adds one to the byte array p_bytes in host endian order.
  *
@@ -137,6 +139,7 @@ void increment_bytes(uint8_t* const p_bytes, const size_t size);
  */
 bool sub_uint_le_bytes(uint8_t* const p_a, const uint8_t* const p_b,
 	const size_t size);
+
 /* Doxygen
  * @brief Subtracts p_b from byte array p_a. Big endian with 2's compliment.
  *
@@ -148,6 +151,7 @@ bool sub_uint_le_bytes(uint8_t* const p_a, const uint8_t* const p_b,
  */
 bool sub_uint_be_bytes(uint8_t* const p_a, const uint8_t* const p_b,
 	const size_t size);
+
 /* Doxygen
  * @brief Subtracts p_b from byte array p_a. Host endian with 2's compliment.
  *
@@ -207,6 +211,7 @@ int cmp_uint_bytes(const uint8_t* const p_a, const uint8_t* const p_b,
 void div_uint_le_bytes(uint8_t* const p_dividend,
 	const uint8_t* const p_divisor, const size_t size,
 	uint8_t* const p_remainder);
+
 /* Doxygen
  * @brief Division of big endian byte arrays p_dividend /= p_divisor.
  *
@@ -218,6 +223,7 @@ void div_uint_le_bytes(uint8_t* const p_dividend,
 void div_uint_be_bytes(uint8_t* const p_dividend,
 	const uint8_t* const p_divisor, const size_t size,
 	uint8_t* const p_remainder);
+
 /* Doxygen
  * @brief Division of host endian byte arrays p_dividend /= p_divisor.
  *
@@ -239,6 +245,7 @@ void div_uint_bytes(uint8_t* const p_dividend,
  */
 void mod_uint_le_bytes(uint8_t* const p_dividend,
 	const uint8_t* const p_divisor, const size_t size);
+
 /* Doxygen
  * @brief Returns remainder of p_dividend / p_divisor as p_dividend be bytes.
  *
@@ -248,6 +255,7 @@ void mod_uint_le_bytes(uint8_t* const p_dividend,
  */
 void mod_uint_be_bytes(uint8_t* const p_dividend,
 	const uint8_t* const p_divisor, const size_t size);
+
 /* Doxygen
  * @brief Returns remainder of p_dividend / p_divisor as p_dividend ho bytes.
  *
