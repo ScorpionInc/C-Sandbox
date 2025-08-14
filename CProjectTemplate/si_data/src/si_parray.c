@@ -191,9 +191,25 @@ END:
 	return pp_result;
 }
 
+void** si_parray_tail(const si_parray_t* const p_array)
+{
+	void** pp_result = NULL;
+	if(NULL == p_array)
+	{
+		goto END;
+	}
+	const size_t count = si_parray_count(p_array);
+	if(0u >= count)
+	{
+		goto END;
+	}
+	pp_result = si_array_at(&(p_array->array), count - 1u);
+END:
+	return pp_result;
+}
+
 bool si_parray_remove_at(si_parray_t* const p_array, const size_t index)
 {
-	// TODO
 	bool result = false;
 	if(NULL == p_array)
 	{
@@ -201,37 +217,46 @@ bool si_parray_remove_at(si_parray_t* const p_array, const size_t index)
 	}
 	size_t counter = index;
 	void** pp_target = si_array_at(&(p_array->array), index);
-	void** pp_next = NULL;
 	if(NULL == pp_target)
 	{
+		// index or array is invalid
 		goto END;
 	}
-	void** const pp_last = si_parray_last(p_array);
-	do
+	if(NULL != p_array->p_free_value)
+	{
+		p_array->p_free_value(*pp_target);
+		*pp_target = NULL;
+	}
+	void** const pp_tail = si_parray_tail(p_array);
+	if(NULL == pp_tail)
+	{
+		// Array is empty
+		goto END;
+	}
+	void** pp_next = NULL;
+	while(pp_target != pp_tail)
 	{
 		// Sanity check
 		if(counter >= p_array->array.capacity)
 		{
 			goto END;
 		}
+		// Shift left
+		pp_next = &(pp_target[1]);
+		*pp_target = *pp_next;
+		pp_target = pp_next;
 		if(NULL == *pp_target)
 		{
 			goto END;
 		}
-		// Remove and shift(keep contigious)
-		if((counter == index) && (NULL != p_array->p_free_value))
-		{
-			p_array->p_free_value(*pp_target);
-		}
-		*pp_target = NULL;
-		pp_next = &(pp_target[1]);
-		if(pp_next != pp_last)
-		{
-			*pp_target = *pp_next;
-		}
-		pp_target = pp_next;
 		counter++;
-	} while(pp_target != pp_last);
+	}
+	// Remove tail
+	if(NULL != p_array->p_free_value)
+	{
+		p_array->p_free_value(*pp_tail);
+	}
+	*pp_tail = NULL;
 	result = true;
 END:
 	return result;

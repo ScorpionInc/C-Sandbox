@@ -52,15 +52,31 @@ void template_test_modify(void)
 	TEST_ASSERT_NOT_NULL(p_array);
 	p_array->p_settings = &settings;
 
+	printf("Testing append/count/grow: ");
 	TEST_ASSERT_EQUAL_size_t(SIZE_MAX, si_parray_append(NULL, NULL));
 	TEST_ASSERT_EQUAL_size_t(SIZE_MAX, si_parray_append(p_array, NULL));
 	TEST_ASSERT_EQUAL_size_t(SIZE_MAX, si_parray_append(NULL, &data[0u]));
-
 	for(size_t i = 0u; i < data_size; i++)
 	{
+		TEST_ASSERT_EQUAL_size_t(i, si_parray_count(p_array));
 		TEST_ASSERT_EQUAL_size_t(i, si_parray_append(p_array, &data[i]));
 	}
-	TEST_ASSERT_EQUAL_size_t(settings.grow_value, p_array->array.capacity);
+	TEST_ASSERT_NOT_EQUAL_size_t(0u, p_array->array.capacity);
+	TEST_ASSERT_EQUAL_size_t(0u,
+		(p_array->array.capacity % (size_t)settings.grow_value));
+	TEST_ASSERT_NULL(p_array->p_free_value);
+	printf("Done.\n");
+
+	printf("Testing remove_at/count: ");
+	TEST_ASSERT_FALSE(si_parray_remove_at(NULL, SIZE_MAX));
+	TEST_ASSERT_FALSE(si_parray_remove_at(p_array, SIZE_MAX));
+	TEST_ASSERT_FALSE(si_parray_remove_at(NULL, 0u));
+	for(size_t i = 0u; i < data_size; i++)
+	{
+		TEST_ASSERT_EQUAL_size_t(data_size - i, si_parray_count(p_array));
+		TEST_ASSERT_TRUE(si_parray_remove_at(p_array, 0u));
+	}
+	printf("Done.\n");
 
 	si_parray_destroy(&p_array);
 	TEST_ASSERT_NULL(p_array);
