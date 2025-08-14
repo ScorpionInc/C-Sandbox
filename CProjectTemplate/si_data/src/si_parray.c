@@ -8,7 +8,7 @@ void si_parray_init_2(si_parray_t* const p_array,
 	{
 		goto END;
 	}
-	p_array->p_free_value = free;
+	p_array->p_free_value = NULL;
 	p_array->p_settings = NULL;
 	si_array_init_3(&(p_array->array), sizeof(void*), initial_capacity);
 END:
@@ -237,6 +237,65 @@ END:
 	return result;
 }
 
+/** Doxygen
+ * @brief Called by set_from() / append_from() funcs to take on pointer freeing
+ *
+ * @param p_array Pointer to the parray_t who's to handle freeing their values.
+ * 
+ * @return Returns stdbool true on success. Returns false otherwise.
+ * @details Defines the p_free_value function, inside the si_parray_t struct,
+ *        to free() if it hasn't already been defined. This is in order to
+ *        release the self-allocated pointer values allocated on clone when
+ *        parray is freed. Also converts any already existing direct pointer
+ *        values into indirect heap pointer values so free() can safely be
+ *        called on them.
+ */
+static bool claim_value_ownership(si_parray_t* const p_array)
+{
+	bool result = false;
+	if(NULL == p_array)
+	{
+		goto END;
+	}
+	if(NULL != p_array->p_free_value)
+	{
+		// Pointer array already own's it's value freeing responsibility
+		goto END;
+	}
+	// Convert direct pointers to indirect heap pointers
+	for(size_t iii = 0u; iii < p_array->array.capacity; iii++)
+	{
+		const bool is_set = si_parray_has_set(p_array, iii);
+		if(!is_set)
+		{
+			break;
+		}
+		void* p_direct = si_parray_at(p_array, iii);
+		void* p_indirect = calloc(1u, sizeof(void*));
+		if(NULL == p_indirect)
+		{
+			// Failed to convert to indirect!
+			// Undo changes and return false
+			for(size_t jjj = 0u; (jjj < (iii - 1u)) && (iii > 0u); jjj++)
+			{
+				p_indirect = si_parray_at(p_array, jjj);
+				p_direct = *((void**)p_indirect);
+				free(p_indirect);
+				p_indirect = NULL;
+				si_parray_remove_at(p_array, jjj);
+				si_parray_set(p_array, jjj, p_direct);
+			}
+			goto END;
+		}
+		memcpy(p_indirect, p_direct, sizeof(void*));
+		si_parray_set(p_array, iii, p_indirect);
+	}
+	p_array->p_free_value = free;
+	result = true;
+END:
+	return result;
+}
+
 void si_parray_set(si_parray_t* const p_array, const size_t index,
 	const void* p_value)
 {
@@ -248,10 +307,14 @@ void si_parray_set(si_parray_t* const p_array, const size_t index,
 	{
 		goto END;
 	}
-	const bool is_cleared = si_parray_remove_at(p_array, index);
-	if(!is_cleared)
+	const bool already_set = si_parray_has_set(p_array, index);
+	if(already_set)
 	{
-		goto END;
+		const bool is_cleared = si_parray_remove_at(p_array, index);
+		if(!is_cleared)
+		{
+			goto END;
+		}
 	}
 	si_array_set(&(p_array->array), index, p_value);
 END:
@@ -273,6 +336,16 @@ void si_parray_set_from(si_parray_t* const p_array, const size_t index,
 	if(NULL == p_value)
 	{
 		goto END;
+	}
+	if(NULL == p_array->p_free_value)
+	{
+		const bool is_claimed = claim_value_ownership(p_array);
+		if(!is_claimed)
+		{
+			free(p_value);
+			p_value = NULL;
+			goto END;
+		}
 	}
 	memcpy(p_value, p_source, source_size);
 	si_parray_set(p_array, index, p_value);
@@ -305,6 +378,7 @@ size_t si_parray_append(si_parray_t* const p_array, const void* const p_value)
 		}
 	}
 	si_parray_set(p_array, count, p_value);
+	result = count;
 END:
 	return result;
 }
@@ -325,6 +399,16 @@ size_t si_parray_append_from(si_parray_t* const p_array,
 	if(NULL == p_value)
 	{
 		goto END;
+	}
+	if(NULL == p_array->p_free_value)
+	{
+		const bool is_claimed = claim_value_ownership(p_array);
+		if(!is_claimed)
+		{
+			free(p_value);
+			p_value = NULL;
+			goto END;
+		}
 	}
 	memcpy(p_value, p_source, source_size);
 	result = si_parray_append(p_array, p_value);
