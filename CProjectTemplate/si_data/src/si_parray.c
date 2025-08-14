@@ -208,6 +208,37 @@ END:
 	return pp_result;
 }
 
+/** Doxygen
+ * @brief Apply realloc settings to shrink if needed & defined or fits() array.
+ * 
+ * @param p_array Pointer to the pointer array to handle the shrinking there of
+ * 
+ * @return Returns stdbool true on success. Returns false otherwise.
+ */
+static bool handle_shrink(si_parray_t* const p_array)
+{
+	bool result = false;
+	if(NULL == p_array)
+	{
+		goto END;
+	}
+	if(NULL == p_array->p_settings)
+	{
+		// Not specified how to handle shrink.
+		// We will fit the array capacity to its count.
+		result = si_parray_fit(p_array);
+	}
+	else
+	{
+		result = si_realloc_settings_shrink(
+			p_array->p_settings,
+			&(p_array->array)
+		);
+	}
+END:
+	return result;
+}
+
 bool si_parray_remove_at(si_parray_t* const p_array, const size_t index)
 {
 	bool result = false;
@@ -257,6 +288,7 @@ bool si_parray_remove_at(si_parray_t* const p_array, const size_t index)
 		p_array->p_free_value(*pp_tail);
 	}
 	*pp_tail = NULL;
+	handle_shrink(p_array);
 	result = true;
 END:
 	return result;
