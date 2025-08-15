@@ -25,5 +25,5 @@ else()
 endif()
 
 file(GLOB si_print_SRC CONFIGURE_DEPENDS "src/*.c")
-add_library(_si_print STATIC ${si_print_SRC})
-target_include_directories(_si_print PUBLIC include)
+add_library(si_print STATIC ${si_print_SRC})
+target_include_directories(si_print PUBLIC include)

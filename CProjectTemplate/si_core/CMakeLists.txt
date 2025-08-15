@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.15...4.0)
 project(
-	si_cnet
+	si_core
 	VERSION 1.0
-	DESCRIPTION "Library of structs and functions for networking"
+	DESCRIPTION "Library of common functions and structs"
 	LANGUAGES C
 )
 ### Require out-of-source builds
@@ -24,7 +24,7 @@ else()
 	find_package(Unity REQUIRED)
 endif()
 
-file(GLOB si_cnet_SRC CONFIGURE_DEPENDS "src/*.c")
-add_library(si_cnet STATIC ${si_cnet_SRC})
-target_include_directories(si_cnet PUBLIC include)
-target_link_libraries(si_cnet PUBLIC si_data)
+file(GLOB si_core_SRC CONFIGURE_DEPENDS "src/*.c")
+add_library(si_core STATIC ${si_core_SRC})
+target_include_directories(si_core PUBLIC include)
+target_link_libraries(si_core PUBLIC si_data)

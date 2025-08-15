@@ -25,10 +25,10 @@ else()
 endif()
 
 file(GLOB si_data_SRC CONFIGURE_DEPENDS "src/*.c")
-add_library(_si_data STATIC ${si_data_SRC})
-target_include_directories(_si_data PUBLIC include)
+add_library(si_data STATIC ${si_data_SRC})
+target_include_directories(si_data PUBLIC include)
 
 find_library(MATH_LIBRARY m)
 if(MATH_LIBRARY)
-	target_link_libraries(_si_data PUBLIC ${MATH_LIBRARY})
+	target_link_libraries(si_data PUBLIC ${MATH_LIBRARY})
 endif()
