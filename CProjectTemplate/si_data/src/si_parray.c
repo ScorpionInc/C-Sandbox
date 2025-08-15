@@ -409,7 +409,7 @@ END:
 	return;
 }
 
-void si_parray_set_from(si_parray_t* const p_array, const size_t index,
+void si_parray_set_clone(si_parray_t* const p_array, const size_t index,
 	const void* p_source, const size_t source_size)
 {
 	if((NULL == p_array) || (NULL == p_source))
@@ -474,7 +474,7 @@ END:
 	return result;
 }
 
-size_t si_parray_append_from(si_parray_t* const p_array,
+size_t si_parray_append_clone(si_parray_t* const p_array,
 	const void* const p_source, const size_t source_size)
 {
 	size_t result = SIZE_MAX;

@@ -190,7 +190,7 @@ void si_parray_set(si_parray_t* const p_array, const size_t index,
  * @param p_source Pointer to memory to clone from.
  * @param source_size Size in bytes of the source.
  */
-void si_parray_set_from(si_parray_t* const p_array, const size_t index,
+void si_parray_set_clone(si_parray_t* const p_array, const size_t index,
 	const void* p_source, const size_t source_size);
 
 /** Doxygen
@@ -212,7 +212,7 @@ size_t si_parray_append(si_parray_t* const p_array, const void* const p_value);
  * 
  * @return Returns index appended to on success. SIZE_MAX otherwise.
  */
-size_t si_parray_append_from(si_parray_t* const p_array,
+size_t si_parray_append_clone(si_parray_t* const p_array,
 	const void* const p_source, const size_t source_size);
 
 /** Doxygen
