@@ -2,7 +2,7 @@
 sourceDir="./src/"
 testsDir="./tests_src/"
 outputDir="./build/"
-libName="lib_si_data.a"
+libName="libsi_data.a"
 unitySrc="../tests_src/unity.c"
 unityInclude="../tests_include/"
 
