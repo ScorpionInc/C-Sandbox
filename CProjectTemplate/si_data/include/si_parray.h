@@ -108,6 +108,30 @@ size_t si_parray_pointer_to_index(si_parray_t* const p_array,
 	const void** const pp_pointer);
 
 /** Doxygen
+ * @brief Finds matching value/pointer's index in array at pointer.
+ * 
+ * @param p_array Pointer to array to be searched.
+ * @param p_value Pointer to value to be compared
+ * @param p_cmp_f Optional comparison function to be used.
+ * 
+ * @return Returns index matching p_value on success. SIZE_MAX otherwise.
+ */
+size_t si_parray_find(const si_parray_t* const p_array,
+	const void* const p_value, int (*p_cmp_f)(const void*, const void*));
+
+/** Doxygen
+ * @brief Determines if item pointed at is within the array.
+ * 
+ * @param p_array Pointer to the si_parray_t struct to search.
+ * @param p_value Pointer to value to be compared.
+ * @param p_cmp_f Optional comparison function to be used.
+ * 
+ * @return Returns stdbool true if found. Returns false otherwise.
+ */
+bool si_parray_contains(const si_parray_t* const p_array,
+	const void* const p_value, int (*p_cmp_f)(const void*, const void*));
+
+/** Doxygen
  * @brief Fetches the value of type pointer at index in array.
  * 
  * @param p_array Pointer to array to read from.

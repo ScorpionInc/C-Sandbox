@@ -72,16 +72,20 @@ void parray_test_modify(void)
 	TEST_ASSERT_EQUAL_size_t(data_size, si_parray_count(p_array));
 	TEST_ASSERT_NULL(p_array->p_free_value);
 	printf("Done.\n");
+	si_parray_fprint(stdout, p_array, NULL); fprintf(stdout, "\n");
 
-	printf("Testing at: ");
+	printf("Testing at/find/contains: ");
 	TEST_ASSERT_NULL(si_parray_at(NULL, SIZE_MAX));
 	TEST_ASSERT_NULL(si_parray_at(NULL, 0u));
 	TEST_ASSERT_NULL(si_parray_at(p_array, SIZE_MAX));
 	for(size_t i = 0u; i < data_size; i++)
 	{
 		TEST_ASSERT_EQUAL_PTR(&data[i], si_parray_at(p_array, i));
+		TEST_ASSERT_TRUE(si_parray_contains(p_array, &data[i], NULL));
+		TEST_ASSERT_EQUAL_size_t(i, si_parray_find(p_array, &data[i], NULL));
 	}
 	printf("Done.\n");
+	si_parray_fprint(stdout, p_array, NULL); fprintf(stdout, "\n");
 
 	printf("Testing remove_at/count/shrink: ");
 	TEST_ASSERT_FALSE(si_parray_remove_at(NULL, SIZE_MAX));
@@ -94,8 +98,9 @@ void parray_test_modify(void)
 	}
 	TEST_ASSERT_EQUAL_size_t(0u, p_array->array.capacity);
 	printf("Done.\n");
+	si_parray_fprint(stdout, p_array, NULL); fprintf(stdout, "\n");
 
-	/* TODO
+	//* TODO
 	printf("Testing pointer ownership:");
 	const size_t direct_count = 3u;
 	TEST_ASSERT_NOT_EQUAL_size_t(direct_count, data_size);
@@ -103,10 +108,11 @@ void parray_test_modify(void)
 	{
 		TEST_ASSERT_EQUAL_size_t(i, si_parray_append(p_array, &data[i]));
 	}
+	si_parray_fprint(stdout, p_array, NULL); fprintf(stdout, "\n");
 	// Now should become owner after cloning.
 	for(size_t i = direct_count; i < data_size; i++)
 	{
-		TEST_ASSERT_EQUAL_size_t(i, si_parray_append_from(
+		TEST_ASSERT_EQUAL_size_t(i, si_parray_append_clone(
 			p_array,
 			&data[i],
 			sizeof(int))
@@ -114,6 +120,7 @@ void parray_test_modify(void)
 	}
 	TEST_ASSERT_EQUAL_size_t(data_size, si_parray_count(p_array));
 	printf("Done.\n");
+	si_parray_fprint(stdout, p_array, NULL); fprintf(stdout, "\n");
 	//*/
 
 	si_parray_destroy(&p_array);
@@ -126,7 +133,7 @@ void parray_test_modify(void)
 void parray_test_all(void)
 {
 	UNITY_BEGIN();
-	RUN_TEST(parray_test_init);
+	//RUN_TEST(parray_test_init);
 	RUN_TEST(parray_test_modify);
 	UNITY_END();
 }

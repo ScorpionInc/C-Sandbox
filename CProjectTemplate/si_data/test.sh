@@ -28,7 +28,7 @@ do
 	outputFinal="${outputDir}${outputFile}"
 	echo "Building unit test: '$test' -> '$outputFinal'."
 	gcc -ggdb "$test" "$libPath" "$unitySrc" -I./include -I./tests_include -I"$unityInclude" -lm -o "$outputFinal"
-	valgrind -s --fair-sched=yes --leak-check=full --show-leak-kinds=all --track-origins=yes "$outputFinal"
+	valgrind -s --log-fd=1 --fair-sched=yes --leak-check=full --show-leak-kinds=all --track-origins=yes "$outputFinal"
 	rm -f "${outputFinal}"
 done
 echo

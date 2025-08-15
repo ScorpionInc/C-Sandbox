@@ -124,6 +124,54 @@ END:
 	return result;
 }
 
+size_t si_parray_find(const si_parray_t* const p_array,
+	const void* const p_value, int (*p_cmp_f)(const void*, const void*))
+{
+	size_t index = SIZE_MAX;
+	if(NULL == p_array)
+	{
+		goto END;
+	}
+	for(size_t iii = 0u; iii < p_array->array.capacity; iii++)
+	{
+		const void** const pp_next = si_array_at(&(p_array->array), iii);
+		if(NULL == pp_next)
+		{
+			goto END;
+		}
+		if(p_value == *pp_next)
+		{
+			index = iii;
+			goto END;
+		}
+		if(NULL != p_cmp_f)
+		{
+			const int cmp_result = p_cmp_f(p_value, *pp_next);
+			if(0 == cmp_result)
+			{
+				index = iii;
+				goto END;
+			}
+		}
+	}
+END:
+	return index;
+}
+
+bool si_parray_contains(const si_parray_t* const p_array,
+	const void* const p_value, int (*p_cmp_f)(const void*, const void*))
+{
+	bool result = false;
+	if(NULL == p_array)
+	{
+		goto END;
+	}
+	const size_t index = si_parray_find(p_array, p_value, p_cmp_f);
+	result = (index != SIZE_MAX);
+END:
+	return result;
+}
+
 void* si_parray_at(const si_parray_t* const p_array,
 	const size_t index)
 {
@@ -359,24 +407,24 @@ static bool claim_value_ownership(si_parray_t* const p_array)
 		{
 			break;
 		}
-		void* p_direct = si_parray_at(p_array, iii);
-		void* p_indirect = calloc(1u, sizeof(void*));
-		if(NULL == p_indirect)
+		void** pp_direct = si_array_at(&(p_array->array), iii);
+		void** pp_indirect = calloc(1u, sizeof(void*));
+		if(NULL == pp_indirect)
 		{
 			// Failed to convert to indirect!
 			// Undo changes and return false
 			for(size_t jjj = 0u; (jjj < (iii - 1u)) && (iii > 0u); jjj++)
 			{
-				p_indirect = si_parray_at(p_array, jjj);
-				p_direct = *((void**)p_indirect);
-				free(p_indirect);
-				p_indirect = NULL;
-				si_parray_set(p_array, jjj, p_direct);
+				pp_indirect = si_array_at(&(p_array->array), jjj);
+				pp_direct = *pp_indirect;
+				free(*pp_indirect);
+				*pp_indirect = NULL;
+				si_parray_set(p_array, jjj, *pp_direct);
 			}
 			goto END;
 		}
-		p_indirect = &p_direct;
-		si_parray_set(p_array, iii, p_indirect);
+		*pp_indirect = *pp_direct;
+		si_parray_set(p_array, iii, pp_indirect);
 	}
 	p_array->p_free_value = free;
 	result = true;
