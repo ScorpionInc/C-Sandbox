@@ -15,14 +15,16 @@ void tearDown (void)
 void si_adler_test_main(void)
 {
 	// TODO Use the expected results to validate.
-	const char* const inputs[] = {
+	const char* const inputs[] =
+	{
 		"",
 		"~~~",
 		"abc",
 		"abd",
 		"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 	};
-	const char* const expected[] = {
+	const char* const expected[] =
+	{
 		"0x0001",
 		"0x0680",
 		"0x572C",
