@@ -60,7 +60,7 @@ size_t si_parray_count(const si_parray_t* const p_array)
 	result++;
 	for(size_t iii = 0u; iii < p_array->array.capacity; iii++)
 	{
-		const bool is_set = si_parray_has_set(p_array, iii);
+		const bool is_set = si_parray_is_set(p_array, iii);
 		if(!is_set)
 		{
 			// Values are contigious
@@ -142,7 +142,7 @@ END:
 	return (void*)pp_result;
 }
 
-bool si_parray_has_set(const si_parray_t* const p_array, const size_t index)
+bool si_parray_is_set(const si_parray_t* const p_array, const size_t index)
 {
 	bool result = false;
 	if(NULL == p_array)
@@ -354,7 +354,7 @@ static bool claim_value_ownership(si_parray_t* const p_array)
 	// Convert direct pointers to indirect heap pointers
 	for(size_t iii = 0u; iii < p_array->array.capacity; iii++)
 	{
-		const bool is_set = si_parray_has_set(p_array, iii);
+		const bool is_set = si_parray_is_set(p_array, iii);
 		if(!is_set)
 		{
 			break;

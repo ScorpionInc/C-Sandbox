@@ -126,7 +126,7 @@ void* si_parray_at(const si_parray_t* const p_array,
  * 
  * @return Returns stdbool true if pointer is set. Returns false otherwise.
  */
-bool si_parray_has_set(const si_parray_t* const p_array, const size_t index);
+bool si_parray_is_set(const si_parray_t* const p_array, const size_t index);
 
 /** Doxygen
  * @brief Fetches the address of the first pointer of the array.
