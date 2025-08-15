@@ -147,6 +147,28 @@ END:
 	return;
 }
 
+void si_task_stop(si_task* const p_task)
+{
+	//! TODO
+	if(NULL == p_task)
+	{
+		goto END;
+	}
+END:
+	return;
+}
+
+void si_task_kill(si_task* const p_task)
+{
+	//! TODO
+	if(NULL == p_task)
+	{
+		goto END;
+	}
+END:
+	return;
+}
+
 void si_task_free(si_task* const p_task)
 {
 	// Validate

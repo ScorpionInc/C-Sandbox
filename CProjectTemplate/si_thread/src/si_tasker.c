@@ -1,5 +1,4 @@
 //si_tasker.c
-
 #include "si_tasker.h"
 
 size_t si_cpu_core_count()
