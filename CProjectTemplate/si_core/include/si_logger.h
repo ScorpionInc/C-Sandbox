@@ -58,13 +58,15 @@ si_logger_t* si_logger_new();
  * @brief Based on logger level calls a custom print function on data.
  * 
  * @param p_logger Pointer to si_logger struct to use.
- * @param p_data Pointer to data to pass to print function.
  * @param msg_level size_t Log level of this message.
+ * @param p_prefix Optional C string to print after header, but before function
+ * @param p_data Pointer to data to pass to print function.
+ * @param p_suffix Optional C string to print after the function.
  * @param p_print Optional function pointer(FILE*, void*) to print data value.
  */
-void si_logger_custom(si_logger_t* const p_logger,
-	const void* const p_data, const size_t msg_level,
-	void p_print(FILE*, void*));
+void si_logger_custom(si_logger_t* const p_logger, const size_t msg_level,
+	const char* p_prefix, const void* const p_data, const char* p_suffix,
+	void p_print(FILE*, const void*));
 
 /** Doxygen
  * @brief Logs a message based on logger level to file.

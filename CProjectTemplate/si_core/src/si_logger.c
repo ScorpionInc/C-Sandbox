@@ -116,9 +116,9 @@ END:
 	return p_new;
 }
 
-void si_logger_custom(si_logger_t* const p_logger,
-	const void* const p_data, const size_t msg_level,
-	void p_print(FILE*, void*))
+void si_logger_custom(si_logger_t* const p_logger, const size_t msg_level,
+	const char* p_prefix, const void* const p_data, const char* p_suffix,
+	void p_print(FILE*, const void*))
 {
 	if(NULL == p_logger)
 	{
@@ -133,6 +133,10 @@ void si_logger_custom(si_logger_t* const p_logger,
 		goto END;
 	}
 	si_logger_fprint_header(p_logger->p_file, msg_level);
+	if(NULL != p_prefix)
+	{
+		fprintf(p_logger->p_file, "%s", p_prefix);
+	}
 	if(NULL != p_print)
 	{
 		p_print(p_logger->p_file, p_data);
@@ -141,7 +145,11 @@ void si_logger_custom(si_logger_t* const p_logger,
 	{
 		fprintf(p_logger->p_file, "%p", p_data);
 	}
-	fprintf(p_logger, "\n");
+	if(NULL != p_suffix)
+	{
+		fprintf(p_logger->p_file, "%s", p_suffix);
+	}
+	fprintf(p_logger->p_file, "\n");
 END:
 	return;
 }
