@@ -23,7 +23,39 @@
 extern "C" {
 #endif //__cplusplus
 
-typedef struct si_double_node_t si_double_node_t;
+typedef struct si_double_node_t
+{
+	void* p_data;
+	struct si_double_node_t* p_next;
+	struct si_double_node_t* p_back;
+} si_double_node_t;
+
+/** Doxygen
+ * @brief Allocates, initializes and returns new instance of si_double_node_t
+ *
+ * @return Returns pointer to new instance on the heap on success or NULL.
+*/
+si_double_node_t* si_double_node_new();
+
+/** Doxygen
+ * @brief Function that walks the pointed at double linked list counting
+ *        non-null p_data elements.
+ *
+ * @param p_node Pointer to linked list to count the elements of.
+ *
+ * @return Returns the number of non-NULL elements in the linked list.
+ */
+size_t si_double_node_count(const si_double_node_t* const p_node);
+
+/** Doxygen
+ * @brief Function that walks the pointer at si_double_node_t and returns
+ *        number of allocated list nodes.
+ *
+ * @param p_list Pointer to the si_double_node_t struct to be walked.
+ *
+ * @return Returns capacity of the list being pointed at.
+ */
+size_t si_double_node_capacity(const si_double_node_t* const p_node);
 
 typedef struct si_double_list_t
 {

@@ -2,19 +2,7 @@
 
 #include "si_double_list.h"
 
-typedef struct si_double_node_t
-{
-	void* p_data;
-	struct si_double_node_t* p_next;
-	struct si_double_node_t* p_back;
-} si_double_node_t;
-
-/** Doxygen
- * @brief Allocates, initializes and returns new instance of si_double_node_t
- *
- * @return Returns pointer to new instance on the heap on success or NULL.
-*/
-static si_double_node_t* si_double_node_new()
+si_double_node_t* si_double_node_new()
 {
 	si_double_node_t* p_new = calloc(1u, sizeof(si_double_node_t));
 	if(NULL == p_new)
@@ -28,16 +16,7 @@ END:
 	return p_new;
 }
 
-/** Doxygen
- * @brief Local function that walks the pointed at double linked list counting
- *        non-null p_data elements.
- *
- * @param p_node Pointer to linked list to count the elements of.
- *
- * @return Returns the number of non-NULL elements in the linked list.
- */
-/* Deprecated / Disabled
-static size_t si_double_node_count(const si_double_node_t* const p_node)
+size_t si_double_node_count(const si_double_node_t* const p_node)
 {
 	size_t counter = 0u;
 	if(NULL == p_node)
@@ -61,18 +40,8 @@ static size_t si_double_node_count(const si_double_node_t* const p_node)
 END:
 	return counter;
 }
-//*/
 
-/** Doxygen
- * @brief Local function that walks the pointer at si_double_node_t and returns
- *        number of allocated list nodes.
- *
- * @param p_list Pointer to the si_double_node_t struct to be walked.
- *
- * @return Returns capacity of the list being pointed at.
- */
-/* Deprecated / Disabled
-static size_t si_double_node_capacity(const si_double_node_t* const p_node)
+size_t si_double_node_capacity(const si_double_node_t* const p_node)
 {
 	size_t counter = 0u;
 	if(NULL == p_node)
@@ -93,7 +62,6 @@ static size_t si_double_node_capacity(const si_double_node_t* const p_node)
 END:
 	return counter;
 }
-//*/
 
 /** Doxygen
  * @brief Returns pointer to si_double_node_t index away from current node
