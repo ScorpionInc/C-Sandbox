@@ -419,17 +419,9 @@ void si_server_accept(si_server_t* const p_server)
 	if((NULL != p_server->access_list) && (NULL != client_addr))
 	{
 		const bool has = si_accesslist_has(p_server->access_list, client_addr);
-		//*
-		printf("Address of ");//!Debugging
-		sockaddr_fprint(stdout, client_addr);//!Debugging
-		printf(" was %sfound in the server access %slist.\n",
-			has ? "" : "not ",
-			p_server->access_list->is_blacklist ? "black" : "white");//!Debugging
-		//*/
 		if((( true == has) && (true  == p_server->access_list->is_blacklist)) ||
 		   ((false == has) && (false == p_server->access_list->is_blacklist)))
 		{
-			printf("Access Denied!\n");//!Debugging
 			errno = EACCES;
 			goto ERROR;
 		}
