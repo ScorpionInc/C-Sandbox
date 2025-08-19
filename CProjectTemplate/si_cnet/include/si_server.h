@@ -48,6 +48,7 @@ extern "C" {
 #include "si_access_list.h"
 #include "si_array.h"
 #include "si_realloc_settings.h"
+#include "si_logger.h"
 
 /** Doxygen
  * @brief Uses error code from linux socket() to determine if IPv6 is supported
@@ -71,11 +72,24 @@ typedef struct si_server_t
 	pthread_mutex_t sockets_lock;
 	si_array_t sockets;
 	si_realloc_settings_t* p_settings;
+	si_logger_t* p_logger;
 } si_server_t;
 
+void si_server_init_7(si_server_t* const p_server, const unsigned short port,
+	const int type, const int family, const int max_client_queue,
+	si_realloc_settings_t* const p_settings, si_logger_t* const p_logger);
+void si_server_init_6(si_server_t* const p_server, const unsigned short port,
+	const int type, const int family, const int max_client_queue,
+	si_realloc_settings_t* const p_settings);
 void si_server_init_5(si_server_t* const p_server, const unsigned short port,
 	const int type, const int family, const int max_client_queue);
 
+si_server_t* si_server_new_6(const unsigned short port, const int type,
+	const int family, const int max_client_queue,
+	si_realloc_settings_t* const p_settings, si_logger_t* const p_logger);
+si_server_t* si_server_new_5(const unsigned short port, const int type,
+	const int family, const int max_client_queue,
+	si_realloc_settings_t* const p_settings);
 si_server_t* si_server_new_4(const unsigned short port, const int type,
 	const int family, const int max_client_queue);
 si_server_t* si_server_new_3(const unsigned short port, const int type,

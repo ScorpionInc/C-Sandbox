@@ -130,11 +130,18 @@ END:
 
 int main(int argc, char** pp_argv)
 {
-	si_server_t* p_server = si_server_new(PORT);
+	si_logger_t logger = {0};
+	logger.logging_level = SI_LOGGER_ALL;
+	logger.p_file = stdout;
+	si_server_t* p_server = si_server_new_6(
+		PORT, DEFAULT_TYPE, DEFAULT_FAMILY,
+		get_client_queue_limit(), NULL, &logger
+	);
 	if(NULL == p_server)
 	{
 		goto END;
 	}
+	p_server->p_logger = &logger;
 	si_accesslist_t* p_access = si_accesslist_new(true, true);
 	if(NULL == p_access)
 	{

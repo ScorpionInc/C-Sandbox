@@ -66,7 +66,7 @@ si_logger_t* si_logger_new();
  */
 void si_logger_custom(si_logger_t* const p_logger, const size_t msg_level,
 	const char* p_prefix, const void* const p_data, const char* p_suffix,
-	void p_print(FILE*, const void*));
+	void p_print(FILE* const, const void* const));
 
 /** Doxygen
  * @brief Logs a message based on logger level to file.

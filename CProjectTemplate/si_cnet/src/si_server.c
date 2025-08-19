@@ -38,8 +38,9 @@ END:
 	return result;
 }
 
-void si_server_init_5(si_server_t* const p_server, const unsigned short port,
-	const int type, const int family, const int max_client_queue)
+void si_server_init_7(si_server_t* const p_server, const unsigned short port,
+	const int type, const int family, const int max_client_queue,
+	si_realloc_settings_t* p_settings, si_logger_t* p_logger)
 {
 	if(NULL == p_server)
 	{
@@ -84,7 +85,7 @@ void si_server_init_5(si_server_t* const p_server, const unsigned short port,
 	}
 
 	// Initialize sockets array with invalid sockets.
-	struct pollfd initialSocket = (struct pollfd){};
+	struct pollfd initialSocket = (struct pollfd){0};
 	initialSocket.fd = SOCKET_ERROR;
 	initialSocket.events = 0;
 	initialSocket.revents = 0;
@@ -93,7 +94,8 @@ void si_server_init_5(si_server_t* const p_server, const unsigned short port,
 	{
 		si_array_set(&(p_server->sockets), iii, &initialSocket);
 	}
-	p_server->p_settings = NULL;
+	p_server->p_settings = p_settings;
+	p_server->p_logger = p_logger;
 
 	int server_fd = socket(
 		p_server->family,
@@ -102,7 +104,9 @@ void si_server_init_5(si_server_t* const p_server, const unsigned short port,
 	);
 	if(SOCKET_ERROR >= server_fd)
 	{
-		fprintf(stderr, "server_socket() error: %s\n", strerror(errno));
+		si_logger_error(p_server->p_logger,
+			"server_socket() error: %s", strerror(errno)
+		);
 		server_fd = SOCKET_ERROR;
 		goto END;
 	}
@@ -158,7 +162,9 @@ void si_server_init_5(si_server_t* const p_server, const unsigned short port,
 	);
 	if(SOCKET_SUCCESS != bind_result)
 	{
-		fprintf(stderr, "server_bind() error: %s\n", strerror(errno));
+		si_logger_error(p_server->p_logger,
+			"server_bind() error: %s", strerror(errno)
+		);
 		close(server_fd);
 		server_fd = SOCKET_ERROR;
 		goto END;
@@ -179,15 +185,33 @@ void si_server_init_5(si_server_t* const p_server, const unsigned short port,
 		server_fd = SOCKET_ERROR;
 		goto END;
 	}
-
-	// TODO Log to file(?)
-	printf("Server bound to local port: %hu.\n", port);
+	si_logger_info(
+		p_server->p_logger,
+		"Server bound to local port: %hu.", port
+	);
 END:
 	return;
 }
+void si_server_init_6(si_server_t* const p_server, const unsigned short port,
+	const int type, const int family, const int max_client_queue,
+	si_realloc_settings_t* const p_settings)
+{
+	// Default value of p_logger = NULL
+	si_server_init_7(
+		p_server, port, type, family, max_client_queue, p_settings, NULL
+	);
+}
+inline void si_server_init_5(si_server_t* const p_server,
+	const unsigned short port, const int type, const int family,
+	const int max_client_queue)
+{
+	// Default value of p_settings = NULL
+	si_server_init_6(p_server, port, type, family, max_client_queue, NULL);
+}
 
-si_server_t* si_server_new_4(const unsigned short port, const int type,
-	const int family, const int max_client_queue)
+si_server_t* si_server_new_6(const unsigned short port, const int type,
+	const int family, const int max_client_queue,
+	si_realloc_settings_t* const p_settings, si_logger_t* const p_logger)
 {
 	si_server_t* p_new = NULL;
 	p_new = calloc(1u, sizeof(si_server_t));
@@ -195,9 +219,27 @@ si_server_t* si_server_new_4(const unsigned short port, const int type,
 	{
 		goto END;
 	}
-	si_server_init_5(p_new, port, type, family, max_client_queue);
+	si_server_init_7(p_new,
+		port, type, family, max_client_queue,
+		p_settings, p_logger
+	);
 END:
 	return p_new;
+}
+inline si_server_t* si_server_new_5(const unsigned short port, const int type,
+	const int family, const int max_client_queue,
+	si_realloc_settings_t* const p_settings)
+{
+	// Default value of p_logger is NULL
+	return si_server_new_6(
+		port, type, family, max_client_queue, p_settings, NULL
+	);
+}
+inline si_server_t* si_server_new_4(const unsigned short port, const int type,
+	const int family, const int max_client_queue)
+{
+	// Default value of p_settings is NULL
+	return si_server_new_5(port, type, family, max_client_queue, NULL);
 }
 si_server_t* si_server_new_3(const unsigned short port, const int type,
 	const int family)
@@ -441,9 +483,11 @@ void si_server_accept(si_server_t* const p_server)
 		if((( true == has) && (true  == p_server->access_list->is_blacklist)) ||
 		   ((false == has) && (false == p_server->access_list->is_blacklist)))
 		{
-			// TODO Log to file
-			sockaddr_fprint(stdout, client_addr);
-			printf(" - Access Denied.\n");
+			si_logger_custom(
+				p_server->p_logger, SI_LOGGER_INFO,
+				NULL, client_addr, " - Access Denied.",
+				(void(*)(FILE* const,  const void* const))sockaddr_fprint
+			);
 			errno = EACCES;
 			goto ERROR;
 		}
@@ -454,16 +498,18 @@ void si_server_accept(si_server_t* const p_server)
 	{
 		goto ERROR;
 	}
-	// TODO Log connection to file?
-	fprintf(stdout, "Client connected: ");
-	sockaddr_fprint(stdout, client_addr);
-	fprintf(stdout, "\n");
+	si_logger_custom(
+		p_server->p_logger, SI_LOGGER_INFO,
+		"Client connected: ", client_addr, NULL,
+		(void(*)(FILE* const,  const void* const))sockaddr_fprint
+	);
 	goto END;
 ERROR:
 	if(!((errno == EAGAIN) && (!is_blocking)))
 	{
-		// TODO Log error to file?
-		fprintf(stderr, "server_accept() error: %s\n", strerror(errno));
+		si_logger_error(p_server->p_logger,
+			"server_accept() error: %s", strerror(errno)
+		);
 	}
 	if(NULL != client_addr)
 	{
