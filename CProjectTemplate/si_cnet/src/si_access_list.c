@@ -33,9 +33,7 @@ void si_accesslist_init_4(si_accesslist_t* const p_access,
 
 	p_access->is_blacklist = is_blacklist;
 	p_access->is_ipv4 = is_ipv4;
-	const size_t addr_size = p_access->is_ipv4 ?
-		sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6);
-	si_array_init_3(&(p_access->entries), addr_size, 0u);
+	si_parray_init_2(&(p_access->entries), 0u);
 	if(NULL != p_settings)
 	{
 		memcpy(&(p_access->settings), p_settings,
@@ -78,12 +76,12 @@ bool si_accesslist_is_valid_at(si_accesslist_t* const p_access,
 	{
 		goto END;
 	}
-	const sa_family_t family = p_access->is_ipv4 ? AF_INET : AF_INET6;
 	if(SOCKET_SUCCESS != pthread_mutex_lock(&(p_access->entries_lock)))
 	{
 		goto END;
 	}
-	result = sockaddr_is_valid(si_array_at(&(p_access->entries), index), family);
+	void* p_addr = si_parray_at(&(p_access->entries), index);
+	result = sockaddr_is_valid(p_addr);
 	pthread_mutex_unlock(&(p_access->entries_lock));
 END:
 	return result;
@@ -97,9 +95,9 @@ size_t si_accesslist_count(si_accesslist_t* const p_access)
 		goto END;
 	}
 	result++;
-	for(size_t i = 0u; i < p_access->entries.capacity; i++)
+	for(size_t iii = 0u; iii < p_access->entries.array.capacity; iii++)
 	{
-			if(true == si_accesslist_is_valid_at(p_access, i))
+			if(true == si_accesslist_is_valid_at(p_access, iii))
 			{
 				result++;
 			}
@@ -127,7 +125,7 @@ bool si_accesslist_is_full(si_accesslist_t* const p_access)
 	{
 		goto END;
 	}
-	result = (p_access->entries.capacity == si_accesslist_count(p_access));
+	result = (p_access->entries.array.capacity == si_accesslist_count(p_access));
 END:
 	return result;
 }
@@ -140,21 +138,20 @@ size_t si_accesslist_index_of(si_accesslist_t* const p_access,
 	{
 		goto END;
 	}
-	const sa_family_t family = p_access->is_ipv4 ? AF_INET : AF_INET6;
 	if(SOCKET_SUCCESS != pthread_mutex_lock(&(p_access->entries_lock)))
 	{
 		goto END;
 	}
-	for(size_t i = 0u; i < p_access->entries.capacity; i++)
+	for(size_t iii = 0u; iii < p_access->entries.array.capacity; iii++)
 	{
+		const struct sockaddr* p_nxt = si_parray_at(&(p_access->entries), iii);
 		const int cmp = sockaddr_cmp(
 			p_addr,
-			(struct sockaddr*)si_array_at(&(p_access->entries), i),
-			family
+			p_nxt
 		);
 		if(0 == cmp)
 		{
-			result = i;
+			result = iii;
 			break;
 		}
 	}
@@ -184,28 +181,8 @@ bool si_accesslist_append(si_accesslist_t* const p_access,
 	{
 		goto END;
 	}
-	const size_t count = si_accesslist_count(p_access);
-	if(count >= p_access->entries.capacity)
-	{
-		if(NEVER == p_access->settings.grow_mode)
-		{
-			goto END;
-		}
-		if(false == si_realloc_settings_grow(&(p_access->settings), &(p_access->entries)))
-		{
-			goto END;
-		}
-	}
-	for(size_t i = 0u; i < p_access->entries.capacity; i++)
-	{
-		if(false == si_accesslist_is_valid_at(p_access, i))
-		{
-			// Append here
-			si_array_set(&(p_access->entries), i, p_addr);
-			result = true;
-			break;
-		}
-	}
+	const size_t new_index = si_parray_append(&(p_access->entries), p_addr);
+	result = (SIZE_MAX != new_index);
 END:
 	return result;
 }
@@ -218,13 +195,7 @@ bool si_accesslist_remove_at(si_accesslist_t* const p_access,
 	{
 		goto END;
 	}
-	if(index >= p_access->entries.capacity)
-	{
-		goto END;
-	}
-	const size_t esz = p_access->entries.element_size;
-	memset(&(((uint8_t*)p_access->entries.p_data)[index * esz]), 0x00, esz);
-	result = true;
+	result = si_parray_remove_at(&(p_access->entries), index);
 END:
 	return result;
 }
@@ -253,7 +224,7 @@ void si_accesslist_free(si_accesslist_t* const p_access)
 	{
 		goto END;
 	}
-	si_array_free(&(p_access->entries));
+	si_parray_free(&(p_access->entries));
 	pthread_mutex_destroy(&(p_access->entries_lock));
 END:
 	return;

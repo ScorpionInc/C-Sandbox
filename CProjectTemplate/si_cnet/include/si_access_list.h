@@ -20,8 +20,7 @@
 #error Unsupported Operating System.
 #endif//__linux__
 
-#include "si_array.h"
-#include "si_realloc_settings.h"
+#include "si_parray.h"
 #include "si_paddr.h"
 
 #ifndef SI_ACCESSLIST_T
@@ -32,7 +31,7 @@ typedef struct si_accesslist_t
 	bool is_blacklist;
 	bool is_ipv4;
 	pthread_mutex_t entries_lock;
-	si_array_t entries;
+	si_parray_t entries;
 	si_realloc_settings_t settings;
 } si_accesslist_t;
 
