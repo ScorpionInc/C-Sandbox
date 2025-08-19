@@ -39,91 +39,32 @@ END:
 }
 
 /** Doxygen
- * @brief Handles a single client's events
+ * @brief Handles a single client's input event
  *
  * @param p_fd Pointer to pollfd struct
  */
-static void handle_events(struct pollfd* const p_fd)
+static void handle_input(struct pollfd* const p_fd)
 {
 	if(NULL == p_fd)
 	{
 		goto END;
 	}
 	// Handle input
-	char buffer[BUF_SIZE];
-	if(p_fd->revents & POLLIN)
+	char buffer[BUF_SIZE] = {0};
+	ssize_t r_result = read(p_fd->fd, buffer, BUF_SIZE - 1u);
+	if(0 >= r_result)
 	{
-		memset(&buffer, 0x00, BUF_SIZE);
-		ssize_t r_result = read(p_fd->fd, buffer, BUF_SIZE - 1u);
-		if(0 >= r_result)
-		{
-			p_fd->revents |= POLLHUP;
-			goto CLOSE;
-		}
-		buffer[r_result] = '\0';
-		to_uppercase(buffer);
-		ssize_t w_result = write(p_fd->fd, buffer, BUF_SIZE - 1u);
-		if(0 >= w_result)
-		{
-			p_fd->revents |= POLLHUP;
-			goto CLOSE;
-		}
-	}
-CLOSE:
-	// Handle close
-	if(p_fd->revents & POLLHUP)
-	{
-		p_fd->events = 0;
-		if(SOCKET_SUCCESS <= p_fd->fd)
-		{
-			close(p_fd->fd);
-		}
-		p_fd->fd = SOCKET_ERROR;
+		p_fd->revents |= POLLHUP;
 		goto END;
 	}
-END:
-	return;
-}
-
-/** Doxygen
- * @brief Checks the clients for a si_server's poll events.
- *
- * @param p_server Pointer to si_server struct
- */
-void handle_server(si_server_t* const p_server)
-{
-	if(NULL == p_server)
+	buffer[r_result] = '\0';
+	to_uppercase(buffer);
+	ssize_t w_result = write(p_fd->fd, buffer, BUF_SIZE - 1u);
+	if(0 >= w_result)
 	{
+		p_fd->revents |= POLLHUP;
 		goto END;
 	}
-	if(SOCKET_SUCCESS != pthread_mutex_lock(&(p_server->sockets_lock)))
-	{
-		goto END;
-	}
-	const size_t capacity = p_server->sockets.capacity;
-	// Poll client events
-	if(SOCKET_SUCCESS >
-		poll(p_server->sockets.p_data, capacity, -1))
-	{
-		pthread_mutex_unlock(&(p_server->sockets_lock));
-		goto END;
-	}
-	// Handle clients
-	for(size_t i = 1u; i < capacity; i++)
-	{
-		struct pollfd* p_fd = NULL;
-		p_fd = si_array_at(&(p_server->sockets), i);
-		if(NULL == p_fd)
-		{
-			continue;
-		}
-		if((SOCKET_SUCCESS > p_fd->fd) || (0 == p_fd->revents))
-		{
-			continue;
-		}
-		handle_events(p_fd);
-	}
-	pthread_mutex_unlock(&(p_server->sockets_lock));
 END:
 	return;
 }
@@ -133,6 +74,7 @@ int main(int argc, char** pp_argv)
 	si_logger_t logger = {0};
 	logger.logging_level = SI_LOGGER_ALL;
 	logger.p_file = stdout;
+	
 	si_server_t* p_server = si_server_new_6(
 		PORT, DEFAULT_TYPE, DEFAULT_FAMILY,
 		get_client_queue_limit(), NULL, &logger
@@ -141,7 +83,8 @@ int main(int argc, char** pp_argv)
 	{
 		goto END;
 	}
-	p_server->p_logger = &logger;
+	p_server->p_handle_read = handle_input;
+
 	si_accesslist_t* p_access = si_accesslist_new(true, true);
 	if(NULL == p_access)
 	{
@@ -161,11 +104,12 @@ int main(int argc, char** pp_argv)
 	p_loopback->sin_addr.s_addr = htonl(0x7F000001);
 	si_accesslist_append(p_access, (struct sockaddr*)p_loopback);
 	p_server->access_list = p_access;
+
 	si_server_set_blocking(p_server, false);
 	while(NULL != p_server)
 	{
 		si_server_accept(p_server);
-		handle_server(p_server);
+		si_server_handle_events(p_server);
 	}
 	if(NULL != p_access)
 	{
