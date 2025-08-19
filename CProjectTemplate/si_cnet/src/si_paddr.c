@@ -2,6 +2,139 @@
 
 #include "si_paddr.h"
 
+void convert_ipv4_addr_to_network(
+	uint8_t p_address[INET_ADDRESS_SIZE],
+	const uint8_t p_sub_msk[INET_ADDRESS_SIZE])
+{
+	if(NULL == p_address)
+	{
+		goto END;
+	}
+	for(size_t iii = 0u; iii < INET_ADDRESS_SIZE; iii++)
+	{
+		p_address[iii] = (p_address[iii] & p_sub_msk[iii]);
+	}
+END:
+	return;
+}
+
+bool is_within_ipv4_network(
+	const uint8_t p_network_address[INET_ADDRESS_SIZE],
+	const uint8_t p_subnet_mask[INET_ADDRESS_SIZE],
+	const uint8_t p_test_address[INET_ADDRESS_SIZE])
+{
+	bool result = false;
+	if((NULL == p_network_address) ||
+	   (NULL == p_subnet_mask)     ||
+	   (NULL == p_test_address))
+	{
+		goto END;
+	}
+	// Make closes of source data to be modified / tested
+	uint8_t p_network[INET_ADDRESS_SIZE] = {0};
+	uint8_t p_test[INET_ADDRESS_SIZE] = {0};
+	memcpy(p_network, p_network_address, INET_ADDRESS_SIZE);
+	memcpy(p_test, p_test_address, INET_ADDRESS_SIZE);
+	convert_ipv4_addr_to_network(p_network, p_subnet_mask);
+	convert_ipv4_addr_to_network(p_test, p_subnet_mask);
+	for(size_t iii = 0u; iii < INET_ADDRESS_SIZE; iii++)
+	{
+		if(p_network[iii] != p_test[iii])
+		{
+			goto END;
+		}
+	}
+	result = true;
+END:
+	return result;
+}
+
+bool is_localhost_address_v4(const struct sockaddr_in* const p_address)
+{
+	bool result = false;
+	if(NULL == p_address)
+	{
+		goto END;
+	}
+	// IPv4 Localhost loopback address range: 127.0.0.0/8
+	const uint32_t localhost = 0x7F000001;
+	const uint32_t loopback_mask = IN_CLASSA_NET;
+	result = is_within_ipv4_network(
+		(const uint8_t*)&localhost,
+		(const uint8_t*)&loopback_mask,
+		(const uint8_t*)&(p_address->sin_addr)
+	);
+	if(true == result)
+	{
+		goto END;
+	}
+	// Technically the address of 0.0.0.0 is all of the local interfaces or
+	// it is an unassigned address. Thus, is one of the loopback addresses but
+	// would still be related to localhost so we will pass it. (For now)
+	const uint8_t* const p_bytes = (uint8_t*)&(p_address->sin_addr);
+	for(size_t iii = 0u; iii < INET_ADDRESS_SIZE; iii++)
+	{
+		if(0x00 != p_bytes[iii])
+		{
+			goto END;
+		}
+	}
+END:
+	return result;
+}
+
+bool is_localhost_address_v6(const struct sockaddr_in6* const p_address)
+{
+	bool result = false;
+	if(NULL == p_address)
+	{
+		goto END;
+	}
+	uint8_t* const address_bytes = (uint8_t*)&(p_address->sin6_addr);
+	for(size_t iii = 0u; iii < INET6_ADDRESS_SIZE - 1u; iii++)
+	{
+		if(0x00 != address_bytes[iii])
+		{
+			goto END;
+		}
+	}
+	if( 0x00 == address_bytes[INET6_ADDRESS_SIZE - 1u] ||
+		0x01 == address_bytes[INET6_ADDRESS_SIZE - 1u] )
+	{
+		// Technically the address of :: is all of the local interfaces or
+		// it is an unassigned address. Thus, is not the loopback address but
+		// would still be related to localhost so we will pass it. (For now)
+		result = true;
+	}
+END:
+	return result;
+}
+
+bool is_localhost_address(const struct sockaddr* const p_address)
+{
+	bool result = false;
+	if(NULL == p_address)
+	{
+		goto END;
+	}
+	switch(p_address->sa_family)
+	{
+		case(AF_INET):
+			result = is_localhost_address_v4((struct sockaddr_in*)p_address);
+			break;
+#ifdef AF_INET6
+		case(AF_INET6):
+			result = is_localhost_address_v6((struct sockaddr_in6*)p_address);
+			break;
+#endif//AF_INET6
+		default:
+			// Unknown/Unsupported socket family.
+			break;
+	}
+END:
+	return result;
+}
+
 bool is_ipv6_a_mapped_ipv4(const uint8_t p_address[INET6_ADDRESS_SIZE])
 {
 	// TODO IN6_IS_ADDR_V4MAPPED from <netinet/in.h> might also work.
@@ -20,7 +153,6 @@ bool is_ipv6_a_mapped_ipv4(const uint8_t p_address[INET6_ADDRESS_SIZE])
 	{
 		if(p_address[iii] != 0u)
 		{
-			printf("is_ipv6_mapped_ipv4() False padding[%lu] not zero: %x.\n", iii, p_address[iii]);//Debugging
 			goto END;
 		}
 	}
@@ -48,6 +180,24 @@ uint32_t ipv4_from_ipv6(const uint8_t p_address[INET6_ADDRESS_SIZE])
 		INET6_ADDRESS_SIZE - INET_ADDRESS_SIZE
 	);
 	result = *((uint32_t*)&p_address[INET_START]);
+END:
+	return result;
+}
+
+bool does_ipv6_map_to_ipv4(const struct sockaddr_in6* const p_v6addr,
+	const struct sockaddr_in* const p_v4addr)
+{
+	bool result = false;
+	if((NULL == p_v6addr) || (NULL == p_v4addr))
+	{
+		goto END;
+	}
+	const uint32_t mapped_address = ipv4_from_ipv6((uint8_t*)&(p_v6addr->sin6_addr));
+	if(UINT32_MAX == mapped_address)
+	{
+		goto END;
+	}
+	result = (mapped_address == (*((uint32_t*)&(p_v4addr->sin_addr))));
 END:
 	return result;
 }
@@ -171,6 +321,7 @@ int sockaddr_in6_cmp(const struct sockaddr_in6* const p_left,
 	);
 	if(0 != result)
 	{
+		// Doesn't handle mapped addresses
 		goto END;
 	}
 	result = memcmp(
