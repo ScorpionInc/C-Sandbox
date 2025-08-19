@@ -24,6 +24,10 @@ else()
 	find_package(Unity REQUIRED)
 endif()
 
+find_library(si_data NAMES si_data PATHS ../si_data/)
+
+include_directories(../si_data/include)
+
 file(GLOB si_core_SRC CONFIGURE_DEPENDS "src/*.c")
 add_library(si_core STATIC ${si_core_SRC})
 target_include_directories(si_core PUBLIC include)
