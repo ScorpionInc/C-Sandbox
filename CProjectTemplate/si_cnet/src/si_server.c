@@ -616,7 +616,7 @@ static void si_server_handle_socket(si_server_t* const p_server, struct pollfd* 
 		}
 		else
 		{
-			p_server->p_handle_read(p_fd);
+			p_server->p_handle_read(p_server, p_fd);
 		}
 	}
 	if((p_fd->revents & POLLHUP) || (p_fd->revents & POLLERR))
@@ -632,7 +632,7 @@ static void si_server_handle_socket(si_server_t* const p_server, struct pollfd* 
 		}
 		else
 		{
-			p_server->p_handle_write(p_fd);
+			p_server->p_handle_write(p_server, p_fd);
 		}
 	}
 CLOSE:

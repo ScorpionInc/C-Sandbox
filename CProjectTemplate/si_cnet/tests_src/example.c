@@ -41,9 +41,10 @@ END:
 /** Doxygen
  * @brief Handles a single client's input event
  *
+ * @param p_unused Pointer to server who owns the socket.
  * @param p_fd Pointer to pollfd struct
  */
-static void handle_input(struct pollfd* const p_fd)
+static void handle_input(struct si_server_t* const p_unused, struct pollfd* const p_fd)
 {
 	if(NULL == p_fd)
 	{

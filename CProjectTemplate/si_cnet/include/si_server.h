@@ -78,8 +78,8 @@ typedef struct si_server_t
 	pthread_mutex_t sockets_lock;
 	si_array_t sockets;
 	si_realloc_settings_t* p_settings;
-	void (*p_handle_read)(struct pollfd* const p_fd);
-	void (*p_handle_write)(struct pollfd* const p_fd);
+	void (*p_handle_read)(struct si_server_t* const, struct pollfd* const);
+	void (*p_handle_write)(struct si_server_t* const, struct pollfd* const);
 	si_logger_t* p_logger;
 } si_server_t;
 
