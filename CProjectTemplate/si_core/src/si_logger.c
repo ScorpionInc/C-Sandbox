@@ -116,8 +116,38 @@ END:
 	return p_new;
 }
 
+void si_logger_custom(si_logger_t* const p_logger,
+	const void* const p_data, const size_t msg_level,
+	void p_print(FILE*, void*))
+{
+	if(NULL == p_logger)
+	{
+		goto END;
+	}
+	if(NULL == p_logger->p_file)
+	{
+		goto END;
+	}
+	if(p_logger->logging_level > msg_level)
+	{
+		goto END;
+	}
+	si_logger_fprint_header(p_logger->p_file, msg_level);
+	if(NULL != p_print)
+	{
+		p_print(p_logger->p_file, p_data);
+	}
+	else
+	{
+		fprintf(p_logger->p_file, "%p", p_data);
+	}
+	fprintf(p_logger, "\n");
+END:
+	return;
+}
+
 static void _si_logger_log(si_logger_t* const p_logger,
-	const char* const p_format, size_t msg_level, va_list args)
+	const char* const p_format, const size_t msg_level, va_list args)
 {
 	if(NULL == p_logger)
 	{
