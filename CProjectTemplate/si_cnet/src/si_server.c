@@ -422,6 +422,8 @@ void si_server_accept(si_server_t* const p_server)
 		if((( true == has) && (true  == p_server->access_list->is_blacklist)) ||
 		   ((false == has) && (false == p_server->access_list->is_blacklist)))
 		{
+			// TODO Log to file
+			printf("Access Denied.\n");
 			errno = EACCES;
 			goto ERROR;
 		}
@@ -440,6 +442,7 @@ void si_server_accept(si_server_t* const p_server)
 ERROR:
 	if(!((errno == EAGAIN) && (!is_blocking)))
 	{
+		// TODO Log error to file?
 		fprintf(stderr, "server_accept() error: %s\n", strerror(errno));
 	}
 	if(NULL != client_addr)
@@ -447,7 +450,7 @@ ERROR:
 		free(client_addr);
 	}
 	client_addr = NULL;
-	if(SOCKET_SUCCESS >= client_fd)
+	if(SOCKET_SUCCESS <= client_fd)
 	{
 		close(client_fd);
 	}
