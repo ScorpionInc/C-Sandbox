@@ -163,12 +163,11 @@ int sockaddr_in6_cmp(const struct sockaddr_in6* const p_left,
  * 
  * @param p_left  Pointer to ipv6 address to compare
  * @param p_right Pointer to ipv6 address to compare
- * @param family Family of the addresses being compared
  * 
  * @return Returns an int value of: -1, 0, or 1 like memcmp().
  */
 int sockaddr_cmp(const struct sockaddr* const p_left,
-	const struct sockaddr* const p_right, const sa_family_t family);
+	const struct sockaddr* const p_right);
 
 /** Doxygen
  * @brief Conducts basic sanity checks on ipv4 address to determine validity.

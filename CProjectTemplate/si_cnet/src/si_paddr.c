@@ -343,29 +343,76 @@ END:
 }
 
 int sockaddr_cmp(const struct sockaddr* const p_left,
-	const struct sockaddr* const p_right, const sa_family_t family)
+	const struct sockaddr* const p_right)
 {
 	int result = 0;
-	switch(family)
+	if((NULL == p_left) || (NULL == p_right))
+	{
+		goto END;
+	}
+	const sa_family_t left_family = p_left->sa_family;
+	const sa_family_t right_family = p_right->sa_family;
+	switch(left_family)
 	{
 		case(AF_INET):
-			result = sockaddr_in_cmp(
-				(struct sockaddr_in*)p_left,
-				(struct sockaddr_in*)p_right
-			);
+			switch(right_family)
+			{
+				case(AF_INET):
+					result = sockaddr_in_cmp(
+						(struct sockaddr_in*)p_left,
+						(struct sockaddr_in*)p_right
+					);
+					break;
+#ifdef AF_INET6
+				case(AF_INET6):
+					result = 1;
+					const bool match = does_ipv6_map_to_ipv4(
+						(const struct sockaddr_in6*)p_right,
+						(const struct sockaddr_in*)p_left
+					);
+					if(true == match)
+					{
+						result = 0;
+					}
+					break;
+#endif//AF_INET6
+				default:
+					// Unsupported/Unknown family type
+					break;
+			}
 			break;
 #ifdef AF_INET6
 		case(AF_INET6):
-			result = sockaddr_in6_cmp(
-				(struct sockaddr_in6*)p_left,
-				(struct sockaddr_in6*)p_right
-			);
+			switch(right_family)
+			{
+				case(AF_INET):
+					result = -1;
+					const bool match = does_ipv6_map_to_ipv4(
+						(const struct sockaddr_in6*)p_left,
+						(const struct sockaddr_in*)p_right
+					);
+					if(true == match)
+					{
+						result = 0;
+					}
+					break;
+				case(AF_INET6):
+					result = sockaddr_in6_cmp(
+						(struct sockaddr_in6*)p_left,
+						(struct sockaddr_in6*)p_right
+					);
+					break;
+				default:
+					// Unsupported/Unknown family type
+					break;
+			}
 			break;
 #endif//AF_INET6
 		default:
 			// Unknown/unsupported struct size.
 			break;
 	}
+END:
 	return result;
 }
 
