@@ -135,11 +135,35 @@ int main(int argc, char** pp_argv)
 	{
 		goto END;
 	}
+	si_accesslist_t* p_access = si_accesslist_new(true, true);
+	if(NULL == p_access)
+	{
+		free(p_server);
+		p_server = NULL;
+		goto END;
+	}
+	struct sockaddr_in* p_loopback = (struct sockaddr_in*)sockaddr_new(AF_INET);
+	if(NULL == p_loopback)
+	{
+		free(p_access);
+		free(p_server);
+		p_access = NULL;
+		p_server = NULL;
+		goto END;
+	}
+	p_loopback->sin_addr.s_addr = htonl(0x7F000001);
+	si_accesslist_append(p_access, (struct sockaddr*)p_loopback);
+	p_server->access_list = p_access;
 	si_server_set_blocking(p_server, false);
 	while(NULL != p_server)
 	{
 		si_server_accept(p_server);
 		handle_server(p_server);
+	}
+	if(NULL != p_access)
+	{
+		free(p_access);
+		p_access = NULL;
 	}
 	si_server_free_at(&p_server);
 END:
