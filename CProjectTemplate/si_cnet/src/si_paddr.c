@@ -16,17 +16,18 @@ bool is_ipv6_a_mapped_ipv4(const uint8_t p_address[INET6_ADDRESS_SIZE])
 	);
 	const size_t INET_START = (PADDING_END + PREFIX_SIZE);
 	// Validate zero padding
-	for(size_t i = 0u; i < PADDING_END; i++)
+	for(size_t iii = 0u; iii < PADDING_END; iii++)
 	{
-		if(p_address[i] != 0u)
+		if(p_address[iii] != 0u)
 		{
+			printf("is_ipv6_mapped_ipv4() False padding[%lu] not zero: %x.\n", iii, p_address[iii]);//Debugging
 			goto END;
 		}
 	}
 	// Validate 0xFF prefix
-	for(size_t i = PADDING_END; i < INET_START; i++)
+	for(size_t iii = PADDING_END; iii < INET_START; iii++)
 	{
-		if(p_address[i] != __UINT8_MAX__)
+		if(p_address[iii] != __UINT8_MAX__)
 		{
 			goto END;
 		}
@@ -122,17 +123,18 @@ int sockaddr_in_cmp(const struct sockaddr_in* const p_left,
 	}
 	// Both pointers are not NULL
 	result = memcmp(
-		&p_left->sin_family,
-		&p_right->sin_family,
+		&(p_left->sin_family),
+		&(p_right->sin_family),
 		sizeof(sa_family_t)
 	);
 	if(0 != result)
 	{
+		// Doesn't handle mapped addresses
 		goto END;
 	}
 	result = memcmp(
-		&p_left->sin_addr,
-		&p_right->sin_addr,
+		&(p_left->sin_addr),
+		&(p_right->sin_addr),
 		sizeof(struct in_addr)
 	);
 	if(0 != result)
@@ -140,8 +142,8 @@ int sockaddr_in_cmp(const struct sockaddr_in* const p_left,
 		goto END;
 	}
 	result = memcmp(
-		&p_left->sin_port,
-		&p_right->sin_port,
+		&(p_left->sin_port),
+		&(p_right->sin_port),
 		sizeof(in_port_t)
 	);
 END:
