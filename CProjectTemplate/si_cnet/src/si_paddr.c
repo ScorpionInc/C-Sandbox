@@ -23,6 +23,7 @@ bool is_within_ipv4_network(
 	const uint8_t p_subnet_mask[INET_ADDRESS_SIZE],
 	const uint8_t p_test_address[INET_ADDRESS_SIZE])
 {
+	// Assumes all are in the same byte order
 	bool result = false;
 	if((NULL == p_network_address) ||
 	   (NULL == p_subnet_mask)     ||
@@ -51,18 +52,20 @@ END:
 
 bool is_localhost_address_v4(const struct sockaddr_in* const p_address)
 {
+	// Assumes address is in network order
 	bool result = false;
 	if(NULL == p_address)
 	{
 		goto END;
 	}
 	// IPv4 Localhost loopback address range: 127.0.0.0/8
-	const uint32_t localhost = 0x7F000001;
-	const uint32_t loopback_mask = IN_CLASSA_NET;
+	const uint32_t localhost = htonl(0x7F000001);
+	const uint32_t loopback_mask = htonl(IN_CLASSA_NET);
+	const uint32_t address = *((uint32_t*)&(p_address->sin_addr));
 	result = is_within_ipv4_network(
 		(const uint8_t*)&localhost,
 		(const uint8_t*)&loopback_mask,
-		(const uint8_t*)&(p_address->sin_addr)
+		(const uint8_t*)&address
 	);
 	if(true == result)
 	{
@@ -85,6 +88,7 @@ END:
 
 bool is_localhost_address_v6(const struct sockaddr_in6* const p_address)
 {
+	// Assumes network is in network order
 	bool result = false;
 	if(NULL == p_address)
 	{
@@ -112,6 +116,7 @@ END:
 
 bool is_localhost_address(const struct sockaddr* const p_address)
 {
+	// Assumes address is in network order
 	bool result = false;
 	if(NULL == p_address)
 	{
@@ -171,6 +176,7 @@ END:
 
 uint32_t ipv4_from_ipv6(const uint8_t p_address[INET6_ADDRESS_SIZE])
 {
+	// Assumes in network order. Returns host order.
 	uint32_t result = UINT32_MAX;
 	if(false == is_ipv6_a_mapped_ipv4(p_address))
 	{
@@ -179,7 +185,7 @@ uint32_t ipv4_from_ipv6(const uint8_t p_address[INET6_ADDRESS_SIZE])
 	const size_t INET_START = (
 		INET6_ADDRESS_SIZE - INET_ADDRESS_SIZE
 	);
-	result = *((uint32_t*)&p_address[INET_START]);
+	result = ntohl(*((uint32_t*)&p_address[INET_START]));
 END:
 	return result;
 }
@@ -187,17 +193,20 @@ END:
 bool does_ipv6_map_to_ipv4(const struct sockaddr_in6* const p_v6addr,
 	const struct sockaddr_in* const p_v4addr)
 {
+	// Assumes both are in network order.
 	bool result = false;
 	if((NULL == p_v6addr) || (NULL == p_v4addr))
 	{
 		goto END;
 	}
-	const uint32_t mapped_address = ipv4_from_ipv6((uint8_t*)&(p_v6addr->sin6_addr));
+	const uint8_t* const p_v6_bytes = (uint8_t*)&(p_v6addr->sin6_addr);
+	const uint32_t mapped_address = ipv4_from_ipv6(p_v6_bytes);
 	if(UINT32_MAX == mapped_address)
 	{
 		goto END;
 	}
-	result = (mapped_address == (*((uint32_t*)&(p_v4addr->sin_addr))));
+	const uint32_t addr = ntohl(*((uint32_t*)&(p_v4addr->sin_addr)));
+	result = (mapped_address == addr);
 END:
 	return result;
 }
@@ -497,6 +506,7 @@ END:
 void sin_addr_fprint(FILE* const p_file,
 	const uint8_t p_address[INET_ADDRESS_SIZE])
 {
+	// Assumes address is in network order
 	if((NULL == p_file) || (NULL == p_address))
 	{
 		goto END;
@@ -517,6 +527,7 @@ END:
 void sin6_addr_fprint(FILE* const p_file,
 	const uint8_t p_address[INET6_ADDRESS_SIZE])
 {
+	// Assumes address is in network order
 	if((NULL == p_file) || (NULL == p_address))
 	{
 		goto END;
@@ -534,8 +545,9 @@ void sin6_addr_fprint(FILE* const p_file,
 	if(is_ipv6_a_mapped_ipv4(p_address))
 	{
 		fprintf(p_file, "(");
-		uint32_t v4_addr = ipv4_from_ipv6(p_address);
-		sin_addr_fprint(p_file, (uint8_t*)&v4_addr);
+		const uint32_t h_v4_addr = ipv4_from_ipv6(p_address);
+		const uint32_t n_v4_addr = htonl(h_v4_addr);
+		sin_addr_fprint(p_file, (const uint8_t*)&n_v4_addr);
 		fprintf(p_file, ")");
 	}
 	fflush(p_file);
@@ -545,6 +557,7 @@ END:
 
 void sockaddr_fprint(FILE* const p_file, const struct sockaddr* const p_addr)
 {
+	// Assumes address is in network order
 	const sa_family_t family = p_addr->sa_family;
 	switch(family)
 	{
