@@ -389,20 +389,20 @@ void si_server_accept(si_server_t* const p_server)
 		goto END;
 	}
 	const struct pollfd* p_server_fd = si_array_at(&(p_server->sockets), 0u);
+	pthread_mutex_unlock(&(p_server->sockets_lock));
 	if(NULL == p_server_fd)
 	{
 		// Invalid array
-		pthread_mutex_unlock(&(p_server->sockets_lock));
 		goto END;
 	}
 	const int server_fd = p_server_fd->fd;
-	pthread_mutex_unlock(&(p_server->sockets_lock));
 	if(SOCKET_SUCCESS > server_fd)
 	{
 		// Invalid server
 		goto END;
 	}
 
+	// Connect a client and validate socket
 	socklen_t addr_size = (socklen_t)sockaddr_sizeof(p_server->family);
 	struct sockaddr* client_addr = sockaddr_new(p_server->family);
 	int client_fd = accept(
@@ -410,51 +410,56 @@ void si_server_accept(si_server_t* const p_server)
 		client_addr,
 		&(addr_size)
 	);
-	bool is_denied = false;
+	if((SOCKET_SUCCESS > client_fd) || (NULL == client_addr))
+	{
+		goto ERROR;
+	}
+
+	// Validate access permission(s)
 	if((NULL != p_server->access_list) && (NULL != client_addr))
 	{
 		const bool has = si_accesslist_has(p_server->access_list, client_addr);
+		//*
+		printf("Address of ");//!Debugging
+		sockaddr_fprint(stdout, client_addr);//!Debugging
+		printf(" was %sfound in the server access %slist.\n",
+			has ? "" : "not ",
+			p_server->access_list->is_blacklist ? "black" : "white");//!Debugging
+		//*/
 		if((( true == has) && (true  == p_server->access_list->is_blacklist)) ||
 		   ((false == has) && (false == p_server->access_list->is_blacklist)))
 		{
-			is_denied = true;
+			printf("Access Denied!\n");//!Debugging
 			errno = EACCES;
+			goto ERROR;
 		}
 	}
 
-	if((SOCKET_SUCCESS > client_fd) || (NULL == client_addr) || (is_denied))
-	{
-		if(!((errno == EAGAIN) && (!is_blocking)))
-		{
-			fprintf(stderr, "server_accept() error: %s\n", strerror(errno));
-		}
-		if(NULL != client_addr)
-		{
-			free(client_addr);
-		}
-		client_addr = NULL;
-		if(SOCKET_SUCCESS >= client_fd)
-		{
-			close(client_fd);
-		}
-		client_fd = SOCKET_ERROR;
-		goto END;
-	}
+	// Connected & permitted
 	if(false == si_server_add_socket(p_server, client_fd))
 	{
-		free(client_addr);
-		if(SOCKET_SUCCESS >= client_fd)
-		{
-			close(client_fd);
-		}
-		client_fd = SOCKET_ERROR;
-		client_addr = NULL;
-		goto END;
+		goto ERROR;
 	}
 	// TODO Log connection to file?
 	fprintf(stdout, "Client connected: ");
-	sockaddr_fprint(stdout, client_addr, addr_size);
+	sockaddr_fprint(stdout, client_addr);
 	fprintf(stdout, "\n");
+	goto END;
+ERROR:
+	if(!((errno == EAGAIN) && (!is_blocking)))
+	{
+		fprintf(stderr, "server_accept() error: %s\n", strerror(errno));
+	}
+	if(NULL != client_addr)
+	{
+		free(client_addr);
+	}
+	client_addr = NULL;
+	if(SOCKET_SUCCESS >= client_fd)
+	{
+		close(client_fd);
+	}
+	client_fd = SOCKET_ERROR;
 END:
 	return;
 }
