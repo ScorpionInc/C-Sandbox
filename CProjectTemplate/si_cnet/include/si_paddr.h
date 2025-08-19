@@ -187,12 +187,10 @@ bool sockaddr_in6_is_valid(struct sockaddr_in6* const p_addr);
  * @brief Conducts sanity tests based upon the socket family of the address.
  * 
  * @param p_addr Pointer to address struct to validate.
- * @param family sa_family_t enum value to ID the socket family.
  * 
  * @return Returns true if valid. Returns false otherwise.
  */
-bool sockaddr_is_valid(struct sockaddr* const p_addr,
-	const sa_family_t family);
+bool sockaddr_is_valid(struct sockaddr* const p_addr);
 
 /** Doxygen
  * @brief Prints the ipv4 4-byte formatted address from p_address.
@@ -217,10 +215,8 @@ void sin6_addr_fprint(FILE* const p_file,
  * 
  * @param p_file FILE pointer to write formated value to.
  * @param p_addr Pointer to sockaddr struct to be printed.
- * @param sock_len Size of the sockaddr struct to be printed.
  */
-void sockaddr_fprint(FILE* const p_file, const struct sockaddr* const p_addr,
-	const socklen_t sock_len);
+void sockaddr_fprint(FILE* const p_file, const struct sockaddr* const p_addr);
 
 #ifdef __cplusplus
 }

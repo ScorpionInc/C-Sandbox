@@ -468,14 +468,14 @@ END:
 	return result;
 }
 
-bool sockaddr_is_valid(struct sockaddr* const p_addr,
-	const sa_family_t family)
+bool sockaddr_is_valid(struct sockaddr* const p_addr)
 {
 	bool result = false;
 	if(NULL == p_addr)
 	{
 		goto END;
 	}
+	const sa_family_t family = p_addr->sa_family;
 	switch(family)
 	{
 		case(AF_INET):
@@ -543,18 +543,18 @@ END:
 	return;
 }
 
-void sockaddr_fprint(FILE* const p_file, const struct sockaddr* const p_addr,
-	const socklen_t sock_len)
+void sockaddr_fprint(FILE* const p_file, const struct sockaddr* const p_addr)
 {
-	switch(sock_len)
+	const sa_family_t family = p_addr->sa_family;
+	switch(family)
 	{
-		case(sizeof(struct sockaddr_in)):
+		case(AF_INET):
 			struct sockaddr_in* p_sai = (struct sockaddr_in*)p_addr;
 			sin_addr_fprint(p_file, (uint8_t*)&p_sai->sin_addr);
 			fprintf(p_file, ":%hu", p_sai->sin_port);
 			break;
 #ifdef AF_INET6
-		case(sizeof(struct sockaddr_in6)):
+		case(AF_INET6):
 			struct sockaddr_in6* p_sai6 = (struct sockaddr_in6*)p_addr;
 			sin6_addr_fprint(p_file, (uint8_t*)&p_sai6->sin6_addr);
 			fprintf(p_file, ":%hu", p_sai6->sin6_port);
