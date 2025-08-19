@@ -362,6 +362,71 @@ END:
 	return result;
 }
 
+bool si_server_is_keepalive(si_server_t* const p_server)
+{
+	bool result = false;
+	if(NULL == p_server)
+	{
+		goto END;
+	}
+	if(SOCKET_SUCCESS != pthread_mutex_lock(&(p_server->sockets_lock)))
+	{
+		goto END;
+	}
+	const int server_fd =
+		((struct pollfd*)si_array_at(&(p_server->sockets), 0u))->fd;
+	if(SOCKET_SUCCESS > server_fd)
+	{
+		pthread_mutex_unlock(&(p_server->sockets_lock));
+		goto END;
+	}
+
+	int value = 0;
+	socklen_t value_size = (socklen_t)sizeof(value);
+	int get_result = getsockopt(
+		server_fd, SOL_SOCKET, SO_KEEPALIVE,
+		&value, &value_size
+	);
+	pthread_mutex_unlock(&(p_server->sockets_lock));
+	if((SOCKET_SUCCESS > get_result) || (value_size != (socklen_t)sizeof(value)))
+	{
+		goto END;
+	}
+	result = (0 < value);
+END:
+	return result;
+}
+
+bool si_server_set_keepalive(si_server_t* const p_server, const bool keepalive)
+{
+	bool result = false;
+	if(NULL == p_server)
+	{
+		goto END;
+	}
+	int i_keepalive = keepalive ? 1 : 0;
+	if(SOCKET_SUCCESS != pthread_mutex_lock(&(p_server->sockets_lock)))
+	{
+		goto END;
+	}
+	const int server_fd =
+		((struct pollfd*)si_array_at(&(p_server->sockets), 0u))->fd;
+	if(SOCKET_SUCCESS > server_fd)
+	{
+		pthread_mutex_unlock(&(p_server->sockets_lock));
+		goto END;
+	}
+	const int set_result = setsockopt(
+		server_fd, SOL_SOCKET, SO_KEEPALIVE,
+		&i_keepalive, (socklen_t)sizeof(i_keepalive)
+	);
+
+	pthread_mutex_unlock(&(p_server->sockets_lock));
+	result = (SOCKET_SUCCESS <= set_result);
+END:
+	return result;
+}
+
 bool si_server_add_socket(si_server_t* const p_server, const int socket_fd)
 {
 	bool result = false;
@@ -521,6 +586,103 @@ ERROR:
 		close(client_fd);
 	}
 	client_fd = SOCKET_ERROR;
+END:
+	return;
+}
+
+/** Doxygen
+ * @brief Calls the server's handle_read/heandle_write functions based upon the
+ *        poll event results for a single socket. Handles disconnects / errors.
+ * 
+ * @param p_server Pointer to the si_server struct to call functions from.
+ * @param p_fd Pointer to pollfd struct with socket descriptor & event flags
+ */
+static void si_server_handle_socket(si_server_t* const p_server, struct pollfd* const p_fd)
+{
+	if(NULL == p_fd)
+	{
+		goto END;
+	}
+	if((p_fd->revents & POLLHUP) || (p_fd->revents & POLLERR))
+	{
+		goto CLOSE;
+	}
+	if(p_fd->revents & POLLIN)
+	{
+		if(NULL == p_server->p_handle_read)
+		{
+			// We don't handle it so turn it off.
+			p_fd->revents &= (~POLLIN);
+		}
+		else
+		{
+			p_server->p_handle_read(p_fd);
+		}
+	}
+	if((p_fd->revents & POLLHUP) || (p_fd->revents & POLLERR))
+	{
+		goto CLOSE;
+	}
+	if(p_fd->revents & POLLOUT)
+	{
+		if(NULL == p_server->p_handle_write)
+		{
+			// We don't handle it so turn it off.
+			p_fd->revents &= (~POLLOUT);
+		}
+		else
+		{
+			p_server->p_handle_write(p_fd);
+		}
+	}
+CLOSE:
+	if((p_fd->revents & POLLHUP) || (p_fd->revents & POLLERR))
+	{
+		p_fd->events = 0;
+		if(SOCKET_SUCCESS <= p_fd->fd)
+		{
+			close(p_fd->fd);
+		}
+		p_fd->fd = SOCKET_ERROR;
+	}
+END:
+	return;
+}
+
+void si_server_handle_events(si_server_t* const p_server)
+{
+	if(NULL == p_server)
+	{
+		goto END;
+	}
+	if(SOCKET_SUCCESS != pthread_mutex_lock(&(p_server->sockets_lock)))
+	{
+		goto END;
+	}
+	const size_t capacity = p_server->sockets.capacity;
+	const int poll_result = poll(p_server->sockets.p_data, capacity, -1);
+	// Poll client events
+	if(SOCKET_SUCCESS > poll_result)
+	{
+		pthread_mutex_unlock(&(p_server->sockets_lock));
+		goto END;
+	}
+	// Handle poll event results
+	for(size_t i = 1u; i < capacity; i++)
+	{
+		struct pollfd* p_fd = NULL;
+		p_fd = si_array_at(&(p_server->sockets), i);
+		if(NULL == p_fd)
+		{
+			continue;
+		}
+		if((SOCKET_SUCCESS > p_fd->fd) || (0 == p_fd->revents))
+		{
+			continue;
+		}
+		si_server_handle_socket(p_server, p_fd);
+	}
+	pthread_mutex_unlock(&(p_server->sockets_lock));
 END:
 	return;
 }

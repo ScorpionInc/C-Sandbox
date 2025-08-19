@@ -13,26 +13,32 @@ extern "C" {
 #endif //__cplusplus
 
 #include <errno.h> // errno, strerror()
-#include <fcntl.h> // fcntl(), O_NONBLOCK
 #include <limits.h> // ULONG_MAX
 #include <stdbool.h> // true false
 #include <stdint.h> // SIZE_MAX
 #include <stdlib.h> // calloc()
 #include <string.h> // memset()
-#include <netdb.h> // addrinfo
-#include <unistd.h> // read() write()
 
 #ifdef __linux__
 
+#ifndef _POSIX_C_SOURCE
+// Defines our minimum target POSIX standard
+#define _POSIX_C_SOURCE 200809L
+#endif//_POSIX_C_SOURCE
+
 #include <arpa/inet.h> // inet_addr() htonl()
 
+#include <fcntl.h> // fcntl(), O_NONBLOCK
+#include <netdb.h> // addrinfo
 #include <poll.h> // poll(), pollfd
 #include <pthread.h> // pthread_mutex_t
 
 #include <sys/resource.h> // getrlimit(), rlimit
-#include <sys/socket.h> // socket(), listen(), SOMAXCONN
+#include <sys/socket.h> // socket(), listen(), SOL_SOCKET, SOMAXCONN, SO_KEEPALIVE
 #include <sys/stat.h> // stat()
 #include <sys/types.h> // ssize_t
+
+#include <unistd.h> // read() write()
 
 #define SOCKET_SUCCESS (0)
 #define SOCKET_ERROR (-1)
@@ -72,6 +78,8 @@ typedef struct si_server_t
 	pthread_mutex_t sockets_lock;
 	si_array_t sockets;
 	si_realloc_settings_t* p_settings;
+	void (*p_handle_read)(struct pollfd* const p_fd);
+	void (*p_handle_write)(struct pollfd* const p_fd);
 	si_logger_t* p_logger;
 } si_server_t;
 
@@ -100,9 +108,14 @@ si_server_t* si_server_new(const unsigned short port);
 bool si_server_is_blocking(si_server_t* const p_server);
 bool si_server_set_blocking(si_server_t* const p_server, const bool blocking);
 
+bool si_server_is_keepalive(si_server_t* const p_server);
+bool si_server_set_keepalive(si_server_t* const p_server, const bool keepalive);
+
 bool si_server_add_socket(si_server_t* const p_server, const int socket_fd);
 
 void si_server_accept(si_server_t* const p_server);
+
+void si_server_handle_events(si_server_t* const p_server);
 
 void si_server_free(si_server_t* p_server);
 void si_server_free_at(si_server_t** pp_server);
