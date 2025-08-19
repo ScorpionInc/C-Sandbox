@@ -36,6 +36,7 @@ END:
  *
  * @return Returns the number of non-NULL elements in the linked list.
  */
+/* Deprecated / Disabled
 static size_t si_double_node_count(const si_double_node_t* const p_node)
 {
 	size_t counter = 0u;
@@ -60,6 +61,7 @@ static size_t si_double_node_count(const si_double_node_t* const p_node)
 END:
 	return counter;
 }
+//*/
 
 /** Doxygen
  * @brief Local function that walks the pointer at si_double_node_t and returns
@@ -69,6 +71,7 @@ END:
  *
  * @return Returns capacity of the list being pointed at.
  */
+/* Deprecated / Disabled
 static size_t si_double_node_capacity(const si_double_node_t* const p_node)
 {
 	size_t counter = 0u;
@@ -90,6 +93,7 @@ static size_t si_double_node_capacity(const si_double_node_t* const p_node)
 END:
 	return counter;
 }
+//*/
 
 /** Doxygen
  * @brief Returns pointer to si_double_node_t index away from current node
