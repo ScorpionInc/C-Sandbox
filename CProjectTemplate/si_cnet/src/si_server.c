@@ -120,7 +120,6 @@ void si_server_init_7(si_server_t* const p_server, const unsigned short port,
 	}
 
 	// Configure and Bind address to socket
-	socklen_t sock_len = (socklen_t)sockaddr_sizeof(p_server->family);
 	struct sockaddr* p_addr = sockaddr_new(p_server->family);
 	if(NULL == p_addr)
 	{
@@ -155,11 +154,8 @@ void si_server_init_7(si_server_t* const p_server, const unsigned short port,
 	}
 
 	// Bind new socket to port
-	const int bind_result = bind(
-		server_fd,
-		p_addr,
-		sock_len
-	);
+	const socklen_t sock_len = (socklen_t)sockaddr_sizeof(p_server->family);
+	const int bind_result = bind(server_fd, p_addr, sock_len);
 	if(SOCKET_SUCCESS != bind_result)
 	{
 		si_logger_error(p_server->p_logger,
@@ -177,6 +173,9 @@ void si_server_init_7(si_server_t* const p_server, const unsigned short port,
 		server_fd = SOCKET_ERROR;
 		goto END;
 	}
+
+	// Enable keep alive by default.
+	si_server_set_keepalive(p_server, true);
 
 	// Add server socket to sockets array
 	if(false == si_server_add_socket(p_server, server_fd))
@@ -503,6 +502,16 @@ END:
 	return result;
 }
 
+static void si_server_drop_socket_at(si_server_t* const p_server, const size_t index)
+{
+	// TODO
+}
+
+void si_server_drop_socket(si_server_t* const p_server, const int socket_fd)
+{
+	// TODO
+}
+
 void si_server_accept(si_server_t* const p_server)
 {
 	if(NULL == p_server)
@@ -588,6 +597,12 @@ ERROR:
 	client_fd = SOCKET_ERROR;
 END:
 	return;
+}
+
+void si_server_broadcast(si_server_t* const p_server,
+	const uint8_t* const p_buffer, const size_t buffer_size)
+{
+	// TODO
 }
 
 /** Doxygen

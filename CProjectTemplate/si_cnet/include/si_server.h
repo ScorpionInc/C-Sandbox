@@ -112,8 +112,12 @@ bool si_server_is_keepalive(si_server_t* const p_server);
 bool si_server_set_keepalive(si_server_t* const p_server, const bool keepalive);
 
 bool si_server_add_socket(si_server_t* const p_server, const int socket_fd);
+void si_server_drop_socket(si_server_t* const p_server, const int socket_fd);
 
 void si_server_accept(si_server_t* const p_server);
+
+void si_server_broadcast(si_server_t* const p_server,
+	const uint8_t* const p_buffer, const size_t buffer_size);
 
 void si_server_handle_events(si_server_t* const p_server);
 
