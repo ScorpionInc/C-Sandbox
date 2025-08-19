@@ -47,7 +47,6 @@ extern "C" {
 
 #include "si_access_list.h"
 #include "si_array.h"
-#include "si_paddr.h"
 #include "si_realloc_settings.h"
 
 /** Doxygen
@@ -71,7 +70,7 @@ typedef struct si_server_t
 	si_accesslist_t* access_list;
 	pthread_mutex_t sockets_lock;
 	si_array_t sockets;
-	si_realloc_settings_t settings;
+	si_realloc_settings_t* p_settings;
 } si_server_t;
 
 void si_server_init_5(si_server_t* const p_server, const unsigned short port,

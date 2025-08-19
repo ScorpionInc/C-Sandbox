@@ -93,7 +93,7 @@ void si_server_init_5(si_server_t* const p_server, const unsigned short port,
 	{
 		si_array_set(&(p_server->sockets), iii, &initialSocket);
 	}
-	si_realloc_settings_new(&(p_server->settings));
+	p_server->p_settings = NULL;
 
 	int server_fd = socket(
 		p_server->family,
@@ -353,25 +353,44 @@ bool si_server_add_socket(si_server_t* const p_server, const int socket_fd)
 		goto END;
 	}
 	// Append
-	if(true == si_realloc_settings_grow(&(p_server->settings), &(p_server->sockets)))
+	if(NULL == p_server->p_settings)
 	{
-		if(current_capacity >= p_server->sockets.capacity)
+		const bool did_grow = si_array_resize(&(p_server->sockets), p_server->sockets.capacity + 1u);
+		if(true != did_grow)
 		{
-			// Grow() completed but capacity is not larger.
+			pthread_mutex_unlock(&(p_server->sockets_lock));
 			goto END;
 		}
-		// Initialize new values to invalid sockets.
-		const size_t grow_amount = (p_server->sockets.capacity - current_capacity);
-		struct pollfd initialValue = (struct pollfd){};
-		initialValue.fd = SOCKET_ERROR;
-		initialValue.events = 0;
-		initialValue.revents = 0;
-		for(size_t iii = 0u; iii < grow_amount; iii++)
-		{
-			si_array_set(&(p_server->sockets), current_capacity + iii, &initialValue);
-		}
-		result = si_server_add_socket(p_server, socket_fd);
 	}
+	else
+	{
+		if(true == si_realloc_settings_grow(p_server->p_settings, &(p_server->sockets)))
+		{
+			if(current_capacity >= p_server->sockets.capacity)
+			{
+				// Grow() completed but capacity is not larger.
+				pthread_mutex_unlock(&(p_server->sockets_lock));
+				goto END;
+			}
+		}
+		else
+		{
+			// Failed to grow by settings.
+			pthread_mutex_unlock(&(p_server->sockets_lock));
+			goto END;
+		}
+	}
+	// Initialize new values to invalid sockets.
+	const size_t grow_amount = (p_server->sockets.capacity - current_capacity);
+	struct pollfd initialValue = (struct pollfd){};
+	initialValue.fd = SOCKET_ERROR;
+	initialValue.events = 0;
+	initialValue.revents = 0;
+	for(size_t iii = 0u; iii < grow_amount; iii++)
+	{
+		si_array_set(&(p_server->sockets), current_capacity + iii, &initialValue);
+	}
+	result = si_server_add_socket(p_server, socket_fd);
 	pthread_mutex_unlock(&(p_server->sockets_lock));
 END:
 	return result;
@@ -423,7 +442,8 @@ void si_server_accept(si_server_t* const p_server)
 		   ((false == has) && (false == p_server->access_list->is_blacklist)))
 		{
 			// TODO Log to file
-			printf("Access Denied.\n");
+			sockaddr_fprint(stdout, client_addr);
+			printf(" - Access Denied.\n");
 			errno = EACCES;
 			goto ERROR;
 		}
