@@ -31,7 +31,7 @@ extern "C" {
 #include <fcntl.h> // fcntl(), O_NONBLOCK
 #include <netdb.h> // addrinfo
 #include <poll.h> // poll(), pollfd
-#include <pthread.h> // pthread_mutex_t
+#include <pthread.h> // pthread_mutex_t, PTHREAD_MUTEX_RECURSIVE
 
 #include <sys/resource.h> // getrlimit(), rlimit
 #include <sys/socket.h> // socket(), listen(), SOL_SOCKET, SOMAXCONN, SO_KEEPALIVE
