@@ -93,11 +93,16 @@ char* str_clone_join(const size_t argc,	const char* const p_seperator,
 		}
 		if(op == 0u)
 		{
-			p_result = calloc(new_size, sizeof(char));
+			p_result = calloc(++new_size, sizeof(char));
 			if(NULL == p_result)
 			{
-				goto END;
+				break;
 			}
+		}
+		else
+		{
+			p_result[new_size - 1u] = '\0';
+			break;
 		}
 	}
 END:
@@ -118,11 +123,17 @@ char* strv_clone_join(const size_t argc, const char* const p_seperator, ...)
 	}
 	va_list args = {0};
 	va_start(args, p_seperator);
+	size_t valid_counter = 0u;
 	for(size_t iii = 0u; iii < argc; iii++)
 	{
-		pp_argv[iii] = va_arg(args, char*);
+		char* p_arg = va_arg(args, char*);
+		if(p_arg == NULL)
+		{
+			continue;
+		}
+		pp_argv[valid_counter++] = p_arg;
 	}
-	p_result = str_clone_join(argc, p_seperator, pp_argv);
+	p_result = str_clone_join(valid_counter, p_seperator, pp_argv);
 	free(pp_argv);
 	pp_argv = NULL;
 	va_end(args);
