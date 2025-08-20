@@ -7,36 +7,12 @@
 #error Unsupported Operating System.
 #endif//__linux__
 
+#include "si_strings.h"
 #include "si_server.h"
+#include "si_paddr.h"
 
 #define PORT (1234u)
 #define BUF_SIZE (1024u)
-
-/** Doxygen
- * @brief Modifies C-String at p_input_str to UPPER CASE.
- *
- * @param p_input_str Pointer to first char of C-String to be UPPER CASED.
- */
-static void to_uppercase (char* const p_input_str)
-{
-	if(NULL == p_input_str)
-	{
-		goto END;
-	}
-	size_t offset = 0u;
-	while(SIZE_MAX > offset)
-	{
-		char next_char = p_input_str[offset];
-		if('\0' == next_char)
-		{
-			break;
-		}
-		p_input_str[offset] = toupper(next_char);
-		offset++;
-	}
-END:
-	return;
-}
 
 /** Doxygen
  * @brief Handles a single client's input event
@@ -59,13 +35,31 @@ static void handle_input(struct si_server_t* const p_unused, struct pollfd* cons
 		goto END;
 	}
 	buffer[r_result] = '\0';
-	to_uppercase(buffer);
-	ssize_t w_result = write(p_fd->fd, buffer, BUF_SIZE - 1u);
-	if(0 >= w_result)
+	str_to_uppercase(buffer);
+
+	char* p_message = NULL;
+	char* p_tmp = NULL;
+	size_t message_size = 0u;
+	
+	struct sockaddr_storage peer_address = {0};
+	socklen_t peer_address_len = sizeof(peer_address);
+	const int gpn_result = getpeername(
+		p_fd->fd, (struct sockaddr*)&peer_address, &peer_address_len
+	);
+	if(SOCKET_SUCCESS != gpn_result)
 	{
-		p_fd->revents |= POLLHUP;
 		goto END;
 	}
+	p_tmp = sockaddr_as_str((struct sockaddr*)&peer_address);
+	p_message = str_clone_concat("[", p_tmp);
+	free(p_tmp);
+	p_tmp = str_clone_concat(p_message, "]: ");
+	free(p_message);
+	p_message = str_clone_concat(p_tmp, buffer);
+	free(p_tmp);
+	message_size = strnlen(p_message, INT64_MAX);
+	si_server_broadcast(p_unused, (uint8_t*)p_message, message_size, p_fd->fd);
+	free(p_message);
 END:
 	return;
 }
