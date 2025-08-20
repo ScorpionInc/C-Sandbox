@@ -156,6 +156,8 @@ void si_server_init_7(si_server_t* const p_server, const unsigned short port,
 	// Bind new socket to port
 	const socklen_t sock_len = (socklen_t)sockaddr_sizeof(p_server->family);
 	const int bind_result = bind(server_fd, p_addr, sock_len);
+	free(p_addr);
+	p_addr = NULL;
 	if(SOCKET_SUCCESS != bind_result)
 	{
 		si_logger_error(p_server->p_logger,
@@ -558,6 +560,10 @@ void si_server_drop_socket(si_server_t* const p_server, const int socket_fd)
 		}
 		if(next_fd == socket_fd)
 		{
+			if(NULL != p_server->p_on_leave)
+			{
+				p_server->p_on_leave(p_server, next_fd);
+			}
 			si_server_drop_socket_at(p_server, iii);
 		}
 	}
@@ -594,10 +600,14 @@ void si_server_accept(si_server_t* const p_server)
 	// Connect a client and validate socket
 	socklen_t addr_size = (socklen_t)sockaddr_sizeof(p_server->family);
 	struct sockaddr* client_addr = sockaddr_new(p_server->family);
+	if(NULL == client_addr)
+	{
+		goto ERROR;
+	}
 	int client_fd = accept(
 		server_fd,
 		client_addr,
-		&(addr_size)
+		&addr_size
 	);
 	if((SOCKET_SUCCESS > client_fd) || (NULL == client_addr))
 	{
@@ -631,6 +641,14 @@ void si_server_accept(si_server_t* const p_server)
 		"Client connected: ", client_addr, NULL,
 		(void(*)(FILE* const,  const void* const))sockaddr_fprint
 	);
+	if(NULL != p_server->p_on_connect)
+	{
+		const bool event_result = p_server->p_on_connect(p_server, client_fd);
+		if(true != event_result)
+		{
+			si_server_drop_socket(p_server, client_fd);
+		}
+	}
 	goto END;
 ERROR:
 	if(!((errno == EAGAIN) && (!is_blocking)))
@@ -678,10 +696,11 @@ void si_server_broadcast(si_server_t* const p_server,
 			continue;
 		}
 		ssize_t send_result = send(next_fd, p_buffer, buffer_size, 0);
-		if(SOCKET_ERROR == send_result)
+		if(SOCKET_ERROR >= send_result)
 		{
 			close(next_fd);
 			p_next_poll->fd = SOCKET_ERROR;
+			si_server_drop_socket(p_server, next_fd);
 			continue;
 		}
 	}
@@ -709,41 +728,42 @@ static void si_server_handle_socket(si_server_t* const p_server, struct pollfd* 
 	}
 	if(p_fd->revents & POLLIN)
 	{
-		if(NULL == p_server->p_handle_read)
+		if(NULL == p_server->p_on_read)
 		{
 			// We don't handle it so turn it off.
 			p_fd->revents &= (~POLLIN);
 		}
 		else
 		{
-			p_server->p_handle_read(p_server, p_fd);
+			const bool event_result = p_server->p_on_read(p_server, p_fd->fd);
+			if(true != event_result)
+			{
+				p_fd->revents |= POLLHUP;
+				goto CLOSE;
+			}
 		}
-	}
-	if((p_fd->revents & POLLHUP) || (p_fd->revents & POLLERR))
-	{
-		goto CLOSE;
 	}
 	if(p_fd->revents & POLLOUT)
 	{
-		if(NULL == p_server->p_handle_write)
+		if(NULL == p_server->p_on_write)
 		{
 			// We don't handle it so turn it off.
 			p_fd->revents &= (~POLLOUT);
 		}
 		else
 		{
-			p_server->p_handle_write(p_server, p_fd);
+			const bool event_result = p_server->p_on_write(p_server, p_fd->fd);
+			if(true != event_result)
+			{
+				p_fd->revents |= POLLHUP;
+				goto CLOSE;
+			}
 		}
 	}
 CLOSE:
 	if((p_fd->revents & POLLHUP) || (p_fd->revents & POLLERR))
 	{
-		p_fd->events = 0;
-		if(SOCKET_SUCCESS <= p_fd->fd)
-		{
-			close(p_fd->fd);
-		}
-		p_fd->fd = SOCKET_ERROR;
+		si_server_drop_socket(p_server, p_fd->fd);
 	}
 END:
 	return;
@@ -759,8 +779,10 @@ void si_server_handle_events(si_server_t* const p_server)
 	{
 		goto END;
 	}
+	const bool is_blocking = si_server_is_blocking(p_server);
+	const int timeout_mills = is_blocking ? -1 : DEFAULT_POLL_TIMEOUT;
 	const size_t capacity = p_server->sockets.capacity;
-	const int poll_result = poll(p_server->sockets.p_data, capacity, -1);
+	const int poll_result = poll(p_server->sockets.p_data, capacity, timeout_mills);
 	// Poll client events
 	if(SOCKET_SUCCESS > poll_result)
 	{

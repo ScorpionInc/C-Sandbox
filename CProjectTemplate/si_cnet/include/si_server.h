@@ -43,6 +43,7 @@ extern "C" {
 #define SOCKET_SUCCESS (0)
 #define SOCKET_ERROR (-1)
 
+#define DEFAULT_POLL_TIMEOUT (100)
 // Default is: TCP/IPv4
 #define DEFAULT_FAMILY AF_INET
 #define DEFAULT_TYPE SOCK_STREAM
@@ -71,6 +72,9 @@ bool is_ipv6_supported(void);
  */
 size_t get_client_queue_limit(void);
 
+struct si_server_t;
+typedef bool (*event_handler_t)(struct si_server_t* const, const int);
+
 typedef struct si_server_t
 {
 	int family;
@@ -78,8 +82,10 @@ typedef struct si_server_t
 	pthread_mutex_t sockets_lock;
 	si_array_t sockets;
 	si_realloc_settings_t* p_settings;
-	void (*p_handle_read)(struct si_server_t* const, struct pollfd* const);
-	void (*p_handle_write)(struct si_server_t* const, struct pollfd* const);
+	event_handler_t p_on_connect;
+	event_handler_t p_on_read;
+	event_handler_t p_on_write;
+	event_handler_t p_on_leave;
 	si_logger_t* p_logger;
 } si_server_t;
 
