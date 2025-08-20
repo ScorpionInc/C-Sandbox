@@ -35,7 +35,6 @@ static void handle_input(struct si_server_t* const p_unused, struct pollfd* cons
 		goto END;
 	}
 	buffer[r_result] = '\0';
-	str_to_uppercase(buffer);
 
 	char* p_message = NULL;
 	size_t message_size = 0u;
