@@ -117,7 +117,8 @@ void si_server_drop_socket(si_server_t* const p_server, const int socket_fd);
 void si_server_accept(si_server_t* const p_server);
 
 void si_server_broadcast(si_server_t* const p_server,
-	const uint8_t* const p_buffer, const size_t buffer_size);
+	const uint8_t* const p_buffer, const size_t buffer_size,
+	const int sender_fd);
 
 void si_server_handle_events(si_server_t* const p_server);
 
