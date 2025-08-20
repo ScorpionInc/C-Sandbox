@@ -36,3 +36,41 @@ void fprint_signal_debug(FILE* const p_file)
 END:
 	return;
 }
+
+bool set_exit_signal_handler(__sighandler_t p_handler)
+{
+	bool result = false;
+	if(NULL == p_handler)
+	{
+		goto END;
+	}
+	const int exit_signals[] = {
+		SIGTERM,
+		//SIGKILL,// Cannot be caught
+		SIGINT,
+		SIGQUIT,
+		SIGABRT,
+		SIGHUP
+	};
+	const size_t exit_count = sizeof(exit_signals) / sizeof(int);
+
+	struct sigaction sa = {0};
+    sa.sa_handler = p_handler;
+    sigemptyset(&sa.sa_mask);
+	sa.sa_flags = 0;
+
+	result = true;
+	for(size_t iii = 0u; iii < exit_count; iii++)
+	{
+		const int next_sig = exit_signals[iii];
+		const int register_result = sigaction(next_sig, &sa, NULL);
+		if(0 != register_result)
+		{
+			fprintf(stderr, "Failed to set_exit_signal_handler() on: %s.\n", strsignal(next_sig));
+			result = false;
+			break;
+		}
+	}
+END:
+	return result;
+}
