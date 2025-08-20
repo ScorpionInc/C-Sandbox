@@ -38,8 +38,8 @@ inline char* str_clone_concat(const char* const p_left,
 	);
 }
 
-char* str_clone_join(const size_t argc, const char** const pp_argv,
-	const char* const p_seperator)
+char* str_clone_join(const size_t argc,	const char* const p_seperator,
+	const char** const pp_argv)
 {
 	char* p_result = NULL;
 	if((0u >= argc) || (NULL == pp_argv))
@@ -100,6 +100,32 @@ char* str_clone_join(const size_t argc, const char** const pp_argv,
 			}
 		}
 	}
+END:
+	return p_result;
+}
+
+char* strv_clone_join(const size_t argc, const char* const p_seperator, ...)
+{
+	char* p_result = NULL;
+	if(0u >= argc)
+	{
+		goto END;
+	}
+	const char** pp_argv = calloc(argc, sizeof(char*));
+	if(NULL == pp_argv)
+	{
+		goto END;
+	}
+	va_list args = {0};
+	va_start(args, p_seperator);
+	for(size_t iii = 0u; iii < argc; iii++)
+	{
+		pp_argv[iii] = va_arg(args, char*);
+	}
+	p_result = str_clone_join(argc, p_seperator, pp_argv);
+	free(pp_argv);
+	pp_argv = NULL;
+	va_end(args);
 END:
 	return p_result;
 }

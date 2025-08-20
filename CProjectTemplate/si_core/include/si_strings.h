@@ -7,6 +7,7 @@
 //*/
 
 #include <ctype.h> // toupper()
+#include <stdarg.h> // ...
 #include <stddef.h> // size_t
 #include <stdint.h> // SIZE_MAX
 #include <stdlib.h> // calloc()
@@ -38,14 +39,25 @@ char* str_clone_concat(const char* const p_left,
  * @brief Creates a new heap C string from joining/concatenating the strings in
  *        a string array seperated with an optional C string seperator.
  * 
- * @param p_seperator Optional C string pointer for seperating array's strings.
  * @param argc Size_t count of strings in the C String array.
+ * @param p_seperator Optional C string pointer for seperating array's strings.
  * @param pp_argv Pointer to the C string array to read from.
  * 
  * @return Returns heap string pointer on success. Returns NULL otherwise.
  */
-char* str_clone_join(const size_t argc, const char** const pp_argv,
-	const char* const p_seperator);
+char* str_clone_join(const size_t argc,	const char* const p_seperator,
+	const char** const pp_argv);
+
+/** Doxygen
+ * @brief Creates new heap C string from joining arbitary string arguments.
+ * 
+ * @param argc Size_t count of strings in the C String array.
+ * @param p_seperator Optional C string that's used to seperate arguments.
+ * @param ... Arbitary number of strings to be concated together.
+ * 
+ * @return Returns heap pointer on success. Returns NULL otherwise.
+ */
+char* strv_clone_join(const size_t argc, const char* const p_seperator, ...);
 
 /** Doxygen
  * @brief Modifies inplace a C-String at p_input_str of size to use UPPER CASE

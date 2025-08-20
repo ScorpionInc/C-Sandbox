@@ -38,7 +38,6 @@ static void handle_input(struct si_server_t* const p_unused, struct pollfd* cons
 	str_to_uppercase(buffer);
 
 	char* p_message = NULL;
-	char* p_tmp = NULL;
 	size_t message_size = 0u;
 	
 	struct sockaddr_storage peer_address = {0};
@@ -50,14 +49,12 @@ static void handle_input(struct si_server_t* const p_unused, struct pollfd* cons
 	{
 		goto END;
 	}
-	p_tmp = sockaddr_as_str((struct sockaddr*)&peer_address);
-	p_message = str_clone_concat("[", p_tmp);
-	free(p_tmp);
-	p_tmp = str_clone_concat(p_message, "]: ");
-	free(p_message);
-	p_message = str_clone_concat(p_tmp, buffer);
-	free(p_tmp);
+
+	char* p_tmp = sockaddr_as_str((struct sockaddr*)&peer_address);
+	p_message = strv_clone_join(4u, NULL, "[", p_tmp, "]: ", buffer);
 	message_size = strnlen(p_message, INT64_MAX);
+	free(p_tmp);
+
 	si_server_broadcast(p_unused, (uint8_t*)p_message, message_size, p_fd->fd);
 	free(p_message);
 END:
