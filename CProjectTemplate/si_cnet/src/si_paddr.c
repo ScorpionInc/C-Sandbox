@@ -605,13 +605,15 @@ char* sockaddr_as_str(const struct sockaddr* const p_addr)
 		}
 		sockaddr_fprint(p_stream, p_addr);
 		fclose(p_stream);
-		const size_t str_len = strnlen(p_buffer, MAX_STR_LEN);
-		p_result = calloc(str_len, sizeof(char));
+		p_buffer[MAX_STR_LEN - 1u] = '\0';
+		const size_t str_len = strnlen(p_buffer, MAX_STR_LEN - 1u);
+		p_result = calloc(str_len + 1u, sizeof(char));
 		if(NULL == p_result)
 		{
 			goto END;
 		}
 		memcpy(p_result, p_buffer, str_len);
+		p_result[str_len] = '\0';
 	}
 END:
 	return p_result;
