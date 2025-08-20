@@ -504,12 +504,66 @@ END:
 
 static void si_server_drop_socket_at(si_server_t* const p_server, const size_t index)
 {
-	// TODO
+	if(NULL == p_server)
+	{
+		goto END;
+	}
+	if(SOCKET_SUCCESS != pthread_mutex_lock(&(p_server->sockets_lock)))
+	{
+		goto END;
+	}
+	if(index >= p_server->sockets.capacity)
+	{
+		goto END;
+	}
+	struct pollfd* p_poll = si_array_at(&(p_server->sockets), index);
+	if(NULL == p_poll)
+	{
+		goto END;
+	}
+	p_poll->events = 0;
+	if(SOCKET_SUCCESS <= p_poll->fd)
+	{
+		close(p_poll->fd);
+	}
+	p_poll->fd = SOCKET_ERROR;
+	p_poll->revents = 0;
+	pthread_mutex_unlock(&(p_server->sockets_lock));
+END:
+	return;
 }
 
 void si_server_drop_socket(si_server_t* const p_server, const int socket_fd)
 {
-	// TODO
+	if((NULL == p_server) || (SOCKET_ERROR >= socket_fd))
+	{
+		goto END;
+	}
+	if(SOCKET_SUCCESS != pthread_mutex_lock(&(p_server->sockets_lock)))
+	{
+		goto END;
+	}
+	for(size_t iii = 0u; iii < p_server->sockets.capacity; iii++)
+	{
+		struct pollfd* p_poll = si_array_at(&(p_server->sockets), iii);
+		if(NULL == p_poll)
+		{
+			// Array is invalid or index is out of bounds
+			break;
+		}
+		int next_fd = p_poll->fd;
+		if(SOCKET_ERROR >= next_fd)
+		{
+			continue;
+		}
+		if(next_fd == socket_fd)
+		{
+			si_server_drop_socket_at(p_server, iii);
+		}
+	}
+	pthread_mutex_unlock(&(p_server->sockets_lock));
+END:
+	return;
 }
 
 void si_server_accept(si_server_t* const p_server)
@@ -600,9 +654,40 @@ END:
 }
 
 void si_server_broadcast(si_server_t* const p_server,
-	const uint8_t* const p_buffer, const size_t buffer_size)
+	const uint8_t* const p_buffer, const size_t buffer_size,
+	const int sender_fd)
 {
-	// TODO
+	if((NULL == p_server) || (NULL == p_buffer) || (0u >= buffer_size))
+	{
+		goto END;
+	}
+	if(SOCKET_SUCCESS != pthread_mutex_lock(&(p_server->sockets_lock)))
+	{
+		goto END;
+	}
+	for(size_t iii = 1u; iii < p_server->sockets.capacity; iii++)
+	{
+		struct pollfd* p_next_poll = si_array_at(&(p_server->sockets), iii);
+		if(NULL == p_next_poll)
+		{
+			continue;
+		}
+		const int next_fd = p_next_poll->fd;
+		if((SOCKET_SUCCESS > next_fd) || (sender_fd == next_fd))
+		{
+			continue;
+		}
+		ssize_t send_result = send(next_fd, p_buffer, buffer_size, 0);
+		if(SOCKET_ERROR == send_result)
+		{
+			close(next_fd);
+			p_next_poll->fd = SOCKET_ERROR;
+			continue;
+		}
+	}
+	pthread_mutex_unlock(&(p_server->sockets_lock));
+END:
+	return;
 }
 
 /** Doxygen
