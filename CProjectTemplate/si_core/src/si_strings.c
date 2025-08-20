@@ -29,12 +29,12 @@ END:
 inline char* str_clone_concat(const char* const p_left,
 	const char* const p_right)
 {
-	// Defaults to strnlen(p_str, SIZE_MAX) for string size.
+	// Defaults to strnlen(p_str, INT64_MAX) for string size.
 	// *WARNING* This function still requres both C Strings to be properly
 	//           NULL-Terminated.
-	return strn_clone_conatenated(
-		p_left, strnlen(p_left, SIZE_MAX),
-		p_right, strnlen(p_right, SIZE_MAX)
+	return strn_clone_concat(
+		p_left, strnlen(p_left, INT64_MAX),
+		p_right, strnlen(p_right, INT64_MAX)
 	);
 }
 
@@ -51,7 +51,7 @@ char* str_clone_join(const size_t argc, const char** const pp_argv,
 	size_t counter = 0u;
 	if(NULL != p_seperator)
 	{
-		sep_len = strnlen(p_seperator, SIZE_MAX);
+		sep_len = strnlen(p_seperator, INT64_MAX);
 	}
 	for(size_t op = 0u; op < 2u; op++)
 	{
@@ -62,7 +62,7 @@ char* str_clone_join(const size_t argc, const char** const pp_argv,
 			{
 				continue;
 			}
-			size_t next_len = strnlen(p_next, SIZE_MAX);
+			size_t next_len = strnlen(p_next, INT64_MAX);
 			if((0u == op) && (iii < argc - 1u))
 			{
 				// Handle overflow
@@ -120,10 +120,10 @@ END:
 }
 inline void str_to_uppercase(char* const p_input_str)
 {
-	// Defaults to strnlen(p_str, SIZE_MAX) for string size.
+	// Defaults to strnlen(p_str, INT64_MAX) for string size.
 	// *WARNING* This function still requres the C String to be properly
 	//           NULL-Terminated.
-	return strn_to_uppercase(p_input_str, strnlen(p_input_str, SIZE_MAX));
+	return strn_to_uppercase(p_input_str, strnlen(p_input_str, INT64_MAX));
 }
 
 void strn_to_lowercase(char* const p_input_str, const size_t input_size)
@@ -142,8 +142,8 @@ END:
 }
 void str_to_lowercase(char* const p_input_str)
 {
-	// Defaults to strnlen(p_str, SIZE_MAX) for string size.
+	// Defaults to strnlen(p_str, INT64_MAX) for string size.
 	// *WARNING* This function still requres the C String to be properly
 	//           NULL-Terminated.
-	return strn_to_lowercase(p_input_str, strnlen(p_input_str, SIZE_MAX));
+	return strn_to_lowercase(p_input_str, strnlen(p_input_str, INT64_MAX));
 }
