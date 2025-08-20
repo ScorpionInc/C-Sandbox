@@ -218,6 +218,15 @@ void sin6_addr_fprint(FILE* const p_file,
  */
 void sockaddr_fprint(FILE* const p_file, const struct sockaddr* const p_addr);
 
+/** Doxygen
+ * @brief Creates a heap string from a socket addresses information.
+ * 
+ * @param p_addr Pointer to sockaddr struct to be read form.
+ * 
+ * @return Returns new heap pointer on success. Returns NULL otherwise.
+ */
+char* sockaddr_as_str(const struct sockaddr* const p_addr);
+
 #ifdef __cplusplus
 }
 #endif //__cplusplus

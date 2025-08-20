@@ -578,3 +578,41 @@ void sockaddr_fprint(FILE* const p_file, const struct sockaddr* const p_addr)
 			break;
 	}
 }
+
+char* sockaddr_as_str(const struct sockaddr* const p_addr)
+{
+	char* p_result = NULL;
+	if(NULL == p_addr)
+	{
+		goto END;
+	}
+	// Defined value of INET6_ADDRSTRLEN is incorrect
+	const size_t INET6_ADDRSTR_LEN = (3u * INET6_ADDRESS_SIZE) - 1u;
+	// Defined value of INET_ADDRSTRLEN is correct but lacks formatting.
+	const size_t INET_ADDRSTR_LEN = (INET_ADDRSTRLEN - 1u) + 2u;
+	const size_t PORT_STRLEN = (5u + 1u);// ":65535"
+	const size_t MAX_STR_LEN = (
+		INET6_ADDRSTR_LEN + INET_ADDRSTR_LEN + PORT_STRLEN + 1u
+	);
+	{
+		char p_buffer[MAX_STR_LEN];
+		memset(p_buffer, 0x00, MAX_STR_LEN);
+		FILE* p_stream = fmemopen(p_buffer, MAX_STR_LEN, "r+");
+		if(NULL == p_stream)
+		{
+			// Failed to open buffer as file.
+			goto END;
+		}
+		sockaddr_fprint(p_stream, p_addr);
+		fclose(p_stream);
+		const size_t str_len = strnlen(p_buffer, MAX_STR_LEN);
+		p_result = calloc(str_len, sizeof(char));
+		if(NULL == p_result)
+		{
+			goto END;
+		}
+		memcpy(p_result, p_buffer, str_len);
+	}
+END:
+	return p_result;
+}
