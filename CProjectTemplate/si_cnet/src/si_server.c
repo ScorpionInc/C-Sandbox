@@ -752,31 +752,27 @@ void si_server_accept(si_server_t* const p_server)
 
 	// Connect a client and validate socket
 	socklen_t addr_size = (socklen_t)sockaddr_sizeof(p_server->family);
-	struct sockaddr* client_addr = sockaddr_new(p_server->family);
-	if(NULL == client_addr)
-	{
-		goto ERROR;
-	}
+	struct sockaddr_storage client_addr = {0};
 	int client_fd = accept(
 		server_fd,
-		client_addr,
+		&client_addr,
 		&addr_size
 	);
-	if((SOCKET_SUCCESS > client_fd) || (NULL == client_addr))
+	if(SOCKET_SUCCESS > client_fd)
 	{
 		goto ERROR;
 	}
 
 	// Validate access permission(s)
-	if((NULL != p_server->access_list) && (NULL != client_addr))
+	if(NULL != p_server->access_list)
 	{
-		const bool has = si_accesslist_has(p_server->access_list, client_addr);
+		const bool has = si_accesslist_has(p_server->access_list, &client_addr);
 		if((( true == has) && (true  == p_server->access_list->is_blacklist)) ||
 		   ((false == has) && (false == p_server->access_list->is_blacklist)))
 		{
 			si_logger_custom(
 				p_server->p_logger, SI_LOGGER_INFO,
-				NULL, client_addr, " - Access Denied.",
+				NULL, &client_addr, " - Access Denied.",
 				(void(*)(FILE* const,  const void* const))sockaddr_fprint
 			);
 			errno = EACCES;
@@ -791,7 +787,7 @@ void si_server_accept(si_server_t* const p_server)
 	}
 	si_logger_custom(
 		p_server->p_logger, SI_LOGGER_INFO,
-		"Client connected: ", client_addr, NULL,
+		"Client connected: ", &client_addr, NULL,
 		(void(*)(FILE* const,  const void* const))sockaddr_fprint
 	);
 	if(NULL != p_server->p_on_connect)
@@ -810,11 +806,6 @@ ERROR:
 			"server_accept() error: %s", strerror(errno)
 		);
 	}
-	if(NULL != client_addr)
-	{
-		free(client_addr);
-	}
-	client_addr = NULL;
 	if(SOCKET_SUCCESS <= client_fd)
 	{
 		close(client_fd);
