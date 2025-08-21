@@ -38,6 +38,202 @@ END:
 	return result;
 }
 
+/** Doxygen
+ * @brief Local function initializes a pthread mutex, and assigns it's
+ *        default attributes.
+ * 
+ * @return Returns stdbool true on success. Returns false otherwise.
+ */
+static bool si_server_init_rmutex(pthread_mutex_t* const p_mutex)
+{
+	bool result = false;
+	if(NULL == p_mutex)
+	{
+		goto END;
+	}
+	pthread_mutexattr_t mutex_attributes = {0};
+	if(SOCKET_SUCCESS != pthread_mutexattr_init(&mutex_attributes))
+	{
+		goto END;
+	}
+	if(SOCKET_SUCCESS != pthread_mutexattr_settype(
+		&mutex_attributes, PTHREAD_MUTEX_RECURSIVE))
+	{
+		goto END;
+	}
+	if(SOCKET_SUCCESS != pthread_mutex_init(
+		p_mutex, &mutex_attributes))
+	{
+        goto END;
+    }
+	if(SOCKET_SUCCESS != pthread_mutexattr_destroy(&mutex_attributes))
+	{
+		goto END;
+	}
+	result = true;
+END:
+	return result;
+}
+
+/** Doxygen
+ * @brief Local function binds an existing server socket to all local interfaces
+ * 
+ * @param server_fd Server socket int file descriptor
+ * @param family Socket family enum/id to be initialized as
+ * @param port Local port number to bind server socket to
+ * @param p_logger Optional pointer to si_logger_t for error messages
+ * 
+ * @return Returns stdbool true on sucess. Returns false otherwise.
+*/
+static bool si_server_socket_bind(const int server_fd,
+	const sa_family_t family, const uint16_t port,
+	const si_logger_t* const p_logger)
+{
+	bool result = false;
+	if((SOCKET_ERROR >= server_fd) || (0u == port))
+	{
+		goto END;
+	}
+	if((0u == family) || (AF_MAX <= family))
+	{
+		goto END;
+	}
+
+	// Create a local address used in the bind function call.
+	struct sockaddr* p_addr = sockaddr_new(family);
+	if(NULL == p_addr)
+	{
+		si_logger_error(p_logger,
+			"Failed to allocate socket address of family type: %hu.", family
+		);
+		goto END;
+	}
+	switch(family)
+	{
+	case(AF_INET):
+		((struct sockaddr_in*)p_addr)->sin_addr.s_addr = htonl(INADDR_ANY);
+		((struct sockaddr_in*)p_addr)->sin_port = htons(port);
+		break;
+#ifdef AF_INET6
+	case(AF_INET6):
+
+		// Disable IPV6_only to also allow for IPv4 on the socket.
+		int disable_only = 0;
+		if(SOCKET_ERROR >= setsockopt(server_fd, IPPROTO_IPV6, IPV6_V6ONLY,
+			&disable_only, sizeof(int)))
+		{
+			// Failed to enable. NOP
+			si_logger_warning(p_logger,
+				"Failed to enable IPv4 over a IPv6 server socket with id: %d.", server_fd
+			);
+		}
+
+		((struct sockaddr_in6*)p_addr)->sin6_addr = in6addr_any;
+		((struct sockaddr_in6*)p_addr)->sin6_port = htons(port);
+		break;
+#endif//AF_INET6
+	default:
+		// Unsupported/Unknown socket family ID/enum
+		si_logger_error(p_logger,
+			"Use of an unknown or unsupported family type of: %hu.", family
+		);
+		goto END;
+		break;
+	}
+
+	// Bind server socket to local address at target port number
+	const socklen_t sock_len = (socklen_t)sockaddr_sizeof(family);
+	const int bind_result = bind(server_fd, p_addr, sock_len);
+	free(p_addr);
+	p_addr = NULL;
+	if(SOCKET_SUCCESS != bind_result)
+	{
+		si_logger_error(p_logger,
+			"Server socket failed to bind with error: %s.", strerror(errno)
+		);
+		goto END;
+	}
+	result = true;
+END:
+	return result;
+}
+
+/** Doxygen
+ * @brief Local function sets an existing server socket to it's default
+ *        options, binds to local interfaces, and listens in passive mode.
+ * 
+ * @param server_fd Server socket int file descriptor
+ * @param family Socket family enum/id to be initialized as
+ * @param port Local port number to bind server socket to
+ * @param max_client_queue Maximum number(int) of client connections to queue.
+ * @param p_logger Optional pointer to si_logger_t for error messages
+ * 
+ * @return Returns stdbool true on sucess. Returns false otherwise.
+ */
+static bool si_server_socket_defaults(const int server_fd,
+	const sa_family_t family, const uint16_t port, const int max_client_queue,
+	const si_logger_t* const p_logger)
+{
+	bool result = false;
+	if((SOCKET_ERROR >= server_fd) || (0u == port))
+	{
+		goto END;
+	}
+	if((0u == family) || (AF_MAX <= family))
+	{
+		goto END;
+	}
+
+	int mut_max_queue = max_client_queue;
+	// Prevents invalid values being passed to listen()
+	if(0 > mut_max_queue)
+	{
+		mut_max_queue = 0;
+	}
+
+	// Set address reuse for faster restart of server socket
+	int enable_reuse = 1;
+	if(SOCKET_ERROR >= setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR,
+		&enable_reuse, sizeof(enable_reuse)))
+	{
+		// Failed, log in order to enable for future debugging
+		si_logger_warning(p_logger,
+			"Failed to enable address reuse for server socket: %d.", server_fd
+		);
+	}
+
+	// Bind server socket to all local addresses by default
+	const bool is_bound = si_server_socket_bind(
+		server_fd, family, port, p_logger
+	);
+	if(true != is_bound)
+	{
+		goto END;
+	}
+
+	// Mark as passive port with listen to enable client socket accept
+	if(SOCKET_SUCCESS != listen(server_fd, mut_max_queue))
+	{
+		si_logger_error(p_logger,
+			"Server socket failed to set socket %d to passive mode.", server_fd
+		);
+		goto END;
+	}
+
+	// Enable keep alive by default for more consistent socket cleanup.
+	const bool set_keepalive = _si_server_set_keepalive(server_fd, true);
+	if(true != set_keepalive)
+	{
+		// Failed, log to enable future debugging
+		si_logger_warning(p_logger,
+			"Failed to enable keepalive on server socket id: %d.", server_fd
+		);
+	}
+	result = true;
+END:
+	return result;
+}
+
 void si_server_init_7(si_server_t* const p_server, const unsigned short port,
 	const int type, const int family, const int max_client_queue,
 	si_realloc_settings_t* p_settings, si_logger_t* p_logger)
@@ -57,34 +253,27 @@ void si_server_init_7(si_server_t* const p_server, const unsigned short port,
 		goto END;
 	}
 	int mut_max_queue = max_client_queue;
+	// Prevents invalid values being passed to si_array_init()
 	if(0 > mut_max_queue)
 	{
 		mut_max_queue = 0;
 	}
+
 	p_server->family = family;
+	p_server->p_settings = p_settings;
+	p_server->p_logger = p_logger;
 
-	// Initialize the pthread mutex
-	pthread_mutexattr_t mutex_attributes;
-	if(SOCKET_SUCCESS != pthread_mutexattr_init(&mutex_attributes))
+	// Initialize the pthread mutex for multithreading support
+	const bool init_mutex = si_server_init_rmutex(&(p_server->sockets_lock));
+	if(true != init_mutex)
 	{
-		goto END;
-	}
-	if(SOCKET_SUCCESS != pthread_mutexattr_settype(
-		&mutex_attributes, PTHREAD_MUTEX_RECURSIVE))
-	{
-		goto END;
-	}
-	if(SOCKET_SUCCESS != pthread_mutex_init(
-		&(p_server->sockets_lock), &mutex_attributes))
-	{
-        goto END;
-    }
-	if(SOCKET_SUCCESS != pthread_mutexattr_destroy(&mutex_attributes))
-	{
+		si_logger_error(p_server->p_logger,
+			"Failed to initialize server mutex to it's default value."
+		);
 		goto END;
 	}
 
-	// Initialize sockets array with invalid sockets.
+	// Initializes sockets array with invalid sockets for poll.
 	struct pollfd initialSocket = (struct pollfd){0};
 	initialSocket.fd = SOCKET_ERROR;
 	initialSocket.events = 0;
@@ -94,90 +283,22 @@ void si_server_init_7(si_server_t* const p_server, const unsigned short port,
 	{
 		si_array_set(&(p_server->sockets), iii, &initialSocket);
 	}
-	p_server->p_settings = p_settings;
-	p_server->p_logger = p_logger;
 
+	// Create and configure server socket
 	int server_fd = socket(
 		p_server->family,
 		type,
 		0
 	);
-	if(SOCKET_ERROR >= server_fd)
-	{
-		si_logger_error(p_server->p_logger,
-			"server_socket() error: %s", strerror(errno)
-		);
-		server_fd = SOCKET_ERROR;
-		goto END;
-	}
-
-	// Set address reuse for server socket
-	int enable_reuse = 1;
-	if(SOCKET_ERROR >= setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR,
-		&enable_reuse, sizeof(enable_reuse)))
-	{
-		// Failed to enable. NOP
-	}
-
-	// Configure and Bind address to socket
-	struct sockaddr* p_addr = sockaddr_new(p_server->family);
-	if(NULL == p_addr)
+	const bool set_socket_options = si_server_socket_defaults(
+		server_fd, p_server->family, port, mut_max_queue, p_server->p_logger
+	);
+	if(true != set_socket_options)
 	{
 		close(server_fd);
 		server_fd = SOCKET_ERROR;
 		goto END;
 	}
-	switch(p_server->family)
-	{
-	case(AF_INET):
-		((struct sockaddr_in*)p_addr)->sin_addr.s_addr = htonl(INADDR_ANY);
-		((struct sockaddr_in*)p_addr)->sin_port = htons(port);
-		break;
-#ifdef AF_INET6
-	case(AF_INET6):
-
-		// Disable IPV6_only to also allow for IPv4 on the socket.
-		int disable_only = 0;
-		if(SOCKET_ERROR >= setsockopt(server_fd, IPPROTO_IPV6, IPV6_V6ONLY,
-			&disable_only, sizeof(int)))
-		{
-			// Failed to enable. NOP
-		}
-
-		((struct sockaddr_in6*)p_addr)->sin6_addr = in6addr_any;
-		((struct sockaddr_in6*)p_addr)->sin6_port = htons(port);
-		break;
-#endif//AF_INET6
-	default:
-		// Unsupported family
-		break;
-	}
-
-	// Bind new socket to port
-	const socklen_t sock_len = (socklen_t)sockaddr_sizeof(p_server->family);
-	const int bind_result = bind(server_fd, p_addr, sock_len);
-	free(p_addr);
-	p_addr = NULL;
-	if(SOCKET_SUCCESS != bind_result)
-	{
-		si_logger_error(p_server->p_logger,
-			"server_bind() error: %s", strerror(errno)
-		);
-		close(server_fd);
-		server_fd = SOCKET_ERROR;
-		goto END;
-	}
-
-	// Mark as passive port with listen
-	if(SOCKET_SUCCESS != listen(server_fd, mut_max_queue))
-	{
-		close(server_fd);
-		server_fd = SOCKET_ERROR;
-		goto END;
-	}
-
-	// Enable keep alive by default.
-	si_server_set_keepalive(p_server, true);
 
 	// Add server socket to sockets array
 	if(false == si_server_add_socket(p_server, server_fd))
@@ -398,6 +519,32 @@ END:
 	return result;
 }
 
+/** Doxygen
+ * @brief Local function uses provided socket descriptor to set the keepalive
+ *        option to the provided desired value.
+ * 
+ * @param server_fd Socket descriptor used to set options on socket
+ * @param keepalive Desired keep alive state as a stdbool value.
+ * 
+ * @return Returns stdbool true on success. Returns false otherwise.
+ */
+static bool _si_server_set_keepalive(const int server_fd, const bool keepalive)
+{
+	bool result = false;
+	if(SOCKET_ERROR >= server_fd)
+	{
+		goto END;
+	}
+	int i_keepalive = keepalive ? 1 : 0;
+	const int set_result = setsockopt(
+		server_fd, SOL_SOCKET, SO_KEEPALIVE,
+		&i_keepalive, (socklen_t)sizeof(i_keepalive)
+	);
+	result = (SOCKET_SUCCESS <= set_result);
+END:
+	return result;
+}
+
 bool si_server_set_keepalive(si_server_t* const p_server, const bool keepalive)
 {
 	bool result = false;
@@ -405,25 +552,14 @@ bool si_server_set_keepalive(si_server_t* const p_server, const bool keepalive)
 	{
 		goto END;
 	}
-	int i_keepalive = keepalive ? 1 : 0;
 	if(SOCKET_SUCCESS != pthread_mutex_lock(&(p_server->sockets_lock)))
 	{
 		goto END;
 	}
 	const int server_fd =
 		((struct pollfd*)si_array_at(&(p_server->sockets), 0u))->fd;
-	if(SOCKET_SUCCESS > server_fd)
-	{
-		pthread_mutex_unlock(&(p_server->sockets_lock));
-		goto END;
-	}
-	const int set_result = setsockopt(
-		server_fd, SOL_SOCKET, SO_KEEPALIVE,
-		&i_keepalive, (socklen_t)sizeof(i_keepalive)
-	);
-
+	result = _si_server_set_keepalive(server_fd, keepalive);
 	pthread_mutex_unlock(&(p_server->sockets_lock));
-	result = (SOCKET_SUCCESS <= set_result);
 END:
 	return result;
 }

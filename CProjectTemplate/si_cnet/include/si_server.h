@@ -77,7 +77,7 @@ typedef bool (*event_handler_t)(struct si_server_t* const, const int);
 
 typedef struct si_server_t
 {
-	int family;
+	sa_family_t family;
 	si_accesslist_t* access_list;
 	pthread_mutex_t sockets_lock;
 	si_array_t sockets;
