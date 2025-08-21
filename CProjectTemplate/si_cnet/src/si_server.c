@@ -47,7 +47,7 @@ END:
  * 
  * @return Returns stdbool true on success. Returns false otherwise.
  */
-static bool _si_server_set_keepalive(const int server_fd, const bool keepalive)
+static bool si_socket_set_keepalive(const int server_fd, const bool keepalive)
 {
 	bool result = false;
 	if(SOCKET_ERROR >= server_fd)
@@ -249,7 +249,7 @@ static bool si_server_socket_defaults(const int server_fd,
 	}
 
 	// Enable keep alive by default for more consistent socket cleanup.
-	const bool set_keepalive = _si_server_set_keepalive(server_fd, true);
+	const bool set_keepalive = si_socket_set_keepalive(server_fd, true);
 	if(true != set_keepalive)
 	{
 		// Failed, log to enable future debugging
@@ -560,7 +560,7 @@ bool si_server_set_keepalive(si_server_t* const p_server, const bool keepalive)
 	}
 	const int server_fd =
 		((struct pollfd*)si_array_at(&(p_server->sockets), 0u))->fd;
-	result = _si_server_set_keepalive(server_fd, keepalive);
+	result = si_socket_set_keepalive(server_fd, keepalive);
 	pthread_mutex_unlock(&(p_server->sockets_lock));
 END:
 	return result;
