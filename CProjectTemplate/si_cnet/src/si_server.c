@@ -79,26 +79,29 @@ static bool si_server_init_rmutex(pthread_mutex_t* const p_mutex)
 	{
 		goto END;
 	}
+	int func_result = 0;
 	pthread_mutexattr_t mutex_attributes = {0};
-	if(SOCKET_SUCCESS != pthread_mutexattr_init(&mutex_attributes))
+	func_result = pthread_mutexattr_init(&mutex_attributes);
+	if(SOCKET_SUCCESS != func_result)
 	{
 		goto END;
 	}
-	if(SOCKET_SUCCESS != pthread_mutexattr_settype(
-		&mutex_attributes, PTHREAD_MUTEX_RECURSIVE))
+	func_result = pthread_mutexattr_settype(
+		&mutex_attributes, PTHREAD_MUTEX_RECURSIVE
+	);
+	if(SOCKET_SUCCESS != func_result)
 	{
 		goto END;
 	}
-	if(SOCKET_SUCCESS != pthread_mutex_init(
-		p_mutex, &mutex_attributes))
+	func_result = pthread_mutex_init(
+		p_mutex, &mutex_attributes
+	);
+	if(SOCKET_SUCCESS != func_result)
 	{
         goto END;
     }
-	if(SOCKET_SUCCESS != pthread_mutexattr_destroy(&mutex_attributes))
-	{
-		goto END;
-	}
-	result = true;
+	func_result = pthread_mutexattr_destroy(&mutex_attributes);
+	result = (SOCKET_SUCCESS == func_result);
 END:
 	return result;
 }
