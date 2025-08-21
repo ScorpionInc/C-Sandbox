@@ -755,7 +755,7 @@ void si_server_accept(si_server_t* const p_server)
 	struct sockaddr_storage client_addr = {0};
 	int client_fd = accept(
 		server_fd,
-		&client_addr,
+		(struct sockaddr*)&client_addr,
 		&addr_size
 	);
 	if(SOCKET_SUCCESS > client_fd)
@@ -766,7 +766,9 @@ void si_server_accept(si_server_t* const p_server)
 	// Validate access permission(s)
 	if(NULL != p_server->access_list)
 	{
-		const bool has = si_accesslist_has(p_server->access_list, &client_addr);
+		const bool has = si_accesslist_has(
+			p_server->access_list, (struct sockaddr*)&client_addr
+		);
 		if((( true == has) && (true  == p_server->access_list->is_blacklist)) ||
 		   ((false == has) && (false == p_server->access_list->is_blacklist)))
 		{
