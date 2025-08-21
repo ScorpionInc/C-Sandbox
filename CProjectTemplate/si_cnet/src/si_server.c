@@ -573,7 +573,7 @@ bool si_server_add_socket(si_server_t* const p_server, const int socket_fd)
 	{
 		goto END;
 	}
-	// Attempt assign
+	// Attempt assign to open slot
 	if(SOCKET_SUCCESS != pthread_mutex_lock(&(p_server->sockets_lock)))
 	{
 		goto END;
@@ -584,7 +584,6 @@ bool si_server_add_socket(si_server_t* const p_server, const int socket_fd)
 		struct pollfd* p_fd = si_array_at(&(p_server->sockets), iii);
 		if(NULL == p_fd)
 		{
-			// Error: should never be NULL.
 			continue;
 		}
 		if(SOCKET_SUCCESS <= p_fd->fd)
@@ -598,24 +597,35 @@ bool si_server_add_socket(si_server_t* const p_server, const int socket_fd)
 		result = true;
 		goto END;
 	}
-	// Append
+	// Append instead as there was no open slot to assign
 	if(NULL == p_server->p_settings)
 	{
-		const bool did_grow = si_array_resize(&(p_server->sockets), p_server->sockets.capacity + 1u);
+		const bool did_grow = si_array_resize(
+			&(p_server->sockets), p_server->sockets.capacity + 1u
+		);
 		if(true != did_grow)
 		{
 			pthread_mutex_unlock(&(p_server->sockets_lock));
+			si_logger_error(p_server->p_logger,
+				"Failed to grow socket array with default method"
+			);
 			goto END;
 		}
 	}
 	else
 	{
-		if(true == si_realloc_settings_grow(p_server->p_settings, &(p_server->sockets)))
+		const bool did_grow = si_realloc_settings_grow(
+			p_server->p_settings, &(p_server->sockets)
+		);
+		if(true == did_grow)
 		{
 			if(current_capacity >= p_server->sockets.capacity)
 			{
 				// Grow() completed but capacity is not larger.
 				pthread_mutex_unlock(&(p_server->sockets_lock));
+				si_logger_error(p_server->p_logger,
+					"Failed to grow socket array enough with p_settings method"
+				);
 				goto END;
 			}
 		}
@@ -623,6 +633,9 @@ bool si_server_add_socket(si_server_t* const p_server, const int socket_fd)
 		{
 			// Failed to grow by settings.
 			pthread_mutex_unlock(&(p_server->sockets_lock));
+			si_logger_error(p_server->p_logger,
+				"Failed to grow socket array with p_settings method"
+			);
 			goto END;
 		}
 	}
@@ -634,7 +647,9 @@ bool si_server_add_socket(si_server_t* const p_server, const int socket_fd)
 	initialValue.revents = 0;
 	for(size_t iii = 0u; iii < grow_amount; iii++)
 	{
-		si_array_set(&(p_server->sockets), current_capacity + iii, &initialValue);
+		si_array_set(
+			&(p_server->sockets), current_capacity + iii, &initialValue
+		);
 	}
 	result = si_server_add_socket(p_server, socket_fd);
 	pthread_mutex_unlock(&(p_server->sockets_lock));
@@ -953,8 +968,16 @@ void si_server_free(si_server_t* p_server)
 	{
 		goto END;
 	}
+	p_server->family = AF_UNSPEC;
+	p_server->access_list = NULL;
 	pthread_mutex_destroy(&(p_server->sockets_lock));
 	si_array_free(&(p_server->sockets));
+	p_server->p_settings = NULL;
+	p_server->p_on_connect = NULL;
+	p_server->p_on_read = NULL;
+	p_server->p_on_write = NULL;
+	p_server->p_on_leave = NULL;
+	p_server->p_logger = NULL;
 END:
 	return;
 }
