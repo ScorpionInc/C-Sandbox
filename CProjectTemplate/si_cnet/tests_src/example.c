@@ -178,7 +178,7 @@ int main(int argc, char** pp_argv)
 	p_server->p_on_read = handle_input;
 	p_server->p_on_leave = handle_leave;
 
-	si_accesslist_t* p_access = si_accesslist_new(true, true);
+	si_accesslist_t* p_access = si_accesslist_new(false, true);
 	if(NULL == p_access)
 	{
 		free(p_server);
