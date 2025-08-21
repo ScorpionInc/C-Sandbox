@@ -89,27 +89,27 @@ typedef struct si_server_t
 	si_logger_t* p_logger;
 } si_server_t;
 
-void si_server_init_7(si_server_t* const p_server, const unsigned short port,
+void si_server_init_7(si_server_t* const p_server, const uint16_t port,
 	const int type, const int family, const int max_client_queue,
 	si_realloc_settings_t* const p_settings, si_logger_t* const p_logger);
-void si_server_init_6(si_server_t* const p_server, const unsigned short port,
+void si_server_init_6(si_server_t* const p_server, const uint16_t port,
 	const int type, const int family, const int max_client_queue,
 	si_realloc_settings_t* const p_settings);
-void si_server_init_5(si_server_t* const p_server, const unsigned short port,
+void si_server_init_5(si_server_t* const p_server, const uint16_t port,
 	const int type, const int family, const int max_client_queue);
 
-si_server_t* si_server_new_6(const unsigned short port, const int type,
+si_server_t* si_server_new_6(const uint16_t port, const int type,
 	const int family, const int max_client_queue,
 	si_realloc_settings_t* const p_settings, si_logger_t* const p_logger);
-si_server_t* si_server_new_5(const unsigned short port, const int type,
+si_server_t* si_server_new_5(const uint16_t port, const int type,
 	const int family, const int max_client_queue,
 	si_realloc_settings_t* const p_settings);
-si_server_t* si_server_new_4(const unsigned short port, const int type,
+si_server_t* si_server_new_4(const uint16_t port, const int type,
 	const int family, const int max_client_queue);
-si_server_t* si_server_new_3(const unsigned short port, const int type,
+si_server_t* si_server_new_3(const uint16_t port, const int type,
 	const int family);
-si_server_t* si_server_new_2(const unsigned short port, const int type);
-si_server_t* si_server_new(const unsigned short port);
+si_server_t* si_server_new_2(const uint16_t port, const int type);
+si_server_t* si_server_new(const uint16_t port);
 
 bool si_server_is_blocking(si_server_t* const p_server);
 bool si_server_set_blocking(si_server_t* const p_server, const bool blocking);

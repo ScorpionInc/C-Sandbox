@@ -39,8 +39,36 @@ END:
 }
 
 /** Doxygen
+ * @brief Local function uses provided socket descriptor to set the keepalive
+ *        option to the provided desired value.
+ * 
+ * @param server_fd Socket descriptor used to set options on socket
+ * @param keepalive Desired keep alive state as a stdbool value.
+ * 
+ * @return Returns stdbool true on success. Returns false otherwise.
+ */
+static bool _si_server_set_keepalive(const int server_fd, const bool keepalive)
+{
+	bool result = false;
+	if(SOCKET_ERROR >= server_fd)
+	{
+		goto END;
+	}
+	int i_keepalive = keepalive ? 1 : 0;
+	const int set_result = setsockopt(
+		server_fd, SOL_SOCKET, SO_KEEPALIVE,
+		&i_keepalive, (socklen_t)sizeof(i_keepalive)
+	);
+	result = (SOCKET_SUCCESS <= set_result);
+END:
+	return result;
+}
+
+/** Doxygen
  * @brief Local function initializes a pthread mutex, and assigns it's
  *        default attributes.
+ * 
+ * @param p_mutex Pointer to pthread mutex to be initialized.
  * 
  * @return Returns stdbool true on success. Returns false otherwise.
  */
@@ -87,7 +115,7 @@ END:
 */
 static bool si_server_socket_bind(const int server_fd,
 	const sa_family_t family, const uint16_t port,
-	const si_logger_t* const p_logger)
+	si_logger_t* const p_logger)
 {
 	bool result = false;
 	if((SOCKET_ERROR >= server_fd) || (0u == port))
@@ -172,7 +200,7 @@ END:
  */
 static bool si_server_socket_defaults(const int server_fd,
 	const sa_family_t family, const uint16_t port, const int max_client_queue,
-	const si_logger_t* const p_logger)
+	si_logger_t* const p_logger)
 {
 	bool result = false;
 	if((SOCKET_ERROR >= server_fd) || (0u == port))
@@ -234,11 +262,11 @@ END:
 	return result;
 }
 
-void si_server_init_7(si_server_t* const p_server, const unsigned short port,
+void si_server_init_7(si_server_t* const p_server, const uint16_t port,
 	const int type, const int family, const int max_client_queue,
-	si_realloc_settings_t* p_settings, si_logger_t* p_logger)
+	si_realloc_settings_t* const p_settings, si_logger_t* const p_logger)
 {
-	if(NULL == p_server)
+	if((NULL == p_server) || (0u == port))
 	{
 		goto END;
 	}
@@ -314,7 +342,7 @@ void si_server_init_7(si_server_t* const p_server, const unsigned short port,
 END:
 	return;
 }
-void si_server_init_6(si_server_t* const p_server, const unsigned short port,
+void si_server_init_6(si_server_t* const p_server, const uint16_t port,
 	const int type, const int family, const int max_client_queue,
 	si_realloc_settings_t* const p_settings)
 {
@@ -324,14 +352,14 @@ void si_server_init_6(si_server_t* const p_server, const unsigned short port,
 	);
 }
 inline void si_server_init_5(si_server_t* const p_server,
-	const unsigned short port, const int type, const int family,
+	const uint16_t port, const int type, const int family,
 	const int max_client_queue)
 {
 	// Default value of p_settings = NULL
 	si_server_init_6(p_server, port, type, family, max_client_queue, NULL);
 }
 
-si_server_t* si_server_new_6(const unsigned short port, const int type,
+si_server_t* si_server_new_6(const uint16_t port, const int type,
 	const int family, const int max_client_queue,
 	si_realloc_settings_t* const p_settings, si_logger_t* const p_logger)
 {
@@ -348,7 +376,7 @@ si_server_t* si_server_new_6(const unsigned short port, const int type,
 END:
 	return p_new;
 }
-inline si_server_t* si_server_new_5(const unsigned short port, const int type,
+inline si_server_t* si_server_new_5(const uint16_t port, const int type,
 	const int family, const int max_client_queue,
 	si_realloc_settings_t* const p_settings)
 {
@@ -357,13 +385,13 @@ inline si_server_t* si_server_new_5(const unsigned short port, const int type,
 		port, type, family, max_client_queue, p_settings, NULL
 	);
 }
-inline si_server_t* si_server_new_4(const unsigned short port, const int type,
+inline si_server_t* si_server_new_4(const uint16_t port, const int type,
 	const int family, const int max_client_queue)
 {
 	// Default value of p_settings is NULL
 	return si_server_new_5(port, type, family, max_client_queue, NULL);
 }
-si_server_t* si_server_new_3(const unsigned short port, const int type,
+si_server_t* si_server_new_3(const uint16_t port, const int type,
 	const int family)
 {
 	si_server_t* p_server = NULL;
@@ -377,7 +405,7 @@ si_server_t* si_server_new_3(const unsigned short port, const int type,
 END:
 	return p_server;
 }
-si_server_t* si_server_new_2(const unsigned short port, const int type)
+si_server_t* si_server_new_2(const uint16_t port, const int type)
 {
 	si_server_t* p_new = NULL;
 #ifdef AF_INET6
@@ -391,7 +419,7 @@ si_server_t* si_server_new_2(const unsigned short port, const int type)
 END:
 	return p_new;
 }
-inline si_server_t* si_server_new(const unsigned short port)
+inline si_server_t* si_server_new(const uint16_t port)
 {
 	return si_server_new_2(port, DEFAULT_TYPE);
 }
@@ -515,32 +543,6 @@ bool si_server_is_keepalive(si_server_t* const p_server)
 		goto END;
 	}
 	result = (0 < value);
-END:
-	return result;
-}
-
-/** Doxygen
- * @brief Local function uses provided socket descriptor to set the keepalive
- *        option to the provided desired value.
- * 
- * @param server_fd Socket descriptor used to set options on socket
- * @param keepalive Desired keep alive state as a stdbool value.
- * 
- * @return Returns stdbool true on success. Returns false otherwise.
- */
-static bool _si_server_set_keepalive(const int server_fd, const bool keepalive)
-{
-	bool result = false;
-	if(SOCKET_ERROR >= server_fd)
-	{
-		goto END;
-	}
-	int i_keepalive = keepalive ? 1 : 0;
-	const int set_result = setsockopt(
-		server_fd, SOL_SOCKET, SO_KEEPALIVE,
-		&i_keepalive, (socklen_t)sizeof(i_keepalive)
-	);
-	result = (SOCKET_SUCCESS <= set_result);
 END:
 	return result;
 }
