@@ -191,7 +191,7 @@ END:
 }
 
 bool does_ipv6_map_to_ipv4(const struct sockaddr_in6* const p_v6addr,
-	const struct sockaddr_in* const p_v4addr)
+	const struct sockaddr_in* const p_v4addr, const bool ignore_ports)
 {
 	// Assumes both are in network order.
 	bool result = false;
@@ -207,6 +207,11 @@ bool does_ipv6_map_to_ipv4(const struct sockaddr_in6* const p_v6addr,
 	}
 	const uint32_t addr = ntohl(*((uint32_t*)&(p_v4addr->sin_addr)));
 	result = (mapped_address == addr);
+	if((!result) || (ignore_ports))
+	{
+		goto END;
+	}
+	result = (p_v4addr->sin_port == p_v6addr->sin6_port);
 END:
 	return result;
 }
@@ -268,7 +273,7 @@ END:
 }
 
 int sockaddr_in_cmp(const struct sockaddr_in* const p_left,
-	const struct sockaddr_in* const p_right)
+	const struct sockaddr_in* const p_right, const bool ignore_ports)
 {
 	int result = 0;
 	if(p_left == p_right)
@@ -296,7 +301,7 @@ int sockaddr_in_cmp(const struct sockaddr_in* const p_left,
 		&(p_right->sin_addr),
 		sizeof(struct in_addr)
 	);
-	if(0 != result)
+	if((0 != result) || (ignore_ports))
 	{
 		goto END;
 	}
@@ -310,7 +315,7 @@ END:
 }
 
 int sockaddr_in6_cmp(const struct sockaddr_in6* const p_left,
-	const struct sockaddr_in6* const p_right)
+	const struct sockaddr_in6* const p_right, const bool ignore_ports)
 {
 	int result = 0;
 	if(p_left == p_right)
@@ -338,7 +343,7 @@ int sockaddr_in6_cmp(const struct sockaddr_in6* const p_left,
 		&p_right->sin6_addr,
 		sizeof(struct in6_addr)
 	);
-	if(0 != result)
+	if((0 != result) || (ignore_ports))
 	{
 		goto END;
 	}
@@ -352,7 +357,7 @@ END:
 }
 
 int sockaddr_cmp(const struct sockaddr* const p_left,
-	const struct sockaddr* const p_right)
+	const struct sockaddr* const p_right, const bool ignore_ports)
 {
 	int result = 0;
 	if((NULL == p_left) || (NULL == p_right))
@@ -369,7 +374,8 @@ int sockaddr_cmp(const struct sockaddr* const p_left,
 				case(AF_INET):
 					result = sockaddr_in_cmp(
 						(struct sockaddr_in*)p_left,
-						(struct sockaddr_in*)p_right
+						(struct sockaddr_in*)p_right,
+						ignore_ports
 					);
 					break;
 #ifdef AF_INET6
@@ -377,7 +383,8 @@ int sockaddr_cmp(const struct sockaddr* const p_left,
 					result = 1;
 					const bool match = does_ipv6_map_to_ipv4(
 						(const struct sockaddr_in6*)p_right,
-						(const struct sockaddr_in*)p_left
+						(const struct sockaddr_in*)p_left,
+						ignore_ports
 					);
 					if(true == match)
 					{
@@ -398,7 +405,8 @@ int sockaddr_cmp(const struct sockaddr* const p_left,
 					result = -1;
 					const bool match = does_ipv6_map_to_ipv4(
 						(const struct sockaddr_in6*)p_left,
-						(const struct sockaddr_in*)p_right
+						(const struct sockaddr_in*)p_right,
+						ignore_ports
 					);
 					if(true == match)
 					{
@@ -408,7 +416,8 @@ int sockaddr_cmp(const struct sockaddr* const p_left,
 				case(AF_INET6):
 					result = sockaddr_in6_cmp(
 						(struct sockaddr_in6*)p_left,
-						(struct sockaddr_in6*)p_right
+						(struct sockaddr_in6*)p_right,
+						ignore_ports
 					);
 					break;
 				default:

@@ -114,7 +114,7 @@ uint32_t ipv4_from_ipv6(const uint8_t p_address[INET6_ADDRESS_SIZE]);
  * @return Returns stdbool true if they match. Returns false otherwise.
  */
 bool does_ipv6_map_to_ipv4(const struct sockaddr_in6* const p_v6addr,
-	const struct sockaddr_in* const p_v4addr);
+	const struct sockaddr_in* const p_v4addr, const bool ignore_ports);
 
 /** Doxygen
  * @brief Determines the struct size of the sockaddr for by family enum.
@@ -140,11 +140,12 @@ struct sockaddr* sockaddr_new(const sa_family_t family);
  * 
  * @param p_left  Pointer to ipv4 address to compare
  * @param p_right Pointer to ipv4 address to compare
+ * @param ignore_ports Stdbool flag to ignore the transport layer port values.
  * 
  * @return Returns an int value of: -1, 0, or 1 like memcmp().
  */
 int sockaddr_in_cmp(const struct sockaddr_in* const p_left,
-	const struct sockaddr_in* const p_right);
+	const struct sockaddr_in* const p_right, const bool ignore_ports);
 
 /** Doxygen
  * @brief Compares ipv6 address family, values, and ports ignores flow/scope
@@ -155,7 +156,7 @@ int sockaddr_in_cmp(const struct sockaddr_in* const p_left,
  * @return Returns an int value of: -1, 0, or 1 like memcmp().
  */
 int sockaddr_in6_cmp(const struct sockaddr_in6* const p_left,
-	const struct sockaddr_in6* const p_right);
+	const struct sockaddr_in6* const p_right, const bool ignore_ports);
 
 /** Doxygen
  * @brief Compares socket addresses using the family of the structs to select
@@ -167,7 +168,7 @@ int sockaddr_in6_cmp(const struct sockaddr_in6* const p_left,
  * @return Returns an int value of: -1, 0, or 1 like memcmp().
  */
 int sockaddr_cmp(const struct sockaddr* const p_left,
-	const struct sockaddr* const p_right);
+	const struct sockaddr* const p_right, const bool ignore_ports);
 
 /** Doxygen
  * @brief Conducts basic sanity checks on ipv4 address to determine validity.

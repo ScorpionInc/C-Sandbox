@@ -147,7 +147,8 @@ size_t si_accesslist_index_of(si_accesslist_t* const p_access,
 		const struct sockaddr* p_nxt = si_parray_at(&(p_access->entries), iii);
 		const int cmp = sockaddr_cmp(
 			p_addr,
-			p_nxt
+			p_nxt,
+			true
 		);
 		if(0 == cmp)
 		{
@@ -168,7 +169,8 @@ bool si_accesslist_has(si_accesslist_t* const p_access,
 	{
 		goto END;
 	}
-	result = (SIZE_MAX != si_accesslist_index_of(p_access, p_addr));
+	const size_t addr_index = si_accesslist_index_of(p_access, p_addr);
+	result = (SIZE_MAX != addr_index);
 END:
 	return result;
 }
