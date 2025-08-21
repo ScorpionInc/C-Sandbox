@@ -110,6 +110,7 @@ uint32_t ipv4_from_ipv6(const uint8_t p_address[INET6_ADDRESS_SIZE]);
  * 
  * @param p_v6addr Pointer to IPv6 socket address struct to be compared.
  * @param p_v4addr Pointer to IPv4 socket address struct to be compared.
+ * @param ignore_ports Stdbool flag to ignore the transport layer port values.
  * 
  * @return Returns stdbool true if they match. Returns false otherwise.
  */
@@ -152,6 +153,7 @@ int sockaddr_in_cmp(const struct sockaddr_in* const p_left,
  * 
  * @param p_left  Pointer to ipv6 address to compare
  * @param p_right Pointer to ipv6 address to compare
+ * @param ignore_ports Stdbool flag to ignore the transport layer port values.
  * 
  * @return Returns an int value of: -1, 0, or 1 like memcmp().
  */
@@ -162,8 +164,9 @@ int sockaddr_in6_cmp(const struct sockaddr_in6* const p_left,
  * @brief Compares socket addresses using the family of the structs to select
  *        an implimented compare function(sockaddr_in_cmp / sockaddr_in6_cmp).
  * 
- * @param p_left  Pointer to ipv6 address to compare
- * @param p_right Pointer to ipv6 address to compare
+ * @param p_left  Pointer to socket address to compare
+ * @param p_right Pointer to socket address to compare
+ * @param ignore_ports Stdbool flag to ignore the transport layer port values.
  * 
  * @return Returns an int value of: -1, 0, or 1 like memcmp().
  */
