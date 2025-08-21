@@ -716,6 +716,11 @@ void si_server_drop_socket(si_server_t* const p_server, const int socket_fd)
 		}
 		if(next_fd == socket_fd)
 		{
+			si_logger_info(p_server->p_logger,
+				"Client at index: %lu with id: %d is disconnecting.",
+				iii,
+				next_fd
+			);
 			if(NULL != p_server->p_on_leave)
 			{
 				p_server->p_on_leave(p_server, next_fd);
@@ -808,7 +813,7 @@ ERROR:
 	if(!((errno == EAGAIN) && (!is_blocking)))
 	{
 		si_logger_error(p_server->p_logger,
-			"server_accept() error: %s", strerror(errno)
+			"Server accept() failed with the error: %s", strerror(errno)
 		);
 	}
 	if(SOCKET_SUCCESS <= client_fd)
