@@ -1,6 +1,34 @@
 //si_logger.c
 #include "si_logger.h"
 
+void fprint_stacktrace(FILE* const p_file)
+{
+	if(NULL == p_file)
+	{
+		goto END;
+	}
+#ifdef __linux__
+	const int file_fd = fileno(p_file);
+	if(0 > file_fd)
+	{
+		goto END;
+	}
+	const size_t MAX_STACK_DEPTH = 256u;
+	const size_t STACK_BUFFER_SIZE = (MAX_STACK_DEPTH * sizeof(void*));
+	void* p_addresses[STACK_BUFFER_SIZE] = {0};
+	size_t backtrace_size = backtrace(p_addresses, STACK_BUFFER_SIZE);
+	backtrace_symbols_fd(p_addresses, backtrace_size, file_fd);
+	if(backtrace_size >= STACK_BUFFER_SIZE)
+	{
+		fprintf(p_file, "(callstack truncated)\n");
+	}
+#else
+	// Fails silently
+#endif//__linux__
+END:
+	return;
+}
+
 /** Doxygen
  * @brief Determines if ANSI color is supported
  *

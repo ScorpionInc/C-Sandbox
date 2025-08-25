@@ -36,6 +36,13 @@
 extern "C" {
 #endif //__cplusplus
 
+/** Doxygen
+ * @brief Attempts to print the currect call stack to FILE.
+ * 
+ * @param p_file Pointer to FILE to print the call stack.
+ */
+void fprint_stacktrace(FILE* const p_file);
+
 typedef struct si_logger_t
 {
 	size_t logging_level;
