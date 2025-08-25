@@ -36,25 +36,30 @@ void si_queue_test_modify(void)
 	size_t data_size = 6u;
 	si_queue_t* p_queue = si_queue_new(sizeof(char));
 	TEST_ASSERT_NOT_NULL(p_queue);
+	TEST_ASSERT_TRUE(si_queue_is_empty(p_queue));
 
 	printf("Testing enqueue():\n");
 	char c = 'a';
 	for(size_t i = 0u; i < data_size; i++)
 	{
+		printf("Count: %lu\t", si_queue_count(p_queue));
 		TEST_ASSERT_EQUAL_size_t(i + 1u, si_queue_enqueue(p_queue, &c));
 		printf("Enqueue: %c\tNew Count: %lu\tCapacity: %lu\n", c,
 			si_queue_count(p_queue), p_queue->dynamic.capacity);
 		c += 1u;
 	}
+	TEST_ASSERT_FALSE(si_queue_is_empty(p_queue));
 	printf("\n");
 	
 	printf("Testing dequeue():\n");
 	for(size_t i = 0; i < data_size; i++)
 	{
+		printf("Count: %lu\t", si_queue_count(p_queue));
 		TEST_ASSERT_EQUAL_size_t(data_size - i - 1u, si_queue_dequeue(p_queue, &c));
 		printf("Dequeue: %c\tNew Count: %lu\tCapacity: %lu\n", c,
 			si_queue_count(p_queue), p_queue->dynamic.capacity);
 	}
+	TEST_ASSERT_TRUE(si_queue_is_empty(p_queue));
 
 	si_queue_free_at(&p_queue);
 }
@@ -68,11 +73,13 @@ void si_queue_test_template(void)
 	size_t data_size = 6u;
 	char_queue_t* p_queue = char_queue_new();
 	TEST_ASSERT_NOT_NULL(p_queue);
+	TEST_ASSERT_TRUE(si_queue_is_empty(p_queue));
 
 	printf("Testing enqueue():\n");
 	for(size_t i = 0; i < data_size; i++)
 	{
 		char c = 'a' + i;
+		printf("Count: %lu\t", si_queue_count(p_queue));
 		char_queue_enqueue(p_queue, c);
 		size_t new_count = char_queue_count(p_queue);
 		TEST_ASSERT_EQUAL_size_t(i + 1u, new_count);
@@ -83,11 +90,13 @@ void si_queue_test_template(void)
 	printf("Testing dequeue():\n");
 	for(size_t i = 0; i < data_size; i++)
 	{
+		printf("Count: %lu\t", si_queue_count(p_queue));
 		char c = char_queue_dequeue(p_queue);
 		size_t new_count = char_queue_count(p_queue);
 		TEST_ASSERT_EQUAL_size_t(data_size - i - 1u, new_count);
 		printf("Dequeue: %c\tNew Count: %lu\tCapacity: %lu\n", c, new_count, p_queue->dynamic.capacity);
 	}
+	TEST_ASSERT_TRUE(si_queue_is_empty(p_queue));
 
 	char_queue_free(p_queue);
 	free(p_queue);
