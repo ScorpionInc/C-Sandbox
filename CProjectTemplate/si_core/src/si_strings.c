@@ -26,16 +26,21 @@ char* strn_clone_concat(const char* const p_left, const size_t left_size,
 END:
 	return p_result;
 }
-inline char* str_clone_concat(const char* const p_left,
+char* str_clone_concat(const char* const p_left,
 	const char* const p_right)
 {
 	// Defaults to strnlen(p_str, INT64_MAX) for string size.
-	// *WARNING* This function still requres both C Strings to be properly
-	//           NULL-Terminated.
-	return strn_clone_concat(
+	char* p_value = NULL;
+	if((NULL == p_left) || (NULL == p_right))
+	{
+		goto END;
+	}
+	p_value = strn_clone_concat(
 		p_left, strnlen(p_left, INT64_MAX),
 		p_right, strnlen(p_right, INT64_MAX)
 	);
+END:
+	return p_value;
 }
 
 char* str_clone_join(const size_t argc,	const char* const p_seperator,
@@ -158,9 +163,13 @@ END:
 inline void str_to_uppercase(char* const p_input_str)
 {
 	// Defaults to strnlen(p_str, INT64_MAX) for string size.
-	// *WARNING* This function still requres the C String to be properly
-	//           NULL-Terminated.
-	return strn_to_uppercase(p_input_str, strnlen(p_input_str, INT64_MAX));
+	if(NULL == p_input_str)
+	{
+		goto END;
+	}
+	strn_to_uppercase(p_input_str, strnlen(p_input_str, INT64_MAX));
+END:
+	return;
 }
 
 void strn_to_lowercase(char* const p_input_str, const size_t input_size)
@@ -182,7 +191,13 @@ void str_to_lowercase(char* const p_input_str)
 	// Defaults to strnlen(p_str, INT64_MAX) for string size.
 	// *WARNING* This function still requres the C String to be properly
 	//           NULL-Terminated.
-	return strn_to_lowercase(p_input_str, strnlen(p_input_str, INT64_MAX));
+	if(NULL == p_input_str)
+	{
+		goto END;
+	}
+	strn_to_lowercase(p_input_str, strnlen(p_input_str, INT64_MAX));
+END:
+	return;
 }
 
 char* pop_str_from_heap(uint8_t** const pp_buffer, size_t* const p_buffer_size)
