@@ -12,11 +12,42 @@ void tearDown (void)
 {
 }
 
+struct exampleObject
+{
+	int whole;
+	char letter;
+	float real;
+};
+
+/** Doxygen
+ * @brief Prints an example object struct's values to a FILE stream.
+ * 
+ * @param p_file Pointer to FILE to print to.
+ * @param p_object Pointer to example object struct to be printed.
+ */
+static void example_object_fprint(FILE* p_file, struct exampleObject* p_object)
+{
+	if((NULL == p_file) || (NULL == p_object))
+	{
+		goto END;
+	}
+	fprintf(p_file, "{w: %d; l: %c; r: %f}",
+		p_object->whole, p_object->letter, p_object->real
+	);
+END:
+	return;
+}
+
 /** Doxygen
  * @brief Tests si_logger
  */
 static void si_logger_test_main(void)
 {
+	struct exampleObject example = {0};
+	example.whole = 42;
+	example.letter = '*';
+	example.real = 3.1415926f;
+
 	si_logger_t* p_logger = si_logger_new();
 	p_logger->p_file = stdout;
 	p_logger->logging_level = SI_LOGGER_ALL;
@@ -25,6 +56,11 @@ static void si_logger_test_main(void)
 	si_logger_warning(p_logger, "Program is still running.");
 	si_logger_info(p_logger, "Testing output to stdout.");
 	si_logger_debug(p_logger, "Logger is at address: %p.", p_logger);
+	si_logger_custom(
+		p_logger, SI_LOGGER_DEBUG,
+		"Example object value: ", &example, " with a custom print function.",
+		(void(*)(FILE* const, const void* const))example_object_fprint
+	);
 	free(p_logger);
 }
 
