@@ -62,12 +62,22 @@ typedef struct si_logger_t
  * @brief Initializes an existing si_logger struct by pointer.
  * 
  * @param p_logger Pointer to si_logger to initialize.
+ * @param p_file Pointer to FILE to be logged to.
+ * @param logging_level Initial log level of the logger.
  */
+void si_logger_init_3(si_logger_t* const p_logger, FILE* const p_file,
+	const size_t logging_level);
+void si_logger_init_2(si_logger_t* const p_logger, FILE* const p_file);
 void si_logger_init(si_logger_t* const p_logger);
 
 /** Doxygen
  * @brief Allocates & initializes a new si_logger struct on the heap.
+ * 
+ * @param p_file Pointer to FILE to be logged to.
+ * @param logging_level Initial log level of the logger.
  */
+si_logger_t* si_logger_new_2(FILE* const p_file, const size_t logging_level);
+si_logger_t* si_logger_new_1(FILE* const p_file);
 si_logger_t* si_logger_new();
 
 /** Doxygen

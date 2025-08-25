@@ -224,14 +224,25 @@ END:
 	return p_header;
 }
 
-void si_logger_init(si_logger_t* const p_logger)
+void si_logger_init_3(si_logger_t* const p_logger, FILE* const p_file,
+	const size_t logging_level)
 {
 	p_logger->stacktrace_level = SI_LOGGER_DEFAULT_STACKTRACE;
-	p_logger->logging_level = SI_LOGGER_DEFAULT_LEVEL;
-	p_logger->p_file = NULL;
+	p_logger->logging_level = logging_level;
+	p_logger->p_file = p_file;
+}
+inline void si_logger_init_2(si_logger_t* const p_logger, FILE* const p_file)
+{
+	// Default logging_level is SI_LOGGER_DEFAULT_LEVEL (WARNING)
+	si_logger_init_3(p_logger, p_file, SI_LOGGER_DEFAULT_LEVEL);
+}
+inline void si_logger_init(si_logger_t* const p_logger)
+{
+	// Default p_file is stdout
+	si_logger_init_2(p_logger, stdout);
 }
 
-si_logger_t* si_logger_new()
+si_logger_t* si_logger_new_2(FILE* const p_file, const size_t logging_level)
 {
 	si_logger_t* p_new = NULL;
 	p_new = calloc(1u, sizeof(si_logger_t));
@@ -239,9 +250,19 @@ si_logger_t* si_logger_new()
 	{
 		goto END;
 	}
-	si_logger_init(p_new);
+	si_logger_init_3(p_new, p_file, logging_level);
 END:
 	return p_new;
+}
+inline si_logger_t* si_logger_new_1(FILE* const p_file)
+{
+	// Default logging_level is SI_LOGGER_DEFAULT_LEVEL (WARNING)
+	return si_logger_new_2(p_file, SI_LOGGER_DEFAULT_LEVEL);
+}
+inline si_logger_t* si_logger_new()
+{
+	// Default p_file is stdout
+	return si_logger_new_1(stdout);
 }
 
 void si_logger_custom(si_logger_t* const p_logger, const size_t msg_level,
