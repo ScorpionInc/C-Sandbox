@@ -172,7 +172,7 @@ static void si_logger_fprint_header(FILE* p_file, const size_t msg_level,
 		fprintf(p_file, "\x1b[1m%s", p_color); // Bold / Color
 	}
 	// Header text
-	char* p_header = si_logger_select_header(msg_level);
+	const char* p_header = si_logger_select_header(msg_level);
 	if(NULL == p_header)
 	{
 		fprintf(p_file, "%8lu", msg_level);
@@ -333,14 +333,13 @@ static void _si_logger_log(si_logger_t* const p_logger,
 	}
 	if(p_logger->logging_level > msg_level)
 	{
-		free(p_header);
-		p_header = NULL;
-		goto END;
+		goto CLEAN;
 	}
 	fprintf(p_logger->p_file, "%s", p_header);
 	vfprintf(p_logger->p_file, p_format, args);
 	fprintf(p_logger->p_file, "\n");
-	free(p_header);
+CLEAN:
+	free((void*)p_header);
 	p_header = NULL;
 END:
 	return;
