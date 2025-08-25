@@ -2,7 +2,6 @@
 
 #include "si_server.h"
 
-	const size_t offset, const size_t max_size)
 bool is_ipv6_supported(void)
 {
 	bool result = false;
