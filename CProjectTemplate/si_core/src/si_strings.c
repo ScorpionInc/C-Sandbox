@@ -117,10 +117,6 @@ END:
 char* strv_clone_join(const size_t argc, const char* const p_seperator, ...)
 {
 	char* p_result = NULL;
-	if(0u >= argc)
-	{
-		goto END;
-	}
 	const char** pp_argv = calloc(argc, sizeof(char*));
 	if(NULL == pp_argv)
 	{
@@ -146,6 +142,33 @@ END:
 	return p_result;
 }
 
+void strn_chr_remap(char* const p_input_str, const size_t input_size,
+	chr_remap_f p_map_chr)
+{
+	if(NULL == p_input_str)
+	{
+		goto END;
+	}
+	for(size_t iii = 0u; iii < input_size; iii++)
+	{
+		const char next_char = p_map_chr(p_input_str[iii], iii);
+		p_input_str[iii] = next_char;
+	}
+END:
+	return;
+}
+void str_chr_remap(char* const p_input_str, chr_remap_f p_map_chr)
+{
+	if((NULL == p_input_str) || (NULL == p_map_chr))
+	{
+		goto END;
+	}
+	const size_t str_len = strnlen(p_input_str, INT64_MAX);
+	strn_chr_remap(p_input_str, str_len, p_map_chr);
+END:
+	return;
+}
+
 void strn_to_uppercase(char* const p_input_str, const size_t input_size)
 {
 	if(NULL == p_input_str)
@@ -160,7 +183,7 @@ void strn_to_uppercase(char* const p_input_str, const size_t input_size)
 END:
 	return;
 }
-inline void str_to_uppercase(char* const p_input_str)
+void str_to_uppercase(char* const p_input_str)
 {
 	// Defaults to strnlen(p_str, INT64_MAX) for string size.
 	if(NULL == p_input_str)

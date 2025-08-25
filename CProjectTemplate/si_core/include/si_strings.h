@@ -59,6 +59,20 @@ char* str_clone_join(const size_t argc,	const char* const p_seperator,
  */
 char* strv_clone_join(const size_t argc, const char* const p_seperator, ...);
 
+typedef char (* const chr_remap_f)(const char, const size_t);
+
+/** Doxygen
+ * @brief Inline modified a strings character value with a function that maps
+ *        the original character and index to new value.
+ * 
+ * @param p_input_str Pointer to first char of C-String to be remapped.
+ * @param input_size Size_t count of bytes/chars in the input string.
+ * @param p_map_chr Pointer to the character mapping function to be used.
+ */
+void strn_chr_remap(char* const p_input_str, const size_t input_size,
+	chr_remap_f p_map_chr);
+void str_chr_remap(char* const p_input_str, chr_remap_f p_map_chr);
+
 /** Doxygen
  * @brief Modifies inplace a C-String at p_input_str of size to use UPPER CASE
  *        letters.
