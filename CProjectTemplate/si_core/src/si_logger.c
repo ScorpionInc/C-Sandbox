@@ -344,6 +344,7 @@ CLEAN:
 END:
 	return;
 }
+
 void si_logger_log(si_logger_t* const p_logger,
 	const char* const p_format, size_t msg_level, ...)
 {
