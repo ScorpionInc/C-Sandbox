@@ -148,6 +148,7 @@ END:
 }
 
 volatile sig_atomic_t g_exit_signal = 0;
+
 /** Doxygen
  * @brief Handles graceful exit from an exit signal
  * 
