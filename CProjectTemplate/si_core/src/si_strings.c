@@ -169,58 +169,46 @@ END:
 	return;
 }
 
-void strn_to_uppercase(char* const p_input_str, const size_t input_size)
+/** Doxygen
+ * @brief Maps characters to UPPERCASE using ctype toupper().
+ * 
+ * @param old_char Original char value.
+ * @param char_index Index of the char in the string. (Unused)
+ * 
+ * @return Returns a char from old_char as UPPERCASE on success.
+ */
+static inline char remap_to_upper(const char old_char, const size_t char_index)
 {
-	if(NULL == p_input_str)
-	{
-		goto END;
-	}
-	for(size_t iii = 0u; iii < input_size; iii++)
-	{
-		char next_char = p_input_str[iii];
-		p_input_str[iii] = toupper(next_char);
-	}
-END:
-	return;
+	return toupper(old_char);
 }
-void str_to_uppercase(char* const p_input_str)
+inline void strn_to_uppercase(char* const p_input_str, const size_t input_size)
 {
-	// Defaults to strnlen(p_str, INT64_MAX) for string size.
-	if(NULL == p_input_str)
-	{
-		goto END;
-	}
-	strn_to_uppercase(p_input_str, strnlen(p_input_str, INT64_MAX));
-END:
-	return;
+	strn_chr_remap(p_input_str, input_size, remap_to_upper);
+}
+inline void str_to_uppercase(char* const p_input_str)
+{
+	str_chr_remap(p_input_str, remap_to_upper);
 }
 
-void strn_to_lowercase(char* const p_input_str, const size_t input_size)
+/** Doxygen
+ * @brief Maps characters to lowercase using ctype tolower().
+ * 
+ * @param old_char Original char value.
+ * @param char_index Index of the char in the string. (Unused)
+ * 
+ * @return Returns a char from old_char as lowercase on success.
+ */
+static inline char remap_to_lower(const char old_char, const size_t char_index)
 {
-	if(NULL == p_input_str)
-	{
-		goto END;
-	}
-	for(size_t iii = 0u; iii < input_size; iii++)
-	{
-		char next_char = p_input_str[iii];
-		p_input_str[iii] = tolower(next_char);
-	}
-END:
-	return;
+	return tolower(old_char);
 }
-void str_to_lowercase(char* const p_input_str)
+inline void strn_to_lowercase(char* const p_input_str, const size_t input_size)
 {
-	// Defaults to strnlen(p_str, INT64_MAX) for string size.
-	// *WARNING* This function still requres the C String to be properly
-	//           NULL-Terminated.
-	if(NULL == p_input_str)
-	{
-		goto END;
-	}
-	strn_to_lowercase(p_input_str, strnlen(p_input_str, INT64_MAX));
-END:
-	return;
+	strn_chr_remap(p_input_str, input_size, remap_to_lower);
+}
+inline void str_to_lowercase(char* const p_input_str)
+{
+	str_chr_remap(p_input_str, remap_to_lower);
 }
 
 char* pop_str_from_heap(uint8_t** const pp_buffer, size_t* const p_buffer_size)
