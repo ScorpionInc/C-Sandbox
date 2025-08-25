@@ -1,32 +1,63 @@
 //si_logger.c
 #include "si_logger.h"
 
-void fprint_stacktrace(FILE* const p_file)
+void fprint_stacktrace_3(FILE* const p_file,
+	const size_t skip_count, const char* const p_prefix)
 {
 	if(NULL == p_file)
 	{
 		goto END;
 	}
+	const char* mut_prefix = "";
+	if(NULL != p_prefix)
+	{
+		mut_prefix = p_prefix;
+	}
 #ifdef __linux__
-	const int file_fd = fileno(p_file);
-	if(0 > file_fd)
+	const size_t MAX_STACK_DEPTH = 256u;
+	const size_t STACK_BUFFER_SIZE = (MAX_STACK_DEPTH * sizeof(void*));
+	void* p_addresses = NULL;
+	p_addresses = calloc(1u, STACK_BUFFER_SIZE);
+	if(NULL == p_addresses)
 	{
 		goto END;
 	}
-	const size_t MAX_STACK_DEPTH = 256u;
-	const size_t STACK_BUFFER_SIZE = (MAX_STACK_DEPTH * sizeof(void*));
-	void* p_addresses[STACK_BUFFER_SIZE] = {0};
-	size_t backtrace_size = backtrace(p_addresses, STACK_BUFFER_SIZE);
-	backtrace_symbols_fd(p_addresses, backtrace_size, file_fd);
-	if(backtrace_size >= STACK_BUFFER_SIZE)
+	const size_t backtrace_size = backtrace(p_addresses, MAX_STACK_DEPTH);
+	char** p_stack_strs = backtrace_symbols(p_addresses, backtrace_size);
+	if(NULL == p_stack_strs)
 	{
-		fprintf(p_file, "(callstack truncated)\n");
+		free(p_addresses);
+		p_addresses = NULL;
+		goto END;
 	}
+	for(size_t iii = skip_count; iii < backtrace_size; iii++)
+	{
+		fprintf(p_file, "%s%s\n", mut_prefix, p_stack_strs[iii]);
+	}
+	if(backtrace_size >= MAX_STACK_DEPTH)
+	{
+		fprintf(p_file, "%s(callstack truncated)\n", mut_prefix);
+	}
+	free(p_stack_strs);
+	p_stack_strs = NULL;
+	free(p_addresses);
+	p_addresses = NULL;
 #else
 	// Fails silently
 #endif//__linux__
 END:
 	return;
+}
+inline void fprint_stacktrace_2(FILE* const p_file,
+	const size_t skip_count)
+{
+	// Default value of p_prefix is NULL
+	fprint_stacktrace_3(p_file, skip_count, NULL);
+}
+inline void fprint_stacktrace(FILE* const p_file)
+{
+	// Default value of skip_count is 1
+	fprint_stacktrace_2(p_file, 1u);
 }
 
 /** Doxygen
@@ -127,7 +158,8 @@ END:
 
 void si_logger_init(si_logger_t* const p_logger)
 {
-	p_logger->logging_level = SI_LOGGER_DEFAULT;
+	p_logger->stacktrace_level = SI_LOGGER_DEFAULT_STACKTRACE;
+	p_logger->logging_level = SI_LOGGER_DEFAULT_LEVEL;
 	p_logger->p_file = NULL;
 }
 
@@ -182,6 +214,14 @@ END:
 	return;
 }
 
+/** Doxygen
+ * @brief Local function to handle variatic arguments.
+ * 
+ * @param p_logger Pointer to si_logger struct
+ * @param p_format C format string
+ * @param msg_level Size_t level of the current message
+ * @param args Variatic heap arguments
+ */
 static void _si_logger_log(si_logger_t* const p_logger,
 	const char* const p_format, const size_t msg_level, va_list args)
 {
@@ -192,6 +232,12 @@ static void _si_logger_log(si_logger_t* const p_logger,
 	if(NULL == p_logger->p_file)
 	{
 		goto END;
+	}
+	if(p_logger->stacktrace_level <= msg_level)
+	{
+		// Skips printing the stackcall printing functions
+		const size_t const skip_count = 3u;
+		fprint_stacktrace_3(p_logger->p_file, skip_count, NULL);
 	}
 	if(p_logger->logging_level > msg_level)
 	{

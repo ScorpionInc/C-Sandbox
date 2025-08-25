@@ -28,7 +28,8 @@
 #define SI_LOGGER_CRITICAL (50)
 #define SI_LOGGER_MAX (__SIZE_MAX__)
 
-#define SI_LOGGER_DEFAULT SI_LOGGER_WARNING
+#define SI_LOGGER_DEFAULT_STACKTRACE SI_LOGGER_CRITICAL
+#define SI_LOGGER_DEFAULT_LEVEL      SI_LOGGER_WARNING
 
 #ifndef SI_LOGGER_H
 #define SI_LOGGER_H
@@ -41,11 +42,18 @@ extern "C" {
  * @brief Attempts to print the currect call stack to FILE.
  * 
  * @param p_file Pointer to FILE to print the call stack.
+ * @param skip_count Optional Number of function calls to skip printing.
+ * @param p_prefix Optional C string prefix.
  */
+void fprint_stacktrace_3(FILE* const p_file,
+	const size_t skip_count, const char* const p_prefix);
+void fprint_stacktrace_2(FILE* const p_file,
+	const size_t skip_count);
 void fprint_stacktrace(FILE* const p_file);
 
 typedef struct si_logger_t
 {
+	size_t stacktrace_level;
 	size_t logging_level;
 	FILE* p_file;
 } si_logger_t;
