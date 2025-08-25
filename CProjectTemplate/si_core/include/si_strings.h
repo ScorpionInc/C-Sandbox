@@ -63,7 +63,7 @@ typedef char (* const chr_remap_f)(const char, const size_t);
 
 /** Doxygen
  * @brief Inline modified a strings character value with a function that maps
- *        the original character and index to new value.
+ *        the original character and index to a new char value.
  * 
  * @param p_input_str Pointer to first char of C-String to be remapped.
  * @param input_size Size_t count of bytes/chars in the input string.
