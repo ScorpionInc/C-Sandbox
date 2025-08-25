@@ -155,16 +155,17 @@ static const char* const si_logger_select_color(const size_t msg_level)
  * 
  * @param p_file File pointer to write to.
  * @param msg_level size_t target message level
+ * @param is_ansi Flag type of stdbool determines if ANSI Colors are printed.
  */
-static void si_logger_fprint_header(FILE* p_file, const size_t msg_level)
+static void si_logger_fprint_header(FILE* p_file, const size_t msg_level,
+	const bool is_ansi)
 {
 	if(NULL == p_file)
 	{
 		goto END;
 	}
-	const bool is_ansi = si_logger_is_ansi(p_file);
 	fprintf(p_file, "[");
-	// Start color
+	// Start ANSI color
 	if(is_ansi)
 	{
 		const char* const p_color = si_logger_select_color(msg_level);
@@ -180,7 +181,7 @@ static void si_logger_fprint_header(FILE* p_file, const size_t msg_level)
 	{
 		fprintf(p_file, "%8s", p_header);
 	}
-	// End color
+	// End ANSI color
 	if(is_ansi)
 	{
 		fprintf(p_file, "\x1b[0m");
@@ -188,6 +189,39 @@ static void si_logger_fprint_header(FILE* p_file, const size_t msg_level)
 	fprintf(p_file, "]: ");
 END:
 	return;
+}
+
+/** Doxygen
+ * @brief Allocates and initializes a new header string on the heap.
+ * 
+ * @param Log level of the header to generate.
+ * @param is_ansi Flag type of stdbool determines if ANSI Colors are included.
+ * 
+ * @return Returns heap pointer on success. Returns NULL otherwise.
+ */
+static char* si_logger_header_new(const size_t msg_level, const bool is_ansi)
+{
+	char* p_header = NULL;
+	const size_t MAX_LENGTH = 64u;
+	p_header = calloc(MAX_LENGTH, sizeof(char));
+	if(NULL == p_header)
+	{
+		goto END;
+	}
+	FILE* p_file = NULL;
+	p_file = fmemopen(p_header, MAX_LENGTH, "w");
+	if(NULL == p_file)
+	{
+		free(p_header);
+		p_header = NULL;
+		goto END;
+	}
+	si_logger_fprint_header(p_file, msg_level, is_ansi);
+	fflush(p_file);
+	fclose(p_file);
+	p_file = NULL;
+END:
+	return p_header;
 }
 
 void si_logger_init(si_logger_t* const p_logger)
@@ -226,7 +260,8 @@ void si_logger_custom(si_logger_t* const p_logger, const size_t msg_level,
 	{
 		goto END;
 	}
-	si_logger_fprint_header(p_logger->p_file, msg_level);
+	const bool is_ansi = si_logger_is_ansi(p_logger->p_file);
+	si_logger_fprint_header(p_logger->p_file, msg_level, is_ansi);
 	if(NULL != p_prefix)
 	{
 		fprintf(p_logger->p_file, "%s", p_prefix);
@@ -267,19 +302,25 @@ static void _si_logger_log(si_logger_t* const p_logger,
 	{
 		goto END;
 	}
+	const bool is_ansi = si_logger_is_ansi(p_logger->p_file);
+	const char* p_header = si_logger_header_new(msg_level, is_ansi);
 	if(p_logger->stacktrace_level <= msg_level)
 	{
 		// Skips printing the stackcall printing functions
 		const size_t const skip_count = 3u;
-		fprint_stacktrace_3(p_logger->p_file, skip_count, NULL);
+		fprint_stacktrace_3(p_logger->p_file, skip_count, p_header);
 	}
 	if(p_logger->logging_level > msg_level)
 	{
+		free(p_header);
+		p_header = NULL;
 		goto END;
 	}
-	si_logger_fprint_header(p_logger->p_file, msg_level);
+	fprintf(p_logger->p_file, "%s", p_header);
 	vfprintf(p_logger->p_file, p_format, args);
 	fprintf(p_logger->p_file, "\n");
+	free(p_header);
+	p_header = NULL;
 END:
 	return;
 }
