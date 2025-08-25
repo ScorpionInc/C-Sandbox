@@ -3,7 +3,7 @@
  * Authors: ScorpionInc
  * Purpose: Defines function(s) for working with C Strings.
  * Created: 20250820
- * Updated: 20250820
+ * Updated: 20250825
 //*/
 
 #include <ctype.h> // toupper()
@@ -78,6 +78,18 @@ void str_to_uppercase(char* const p_input_str);
  */
 void strn_to_lowercase(char* const p_input_str, const size_t input_size);
 void str_to_lowercase(char* const p_input_str);
+
+/** Doxygen
+ * @brief Seperates the first found C string from a heap buffer of a known size
+ * 
+ * @param pp_buffer Pointer to heap buffer to have C string value removed from.
+ * @param buffer_size Pointer to the size of the allocated heap buffer. Changes
+ * 
+ * @return Returns heap string on success and updates heap buffer/size in place
+ *         Returns NULL otherwise leaving the heap buffer and size unchanged.
+ */
+char* pop_str_from_heap(uint8_t** const pp_buffer,
+	size_t* const p_buffer_size);
 
 #ifdef __cplusplus
 }

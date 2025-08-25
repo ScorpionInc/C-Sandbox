@@ -184,3 +184,44 @@ void str_to_lowercase(char* const p_input_str)
 	//           NULL-Terminated.
 	return strn_to_lowercase(p_input_str, strnlen(p_input_str, INT64_MAX));
 }
+
+char* pop_str_from_heap(uint8_t** const pp_buffer, size_t* const p_buffer_size)
+{
+	char* p_result = NULL;
+	if((NULL == pp_buffer) || (NULL == p_buffer_size))
+	{
+		goto END;
+	}
+	if(0u >= *p_buffer_size)
+	{
+		goto END;
+	}
+	size_t string_length = strnlen((char*)*pp_buffer, *p_buffer_size);
+	if(string_length >= *p_buffer_size)
+	{
+		goto END;
+	}
+	p_result = calloc(string_length, sizeof(char));
+	if(NULL == p_result)
+	{
+		goto END;
+	}
+	strncpy(p_result, *pp_buffer, string_length);
+	const size_t non_str_len = *p_buffer_size - string_length;
+	if(0u < non_str_len)
+	{
+		memcpy(
+			&((*pp_buffer)[0]), &((*pp_buffer)[string_length]), non_str_len
+		);
+	}
+	uint8_t* p_shrink = realloc(*pp_buffer, non_str_len);
+	if(NULL == p_shrink)
+	{
+		// TODO Undo buffer changes
+		goto END;
+	}
+	*pp_buffer = p_shrink;
+	*p_buffer_size = non_str_len;
+END:
+	return p_result;
+}
