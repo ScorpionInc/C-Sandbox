@@ -164,8 +164,8 @@ int main(int argc, char** pp_argv)
 	set_exit_signal_handler(handle_exit);
 
 	si_logger_t logger = {0};
+	si_logger_init(&logger);
 	logger.logging_level = SI_LOGGER_ALL;
-	logger.p_file = stdout;
 	
 	si_server_t* p_server = si_server_new_6(
 		PORT, DEFAULT_TYPE, DEFAULT_FAMILY,
