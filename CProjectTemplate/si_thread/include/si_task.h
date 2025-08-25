@@ -24,7 +24,6 @@
 #ifndef SI_TASK_H
 #define SI_TASK_H
 
-typedef void (*si_task_t)(si_singular_list_t* optional_arguments, si_array_t* stores_results);
 
 typedef struct si_task
 {

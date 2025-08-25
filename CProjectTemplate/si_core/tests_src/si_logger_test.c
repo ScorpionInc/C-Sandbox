@@ -60,6 +60,7 @@ static void si_logger_test_main(void)
 		"Example object value: ", &example, " with a custom print function.",
 		(void(*)(FILE* const, const void* const))example_object_fprint
 	);
+	si_logger_log(p_logger, "Critical custom log level message.", 1234567890u);
 	free(p_logger);
 }
 
