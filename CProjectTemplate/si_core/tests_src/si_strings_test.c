@@ -164,6 +164,9 @@ static void si_strings_test_manipulators(void)
 	}
 }
 
+/** Doxygen
+ * @brief Runs all local unit tests for si_strings
+ */
 static void si_strings_test_all(void)
 {
 	UNITY_BEGIN();
