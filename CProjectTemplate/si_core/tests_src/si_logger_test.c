@@ -49,7 +49,6 @@ static void si_logger_test_main(void)
 	example.real = 3.1415926f;
 
 	si_logger_t* p_logger = si_logger_new();
-	p_logger->p_file = stdout;
 	p_logger->logging_level = SI_LOGGER_ALL;
 	si_logger_critical(p_logger, "Program has encountered a critical error.");
 	si_logger_error(p_logger, "Program has encountered an error.");
