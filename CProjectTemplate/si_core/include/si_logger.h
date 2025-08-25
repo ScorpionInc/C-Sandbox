@@ -13,6 +13,7 @@
 
 #ifdef __linux__
 
+#include <execinfo.h> // backtrace(), backtrace_symbols_fd()
 #include <unistd.h> // isatty()
 
 #else
