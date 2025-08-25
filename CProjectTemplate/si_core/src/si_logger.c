@@ -229,6 +229,7 @@ void si_logger_init_3(si_logger_t* const p_logger, FILE* const p_file,
 {
 	p_logger->stacktrace_level = SI_LOGGER_DEFAULT_STACKTRACE;
 	p_logger->logging_level = logging_level;
+	pthread_mutex_init(&p_logger->file_lock, NULL);
 	p_logger->p_file = p_file;
 }
 inline void si_logger_init_2(si_logger_t* const p_logger, FILE* const p_file)
@@ -282,6 +283,7 @@ void si_logger_custom(si_logger_t* const p_logger, const size_t msg_level,
 		goto END;
 	}
 	const bool is_ansi = si_logger_is_ansi(p_logger->p_file);
+	pthread_mutex_lock(&(p_logger->file_lock));
 	si_logger_fprint_header(p_logger->p_file, msg_level, is_ansi);
 	if(NULL != p_prefix)
 	{
@@ -300,6 +302,7 @@ void si_logger_custom(si_logger_t* const p_logger, const size_t msg_level,
 		fprintf(p_logger->p_file, "%s", p_suffix);
 	}
 	fprintf(p_logger->p_file, "\n");
+	pthread_mutex_unlock(&(p_logger->file_lock));
 END:
 	return;
 }
@@ -323,6 +326,10 @@ static void _si_logger_log(si_logger_t* const p_logger,
 	{
 		goto END;
 	}
+	if(p_logger->logging_level > msg_level)
+	{
+		goto END;
+	}
 	const bool is_ansi = si_logger_is_ansi(p_logger->p_file);
 	const char* p_header = si_logger_header_new(msg_level, is_ansi);
 	if(p_logger->stacktrace_level <= msg_level)
@@ -331,13 +338,11 @@ static void _si_logger_log(si_logger_t* const p_logger,
 		const size_t const skip_count = 3u;
 		fprint_stacktrace_3(p_logger->p_file, skip_count, p_header);
 	}
-	if(p_logger->logging_level > msg_level)
-	{
-		goto CLEAN;
-	}
+	pthread_mutex_lock(&(p_logger->file_lock));
 	fprintf(p_logger->p_file, "%s", p_header);
 	vfprintf(p_logger->p_file, p_format, args);
 	fprintf(p_logger->p_file, "\n");
+	pthread_mutex_unlock(&(p_logger->file_lock));
 CLEAN:
 	free((void*)p_header);
 	p_header = NULL;
@@ -402,6 +407,17 @@ void si_logger_critical(si_logger_t* const p_logger,
 	va_end(args);
 }
 
+void si_logger_free(si_logger_t* const p_logger)
+{
+	if(NULL == p_logger)
+	{
+		goto END;
+	}
+	pthread_mutex_destroy(&p_logger->file_lock); 
+END:
+	return;
+}
+
 void si_logger_destroy(si_logger_t** pp_logger)
 {
 	if(NULL == pp_logger)
@@ -413,6 +429,7 @@ void si_logger_destroy(si_logger_t** pp_logger)
 		// Already freed
 		goto END;
 	}
+	si_logger_free(*pp_logger);
 	free(*pp_logger);
 	*pp_logger = NULL;
 END:

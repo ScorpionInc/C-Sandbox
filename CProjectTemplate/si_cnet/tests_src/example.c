@@ -220,6 +220,7 @@ int main(int argc, char** pp_argv)
 	}
 	si_server_free_at(&p_server);
 	p_server = NULL;
+	si_logger_free(&logger);
 END:
 	return 0;
 }

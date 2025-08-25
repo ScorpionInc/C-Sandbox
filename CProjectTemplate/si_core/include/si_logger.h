@@ -14,6 +14,7 @@
 #ifdef __linux__
 
 #include <execinfo.h> // backtrace(), backtrace_symbols_fd()
+#include <pthread.h> // pthread_mutex_t, pthread_mutex_unlock()
 #include <unistd.h> // isatty()
 
 #else
@@ -55,6 +56,7 @@ typedef struct si_logger_t
 {
 	size_t stacktrace_level;
 	size_t logging_level;
+	pthread_mutex_t file_lock;
 	FILE* p_file;
 } si_logger_t;
 
@@ -164,6 +166,13 @@ void si_logger_error(si_logger_t* const p_logger,
  */
 void si_logger_critical(si_logger_t* const p_logger,
 	const char* const p_format, ...);
+
+/** Doxygen
+ * @brief Frees allocated data inside of an existing si_logger struct.
+ * 
+ * @param p_logger Pointer to si_logger_t struct to free contents of.
+ */
+void si_logger_free(si_logger_t* const p_logger);
 
 /** Doxygen
  * @brief Frees an allocated si_logger struct on the heap.
