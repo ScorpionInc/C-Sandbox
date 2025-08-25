@@ -82,12 +82,81 @@ END:
 }
 
 /** Doxygen
+ * @brief Maps msg_level to an associated preset header string.
+ * 
+ * @param msg_level Log level to get the header of.
+ * 
+ * @return Returns const C string on success. Returns NULL otherwise.
+ */
+static const char* const si_logger_select_header(const size_t msg_level)
+{
+	const char* p_result = NULL;
+	switch(msg_level)
+	{
+		case(SI_LOGGER_ALL):
+			p_result = "VERBOSE";
+			break;
+		case(SI_LOGGER_DEBUG):
+			p_result = "DEBUG";
+			break;
+		case(SI_LOGGER_INFO):
+			p_result = "INFO";
+			break;
+		case(SI_LOGGER_WARNING):
+			p_result = "WARNING";
+			break;
+		case(SI_LOGGER_ERROR):
+			p_result = "ERROR";
+			break;
+		case(SI_LOGGER_CRITICAL):
+			p_result = "CRITICAL";
+			break;
+		default:
+			break;
+	}
+	return p_result;
+}
+
+/** Doxygen
+ * @brief Maps msg_level to an associated preset ANSI color string.
+ * 
+ * @param msg_level Log level to get ANSI color string of.
+ * 
+ * @return Returns a const C string
+ */
+static const char* const si_logger_select_color(const size_t msg_level)
+{
+	const char* p_ansi = "";
+	if(SI_LOGGER_ALL == msg_level)
+	{
+		// Light Gray
+		p_ansi = "\x1b[90m";
+	}
+	else if(SI_LOGGER_INFO >= msg_level)
+	{
+		// Green
+		p_ansi = "\x1b[32m";
+	}
+	else if(SI_LOGGER_WARNING >= msg_level)
+	{
+		// Yellow
+		p_ansi = "\x1b[33m";
+	}
+	else
+	{
+		// Red
+		p_ansi = "\x1b[31m";
+	}
+	return p_ansi;
+}
+
+/** Doxygen
  * @brief Prints line header based upon severity level of the message.
  * 
  * @param p_file File pointer to write to.
  * @param msg_level size_t target message level
  */
-static void si_logger_fprint_header(FILE* p_file, size_t msg_level)
+static void si_logger_fprint_header(FILE* p_file, const size_t msg_level)
 {
 	if(NULL == p_file)
 	{
@@ -98,53 +167,18 @@ static void si_logger_fprint_header(FILE* p_file, size_t msg_level)
 	// Start color
 	if(is_ansi)
 	{
-		fprintf(p_file, "\x1b[1m"); // Bold
-		if(SI_LOGGER_ALL == msg_level)
-		{
-			// Light Gray
-			fprintf(p_file, "\x1b[90m");
-		}
-		else if(SI_LOGGER_INFO >= msg_level)
-		{
-			// Green
-			fprintf(p_file, "\x1b[32m");
-		}
-		else if(SI_LOGGER_WARNING >= msg_level)
-		{
-			// Yellow
-			fprintf(p_file, "\x1b[33m");
-		}
-		else
-		{
-			// Red
-			fprintf(p_file, "\x1b[31m");
-		}
+		const char* const p_color = si_logger_select_color(msg_level);
+		fprintf(p_file, "\x1b[1m%s", p_color); // Bold / Color
 	}
 	// Header text
-	const char* const header_format = "%8s";
-	switch(msg_level)
+	char* p_header = si_logger_select_header(msg_level);
+	if(NULL == p_header)
 	{
-		case(SI_LOGGER_ALL):
-			fprintf(p_file, header_format, "VERBOSE");
-			break;
-		case(SI_LOGGER_DEBUG):
-			fprintf(p_file, header_format, "DEBUG");
-			break;
-		case(SI_LOGGER_INFO):
-			fprintf(p_file, header_format, "INFO");
-			break;
-		case(SI_LOGGER_WARNING):
-			fprintf(p_file, header_format, "WARNING");
-			break;
-		case(SI_LOGGER_ERROR):
-			fprintf(p_file, header_format, "ERROR");
-			break;
-		case(SI_LOGGER_CRITICAL):
-			fprintf(p_file, header_format, "CRITICAL");
-			break;
-		default:
-			fprintf(p_file, "%8lu", msg_level);
-			break;
+		fprintf(p_file, "%8lu", msg_level);
+	}
+	else
+	{
+		fprintf(p_file, "%8s", p_header);
 	}
 	// End color
 	if(is_ansi)
