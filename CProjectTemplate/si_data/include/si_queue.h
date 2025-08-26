@@ -90,8 +90,6 @@ bool si_queue_is_full(const si_queue_t* p_queue);
  */
 size_t si_queue_enqueue(si_queue_t* p_queue, const void* p_item);
 
-
-
 /** Doxygen
  * @brief Sets value at p_item from queue and removes the item(pop).
  *
@@ -109,6 +107,11 @@ size_t si_queue_dequeue(si_queue_t* p_queue, void* p_item);
  */
 void si_queue_free(si_queue_t* const p_queue);
 
+/** Doxygen
+ * @brief Frees a heap queue and it's allocated contents by its pointer.
+ * 
+ * @param pp_queue Pointer to the heap queue pointer to be freed.
+ */
 void si_queue_free_at(si_queue_t** pp_queue);
 
 #ifdef __cplusplus
