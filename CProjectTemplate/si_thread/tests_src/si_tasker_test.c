@@ -21,9 +21,7 @@ static void handle_exit(const int signal)
 {
 	if(NULL != p_tasker)
 	{
-		si_tasker_free(p_tasker);
-		free(p_tasker);
-		p_tasker = NULL;
+		si_tasker_destroy(&p_tasker);
 	}
 	if(NULL != p_logger)
 	{

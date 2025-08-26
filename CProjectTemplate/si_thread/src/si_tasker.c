@@ -266,15 +266,15 @@ inline size_t si_tasker_count(const si_tasker_t* const p_tasker)
 	const size_t priority_capacity = SI_TASK_PRIORITY_MAX + 1u;
 	for(size_t iii = 0u; iii < priority_capacity; iii++)
 	{
-		si_queue_t* p_queue = si_queue_t_array_at(&(p_tasker->tasks), iii);
-		if(NULL == p_queue)
-		{
-			continue;
-		}
 		pthread_mutex_t* p_lock = pthread_mutex_t_array_at(
 			&(p_tasker->locks), iii
 		);
 		if(NULL == p_lock)
+		{
+			continue;
+		}
+		si_queue_t* p_queue = si_queue_t_array_at(&(p_tasker->tasks), iii);
+		if(NULL == p_queue)
 		{
 			continue;
 		}
@@ -313,6 +313,13 @@ void si_tasker_clear_tasks(si_tasker_t* const p_tasker)
 		{
 			break;
 		}
+		pthread_mutex_t* p_lock = pthread_mutex_t_array_at(
+			&(p_tasker->locks), iii
+		);
+		if(NULL == p_lock)
+		{
+			break;
+		}
 		si_queue_t* p_queue = si_queue_t_array_at(&(p_tasker->tasks), iii);
 		if(NULL == p_queue)
 		{
@@ -322,9 +329,9 @@ void si_tasker_clear_tasks(si_tasker_t* const p_tasker)
 		p_task = calloc(1u, sizeof(si_task_t));
 		if(NULL == p_task)
 		{
-			si_queue_free(p_queue);
-			continue;
+			break;
 		}
+		pthread_mutex_lock(p_lock);
 		size_t new_size = si_queue_dequeue(p_queue, p_task);
 		while(0 < new_size)
 		{
@@ -332,7 +339,7 @@ void si_tasker_clear_tasks(si_tasker_t* const p_tasker)
 			new_size = si_queue_dequeue(p_queue, p_task);
 		}
 		si_task_free_at(&p_task);
-		si_queue_free(p_queue);
+		pthread_mutex_unlock(p_lock);
 	}
 END:
 	return;
@@ -448,23 +455,40 @@ void si_tasker_free(si_tasker_t* const p_tasker)
 	{
 		goto END;
 	}
-	printf("Free() calls stop().\n");//!Debugging
+	printf("Free() calling stop() on tasker %p.\n", p_tasker);//!Debugging
 	si_tasker_stop(p_tasker);
-	printf("Free() calls pthread_t_array_free() on pool.\n");//!Debugging
+	printf("Free() calling pthread_t_array_free() on pool %p.\n", &(p_tasker->pool));//!Debugging
 	pthread_t_array_free(&(p_tasker->pool));
-	for(size_t iii = 0u; iii < p_tasker->locks.capacity; iii++)
+	printf("Free() calling si_tasker_clear_tasks() on tasks.\n");//!Debugging
+	si_tasker_clear_tasks(p_tasker);
+	for(size_t iii = 0u; iii < p_tasker->tasks.capacity; iii++)
 	{
-		pthread_mutex_t* p_lock = pthread_mutex_t_array_at(&(p_tasker->locks), iii);
-		printf("Free() calls pthread_mutex_destroy() on lock at %lu.\n", iii);//!Debugging
+		pthread_mutex_t* p_lock = pthread_mutex_t_array_at(
+			&(p_tasker->locks), iii
+		);
+		if(NULL == p_lock)
+		{
+			break;
+		}
+		si_queue_t* p_queue = si_queue_t_array_at(&(p_tasker->tasks), iii);
+		if(NULL == p_queue)
+		{
+			continue;
+		}
+		pthread_mutex_lock(p_lock);
+		printf("Free() calling si_queue_free_at() on %p queue at %lu.\n", p_queue, iii);//!Debugging
+		si_queue_free_at(&p_queue);
+		pthread_mutex_unlock(p_lock);
+		printf("Free() calling pthread_mutex_destroy() on %p lock at %lu.\n", p_lock, iii);//!Debugging
 		pthread_mutex_destroy(p_lock);
 	}
-	printf("Free() calls pthread_mutex_t_array_free() on locks.\n");//!Debugging
-	pthread_mutex_t_array_free(&(p_tasker->locks));
-	printf("Free() calls si_tasker_clear_tasks() on tasks.\n");//!Debugging
-	si_tasker_clear_tasks(p_tasker);
-	printf("Free() calls si_queue_t_array_free() on tasks.\n");//!Debugging
+	printf("Free() calling si_queue_t_array_free() on tasks.\n");//!Debugging
 	si_queue_t_array_free(&(p_tasker->tasks));
-	printf("Free() calls si_map_free().\n");//!Debugging
+	printf("Free() calling pthread_mutex_t_array_free() on locks.\n");//!Debugging
+	pthread_mutex_t_array_free(&(p_tasker->locks));
+	printf("Free() calling si_queue_t_array_free() on tasks.\n");//!Debugging
+	si_queue_t_array_free(&(p_tasker->tasks));
+	printf("Free() calling si_map_free().\n");//!Debugging
 	si_map_free(&(p_tasker->results));
 	// End
 END:
@@ -487,4 +511,9 @@ void si_tasker_destroy(si_tasker_t** pp_tasker)
 	pp_tasker = NULL;
 END:
 	return;
+}
+
+void si_tasker_fprint(FILE* const p_file, const si_tasker_t* const p_tasker)
+{
+	// TODO
 }

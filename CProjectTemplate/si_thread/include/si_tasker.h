@@ -163,4 +163,12 @@ void si_tasker_free(si_tasker_t* const p_tasker);
  */
 void si_tasker_destroy(si_tasker_t** pp_tasker);
 
+/** Doxygen
+ * @brief Writes tasker values to a FILE stream.
+ * 
+ * @param p_file Pointer to the FILE to write to.
+ * @param p_tasker Pointer to the si_tasker_t struct to be printed.
+ */
+void si_tasker_fprint(FILE* const p_file, const si_tasker_t* const p_tasker);
+
 #endif//SI_TASKER_H
