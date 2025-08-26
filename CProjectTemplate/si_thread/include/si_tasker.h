@@ -156,4 +156,11 @@ void si_tasker_stop(si_tasker_t* const p_tasker);
  */
 void si_tasker_free(si_tasker_t* const p_tasker);
 
+/** Doxygen
+ * @brief Frees a si_tasker_t on the heap and all it's allocated memory.
+ * 
+ * @param p_tasker Pointer to the heap pointer of a si_tasker_t struct to free.
+ */
+void si_tasker_destroy(si_tasker_t** pp_tasker);
+
 #endif//SI_TASKER_H

@@ -461,3 +461,21 @@ void si_tasker_free(si_tasker_t* const p_tasker)
 END:
 	return;
 }
+
+void si_tasker_destroy(si_tasker_t** pp_tasker)
+{
+	if(NULL == pp_tasker)
+	{
+		goto END;
+	}
+	if(NULL == *pp_tasker)
+	{
+		// Already freed
+		goto END;
+	}
+	si_tasker_free(*pp_tasker);
+	free(*pp_tasker);
+	pp_tasker = NULL;
+END:
+	return;
+}
