@@ -2,6 +2,7 @@
 
 #include "unity.h"
 #include "si_hashmap.h"
+#include "si_realloc_settings.h"
 
 /* Is run before every test, put unit init calls here. */
 void setUp (void)
@@ -95,10 +96,14 @@ void si_hashmap_test_init(void)
 
 void si_hashmap_test_modify(void)
 {
-	//TODO
+	si_realloc_settings_t settings = {0};
+	si_realloc_settings_new(&settings);
+
 	const size_t capacity = 32u;
 	si_hashmap_t* p_hashmap = si_hashmap_new(capacity);
 	TEST_ASSERT_NOT_NULL(p_hashmap);
+	p_hashmap->p_settings = &settings;
+	si_hashmap_update_settings(p_hashmap);
 
 	size_t keys[] = { 1, 2, 3, 4, 5 };
 	int    data[] = { 6, 7, 8, 9, 42 };
