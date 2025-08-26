@@ -177,6 +177,14 @@ void si_map_free(si_map_t* const p_map);
  */
 void si_map_free_at(si_map_t** pp_map);
 
+/** Doxygen
+ * @brief Prints map values to FILE stream. Typically used for debugging.
+ * 
+ * @param p_file Pointer to the FILE to be written to.
+ * @param p_map Pointer to the si_map_t struct to read from.
+ */
+void si_map_fprint(FILE* const p_file, const si_map_t* const p_map);
+
 #ifdef __cplusplus
 }
 #endif //__cplusplus
