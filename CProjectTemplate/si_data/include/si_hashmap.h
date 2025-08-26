@@ -3,8 +3,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "si_map.h"
 #include "si_adler.h"
+#include "si_map.h"
+#include "si_realloc_settings.h"
 
 #ifndef SI_HASHMAP_H
 #define SI_HASHMAP_H
@@ -18,6 +19,7 @@ extern "C" {
 typedef struct si_hashmap_t
 {
 	si_array_t maps;
+	si_realloc_settings_t* p_settings;
 	size_t (*p_hash_f)(const void* const, const size_t);
 } si_hashmap_t;
 
@@ -37,6 +39,14 @@ void si_hashmap_init(si_hashmap_t* const p_hashmap, const size_t capacity);
  * @return Returns pointer to new struct on success. Returns NULL otherwise.
 */
 si_hashmap_t* si_hashmap_new(const size_t capacity);
+
+/** Doxygen
+ * @brief Update child data structures with updated reallocation settings
+ *        pointer address. Note: Not needed for changes inside settings struct.
+ * 
+ * @param p_hashmap Pointer to the hashmap to have children settings updated.
+ */
+void si_hashmap_update_settings(si_hashmap_t* const p_hashmap);
 
 /** Doxygen
  * @brief Walks the structure to determine the # of hash,value pairs stored.

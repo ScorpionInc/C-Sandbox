@@ -76,6 +76,29 @@ END:
 	return p_new;
 }
 
+void si_hashmap_update_settings(si_hashmap_t* const p_hashmap)
+{
+	if(NULL == p_hashmap)
+	{
+		goto END;
+	}
+	for(size_t i = 0u; i < p_hashmap->maps.capacity; i++)
+	{
+		si_map_t** const pp_map = si_array_at(&(p_hashmap->maps), i);
+		if(NULL == pp_map)
+		{
+			break;
+		}
+		if(NULL == *pp_map)
+		{
+			continue;
+		}
+		(*pp_map)->p_settings = p_hashmap->p_settings;
+	}
+END:
+	return;
+}
+
 size_t si_hashmap_count(const si_hashmap_t* const p_hashmap)
 {
 	size_t result = SIZE_MAX;
@@ -278,6 +301,7 @@ bool si_hashmap_insert_hash(si_hashmap_t* const p_hashmap, const size_t hash,
 			// Failed to initialize new map.
 			goto END;
 		}
+		(*pp_map)->p_settings = p_hashmap->p_settings;
 		(*pp_map)->p_cmp_key_f = si_hashmap_compare_hash;
 		(*pp_map)->p_free_key_f = free;
 	}
@@ -301,7 +325,7 @@ bool si_hashmap_assign(si_hashmap_t* const p_hashmap, const void* const p_key,
 		goto END;
 	}
 	const size_t hash = si_hashmap_hash(p_hashmap, p_key, key_size);
-	result = si_hashmap_assign_hash(p_hashmap, hash, p_value);	//! TODO
+	result = si_hashmap_assign_hash(p_hashmap, hash, p_value);
 END:
 	return result;
 }
