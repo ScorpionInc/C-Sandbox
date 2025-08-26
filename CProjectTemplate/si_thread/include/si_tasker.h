@@ -52,7 +52,7 @@ size_t si_cpu_core_count();
 
 typedef struct si_tasker_t
 {
-	volatile sig_atomic_t exit_signal;
+	volatile sig_atomic_t running_signal;
 	pthread_t_array_t pool;
 	pthread_mutex_t_array_t locks;
 	si_queue_t_array_t tasks;
@@ -169,6 +169,6 @@ void si_tasker_destroy(si_tasker_t** pp_tasker);
  * @param p_file Pointer to the FILE to write to.
  * @param p_tasker Pointer to the si_tasker_t struct to be printed.
  */
-void si_tasker_fprint(FILE* const p_file, const si_tasker_t* const p_tasker);
+void si_tasker_fprint(FILE* const p_file, si_tasker_t* const p_tasker);
 
 #endif//SI_TASKER_H

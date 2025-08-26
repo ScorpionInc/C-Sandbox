@@ -33,7 +33,7 @@ static void* si_tasker_runner(void* const p_arg)
 	}
 	pthread_t thisThread = pthread_self();
 	// Start of main thread loop
-	while(0u < p_tasker->exit_signal)
+	while(0u < p_tasker->running_signal)
 	{
 		// Valgrind may freeze without a sleep() or --fair-sched=yes
 		pthread_testcancel();
@@ -295,7 +295,7 @@ bool si_tasker_is_running(const si_tasker_t* const p_tasker)
 	{
 		goto END;
 	}
-	result = (0 != p_tasker->exit_signal);
+	result = (0 != p_tasker->running_signal);
 END:
 	return result;
 }
@@ -357,7 +357,7 @@ void si_tasker_start_2(si_tasker_t* const p_tasker, const size_t thread_count)
 		goto END;
 	}
 	// Initialize thread pool
-	p_tasker->exit_signal++;
+	p_tasker->running_signal++;
 	pthread_t_array_resize(&(p_tasker->pool), thread_count);
 	for(size_t iii = 0u; iii < thread_count; iii++)
 	{
@@ -401,12 +401,12 @@ void si_tasker_stop(si_tasker_t* const p_tasker)
 	{
 		goto END;
 	}
-	if(0 >= p_tasker->exit_signal)
+	if(0 >= p_tasker->running_signal)
 	{
 		// Already stopped.
 		goto END;
 	}
-	p_tasker->exit_signal--;
+	p_tasker->running_signal--;
 	const size_t thread_count = p_tasker->pool.capacity;
 	bool timeout_created = true;
 	struct timespec timeout = {0};
@@ -513,7 +513,180 @@ END:
 	return;
 }
 
-void si_tasker_fprint(FILE* const p_file, const si_tasker_t* const p_tasker)
+/** Doxygen
+ * @brief Prints thread IDs from a thread ID array to a FILE stream.
+ * 
+ * @param p_file Pointer to the FILE to print to.
+ * @param p_pool Pointer to the array of thread IDs to be read from.
+ */
+static void si_tasker_fprint_pool(FILE* const p_file,
+	const pthread_t_array_t* const p_pool)
 {
-	// TODO
+	if((NULL == p_file) || (NULL == p_pool))
+	{
+		goto END;
+	}
+	fprintf(p_file, "[\n");
+	for(size_t iii = 0u; iii < p_pool->capacity; iii++)
+	{
+		pthread_t* p_thread = si_array_at(p_pool, iii);
+		if(NULL == p_thread)
+		{
+			fprintf(p_file, "NULL");
+		}
+		else
+		{
+			fprintf(p_file, "%lu", *p_thread);
+		}
+		if(iii + 1u < p_pool->capacity)
+		{
+			fprintf(p_file, ", ");
+		}
+		if(5 == (iii % 6))
+		{
+			fprintf(p_file, "\n\t\t");
+		}
+	}
+	fprintf(p_file, "]:%lu@%p", p_pool->capacity, p_pool);
+END:
+	return;
+}
+
+/** Doxygen
+ * @brief Prints the mutex lock state of each lock in the array to FILE.
+ * 
+ * @param p_file Pointer to FILE stream to write to.
+ * @param p_locks Pointer to the mutex array to read mutexs from.
+ */
+static void si_tasker_fprint_locks(FILE* const p_file,
+	pthread_mutex_t_array_t* const p_locks)
+{
+	if((NULL == p_file) || (NULL == p_locks))
+	{
+		goto END;
+	}
+	fprintf(p_file, "[\n\t\t");
+	for(size_t iii = 0u; iii < p_locks->capacity; iii++)
+	{
+		pthread_mutex_t* p_lock = si_array_at(p_locks, iii);
+		if(NULL == p_lock)
+		{
+			fprintf(p_file, "NULL");
+		}
+		else
+		{
+			const int lock_status = pthread_mutex_trylock(p_lock);
+			if(0 == lock_status)
+			{
+				pthread_mutex_unlock(p_lock);
+			}
+			fprintf(p_file, "%s",
+				lock_status == EBUSY ? "locked" : "unlock");
+		}
+		if(iii + 1u < p_locks->capacity)
+		{
+			fprintf(p_file, ", ");
+		}
+		if(5 == (iii % 6))
+		{
+			fprintf(p_file, "\n\t\t");
+		}
+	}
+	fprintf(p_file, "]:%lu@%p", p_locks->capacity, p_locks);
+END:
+	return;
+}
+
+/** Doxygen
+ * @brief Prints the state of the task queues to FILE. *WARNING* ignores mutex.
+ * 
+ * @param p_file Pointer to the FILE stream to be written to.
+ * @param p_tasks Pointer to the task queues array to read from.
+ */
+static void si_tasker_fprint_tasks(FILE* const p_file,
+	const si_queue_t_array_t* const p_tasks)
+{
+	if((NULL == p_file) || (NULL == p_tasks))
+	{
+		goto END;
+	}
+	fprintf(p_file, "[\n\t\t");
+	for(size_t iii = 0u; iii < p_tasks->capacity; iii++)
+	{
+		si_queue_t* p_queue = si_array_at(p_tasks, iii);
+		if(NULL == p_queue)
+		{
+			fprintf(p_file, "NULL");
+		}
+		else
+		{
+			si_queue_fprint(p_file, p_queue);
+		}
+		if(iii + 1u < p_tasks->capacity)
+		{
+			fprintf(p_file, ", ");
+		}
+		if(1 == (iii % 2))
+		{
+			fprintf(p_file, "\n\t\t");
+		}
+	}
+	fprintf(p_file, "]:%lu@%p", p_tasks->capacity, p_tasks);
+END:
+	return;
+}
+
+void si_tasker_fprint(FILE* const p_file, si_tasker_t* const p_tasker)
+{
+	if(NULL == p_file)
+	{
+		goto END;
+	}
+	if(NULL == p_tasker)
+	{
+		fprintf(p_file, "NULL");
+		goto END;
+	}
+	fprintf(p_file, "{\n\trunning_signal: %s;\n\tpool : ",
+		p_tasker->running_signal ? "true" : "false");
+	si_tasker_fprint_pool(p_file, &(p_tasker->pool));
+	fprintf(p_file, ";\n\tlocks: ");
+	si_tasker_fprint_locks(p_file, &(p_tasker->locks));
+	fprintf(p_file, ";\n\ttasks: ");
+	for(size_t iii = 0u; iii < p_tasker->locks.capacity; iii++)
+	{
+		pthread_mutex_t* p_lock = NULL;
+		p_lock = si_array_at(&(p_tasker->locks), iii);
+		if(NULL == p_lock)
+		{
+			continue;
+		}
+		pthread_mutex_lock(p_lock);
+	}
+	si_tasker_fprint_tasks(p_file, &(p_tasker->tasks));
+	for(size_t iii = 0u; iii < p_tasker->locks.capacity; iii++)
+	{
+		pthread_mutex_t* p_lock = NULL;
+		p_lock = si_array_at(&(p_tasker->locks), iii);
+		if(NULL == p_lock)
+		{
+			continue;
+		}
+		pthread_mutex_unlock(p_lock);
+	}
+	const int results_status = pthread_mutex_trylock(&(p_tasker->results_lock));
+	if(0 == results_status)
+	{
+		pthread_mutex_unlock(&(p_tasker->results_lock));
+	}
+	fprintf(p_file, ";\n\tresults_lock: %s",
+		results_status == EBUSY ? "locked" : "unlock");
+	fprintf(p_file, ";\n\tresults     : ");
+	pthread_mutex_lock(&(p_tasker->results_lock));
+	si_map_fprint(p_file, &(p_tasker->results));
+	pthread_mutex_unlock(&(p_tasker->results_lock));
+	fprintf(p_file, ";\n}@%p", p_tasker);
+	fflush(p_file);
+END:
+	return;
 }
