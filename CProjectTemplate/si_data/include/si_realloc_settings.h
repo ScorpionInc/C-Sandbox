@@ -77,26 +77,26 @@ size_t si_realloc_settings_next_shrink_capacity(
 	const si_realloc_settings_t* p_settings, const size_t current_capacity);
 
 /** Doxygen
- * @brief Increases the capacity of p_dynamic by grow_value using grow_method.
+ * @brief Increases the capacity of p_array by grow_value using grow_method.
  *
- * @param p_dynamic Pointer to struct of allocated dynamic memory to be grown.
+ * @param p_array Pointer to struct of allocated dynamic memory to be grown.
  * @param dynamics Pointer to si_realloc_settings struct holding grow settings.
  *
  * @return Returns true on success. False otherwise.
  */
 bool si_realloc_settings_grow(
-	const si_realloc_settings_t* p_settings, si_array_t* p_dynamic);
+	const si_realloc_settings_t* p_settings, si_array_t* p_array);
 
 /** Doxygen
- * @brief Lowers the capacity of p_dynamic by shrink_value using shrink_method.
+ * @brief Lowers the capacity of p_array by shrink_value using shrink_method.
  *
- * @param p_dynamic Pointer to struct of allocated dynamic memory to be shrunk.
+ * @param p_array Pointer to struct of allocated dynamic memory to be shrunk.
  * @param dynamics Pointer to si_dynamics struct holding shrink settings.
  *
  * @return Returns true on success. False otherwise.
  */
 bool si_realloc_settings_shrink(
-	const si_realloc_settings_t* p_settings, si_array_t* p_dynamic);
+	const si_realloc_settings_t* p_settings, si_array_t* p_array);
 
 /** Doxygen
  * @brief Writes the formatted data from si_realloc_settings struct to file.
