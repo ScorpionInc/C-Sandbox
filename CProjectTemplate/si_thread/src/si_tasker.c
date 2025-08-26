@@ -18,9 +18,13 @@ END:
 	return count;
 }
 
-static void* si_tasker_runner(void* const p_tasker)
+static void* si_tasker_runner(void* const p_arg)
 {
-	// Begin
+	if(NULL == p_arg)
+	{
+		goto END;
+	}
+	si_tasker_t* p_tasker = (si_tasker_t*)p_arg;
 	int status = pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 	if(status != 0)
 	{
@@ -28,47 +32,62 @@ static void* si_tasker_runner(void* const p_tasker)
 		goto END;
 	}
 	pthread_t thisThread = pthread_self();
-	printf("Thread #%lu is running.\n", (unsigned long)thisThread);//!Debugging
 	// Start of main thread loop
-	while(1 == 1)
+	while(0u < p_tasker->exit_signal)
 	{
 		// Valgrind may freeze without a sleep() or --fair-sched=yes
 		pthread_testcancel();
-		usleep(1u);
-		si_task* const next_task = si_tasker_next_task(p_tasker);
+		si_task_t* next_task = si_tasker_next_task(p_tasker);
 		if(NULL == next_task)
 		{
 			pthread_testcancel();
-			usleep(999u);
+			int standoff = (rand() % (SI_TASKER_MAX_STANDOFF + 1));
+			usleep(standoff);
 			pthread_testcancel();
 			continue;
 		}
 		// Start Task
-		if(!si_task_is_complete(next_task))
+		const bool is_complete = si_task_is_complete(next_task);
+		const bool is_running = si_task_is_running(next_task);
+		if((is_complete) || (is_running))
 		{
-			next_task->field |= SI_TASK_RUNNING_MASK;
-			si_task_start(next_task);
+			si_task_free(next_task);
+			free(next_task);
+			next_task = NULL;
+			continue;
 		}
-		// Handle Completed Task
-		next_task->field |= SI_TASK_COMPLETE_MASK;
-		if(si_task_returns_value(next_task))
+		pthread_testcancel();
+		next_task->field |= SI_TASK_RUNNING;
+		si_task_start(next_task);
+		next_task->field &= (~SI_TASK_RUNNING);
+		pthread_testcancel();
+		const bool returns_value = si_task_returns_value(next_task);
+		const bool is_looping = si_task_is_looping(next_task);
+		if(returns_value)
 		{
 			//!TODO Move results into tasker for retreival
 		}
-		if(si_task_is_looping(next_task))
+		if(is_looping)
 		{
 			// Requeue task at current priority.
 			si_tasker_enqueue_task(p_tasker, next_task);
 		}
+		else
+		{
+			// Handle Completed Task
+			next_task->field |= SI_TASK_COMPLETE;
+		}
 		// Cleanup
 		si_task_free(next_task);
+		free(next_task);
+		next_task = NULL;
 	}
 	// End
 END:
-	pthread_exit(p_tasker);
+	pthread_exit(p_arg);
 }
 
-void si_tasker_new_2(si_tasker* const p_tasker, const size_t thread_count)
+void si_tasker_init(si_tasker_t* const p_tasker)
 {
 	// Validate
 	if(NULL == p_tasker)
@@ -77,115 +96,152 @@ void si_tasker_new_2(si_tasker* const p_tasker, const size_t thread_count)
 	}
 	// Begin
 	const size_t priority_capacity = SI_TASK_PRIORITY_MAX + 1u;
-	// Initialize thread pool
-	pthread_t_array_init_2(&(p_tasker->pool), thread_count);
-	for(size_t i = 0u; i < thread_count; i++)
-	{
-		pthread_t* p_thread = pthread_t_array_at(&(p_tasker->pool), i);
-		if(NULL == p_thread)
-		{
-			break;
-		}
-		pthread_create(p_thread, NULL, si_tasker_runner, (void*)p_tasker);
-	}
+	pthread_t_array_init_2(&(p_tasker->pool), 0u);
 	// Initialize priority queue locks
 	pthread_mutex_t_array_init_2(&(p_tasker->locks), priority_capacity);
-	for(size_t i = 0u; i < priority_capacity; i++)
+	for(size_t iii = 0u; iii < priority_capacity; iii++)
 	{
-		pthread_mutex_t* lock = pthread_mutex_t_array_at(&(p_tasker->locks), i);
+		pthread_mutex_t* lock = pthread_mutex_t_array_at(&(p_tasker->locks), iii);
 		if(NULL == lock)
 		{
 			break;
 		}
-		*lock = (pthread_mutex_t){};
-		pthread_mutex_init(lock, NULL);
+		*lock = (pthread_mutex_t){0};
+		const int init_queue_lock = pthread_mutex_init(lock, NULL);
+		if(0 != init_queue_lock)
+		{
+			break;
+		}
 	}
 	// TODO Add a way to define a shared realloc_settings struct
 	// Initialize task queues
 	si_queue_t_array_init_2(&(p_tasker->tasks), priority_capacity);
-	for(size_t i = 0u; i < priority_capacity; i++)
+	for(size_t iii = 0u; iii < priority_capacity; iii++)
 	{
-		si_queue_t* p_queue = si_queue_t_array_at(&(p_tasker->tasks), i);
+		si_queue_t* p_queue = si_queue_t_array_at(&(p_tasker->tasks), iii);
 		if(NULL == p_queue)
 		{
 			break;
 		}
-		si_queue_init(p_queue, sizeof(si_task));
+		si_queue_init(p_queue, sizeof(si_task_t));
 	}
-	p_tasker->results_lock = (pthread_mutex_t){};
-	p_tasker->results = (si_map_t){};
-	si_map_new(&(p_tasker->results));
+	p_tasker->results_lock = (pthread_mutex_t){0};
+	const int init_results_lock = pthread_mutex_init(
+		&(p_tasker->results_lock), NULL
+	);
+	if(0 != init_results_lock)
+	{
+		goto END;
+	}
+	p_tasker->results = (si_map_t){0};
+	si_map_init(&(p_tasker->results));
 	// End
 END:
 	return;
 }
-void si_tasker_new(si_tasker* const p_tasker)
+
+si_tasker_t* si_tasker_new()
 {
-	// Default thread count = # of CPU Cores
-	const size_t cpu_core_count = si_cpu_core_count();
-	si_tasker_new_2(p_tasker, cpu_core_count);
+	si_tasker_t* p_new = NULL;
+	p_new = calloc(1u, sizeof(si_tasker_t));
+	if(NULL == p_new)
+	{
+		goto END;
+	}
+	si_tasker_init(p_new);
+END:
+	return p_new;
 }
 
-void si_tasker_enqueue_task(si_tasker* const p_tasker, si_task* const p_task)
+void si_tasker_enqueue_task(si_tasker_t* const p_tasker,
+	si_task_t* const p_task)
 {
-	//!TODO
 	// Validate
 	if((NULL == p_tasker) || (NULL == p_task))
 	{
 		goto END;
 	}
 	// Begin
+	const uint8_t priority = si_task_priority(p_task);
+	pthread_mutex_t* const p_lock = pthread_mutex_t_array_at(
+		&(p_tasker->locks), priority
+	);
+	if(NULL == p_lock)
+	{
+		goto END;
+	}
+	si_queue_t* const p_queue = si_queue_t_array_at(
+		&(p_tasker->tasks), priority
+	);
+	if(NULL == p_queue)
+	{
+		goto END;
+	}
+	pthread_mutex_lock(p_lock);
+	si_queue_enqueue(p_queue, p_task);
+	pthread_mutex_unlock(p_lock);
 	// End
 END:
 	return;
 }
 
-si_task* si_tasker_next_task(si_tasker* const p_tasker)
+bool si_tasker_enqueue_func(si_tasker_t* const p_tasker,
+	si_task_f const p_func)
 {
-	si_task* result = NULL;
+	// TODO
+	bool result = false;
+	if((NULL == p_tasker) || (NULL == p_func))
+	{
+		goto END;
+	}
+END:
+	return result;
+}
+
+si_task_t* si_tasker_next_task(si_tasker_t* const p_tasker)
+{
+	si_task_t* result = NULL;
 	// Validate
 	if(NULL == p_tasker)
 	{
 		goto END;
 	}
-	// Begin
-	// Create new task struct on heap.
-	result = calloc(1u, sizeof(si_task));
+	result = calloc(1u, sizeof(si_task_t));
 	if(NULL == result)
 	{
 		goto END;
 	}
 	// From high priority to low priority.
-	for(size_t i = SI_TASK_PRIORITY_MAX; i >= 0u; i--)
+	for(size_t iii = SI_TASK_PRIORITY_MAX; iii >= 0u; iii--)
 	{
 		// Get the next queue's lock.
-		pthread_mutex_t* lock = pthread_mutex_t_array_at(&(p_tasker->locks),i);
-		if(NULL == lock)
+		pthread_mutex_t* p_lock = pthread_mutex_t_array_at(
+			&(p_tasker->locks), iii
+		);
+		if(NULL == p_lock)
 		{
 			// Invalid lock.
 			break;
 		}
-		// Wait for the queue to become available.
-		pthread_mutex_lock(lock);
 		// Get the priority queue.
-		si_queue_t* p_queue = si_queue_t_array_at(&(p_tasker->tasks), i);
+		si_queue_t* p_queue = si_queue_t_array_at(&(p_tasker->tasks), iii);
 		if(NULL == p_queue)
 		{
 			// Invalid queue.
-			pthread_mutex_unlock(lock);
 			break;
 		}
 		// Determine if this queue has a new task to be done.
+		pthread_mutex_lock(p_lock);
 		if(!si_queue_is_empty(p_queue))
 		{
 			si_queue_dequeue(p_queue, result);
-			pthread_mutex_unlock(lock);
+			pthread_mutex_unlock(p_lock);
 			goto END;
 		}
 		// Release queue lock.
-		pthread_mutex_unlock(lock);
+		pthread_mutex_unlock(p_lock);
 		// Prevent Underflow
-		if(0u == i)
+		if(0u == iii)
 		{
 			break;
 		}
@@ -198,7 +254,7 @@ END:
 	return result;
 }
 
-inline size_t si_tasker_count(const si_tasker* const p_tasker)
+inline size_t si_tasker_count(const si_tasker_t* const p_tasker)
 {
 	size_t count = 0u;
 	// Validate
@@ -208,15 +264,15 @@ inline size_t si_tasker_count(const si_tasker* const p_tasker)
 	}
 	// Begin
 	const size_t priority_capacity = SI_TASK_PRIORITY_MAX + 1u;
-	for(size_t i = 0u; i < priority_capacity; i++)
+	for(size_t iii = 0u; iii < priority_capacity; iii++)
 	{
-		si_queue_t* p_queue = si_queue_t_array_at(&(p_tasker->tasks), i);
+		si_queue_t* p_queue = si_queue_t_array_at(&(p_tasker->tasks), iii);
 		if(NULL == p_queue)
 		{
 			continue;
 		}
 		pthread_mutex_t* p_lock = pthread_mutex_t_array_at(
-			&(p_tasker->locks), i
+			&(p_tasker->locks), iii
 		);
 		if(NULL == p_lock)
 		{
@@ -232,77 +288,174 @@ END:
 	return count;
 }
 
-void si_tasker_start(si_tasker* const p_tasker)
+bool si_tasker_is_running(const si_tasker_t* const p_tasker)
 {
-	// Validate
+	bool result = false;
 	if(NULL == p_tasker)
 	{
 		goto END;
 	}
-	// Begin
-	// si_tasker_stop calls cancel on all threads going from 0->count together.
-	// Thus joining any one thread should work. But the last seems most logical
-	const size_t last_thread_index = p_tasker->pool.capacity - 1u;
-	const pthread_t* p_last_thread = pthread_t_array_at(
-		&(p_tasker->pool), last_thread_index
-	);
-	if(NULL == p_last_thread)
-	{
-		// Invalid thread.
-		goto END;
-	}
-	pthread_join(*p_last_thread, NULL);
-	// End
+	result = (0 != p_tasker->exit_signal);
 END:
-	return;
+	return result;
 }
 
-void si_tasker_stop(si_tasker* const p_tasker)
+void si_tasker_clear_tasks(si_tasker_t* const p_tasker)
 {
-	// Validate
 	if(NULL == p_tasker)
 	{
 		goto END;
 	}
-	// Begin
-	const size_t thread_count = p_tasker->pool.capacity;
-	for(size_t i = 0u; i < thread_count; i++)
-	{
-		pthread_t* p_thread = pthread_t_array_at(&(p_tasker->pool), i);
-		if(NULL == p_thread)
-		{
-			continue;
-		}
-		pthread_cancel(*p_thread);
-		pthread_join(*p_thread, NULL);
-	}
-	// End
-END:
-	return;
-}
-
-void si_tasker_free(si_tasker* const p_tasker)
-{
-	// Validate
-	if(NULL == p_tasker)
-	{
-		goto END;
-	}
-	// Begin
-	si_tasker_stop(p_tasker);
-	pthread_t_array_free(&(p_tasker->pool));
-	pthread_mutex_t_array_free(&(p_tasker->locks));
 	const size_t priority_capacity = SI_TASK_PRIORITY_MAX + 1u;
-	for(size_t i = 0u; i < priority_capacity; i++)
+	for(size_t iii = 0u; iii < priority_capacity; iii++)
 	{
-		si_queue_t* p_queue = si_queue_t_array_at(&(p_tasker->tasks), i);
+		si_queue_t* p_queue = si_queue_t_array_at(&(p_tasker->tasks), iii);
 		if(NULL == p_queue)
 		{
 			continue;
 		}
 		si_queue_free(p_queue);
 	}
+END:
+	return;
+}
+
+void si_tasker_start_2(si_tasker_t* const p_tasker, const size_t thread_count)
+{
+	if(NULL == p_tasker)
+	{
+		goto END;
+	}
+	const bool is_running = si_tasker_is_running(p_tasker);
+	if(true == is_running)
+	{
+		goto END;
+	}
+	// Initialize thread pool
+	p_tasker->exit_signal++;
+	pthread_t_array_resize(&(p_tasker->pool), thread_count);
+	for(size_t iii = 0u; iii < thread_count; iii++)
+	{
+		pthread_t* p_thread = pthread_t_array_at(&(p_tasker->pool), iii);
+		if(NULL == p_thread)
+		{
+			break;
+		}
+		pthread_create(p_thread, NULL, si_tasker_runner, (void*)p_tasker);
+	}
+	// End
+END:
+	return;
+}
+inline void si_tasker_start(si_tasker_t* const p_tasker)
+{
+	const size_t cpu_core_count = si_cpu_core_count();
+	si_tasker_start_2(p_tasker, cpu_core_count);
+}
+
+void si_tasker_await(si_tasker_t* const p_tasker)
+{
+	if(NULL == p_tasker)
+	{
+		goto END;
+	}
+	volatile bool is_running = si_tasker_is_running(p_tasker);
+	while(is_running)
+	{
+		is_running = si_tasker_is_running(p_tasker);
+	}
+	si_tasker_stop(p_tasker);
+END:
+	return;
+}
+
+void si_tasker_stop(si_tasker_t* const p_tasker)
+{
+	// Validate
+	if(NULL == p_tasker)
+	{
+		goto END;
+	}
+	if(0 >= p_tasker->exit_signal)
+	{
+		// Already stopped.
+		goto END;
+	}
+	p_tasker->exit_signal--;
+	const size_t thread_count = p_tasker->pool.capacity;
+	bool timeout_created = true;
+	struct timespec timeout = {0};
+	const int gettime_result = clock_gettime(CLOCK_REALTIME, &timeout);
+	if(0 != gettime_result)
+	{
+		timeout_created = false;
+	}
+	else
+	{
+		timeout.tv_sec += SI_TASKER_THREAD_TIMEOUT;
+	}
+	for(size_t iii = 0u; iii < thread_count; iii++)
+	{
+		pthread_t* p_thread = pthread_t_array_at(&(p_tasker->pool), iii);
+		if(NULL == p_thread)
+		{
+			continue;
+		}
+		pthread_cancel(*p_thread);
+		int timed_join_result = EXIT_SUCCESS;
+		if(timeout_created)
+		{
+			timed_join_result = pthread_timedjoin_np(*p_thread, NULL, &timeout);
+		}
+		else
+		{
+			pthread_join(*p_thread, NULL);
+		}
+		if(ETIMEDOUT == timed_join_result)
+		{
+			pthread_kill(*p_thread, SIGKILL);
+			pthread_join(*p_thread, NULL);
+		}
+	}
+	pthread_t_array_resize(&(p_tasker->pool), 0u);
+	// End
+END:
+	return;
+}
+
+void si_tasker_free(si_tasker_t* const p_tasker)
+{
+	// Validate
+	if(NULL == p_tasker)
+	{
+		goto END;
+	}
+	printf("Free() calls stop().\n");//!Debugging
+	si_tasker_stop(p_tasker);
+	printf("Free() calls pthread_t_array_free() on pool.\n");//!Debugging
+	pthread_t_array_free(&(p_tasker->pool));
+	for(size_t iii = 0u; iii < p_tasker->locks.capacity; iii++)
+	{
+		pthread_mutex_t* p_lock = pthread_mutex_t_array_at(&(p_tasker->locks), iii);
+		printf("Free() calls pthread_mutex_destroy() on lock at %lu.\n", iii);//!Debugging
+		pthread_mutex_destroy(p_lock);
+	}
+	printf("Free() calls pthread_mutex_t_array_free() on locks.\n");//!Debugging
+	pthread_mutex_t_array_free(&(p_tasker->locks));
+	const size_t priority_capacity = SI_TASK_PRIORITY_MAX + 1u;
+	for(size_t iii = 0u; iii < priority_capacity; iii++)
+	{
+		si_queue_t* p_queue = si_queue_t_array_at(&(p_tasker->tasks), iii);
+		if(NULL == p_queue)
+		{
+			continue;
+		}
+		printf("Free() calls si_queue_free() at %lu.\n", iii);//!Debugging
+		si_queue_free(p_queue);
+	}
+	printf("Free() calls si_queue_t_array_free() on tasks.\n");//!Debugging
 	si_queue_t_array_free(&(p_tasker->tasks));
+	printf("Free() calls si_map_free().\n");//!Debugging
 	si_map_free(&(p_tasker->results));
 	// End
 END:

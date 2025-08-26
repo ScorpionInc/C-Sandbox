@@ -27,9 +27,11 @@ do
 	outputFile="${filename}.out"
 	outputFinal="${outputDir}${outputFile}"
 	echo "Building unit test: '$test' -> '$outputFinal'."
-	gcc -ggdb "$test" "$libPath" "../si_data/build/libsi_data.a" "$unitySrc" -I./include -I../si_data/include -I./tests_include -I"$unityInclude" -lm -o "$outputFinal"
-	valgrind -s --log-fd=1 --fair-sched=yes --leak-check=full --show-leak-kinds=all --track-origins=yes "$outputFinal"
-	rm -f "${outputFinal}"
+	gcc -ggdb "$test" "$libPath" ../si_data/src/* ../si_core/src/* "../si_data/build/libsi_data.a" "$unitySrc" -I./include -I../si_data/include -I../si_core/include -I./tests_include -I"$unityInclude" -lm -o "$outputFinal"
+	#valgrind -s --log-fd=1 --fair-sched=yes --leak-check=full --show-leak-kinds=all --track-origins=yes "$outputFinal"
+	valgrind --tool=helgrind -s "$outputFinal"
+	#./"${outputFinal}"
+	#rm -f "${outputFinal}"
 done
 echo
 echo 'End of si_thread unit tests.'
