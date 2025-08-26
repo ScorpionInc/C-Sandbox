@@ -37,13 +37,13 @@ void si_adler_init_prime_le(uint8_t* const p_bytes, const size_t block_size)
 	// Begin
 	const size_t prime_size = block_size / 2u;
 	const unsigned long long prime = si_adler_select_prime(block_size);
-	for(size_t i = 0; i < sizeof(long long); i++)
+	for(size_t iii = 0; iii < sizeof(long long); iii++)
 	{
-		if(i >= prime_size)
+		if(iii >= prime_size)
 		{
 			break;
 		}
-		p_bytes[i] = ((uint8_t*)&prime)[i];
+		p_bytes[iii] = ((uint8_t*)&prime)[iii];
 	}
 	// End
 END:
@@ -60,13 +60,13 @@ void si_adler_init_prime_be(uint8_t* const p_bytes, const size_t block_size)
 	// Begin
 	const size_t prime_size = block_size / 2u;
 	const unsigned long long prime = si_adler_select_prime(block_size);
-	for(size_t i = 0; i < sizeof(long long); i++)
+	for(size_t iii = 0; iii < sizeof(long long); iii++)
 	{
-		if(i >= prime_size)
+		if(iii >= prime_size)
 		{
 			break;
 		}
-		const size_t next_index = prime_size - 1u - i;
+		const size_t next_index = prime_size - 1u - iii;
 		p_bytes[next_index] = ((uint8_t*)&prime)[next_index];
 	}
 	// End
@@ -152,7 +152,7 @@ void si_adler_update(si_adler_t* const p_hash, const uint8_t* const p_buffer,
 		memset(&prime[0], 0x00, buffer_size);
 		si_adler_init_prime(&prime[0u], p_hash->block_size);
 		// Digest fixed block size input
-		for(size_t i = 0u; i < input_buffer_size; i++)
+		for(size_t iii = 0u; iii < input_buffer_size; iii++)
 		{
 			// Buffer = LSB with +1 pad
 			memset(&lsb_buffer[0u], 0x00, buffer_size);
@@ -164,11 +164,11 @@ void si_adler_update(si_adler_t* const p_hash, const uint8_t* const p_buffer,
 			memset(&input_buffer[0u], 0x00, buffer_size);
 			if(BYTE_ORDER == LITTLE_ENDIAN)
 			{
-				input_buffer[0u] = p_buffer[i];
+				input_buffer[0u] = p_buffer[iii];
 			}
 			else
 			{
-				input_buffer[half_bytes - 1u] = p_buffer[i];
+				input_buffer[half_bytes - 1u] = p_buffer[iii];
 			}
 			// Add. lsb = lsb + input_buffer
 			add_uint_bytes(&lsb_buffer[0u], &input_buffer[0u], buffer_size);
@@ -220,9 +220,9 @@ void si_adler_fprint(const si_adler_t* const p_hash, FILE* const p_file)
 	}
 	// Begin
 	fprintf(p_file, "0x");
-	for(size_t i = 0u; i < p_hash->block_size; i++)
+	for(size_t iii = 0u; iii < p_hash->block_size; iii++)
 	{
-		size_t next_index = i;
+		size_t next_index = iii;
 		if(BYTE_ORDER == LITTLE_ENDIAN)
 		{
 			next_index = p_hash->block_size - 1u - next_index;

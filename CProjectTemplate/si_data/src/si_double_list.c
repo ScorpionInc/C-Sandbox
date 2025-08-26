@@ -526,14 +526,14 @@ bool si_double_list_sort(si_double_list_t* const p_list)
 	}
 	si_double_node_t* p_to_set = p_list->p_head;
 	si_double_node_t* p_walker = NULL;
-	for(size_t i = 0u; i < p_list->capacity; i++)
+	for(size_t iii = 0u; iii < p_list->capacity; iii++)
 	{
 		if(NULL == p_to_set)
 		{
 			break;
 		}
 		p_walker = p_to_set;
-		for(size_t ii = i + 1; ii < p_list->capacity; ii++)
+		for(size_t jjj = iii + 1; jjj < p_list->capacity; jjj++)
 		{
 			p_walker = p_walker->p_next;
 			if(NULL == p_walker)
@@ -686,7 +686,7 @@ size_t si_double_list_grow_by(si_double_list_t* const p_list,
 	{
 		goto END;
 	}
-	for(size_t i = 0u; i < amount; i++)
+	for(size_t iii = 0u; iii < amount; iii++)
 	{
 		bool app_result = si_double_list_append(p_list, NULL);
 		if(true != app_result)
@@ -728,7 +728,7 @@ size_t si_double_list_shrink_by(si_double_list_t* const p_list,
 	{
 		goto END;
 	}
-	for(size_t i = 0u; i < amount; i++)
+	for(size_t iii = 0u; iii < amount; iii++)
 	{
 		const bool rm_result = si_double_list_remove_at(
 			p_list, p_list->capacity - 1u);

@@ -67,10 +67,10 @@ void si_map_test_modify(void)
 	p_map->p_settings = &settings;
 
 	printf("Testing insert():\n");
-	for(size_t i = 0u; i < data_size; i++)
+	for(size_t iii = 0u; iii < data_size; iii++)
 	{
-		void* p_next_key = heap_string(keys[i]);
-		void* p_next_value = heap_string(values[i]);
+		void* p_next_key = heap_string(keys[iii]);
+		void* p_next_value = heap_string(values[iii]);
 		TEST_ASSERT_TRUE(si_map_insert(p_map, p_next_key, p_next_value));
 	}
 
@@ -78,22 +78,22 @@ void si_map_test_modify(void)
 	TEST_ASSERT_NULL(si_map_at(NULL, NULL));
 	TEST_ASSERT_NULL(si_map_at(NULL, keys[0u]));
 	TEST_ASSERT_NULL(si_map_at(p_map, NULL));
-	for(size_t i = 0u; i < data_size; i++)
+	for(size_t iii = 0u; iii < data_size; iii++)
 	{
-		char* p_next_str = si_map_at(p_map, keys[i]);
+		char* p_next_str = si_map_at(p_map, keys[iii]);
 		TEST_ASSERT_NOT_NULL(p_next_str);
-		TEST_ASSERT_EQUAL_INT(0, strcmp(p_next_str, values[i]));
-		TEST_ASSERT_EQUAL_size_t(i, si_map_find(p_map, values[i]));
+		TEST_ASSERT_EQUAL_INT(0, strcmp(p_next_str, values[iii]));
+		TEST_ASSERT_EQUAL_size_t(iii, si_map_find(p_map, values[iii]));
 	}
 
 	printf("Testing remove()/count():\n");
 	TEST_ASSERT_FALSE(si_map_remove(NULL, NULL));
 	TEST_ASSERT_FALSE(si_map_remove(NULL, keys[0u]));
 	TEST_ASSERT_FALSE(si_map_remove(p_map, NULL));
-	for(size_t i = 0u; i < data_size; i++)
+	for(size_t iii = 0u; iii < data_size; iii++)
 	{
-		TEST_ASSERT_TRUE(si_map_remove(p_map, keys[i]));
-		TEST_ASSERT_EQUAL_size_t(data_size - (i + 1u), si_map_count(p_map));
+		TEST_ASSERT_TRUE(si_map_remove(p_map, keys[iii]));
+		TEST_ASSERT_EQUAL_size_t(data_size - (iii + 1u), si_map_count(p_map));
 	}
 
 	si_map_free_at(&p_map);

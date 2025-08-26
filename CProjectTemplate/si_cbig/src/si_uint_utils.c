@@ -12,9 +12,9 @@ void reverse_bytes(uint8_t* const p_bytes, const size_t size)
 	}
 	// Begin
 	uint8_t byte = 0x00;
-	for(size_t i = 0u; i < (size / 2); i++)
+	for(size_t iii = 0u; iii < (size / 2); iii++)
 	{
-		const size_t far_index = (size - 1u - i);
+		const size_t far_index = (size - 1u - iii);
 		byte = p_bytes[0];
 		p_bytes[0] = p_bytes[far_index];
 		p_bytes[far_index] = byte;
@@ -34,9 +34,9 @@ void invert_uint_bytes(uint8_t* const p_bytes, const size_t size)
 		goto END;
 	}
 	// Begin
-	for(size_t i = 0u; i < size; i++)
+	for(size_t iii = 0u; iii < size; iii++)
 	{
-		p_bytes[i] = ~p_bytes[i];
+		p_bytes[iii] = ~p_bytes[iii];
 	}
 	// End
 END:
@@ -54,15 +54,15 @@ void lshift_bytes(uint8_t* const p_bytes, const size_t size)
 		goto END;
 	}
 	// Begin
-	for(size_t i = 0u; i < size; i++)
+	for(size_t iii = 0u; iii < size; iii++)
 	{
 		uint8_t bit = 0x00;
-		if(i < (size - 1))
+		if(iii < (size - 1))
 		{
-			bit = (p_bytes[i + 1] & (1u << (CHAR_BIT - 1u))) ? 1u : 0u;
+			bit = (p_bytes[iii + 1] & (1u << (CHAR_BIT - 1u))) ? 1u : 0u;
 		}
-		p_bytes[i] <<= 1;
-		p_bytes[i] |= bit;
+		p_bytes[iii] <<= 1;
+		p_bytes[iii] |= bit;
 	}
 	// End
 END:
@@ -78,7 +78,7 @@ void lshift_bytes_by(uint8_t* const p_bytes, const size_t size,
 		goto END;
 	}
 	// Begin
-	for(size_t i = 0u; i < amount; i++)
+	for(size_t iii = 0u; iii < amount; iii++)
 	{
 		lshift_bytes(p_bytes, size);
 	}
@@ -95,15 +95,15 @@ void rshift_bytes(uint8_t* const p_bytes, const size_t size)
 		goto END;
 	}
 	// Begin
-	for(size_t i = 0u; i < size; i++)
+	for(size_t iii = 0u; iii < size; iii++)
 	{
 		uint8_t bit = 0x00;
-		if(i < (size - 1))
+		if(iii < (size - 1))
 		{
-			bit = p_bytes[i] & 1;
+			bit = p_bytes[iii] & 1;
 		}
-		p_bytes[i] >>= 1;
-		p_bytes[i] |= (bit << (CHAR_BIT - 1u));
+		p_bytes[iii] >>= 1;
+		p_bytes[iii] |= (bit << (CHAR_BIT - 1u));
 	}
 	// End
 END:
@@ -119,7 +119,7 @@ void rshift_bytes_by(uint8_t* const p_bytes, const size_t size,
 		goto END;
 	}
 	// Begin
-	for(size_t i = 0u; i < amount; i++)
+	for(size_t iii = 0u; iii < amount; iii++)
 	{
 		rshift_bytes(p_bytes, size);
 	}
@@ -151,15 +151,15 @@ bool add_uint_le_bytes(uint8_t* const p_a, const uint8_t* const p_b,
 	const size_t full_ull_count = size / ull_size;
 	unsigned long long* p_ull_a = (unsigned long long*)p_a;
 	unsigned long long* p_ull_b = (unsigned long long*)p_b;
-	for(size_t i = 0u; i < full_ull_count; i++)
+	for(size_t iii = 0u; iii < full_ull_count; iii++)
 	{
 		carry_flag = false;
-		if(p_ull_a[i] > (ULLONG_MAX - p_ull_b[i] - last_carry))
+		if(p_ull_a[iii] > (ULLONG_MAX - p_ull_b[iii] - last_carry))
 		{
 			// Overflow
 			carry_flag = true;
 		}
-		p_ull_a[i] += p_ull_b[i] + last_carry;
+		p_ull_a[iii] += p_ull_b[iii] + last_carry;
 		last_carry = 0u;
 		if(carry_flag)
 		{
@@ -167,15 +167,15 @@ bool add_uint_le_bytes(uint8_t* const p_a, const uint8_t* const p_b,
 		}
 	}
 	// Add remaining individual bytes
-	for(size_t i = (full_ull_count * ull_size); i < size; i++)
+	for(size_t iii = (full_ull_count * ull_size); iii < size; iii++)
 	{
 		carry_flag = false;
-		if(p_a[i] > (UINT8_MAX - p_b[i] - last_carry))
+		if(p_a[iii] > (UINT8_MAX - p_b[iii] - last_carry))
 		{
 			// Overflow
 			carry_flag = true;
 		}
-		p_a[i] += p_b[i] + last_carry;
+		p_a[iii] += p_b[iii] + last_carry;
 		last_carry = 0u;
 		if(carry_flag)
 		{
@@ -414,9 +414,9 @@ int cmp_uint_le_bytes(const uint8_t* const p_a, const uint8_t* const p_b,
 		goto END;
 	}
 	// Begin
-	for(size_t i = 0u; i < size; i++)
+	for(size_t iii = 0u; iii < size; iii++)
 	{
-		const size_t next_index = size - 1u - i;
+		const size_t next_index = size - 1u - iii;
 		if(p_a[next_index] > p_b[next_index])
 		{
 			result = 1;

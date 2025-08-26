@@ -451,9 +451,9 @@ bool sockaddr_in_is_valid(struct sockaddr_in* const p_addr)
 	}
 	// Doesn't validate sin_addr
 	const size_t ZERO_SIZE = 8u;
-	for(size_t i = 0u; i < ZERO_SIZE; i++)
+	for(size_t iii = 0u; iii < ZERO_SIZE; iii++)
 	{
-		if(0 != p_addr->sin_zero[i])
+		if(0 != p_addr->sin_zero[iii])
 		{
 			goto END;
 		}
@@ -520,10 +520,10 @@ void sin_addr_fprint(FILE* const p_file,
 	{
 		goto END;
 	}
-	for(size_t i = 0u; i < INET_ADDRESS_SIZE; i++)
+	for(size_t iii = 0u; iii < INET_ADDRESS_SIZE; iii++)
 	{
-		fprintf(p_file, "%u", p_address[i]);
-		if(i < (INET_ADDRESS_SIZE - 1u))
+		fprintf(p_file, "%u", p_address[iii]);
+		if(iii < (INET_ADDRESS_SIZE - 1u))
 		{
 			fprintf(p_file, ".");
 		}
@@ -542,10 +542,10 @@ void sin6_addr_fprint(FILE* const p_file,
 		goto END;
 	}
 	// Uses IPv6 expanded address format
-	for(size_t i = 0u; i < INET6_ADDRESS_SIZE; i++)
+	for(size_t iii = 0u; iii < INET6_ADDRESS_SIZE; iii++)
 	{
-		fprintf(p_file, "%02x", p_address[i]);
-		if((i < (INET6_ADDRESS_SIZE - 1u)) && (1u == (i % 2u)))
+		fprintf(p_file, "%02x", p_address[iii]);
+		if((iii < (INET6_ADDRESS_SIZE - 1u)) && (1u == (iii % 2u)))
 		{
 			fprintf(p_file, ":");
 		}

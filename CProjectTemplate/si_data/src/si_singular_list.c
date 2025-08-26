@@ -106,7 +106,7 @@ si_singular_list_t* si_singular_list_node_at(const si_singular_list_t* const p_l
 		goto END;
 	}
 	// Begin
-	for(size_t i = 0u; i < index; i++)
+	for(size_t iii = 0u; iii < index; iii++)
 	{
 		p_result = p_result->p_next;
 		if(NULL == p_result)
@@ -197,13 +197,13 @@ bool si_singular_list_sort(si_singular_list_t* const p_list,
 	si_singular_list_t* p_small_node = p_list;
 	si_singular_list_t* p_test_node = NULL;
 	// Simple sort
-	for(size_t i = 0u; i < capacity; i++)
+	for(size_t iii = 0u; iii < capacity; iii++)
 	{
-		// i is the index for the next smallest value (ascending)
-		for(size_t ii = 1u; ii < (capacity - i); ii++)
+		// iii is the index for the next smallest value (ascending)
+		for(size_t jj = 1u; jj < (capacity - iii); jj++)
 		{
-			// ii is the number of possible indexs after i for smaller values
-			p_test_node = si_singular_list_node_at(p_small_node, ii);
+			// jj is the number of possible indexs after i for smaller values
+			p_test_node = si_singular_list_node_at(p_small_node, jj);
 			if(0 > p_cmp_f(p_small_node->p_data, p_test_node->p_data))
 			{
 				// Swap values
@@ -331,7 +331,7 @@ size_t si_singular_list_grow_by(si_singular_list_t* const p_list,
 	{
 		goto END;
 	}
-	for(size_t i = 0u; i < amount; i++)
+	for(size_t iii = 0u; iii < amount; iii++)
 	{
 		const bool success = si_singular_list_insert_next(p_last, NULL);
 		if(!success)
@@ -370,7 +370,7 @@ size_t si_singular_list_shrink_by(si_singular_list_t* const p_list,
 	{
 		goto END;
 	}
-	for(size_t i = 0u; i < amount; i++)
+	for(size_t iii = 0u; iii < amount; iii++)
 	{
 		si_singular_list_t* const p_last = si_singular_list_last_node(p_list);
 		if(NULL == p_last)
@@ -640,7 +640,7 @@ void si_singular_list_fprint(const si_singular_list_t* const p_list, FILE* const
 	const size_t list_count = si_singular_list_count(p_iterator);
 	const size_t list_capacity = si_singular_list_capacity(p_iterator);
 	fprintf(p_file, "{");
-	for(size_t i = 0u; i < list_capacity; i++)
+	for(size_t iii = 0u; iii < list_capacity; iii++)
 	{
 		// Ignores Byte order for simplicity.
 		if(NULL == p_iterator->p_data)

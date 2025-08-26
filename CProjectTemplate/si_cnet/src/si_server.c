@@ -944,10 +944,10 @@ void si_server_handle_events(si_server_t* const p_server)
 		goto END;
 	}
 	// Handle poll event results
-	for(size_t i = 1u; i < capacity; i++)
+	for(size_t iii = 1u; iii < capacity; iii++)
 	{
 		struct pollfd* p_fd = NULL;
-		p_fd = si_array_at(&(p_server->sockets), i);
+		p_fd = si_array_at(&(p_server->sockets), iii);
 		if(NULL == p_fd)
 		{
 			continue;

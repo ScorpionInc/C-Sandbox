@@ -82,9 +82,9 @@ void si_hashmap_update_settings(si_hashmap_t* const p_hashmap)
 	{
 		goto END;
 	}
-	for(size_t i = 0u; i < p_hashmap->maps.capacity; i++)
+	for(size_t iii = 0u; iii < p_hashmap->maps.capacity; iii++)
 	{
-		si_map_t** const pp_map = si_array_at(&(p_hashmap->maps), i);
+		si_map_t** const pp_map = si_array_at(&(p_hashmap->maps), iii);
 		if(NULL == pp_map)
 		{
 			break;
@@ -111,9 +111,9 @@ size_t si_hashmap_count(const si_hashmap_t* const p_hashmap)
 		goto END;
 	}
 	result++;
-	for(size_t i = 0u; i < p_hashmap->maps.capacity; i++)
+	for(size_t iii = 0u; iii < p_hashmap->maps.capacity; iii++)
 	{
-		si_map_t** pp_map = si_array_at(&(p_hashmap->maps), i);
+		si_map_t** pp_map = si_array_at(&(p_hashmap->maps), iii);
 		if(NULL == pp_map)
 		{
 			continue;
@@ -230,9 +230,9 @@ bool si_hashmap_find(si_hashmap_t* const p_hashmap, const void* const p_value,
 	{
 		goto END;
 	}
-	for(size_t i = 0u; i < p_hashmap->maps.capacity; i++)
+	for(size_t iii = 0u; iii < p_hashmap->maps.capacity; iii++)
 	{
-		const si_map_t** pp_next = si_array_at(&(p_hashmap->maps), i);
+		const si_map_t** pp_next = si_array_at(&(p_hashmap->maps), iii);
 		if(NULL == pp_next)
 		{
 			continue;
@@ -395,9 +395,9 @@ void si_hashmap_free(si_hashmap_t* p_hashmap)
 	{
 		goto END;
 	}
-	for(size_t i = 0u; i < p_hashmap->maps.capacity; i++)
+	for(size_t iii = 0u; iii < p_hashmap->maps.capacity; iii++)
 	{
-		si_map_t** pp_map = si_array_at(&(p_hashmap->maps), i);
+		si_map_t** pp_map = si_array_at(&(p_hashmap->maps), iii);
 		if(NULL == pp_map)
 		{
 			break;

@@ -21,9 +21,9 @@ void print_int_double_list(const si_double_list_t* const p_list)
 	}
 	printf("{");
 	size_t print_counter = 0u;
-	for(size_t i = 0u; i < p_list->capacity; i++)
+	for(size_t iii = 0u; iii < p_list->capacity; iii++)
 	{
-		int* p_data = si_double_list_at(p_list, i);
+		int* p_data = si_double_list_at(p_list, iii);
 		if(NULL != p_data)
 		{
 			printf("%d", *p_data);
@@ -116,10 +116,10 @@ void double_list_test_modify(void)
 
 	printf("Testing push():");
 	TEST_ASSERT_EQUAL_size_t(SIZE_MAX, si_double_list_push(NULL, &data[0u]));
-	for(size_t i = 0u; i < data_size; i++)
+	for(size_t iii = 0u; iii < data_size; iii++)
 	{
-		TEST_ASSERT_EQUAL_size_t(i, si_double_list_push(p_list, &data[i]));
-		TEST_ASSERT_EQUAL(&data[i], si_double_list_at(p_list, i));
+		TEST_ASSERT_EQUAL_size_t(iii, si_double_list_push(p_list, &data[iii]));
+		TEST_ASSERT_EQUAL(&data[iii], si_double_list_at(p_list, iii));
 	}
 	TEST_ASSERT_EQUAL_size_t(data_size, p_list->count);
 	TEST_ASSERT_EQUAL_size_t(data_size, p_list->capacity);
@@ -128,12 +128,12 @@ void double_list_test_modify(void)
 	// TODO
 
 	printf("Testing pop()\n");
-	for(size_t i = 0u; i < data_size; i++)
+	for(size_t iii = 0u; iii < data_size; iii++)
 	{
 		int* p_data = si_double_list_pop(p_list);
 		TEST_ASSERT_NOT_NULL(p_data);
-		TEST_ASSERT_EQUAL_INT(*p_data, data[i]);
-		TEST_ASSERT_NULL(si_double_list_at(p_list, i));
+		TEST_ASSERT_EQUAL_INT(*p_data, data[iii]);
+		TEST_ASSERT_NULL(si_double_list_at(p_list, iii));
 	}
 	TEST_ASSERT_EQUAL_size_t(0u, p_list->count);
 	TEST_ASSERT_EQUAL_size_t(data_size, p_list->capacity);
@@ -141,10 +141,10 @@ void double_list_test_modify(void)
 	printf("Testing sort()\n");
 	// Re-add values to be sorted.
 	TEST_ASSERT_FALSE(si_double_list_sort(NULL));
-	for(size_t i = 0u; i < data_size; i++)
+	for(size_t iii = 0u; iii < data_size; iii++)
 	{
-		TEST_ASSERT_EQUAL_size_t(i, si_double_list_push(p_list, &data[i]));
-		TEST_ASSERT_EQUAL(&data[i], si_double_list_at(p_list, i));
+		TEST_ASSERT_EQUAL_size_t(iii, si_double_list_push(p_list, &data[iii]));
+		TEST_ASSERT_EQUAL(&data[iii], si_double_list_at(p_list, iii));
 	}
 	TEST_ASSERT_NULL(p_list->p_cmp_f);
 	TEST_ASSERT_FALSE(si_double_list_sort(p_list));

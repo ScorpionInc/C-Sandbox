@@ -324,10 +324,10 @@ int si_array_cmp(const si_array_t* const p_array_a,
 	// Compare safe bounds values.
 	uint8_t next_a = 0u;
 	uint8_t next_b = 0u;
-	for(size_t i = 0u; i < min_size; i++)
+	for(size_t iii = 0u; iii < min_size; iii++)
 	{
-		next_a = ((uint8_t*)p_array_a->p_data)[i];
-		next_b = ((uint8_t*)p_array_b->p_data)[i];
+		next_a = ((uint8_t*)p_array_a->p_data)[iii];
+		next_b = ((uint8_t*)p_array_b->p_data)[iii];
 		if(next_a == next_b)
 		{
 			continue;

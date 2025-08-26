@@ -199,7 +199,7 @@ size_t si_singular_blist_grow_by(si_singular_blist_t* const p_list,
 	{
 		goto END;
 	}
-	for(size_t i = 0u; i < amount; i++)
+	for(size_t iii = 0u; iii < amount; iii++)
 	{
 		const bool success = si_singular_list_insert_next(p_list->p_tail, NULL);
 		if(!success)

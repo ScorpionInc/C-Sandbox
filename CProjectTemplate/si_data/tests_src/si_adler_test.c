@@ -34,12 +34,12 @@ void si_adler_test_main(void)
 	const size_t inputs_count = 5u;
 
 	si_adler_t hash = (si_adler_t){};
-	for(size_t i = 0u; i < inputs_count; i++)
+	for(size_t iii = 0u; iii < inputs_count; iii++)
 	{
 		si_adler_new(&hash, 2u);
-		size_t input_length = strlen(inputs[i]);
-		si_adler_update(&hash, (uint8_t*)inputs[i], input_length);
-		printf("'%48s':", inputs[i]);
+		size_t input_length = strlen(inputs[iii]);
+		si_adler_update(&hash, (uint8_t*)inputs[iii], input_length);
+		printf("'%48s':", inputs[iii]);
 		si_adler_fprint(&hash, stdout); printf("\n");
 		si_adler_free(&hash);
 	}

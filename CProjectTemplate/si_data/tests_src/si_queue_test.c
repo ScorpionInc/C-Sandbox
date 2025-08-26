@@ -40,10 +40,10 @@ void si_queue_test_modify(void)
 
 	printf("Testing enqueue():\n");
 	char c = 'a';
-	for(size_t i = 0u; i < data_size; i++)
+	for(size_t iii = 0u; iii < data_size; iii++)
 	{
 		printf("Count: %lu\t", si_queue_count(p_queue));
-		TEST_ASSERT_EQUAL_size_t(i + 1u, si_queue_enqueue(p_queue, &c));
+		TEST_ASSERT_EQUAL_size_t(iii + 1u, si_queue_enqueue(p_queue, &c));
 		printf("Enqueue: %c\tNew Count: %lu\tCapacity: %lu\n", c,
 			si_queue_count(p_queue), p_queue->dynamic.capacity);
 		c += 1u;
@@ -52,10 +52,13 @@ void si_queue_test_modify(void)
 	printf("\n");
 	
 	printf("Testing dequeue():\n");
-	for(size_t i = 0; i < data_size; i++)
+	for(size_t iii = 0; iii < data_size; iii++)
 	{
 		printf("Count: %lu\t", si_queue_count(p_queue));
-		TEST_ASSERT_EQUAL_size_t(data_size - i - 1u, si_queue_dequeue(p_queue, &c));
+		TEST_ASSERT_EQUAL_size_t(
+			data_size - iii - 1u,
+			si_queue_dequeue(p_queue, &c)
+		);
 		printf("Dequeue: %c\tNew Count: %lu\tCapacity: %lu\n", c,
 			si_queue_count(p_queue), p_queue->dynamic.capacity);
 	}
@@ -76,25 +79,31 @@ void si_queue_test_template(void)
 	TEST_ASSERT_TRUE(si_queue_is_empty(p_queue));
 
 	printf("Testing enqueue():\n");
-	for(size_t i = 0; i < data_size; i++)
+	for(size_t iii = 0; iii < data_size; iii++)
 	{
-		char c = 'a' + i;
+		char c = 'a' + iii;
 		printf("Count: %lu\t", si_queue_count(p_queue));
 		char_queue_enqueue(p_queue, c);
 		size_t new_count = char_queue_count(p_queue);
-		TEST_ASSERT_EQUAL_size_t(i + 1u, new_count);
-		printf("Enqueue: %c\tNew Count: %lu\tCapacity: %lu\n", c, new_count, p_queue->dynamic.capacity);
+		TEST_ASSERT_EQUAL_size_t(iii + 1u, new_count);
+		printf(
+			"Enqueue: %c\tNew Count: %lu\tCapacity: %lu\n",
+			c, new_count, p_queue->dynamic.capacity
+		);
 	}
 	printf("\n");
 
 	printf("Testing dequeue():\n");
-	for(size_t i = 0; i < data_size; i++)
+	for(size_t iii = 0; iii < data_size; iii++)
 	{
 		printf("Count: %lu\t", si_queue_count(p_queue));
 		char c = char_queue_dequeue(p_queue);
 		size_t new_count = char_queue_count(p_queue);
-		TEST_ASSERT_EQUAL_size_t(data_size - i - 1u, new_count);
-		printf("Dequeue: %c\tNew Count: %lu\tCapacity: %lu\n", c, new_count, p_queue->dynamic.capacity);
+		TEST_ASSERT_EQUAL_size_t(data_size - iii - 1u, new_count);
+		printf(
+			"Dequeue: %c\tNew Count: %lu\tCapacity: %lu\n",
+			c, new_count, p_queue->dynamic.capacity
+		);
 	}
 	TEST_ASSERT_TRUE(si_queue_is_empty(p_queue));
 
