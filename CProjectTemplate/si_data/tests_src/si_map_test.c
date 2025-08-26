@@ -4,6 +4,7 @@
 
 #include "unity.h"
 #include "si_map.h"
+#include "si_realloc_settings.h"
 
 /* Is run before every test, put unit init calls here. */
 void setUp (void)
@@ -51,6 +52,9 @@ static void* heap_string(const char* p_str)
  */
 void si_map_test_modify(void)
 {
+	si_realloc_settings_t settings = {0};
+	si_realloc_settings_new(&settings);
+
 	const char* keys[] = { "name", "age" };
 	const char* values[] = { "bob", "42" };
 	const size_t data_size = 2u;
@@ -60,6 +64,7 @@ void si_map_test_modify(void)
 	p_map->p_cmp_value_f = (int (*)(const void * const,  const void * const))strcmp;
 	p_map->p_free_key_f = free;
 	p_map->p_free_value_f = free;
+	p_map->p_settings = &settings;
 
 	printf("Testing insert():\n");
 	for(size_t i = 0u; i < data_size; i++)

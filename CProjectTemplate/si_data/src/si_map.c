@@ -36,7 +36,7 @@ void si_map_init(si_map_t* const p_map)
 		goto END;
 	}
 	si_array_init_3(&p_map->entries, sizeof(void*), 0u);
-	si_realloc_settings_new(&p_map->settings);
+	p_map->p_settings = NULL;
 	p_map->p_cmp_key_f = si_map_default_compare;
 	p_map->p_cmp_value_f = si_map_default_compare;
 	p_map->p_free_key_f = NULL;
@@ -295,7 +295,7 @@ bool si_map_insert_pair(si_map_t* const p_map,
 		}
 	}
 	// Didn't have an index to assign a new pair in map.
-	if(si_realloc_settings_grow(&p_map->settings, &p_map->entries))
+	if(si_realloc_settings_grow(p_map->p_settings, &p_map->entries))
 	{
 		result = si_map_insert_pair(p_map, p_pair);
 	}
