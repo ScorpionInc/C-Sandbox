@@ -56,11 +56,9 @@ static void* si_tasker_runner(void* const p_arg)
 			next_task = NULL;
 			continue;
 		}
-		pthread_testcancel();
 		next_task->field |= SI_TASK_RUNNING;
 		si_task_start(next_task);
 		next_task->field &= (~SI_TASK_RUNNING);
-		pthread_testcancel();
 		const bool returns_value = si_task_returns_value(next_task);
 		const bool is_looping = si_task_is_looping(next_task);
 		if(returns_value)
@@ -81,6 +79,7 @@ static void* si_tasker_runner(void* const p_arg)
 		si_task_free(next_task);
 		free(next_task);
 		next_task = NULL;
+		pthread_testcancel();
 	}
 	// End
 END:
@@ -101,13 +100,13 @@ void si_tasker_init(si_tasker_t* const p_tasker)
 	pthread_mutex_t_array_init_2(&(p_tasker->locks), priority_capacity);
 	for(size_t iii = 0u; iii < priority_capacity; iii++)
 	{
-		pthread_mutex_t* lock = pthread_mutex_t_array_at(&(p_tasker->locks), iii);
-		if(NULL == lock)
+		pthread_mutex_t* p_lock = pthread_mutex_t_array_at(&(p_tasker->locks), iii);
+		if(NULL == p_lock)
 		{
 			break;
 		}
-		*lock = (pthread_mutex_t){0};
-		const int init_queue_lock = pthread_mutex_init(lock, NULL);
+		*p_lock = (pthread_mutex_t){0};
+		const int init_queue_lock = pthread_mutex_init(p_lock, NULL);
 		if(0 != init_queue_lock)
 		{
 			break;
@@ -203,6 +202,9 @@ bool si_tasker_enqueue_func(si_tasker_t* const p_tasker,
 	p_task->field = PRIORITY_AVG;
 	p_task->p_function = p_func;
 	si_tasker_enqueue_task(p_tasker, p_task);
+	si_task_free(p_task);
+	free(p_task);
+	p_task = NULL;
 	result = true;
 END:
 	return result;
@@ -397,7 +399,7 @@ void si_tasker_await(si_tasker_t* const p_tasker)
 	volatile bool is_running = si_tasker_is_running(p_tasker);
 	while(is_running)
 	{
-		sleep(1);
+		sleep(3);
 		is_running = si_tasker_is_running(p_tasker);
 	}
 	si_tasker_stop(p_tasker);
