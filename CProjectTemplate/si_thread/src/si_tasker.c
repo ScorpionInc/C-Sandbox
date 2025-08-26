@@ -306,14 +306,32 @@ void si_tasker_clear_tasks(si_tasker_t* const p_tasker)
 	{
 		goto END;
 	}
-	const size_t priority_capacity = SI_TASK_PRIORITY_MAX + 1u;
+	const size_t priority_capacity = (SI_TASK_PRIORITY_MAX + 1u);
 	for(size_t iii = 0u; iii < priority_capacity; iii++)
 	{
+		if(iii >= p_tasker->tasks.capacity)
+		{
+			break;
+		}
 		si_queue_t* p_queue = si_queue_t_array_at(&(p_tasker->tasks), iii);
 		if(NULL == p_queue)
 		{
 			continue;
 		}
+		si_task_t* p_task = NULL;
+		p_task = calloc(1u, sizeof(si_task_t));
+		if(NULL == p_task)
+		{
+			si_queue_free(p_queue);
+			continue;
+		}
+		size_t new_size = si_queue_dequeue(p_queue, p_task);
+		while(0 < new_size)
+		{
+			si_task_free_at(&p_task);
+			new_size = si_queue_dequeue(p_queue, p_task);
+		}
+		si_task_free_at(&p_task);
 		si_queue_free(p_queue);
 	}
 END:
@@ -442,17 +460,8 @@ void si_tasker_free(si_tasker_t* const p_tasker)
 	}
 	printf("Free() calls pthread_mutex_t_array_free() on locks.\n");//!Debugging
 	pthread_mutex_t_array_free(&(p_tasker->locks));
-	const size_t priority_capacity = SI_TASK_PRIORITY_MAX + 1u;
-	for(size_t iii = 0u; iii < priority_capacity; iii++)
-	{
-		si_queue_t* p_queue = si_queue_t_array_at(&(p_tasker->tasks), iii);
-		if(NULL == p_queue)
-		{
-			continue;
-		}
-		printf("Free() calls si_queue_free() at %lu.\n", iii);//!Debugging
-		si_queue_free(p_queue);
-	}
+	printf("Free() calls si_tasker_clear_tasks() on tasks.\n");//!Debugging
+	si_tasker_clear_tasks(p_tasker);
 	printf("Free() calls si_queue_t_array_free() on tasks.\n");//!Debugging
 	si_queue_t_array_free(&(p_tasker->tasks));
 	printf("Free() calls si_map_free().\n");//!Debugging

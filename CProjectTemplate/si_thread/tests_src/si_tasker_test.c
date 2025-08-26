@@ -77,12 +77,6 @@ void si_tasker_test_main(void)
 	si_tasker_enqueue_task(p_tasker, p_task_h);
 	si_tasker_await(p_tasker);
 
-	si_task_free(p_task);
-	free(p_task);
-	p_task = NULL;
-	si_task_free(p_task_h);
-	free(p_task_h);
-	p_task_h = NULL;
 	si_logger_destroy(&p_logger);
 END:
 	return;
