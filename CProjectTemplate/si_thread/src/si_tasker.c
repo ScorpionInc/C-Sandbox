@@ -188,12 +188,22 @@ END:
 bool si_tasker_enqueue_func(si_tasker_t* const p_tasker,
 	si_task_f const p_func)
 {
-	// TODO
 	bool result = false;
 	if((NULL == p_tasker) || (NULL == p_func))
 	{
 		goto END;
 	}
+	si_task_t* p_task = NULL;
+	p_task = calloc(1u, sizeof(si_task_t));
+	if(NULL == p_task)
+	{
+		goto END;
+	}
+	const uint8_t PRIORITY_AVG = ((SI_TASK_PRIORITY_MAX - SI_TASK_PRIORITY_MIN) / 2);
+	p_task->field = PRIORITY_AVG;
+	p_task->p_function = p_func;
+	si_tasker_enqueue_task(p_tasker, p_task);
+	result = true;
 END:
 	return result;
 }
@@ -254,7 +264,7 @@ END:
 	return result;
 }
 
-inline size_t si_tasker_count(const si_tasker_t* const p_tasker)
+size_t si_tasker_count(const si_tasker_t* const p_tasker)
 {
 	size_t count = 0u;
 	// Validate
@@ -351,7 +361,7 @@ void si_tasker_start_2(si_tasker_t* const p_tasker, const size_t thread_count)
 	{
 		goto END;
 	}
-	const bool is_running = si_tasker_is_running(p_tasker);
+	const volatile bool is_running = si_tasker_is_running(p_tasker);
 	if(true == is_running)
 	{
 		goto END;
@@ -387,6 +397,7 @@ void si_tasker_await(si_tasker_t* const p_tasker)
 	volatile bool is_running = si_tasker_is_running(p_tasker);
 	while(is_running)
 	{
+		sleep(1);
 		is_running = si_tasker_is_running(p_tasker);
 	}
 	si_tasker_stop(p_tasker);
@@ -455,11 +466,8 @@ void si_tasker_free(si_tasker_t* const p_tasker)
 	{
 		goto END;
 	}
-	printf("Free() calling stop() on tasker %p.\n", p_tasker);//!Debugging
 	si_tasker_stop(p_tasker);
-	printf("Free() calling pthread_t_array_free() on pool %p.\n", &(p_tasker->pool));//!Debugging
 	pthread_t_array_free(&(p_tasker->pool));
-	printf("Free() calling si_tasker_clear_tasks() on tasks.\n");//!Debugging
 	si_tasker_clear_tasks(p_tasker);
 	for(size_t iii = 0u; iii < p_tasker->tasks.capacity; iii++)
 	{
@@ -476,19 +484,13 @@ void si_tasker_free(si_tasker_t* const p_tasker)
 			continue;
 		}
 		pthread_mutex_lock(p_lock);
-		printf("Free() calling si_queue_free_at() on %p queue at %lu.\n", p_queue, iii);//!Debugging
-		si_queue_free_at(&p_queue);
+		si_queue_free(p_queue);
 		pthread_mutex_unlock(p_lock);
-		printf("Free() calling pthread_mutex_destroy() on %p lock at %lu.\n", p_lock, iii);//!Debugging
 		pthread_mutex_destroy(p_lock);
 	}
-	printf("Free() calling si_queue_t_array_free() on tasks.\n");//!Debugging
 	si_queue_t_array_free(&(p_tasker->tasks));
-	printf("Free() calling pthread_mutex_t_array_free() on locks.\n");//!Debugging
 	pthread_mutex_t_array_free(&(p_tasker->locks));
-	printf("Free() calling si_queue_t_array_free() on tasks.\n");//!Debugging
 	si_queue_t_array_free(&(p_tasker->tasks));
-	printf("Free() calling si_map_free().\n");//!Debugging
 	si_map_free(&(p_tasker->results));
 	// End
 END:
