@@ -114,6 +114,14 @@ void si_queue_free(si_queue_t* const p_queue);
  */
 void si_queue_free_at(si_queue_t** pp_queue);
 
+/** Doxygen
+ * @brief Writes queue value to a FILE stream. Typically for debugging.
+ * 
+ * @param p_file Pointer to the FILE stream to write to.
+ * @param p_queue Pointer to si_queue_t struct to read values from.
+ */
+void si_queue_fprint(FILE* const p_file, const si_queue_t* const p_queue);
+
 #ifdef __cplusplus
 }
 #endif //__cplusplus

@@ -204,3 +204,22 @@ void si_queue_free_at(si_queue_t** pp_queue)
 END:
 	return;
 }
+
+void si_queue_fprint(FILE* const p_file, const si_queue_t* const p_queue)
+{
+	if(NULL == p_file)
+	{
+		goto END;
+	}
+	if(NULL == p_queue)
+	{
+		fprintf(p_file, "NULL");
+		goto END;
+	}
+	const size_t count = si_queue_count(p_queue);
+	fprintf(p_file, "{front: %lu;", p_queue->front);
+	fprintf(p_file, " back: %lu;", p_queue->back);
+	fprintf(p_file, "}:%lu/%lu@%p", count, p_queue->dynamic.capacity, p_queue);
+END:
+	return;
+}
