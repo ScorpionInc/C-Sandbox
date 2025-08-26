@@ -295,7 +295,20 @@ bool si_map_insert_pair(si_map_t* const p_map,
 		}
 	}
 	// Didn't have an index to assign a new pair in map.
-	if(si_realloc_settings_grow(p_map->p_settings, &p_map->entries))
+	bool did_grow = false;
+	if(NULL == p_map->p_settings)
+	{
+		did_grow = si_array_resize(
+			&(p_map->entries), p_map->entries.capacity + 1u
+		);
+	}
+	else
+	{
+		did_grow = si_realloc_settings_grow(
+			p_map->p_settings, &(p_map->entries)
+		);
+	}
+	if(did_grow)
 	{
 		result = si_map_insert_pair(p_map, p_pair);
 	}
