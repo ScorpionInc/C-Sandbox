@@ -71,7 +71,7 @@ void si_map_test_modify(void)
 	{
 		void* p_next_key = heap_string(keys[i]);
 		void* p_next_value = heap_string(values[i]);
-		si_map_insert(p_map, p_next_key, p_next_value);
+		TEST_ASSERT_TRUE(si_map_insert(p_map, p_next_key, p_next_value));
 	}
 
 	printf("Testing at()/find():\n");
