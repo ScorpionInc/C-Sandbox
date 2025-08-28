@@ -77,7 +77,7 @@ size_t si_realloc_settings_next_grow_capacity(
 			break;
 		case LINEAR:
 			// Prevent Overflows
-			if (SIZE_MAX - p_settings->grow_value < new_capacity)
+			if (SIZE_MAX - ((size_t)p_settings->grow_value) < new_capacity)
 			{
 				// Overflow detected
 				new_capacity = SIZE_MAX;
@@ -101,6 +101,7 @@ size_t si_realloc_settings_next_grow_capacity(
 			new_capacity *= p_settings->grow_value;
 			break;
 		case EXPONENTIAL:
+		{
 			// Prevent Overflows
 			size_t calculated_result = pow(
 				new_capacity, p_settings->grow_value
@@ -112,6 +113,7 @@ size_t si_realloc_settings_next_grow_capacity(
 			}
 			new_capacity = calculated_result;
 			break;
+		}
 		default:
 			// Unknown grow mode
 			//goto END;
@@ -167,6 +169,7 @@ size_t si_realloc_settings_next_shrink_capacity(
 			new_capacity /= p_settings->shrink_value;
 			break;
 		case EXPONENTIAL:
+		{
 			// Prevent Underflow
 			size_t calculated_result = new_capacity;
 			if (p_settings->shrink_value != 0.0f)
@@ -182,6 +185,7 @@ size_t si_realloc_settings_next_shrink_capacity(
 			}
 			new_capacity = calculated_result;
 			break;
+		}
 		default:
 			// Unknown grow mode
 			//goto END;
