@@ -232,7 +232,7 @@ char* pop_str_from_heap(uint8_t** const pp_buffer, size_t* const p_buffer_size)
 	{
 		goto END;
 	}
-	strncpy(p_result, *pp_buffer, string_length + 1u);
+	strncpy(p_result, (const char*)(*pp_buffer), string_length + 1u);
 	p_result[string_length] = '\0';
 	const size_t non_str_len = *p_buffer_size - (string_length + 1u);
 	if((0u < non_str_len) && ((string_length + 1u) < *p_buffer_size))

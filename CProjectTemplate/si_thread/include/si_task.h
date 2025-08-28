@@ -36,22 +36,22 @@ typedef struct si_task_t
 } si_task_t;
 
 void si_task_init_5(si_task_t* const p_task,
-	const si_task_f const p_function, const uint8_t field,
+	si_task_f const p_function, const uint8_t field,
 	const si_singular_list_t* const p_arguments, const size_t task_id);
 void si_task_init_4(si_task_t* const p_task,
-	const si_task_f const p_function, const uint8_t field,
+	si_task_f const p_function, const uint8_t field,
 	const si_singular_list_t* const p_arguments);
 void si_task_init_3(si_task_t* const p_task,
-	const si_task_f const p_function, const uint8_t field);
+	si_task_f const p_function, const uint8_t field);
 void si_task_init(si_task_t* const p_task,
-	const si_task_f const p_function);
+	si_task_f const p_function);
 
-si_task_t* si_task_new_4(const si_task_f const p_function, const uint8_t field,
+si_task_t* si_task_new_4(const si_task_f p_function, const uint8_t field,
 	const si_singular_list_t* const p_arguments, const size_t task_id);
-si_task_t* si_task_new_3(const si_task_f const p_function, const uint8_t field,
+si_task_t* si_task_new_3(const si_task_f p_function, const uint8_t field,
 	const si_singular_list_t* const p_arguments);
-si_task_t* si_task_new_2(const si_task_f const p_function, const uint8_t field);
-si_task_t* si_task_new(const si_task_f const p_function);
+si_task_t* si_task_new_2(const si_task_f p_function, const uint8_t field);
+si_task_t* si_task_new(const si_task_f p_function);
 
 bool si_task_is_looping(const si_task_t* const p_task);
 bool si_task_is_complete(const si_task_t* const p_task);

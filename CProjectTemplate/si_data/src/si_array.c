@@ -259,6 +259,7 @@ void si_array_set(si_array_t* p_array,
 		p_array->element_size);
 	// End
 END:
+	return;
 }
 
 void si_array_get(const si_array_t* p_array,
@@ -280,7 +281,8 @@ void si_array_get(const si_array_t* p_array,
 	memcpy(p_item, p_array->p_data + offset,
 		p_array->element_size);
 	// End
-	END:
+END:
+	return;
 }
 
 int si_array_cmp(const si_array_t* const p_array_a,

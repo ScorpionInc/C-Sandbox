@@ -3,7 +3,7 @@
 #include "si_task.h"
 
 void si_task_init_5(si_task_t* const p_task,
-	const si_task_f const p_function, const uint8_t field,
+	const si_task_f p_function, const uint8_t field,
 	const si_singular_list_t* const p_arguments, const size_t task_id)
 {
 	// Validate
@@ -23,27 +23,27 @@ END:
 	return;
 }
 inline void si_task_init_4(si_task_t* const p_task,
-	const si_task_f const p_function, const uint8_t field,
+	const si_task_f p_function, const uint8_t field,
 	const si_singular_list_t* const p_arguments)
 {
 	// Default task_id = SI_TASK_DEFAULT_ID(0u)
 	si_task_init_5(p_task, p_function, field, p_arguments, SI_TASK_DEFAULT_ID);
 }
 inline void si_task_init_3(si_task_t* const p_task,
-	const si_task_f const p_function, const uint8_t field)
+	const si_task_f p_function, const uint8_t field)
 {
 	// Default p_arguments = NULL(No arguments are passed.)
 	si_task_init_4(p_task, p_function, field, NULL);
 }
 inline void si_task_init(si_task_t* const p_task,
-	const si_task_f const p_function)
+	const si_task_f p_function)
 {
 	// Default field = 0x00(One-Shot task, with no args and no return.)
 	si_task_init_3(p_task, p_function, 0x00);
 }
 
 
-si_task_t* si_task_new_4(const si_task_f const p_function, const uint8_t field,
+si_task_t* si_task_new_4(const si_task_f p_function, const uint8_t field,
 	const si_singular_list_t* const p_arguments, const size_t task_id)
 {
 	si_task_t* p_new = NULL;
@@ -60,18 +60,18 @@ si_task_t* si_task_new_4(const si_task_f const p_function, const uint8_t field,
 END:
 	return p_new;
 }
-inline si_task_t* si_task_new_3(const si_task_f const p_function, const uint8_t field,
+inline si_task_t* si_task_new_3(const si_task_f p_function, const uint8_t field,
 	const si_singular_list_t* const p_arguments)
 {
 	// Default task_id = SI_TASK_DEFAULT_ID(0u)
 	return si_task_new_4(p_function, field, p_arguments, SI_TASK_DEFAULT_ID);
 }
-inline si_task_t* si_task_new_2(const si_task_f const p_function, const uint8_t field)
+inline si_task_t* si_task_new_2(const si_task_f p_function, const uint8_t field)
 {
 	// Default p_arguments = NULL(No arguments are passed.)
 	return si_task_new_3(p_function, field, NULL);
 }
-inline si_task_t* si_task_new(const si_task_f const p_function)
+inline si_task_t* si_task_new(const si_task_f p_function)
 {
 	// Default field = 0x00(One-Shot task, with no args and no return.)
 	return si_task_new_2(p_function, 0x00);

@@ -335,7 +335,7 @@ static void _si_logger_log(si_logger_t* const p_logger,
 	if(p_logger->stacktrace_level <= msg_level)
 	{
 		// Skips printing the stackcall printing functions
-		const size_t const skip_count = 3u;
+		const size_t skip_count = 3u;
 		fprint_stacktrace_3(p_logger->p_file, skip_count, p_header);
 	}
 	pthread_mutex_lock(&(p_logger->file_lock));

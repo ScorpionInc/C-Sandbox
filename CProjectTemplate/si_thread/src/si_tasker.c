@@ -300,9 +300,9 @@ END:
 	return count;
 }
 
-bool si_tasker_is_running(const si_tasker_t* const p_tasker)
+volatile bool si_tasker_is_running(const si_tasker_t* const p_tasker)
 {
-	bool result = false;
+	volatile bool result = false;
 	if(NULL == p_tasker)
 	{
 		goto END;
@@ -399,8 +399,8 @@ void si_tasker_await(si_tasker_t* const p_tasker)
 	volatile bool is_running = si_tasker_is_running(p_tasker);
 	while(is_running)
 	{
-		sleep(3);
 		is_running = si_tasker_is_running(p_tasker);
+		sleep(3);
 	}
 	si_tasker_stop(p_tasker);
 END:

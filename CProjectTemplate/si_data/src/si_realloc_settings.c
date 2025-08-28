@@ -102,8 +102,9 @@ size_t si_realloc_settings_next_grow_capacity(
 			break;
 		case EXPONENTIAL:
 			// Prevent Overflows
-			size_t calculated_result =
-				pow(new_capacity, p_settings->grow_value);
+			size_t calculated_result = pow(
+				new_capacity, p_settings->grow_value
+			);
 			if (calculated_result < new_capacity)
 			{
 				// Wrap-around detected Overflow
