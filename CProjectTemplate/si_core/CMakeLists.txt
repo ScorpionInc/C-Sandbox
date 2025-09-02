@@ -24,11 +24,23 @@ else()
 	find_package(Unity REQUIRED)
 endif()
 
-find_library(si_data NAMES si_data PATHS ../si_data/)
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	message(NOTICE "Linking acl library for the Linux OS.")
+	find_library(ACL_LIBRARY acl)
+	if(NOT ACL_LIBRARY)
+	    message(FATAL_ERROR "ACL library not found!")
+	endif()
+endif()
 
+find_library(si_data NAMES si_data PATHS ../si_data/)
 include_directories(../si_data/include)
 
 file(GLOB si_core_SRC CONFIGURE_DEPENDS "src/*.c")
 add_library(si_core STATIC ${si_core_SRC})
 target_include_directories(si_core PUBLIC include)
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	target_link_libraries(si_core PRIVATE ${ACL_LIBRARY})
+endif()
+
 target_link_libraries(si_core PUBLIC si_data)
