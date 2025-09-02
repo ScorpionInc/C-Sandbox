@@ -343,7 +343,6 @@ static void _si_logger_log(si_logger_t* const p_logger,
 	vfprintf(p_logger->p_file, p_format, args);
 	fprintf(p_logger->p_file, "\n");
 	pthread_mutex_unlock(&(p_logger->file_lock));
-CLEAN:
 	free((void*)p_header);
 	p_header = NULL;
 END:
