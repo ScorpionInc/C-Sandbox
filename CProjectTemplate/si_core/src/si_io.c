@@ -142,30 +142,34 @@ END:
 	return;
 }
 
-void path_permissions_fprint(FILE* const p_file, const char* const p_path)
+void dirent_fprint(FILE* const p_file, const struct dirent* const p_entry)
 {
-	if((NULL == p_file) || (NULL == p_path))
+	if((NULL == p_file) || (NULL == p_entry))
 	{
 		goto END;
 	}
-	struct stat file_stat = {0};
-	if(lstat(p_path, &file_stat) < 0)
-	{
-		goto END;
-	}
-	mode_t_fprint(stdout, file_stat.st_mode);
-	const bool has_acl = path_has_acl(p_path);
-	if(true == has_acl)
-	{
-		fprintf(p_file, "+");
-	}
-	fprintf(p_file, " %s", p_path);
+	fprintf(p_file, "%lu", p_entry->d_ino);
+	fprintf(p_file, " %s", p_entry->d_name);
+#ifdef _DIRENT_HAVE_D_TYPE
+	fprintf(p_file, " %hhu", p_entry->d_type);
+#endif//_DIRENT_HAVE_D_TYPE
+#ifdef _DIRENT_HAVE_D_RECLEN
+	fprintf(p_file, " %hu", p_entry->d_reclen);
+#endif//_DIRENT_HAVE_D_RECLEN
 END:
 	return;
 }
-#endif//__linux__
 
-bool file_clone_data(const char* const p_source_path,
+/** Doxygen
+ * @brief Linux specific implimentation of file_clone_data().
+ * 
+ * @param p_source_path C string file path of file containing data to be read.
+ * @param p_sink_path C string file path of file to be overwritten/created.
+ * @param follow_links stdbool flag specifying if links should be followed.
+ * 
+ * @return Returns stdbool true on success. Returns false otherwise.
+ */
+static bool file_clone_data_l(const char* const p_source_path,
 	const char* const p_sink_path, const bool follow_links)
 {
 	bool result = false;
@@ -173,7 +177,7 @@ bool file_clone_data(const char* const p_source_path,
 	{
 		goto END;
 	}
-#ifdef __linux__
+
 	// Opens file(s) for operation(s)
 	struct stat source_stat = {0};
 	const int source_flags = O_RDONLY |
@@ -224,41 +228,20 @@ CLEAN:
 		close(sink_fd);
 	}
 	sink_fd = -1;
-#else
-	FILE* p_source = fopen(p_source_path, "r");
-	if(NULL == p_source)
-	{
-		goto END;
-	}
-	FILE* p_sink = fopen(p_sink_path, "w");
-	if(NULL == p_sink)
-	{
-		goto CLEAN;
-	}
-
-	char next_byte = fgetc(p_source);
-	while(next_byte != EOF)
-	{
-		fputc(next_byte, p_sink);
-		next_byte = fgetc(p_source);
-	}
-
-	result = true;
-CLEAN:
-	if(NULL != p_source)
-	{
-		fclose(p_source);
-	}
-	if(NULL != p_sink)
-	{
-		fclose(p_sink);
-	}
-#endif//__linux__
 END:
 	return result;
 }
 
-bool file_clone_meta(const char* const p_source_path,
+/** Doxygen
+ * @brief Linux specific implimentation of the file_clone_meta() function.
+ * 
+ * @param p_source_path C string file path of file containing metadata to read.
+ * @param p_sink_path C string file path of file to be modified.
+ * @param follow_links stdbool flag specifying if links should be followed.
+ * 
+ * @return Returns stdbool true on success. Returns false otherwise.
+ */
+static bool file_clone_meta_l(const char* const p_source_path,
 	const char* const p_sink_path, const bool follow_links)
 {
 	bool result = false;
@@ -266,7 +249,7 @@ bool file_clone_meta(const char* const p_source_path,
 	{
 		goto END;
 	}
-#ifdef __linux__
+
 	// Opens file(s) for operation(s)
 	struct stat source_stat = {0};
 	const int stat_result = follow_links ?
@@ -333,9 +316,368 @@ CLEAN:
 		close(sink_fd);
 	}
 	sink_fd = -1;
+END:
+	return result;
+}
+
+static bool for_each_file_l(const char* const p_path, const for_file_handler p_handler,
+	const bool handle_dirs, const bool recursive)
+{
+	bool result = false;
+	if((NULL == p_path) || (NULL == p_handler))
+	{
+		goto END;
+	}
+
+	char* p_fullpath = NULL;
+	DIR* p_dir = NULL;
+	struct dirent* p_dir_entry = NULL;
+
+	p_dir = opendir(p_path);
+	if(NULL == p_dir)
+	{
+		goto END;
+	}
+
+	p_dir_entry = readdir(p_dir);
+	while(p_dir_entry != NULL)
+	{
+		bool is_dot_dir = (0 == strcmp(".", p_dir_entry->d_name));
+		is_dot_dir |= (0 == strcmp("..", p_dir_entry->d_name));
+		if(true == is_dot_dir)
+		{
+			// Skip dot dirs
+			p_dir_entry = readdir(p_dir);
+			continue;
+		}
+		p_fullpath = strv_clone_concat(3u, p_path, "/", p_dir_entry->d_name);
+		if(NULL == p_fullpath)
+		{
+			p_dir_entry = readdir(p_dir);
+			continue;
+		}
+		bool is_dir = false;
+#ifdef _DIRENT_HAVE_D_TYPE
+		is_dir = (DT_DIR == p_dir_entry->d_type);
 #else
-	// TODO Other Operating System(s)
+		is_dir = path_is_dir(p_fullpath, false);
+#endif//_DIRENT_HAVE_D_TYPE
+		if(true == is_dir)
+		{
+			if(true == recursive)
+			{
+				// Depth-First enumeration
+				const bool dir_result = for_each_file_l(
+					p_fullpath, p_handler, handle_dirs, recursive
+				);
+				if(true != dir_result)
+				{
+					break;
+				}
+			}
+			if(true != handle_dirs)
+			{
+				// Skip Directories
+				free((void*)p_fullpath);
+				p_fullpath = NULL;
+				p_dir_entry = readdir(p_dir);
+				continue;
+			}
+		}
+		// Handle file/link/ect.
+		const bool is_good = p_handler(p_fullpath, p_dir_entry);
+		if(true != is_good)
+		{
+			break;
+		}
+		free((void*)p_fullpath);
+		p_fullpath = NULL;
+		p_dir_entry = readdir(p_dir);
+	}
+	if(NULL != p_fullpath)
+	{
+		free((void*)p_fullpath);
+		p_fullpath = NULL;
+	}
+	closedir(p_dir);
+	p_dir = NULL;
+	result = true;
+END:
+	return result;
+}
+
+#elif defined _WIN32 // End of __linux__
+
+/** Doxygen
+ * @brief Windows specific implimentation of file_clone_data().
+ * 
+ * @param p_source_path C string file path of file containing data to be read.
+ * @param p_sink_path C string file path of file to be overwritten/created.
+ * @param follow_links stdbool flag specifying if links should be followed.
+ * 
+ * @return Returns stdbool true on success. Returns false otherwise.
+ */
+static bool file_clone_data_w(const char* const p_source_path,
+	const char* const p_sink_path, const bool follow_links)
+{
+	//!TODO
+	bool result = false;
+	if((NULL == p_source_path) || (NULL == p_sink_path))
+	{
+		goto END;
+	}
+
+END:
+	return result;
+}
+
+/** Doxygen
+ * @brief Windows specific implimentation of the file_clone_meta() function.
+ * 
+ * @param p_source_path C string file path of file containing metadata to read.
+ * @param p_sink_path C string file path of file to be modified.
+ * @param follow_links stdbool flag specifying if links should be followed.
+ * 
+ * @return Returns stdbool true on success. Returns false otherwise.
+ */
+static bool file_clone_meta_w(const char* const p_source_path,
+	const char* const p_sink_path, const bool follow_links)
+{
+	//!TODO
+	bool result = false;
+	if((NULL == p_source_path) || (NULL == p_sink_path))
+	{
+		goto END;
+	}
+
+END:
+	return result;
+}
+
+static bool for_each_file_w(const char* const p_path, const for_file_handler p_handler,
+	const bool handle_dirs, const bool recursive)
+{
+	bool result = false;
+	if((NULL == p_path) || (NULL == p_handler))
+	{
+		goto END;
+	}
+
+	const char* p_fullpath = NULL;
+	WIN32_FIND_DATA find_data = {0};
+	HANDLE file_handle = INVALID_HANDLE_VALUE;
+
+	// Create search string to define file handle
+	char search_str[MAX_PATH] = {0};
+	sprintf_s(search_str, MAX_PATH, "%s\\*.*", p_path);
+	file_handle = FindFirstFile(search_str, &find_data);
+	if(INVALID_HANDLE_VALUE == file_handle)
+	{
+		goto END;
+	}
+	int find_next_result = 0;
+	do
+	{
+		bool is_dot_dir = (0 == strcmp(".", find_data.cFileName));
+		is_dot_dir |= (0 == strcmp("..", find_data.cFileName));
+		if(true == is_dot_dir)
+		{
+			// Skip dot dirs
+			find_next_result = FindNextFile(file_handle, &find_data);
+			continue;
+		}
+		p_fullpath = strv_clone_concat(p_path, "\\", find_data.cFileName);
+		if(NULL == p_fullpath)
+		{
+			find_next_result = FindNextFile(file_handle, &find_data);
+			continue;
+		}
+		if(FILE_ATTRIBUTE_DIRECTORY & findData.dwFileAttributes)
+		{
+			if(true == recursive)
+			{
+				const bool dir_result = for_each_file_w(
+					p_fullpath, p_handler, handle_dirs, recursive
+				);
+				if(true != dir_result)
+				{
+					break;
+				}
+			}
+			if(true != handle_dirs)
+			{
+				// Skip directories
+				free(p_fullpath);
+				p_fullpath = NULL;
+				find_next_result = FindNextFile(file_handle, &find_data);
+				continue;
+			}
+		}
+		// Handle files/links/ect.
+		const bool handler_result = p_handler(p_fullpath, &find_data);
+		if(true != handler_result)
+		{
+			break;
+		}
+		free(p_fullpath);
+		p_fullpath = NULL;
+		find_next_result = FindNextFile(file_handle, &find_data);
+	} while(0 != find_next_result);
+	if(NULL != p_fullpath)
+	{
+		free(p_fullpath);
+		p_fullpath = NULL;
+	}
+	FindClose(file_handle);
+	file_handle = INVALID_HANDLE_VALUE;
+	result = true;
+END:
+	return result;
+}
+
+#else // End of _WIN32
+
+/** Doxygen
+ * @brief Generic/Unknown implimentation of file_clone_data().
+ * 
+ * @param p_source_path C string file path of file containing data to be read.
+ * @param p_sink_path C string file path of file to be overwritten/created.
+ * 
+ * @return Returns stdbool true on success. Returns false otherwise.
+ */
+static bool file_clone_data_u(const char* const p_source_path,
+	const char* const p_sink_path)
+{
+	bool result = false;
+	if((NULL == p_source_path) || (NULL == p_sink_path))
+	{
+		goto END;
+	}
+
+	FILE* p_source = fopen(p_source_path, "r");
+	if(NULL == p_source)
+	{
+		goto END;
+	}
+	FILE* p_sink = fopen(p_sink_path, "w");
+	if(NULL == p_sink)
+	{
+		goto CLEAN;
+	}
+
+	char next_byte = fgetc(p_source);
+	while(next_byte != EOF)
+	{
+		fputc(next_byte, p_sink);
+		next_byte = fgetc(p_source);
+	}
+
+	result = true;
+CLEAN:
+	if(NULL != p_source)
+	{
+		fclose(p_source);
+	}
+	if(NULL != p_sink)
+	{
+		fclose(p_sink);
+	}
+END:
+	return result;
+}
+
+#endif // End of OS Specific function implimentations
+
+bool path_is_dir(const char* const p_path, const bool follow_links)
+{
+	bool result = false;
+	if(NULL == p_path)
+	{
+		goto END;
+	}
+#ifdef __linux__
+	struct stat path_stat = {0};
+	int stat_result = -1;
+	if(true == follow_links)
+	{
+		stat_result = stat(p_path, &path_stat);
+	}
+	else
+	{
+		stat_result = lstat(p_path, &path_stat);
+	}
+	if(0 != stat_result)
+	{
+		goto END;
+	}
+	result = S_ISDIR(path_stat.st_mode);
+#else
+	//!TODO
+	#warning Unsupported Operating System
 #endif//__linux__
+END:
+	return result;
+}
+
+void path_perms_fprint(FILE* const p_file, const char* const p_path)
+{
+	if((NULL == p_file) || (NULL == p_path))
+	{
+		goto END;
+	}
+#ifdef __linux__
+	struct stat file_stat = {0};
+	if(lstat(p_path, &file_stat) < 0)
+	{
+		goto END;
+	}
+	mode_t_fprint(stdout, file_stat.st_mode);
+	const bool has_acl = path_has_acl(p_path);
+	if(true == has_acl)
+	{
+		fprintf(p_file, "+");
+	}
+	fprintf(p_file, " %s", p_path);
+#else
+	//!TODO
+	#warning Unsupported Operating System
+#endif//__linux__
+END:
+	return;
+}
+
+bool file_clone_data(const char* const p_source_path,
+	const char* const p_sink_path, const bool follow_links)
+{
+	bool result = false;
+	if((NULL == p_source_path) || (NULL == p_sink_path))
+	{
+		goto END;
+	}
+#ifdef __linux__
+	result = file_clone_data_l(p_source_path, p_sink_path, follow_links);
+#elif defined _WIN32
+	result = file_clone_data_w(p_source_path, p_sink_path, follow_links);
+#else
+	result = file_clone_data_u(p_source_path, p_sink_path);
+#endif // End call OS specific function
+END:
+	return result;
+}
+
+bool file_clone_meta(const char* const p_source_path,
+	const char* const p_sink_path, const bool follow_links)
+{
+	bool result = false;
+	if((NULL == p_source_path) || (NULL == p_sink_path))
+	{
+		goto END;
+	}
+#ifdef __linux__
+	result = file_clone_meta_l(p_source_path, p_sink_path, follow_links);
+#elif defined _WIN32
+	result = file_clone_meta_w(p_source_path, p_sink_path, follow_links);
+#endif // End call OS specific function
 END:
 	return result;
 }
@@ -358,4 +700,37 @@ bool file_clone_to(const char* const p_source_path,
 	result = file_clone_meta(p_source_path, p_sink_path, follow_links);
 END:
 	return result;
+}
+
+bool for_each_file_4(const char* const p_path, const for_file_handler p_handler,
+	const bool handle_dirs, const bool recursive)
+{
+	bool result = false;
+	if((NULL == p_path) || (NULL == p_handler))
+	{
+		goto END;
+	}
+#ifdef __linux__
+	result = for_each_file_l(p_path, p_handler, handle_dirs, recursive);
+	goto END;
+#elif defined _WIN32
+	result = for_each_file_w(p_path, p_handler, handle_dirs, recursive);
+	goto END;
+#else
+	#warning Unsupported Operating System.
+#endif // End call OS specific function
+END:
+	return result;
+}
+inline bool for_each_file_3(const char* const p_path,
+	const for_file_handler p_handler, const bool handle_dirs)
+{
+	// Default value for bool recursive(false).
+	return for_each_file_4(p_path, p_handler, handle_dirs, false);
+}
+inline bool for_each_file(const char* const p_path,
+	const for_file_handler p_handler)
+{
+	// Default value for bool handle_dirs(false).
+	return for_each_file_3(p_path, p_handler, false);
 }
