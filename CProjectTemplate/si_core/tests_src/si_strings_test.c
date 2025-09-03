@@ -149,11 +149,37 @@ static void si_strings_test_formatters(void)
  */
 static void si_strings_test_manipulators(void)
 {
+	char* p_value = NULL;
+	int s_cmp = 0;
+	const char* const string_a = "I am the night! I am vengence! I am Bruce Wayne!";
+	const char* const string_b = "Bruce Wayne";
+	const char* const string_c = "Batman";
+	const char* const string_d = "I am the night! I am vengence! I am Batman!";
+
+	printf("Testing str_clone_substitute():\n");
+	TEST_ASSERT_NULL(str_clone_substitute(NULL, NULL, NULL));
+	TEST_ASSERT_NULL(str_clone_substitute(NULL, NULL, string_c));
+	TEST_ASSERT_NULL(str_clone_substitute(NULL, string_b, NULL));
+	TEST_ASSERT_NULL(str_clone_substitute(NULL, string_b, string_c));
+	TEST_ASSERT_NULL(str_clone_substitute(string_a, NULL, NULL));
+	TEST_ASSERT_NULL(str_clone_substitute(string_a, NULL, string_c));
+	TEST_ASSERT_NULL(str_clone_substitute(string_a, string_b, NULL));
+	TEST_ASSERT_NULL(p_value);
+	p_value = str_clone_substitute(string_a, string_b, string_c);
+	TEST_ASSERT_NOT_NULL(p_value);
+	printf("Substitution result(s): '%s'.\n", p_value);
+	s_cmp = strcmp(string_d, p_value);
+	TEST_ASSERT_EQUAL_INT(0, s_cmp);
+	free(p_value);
+	p_value = NULL;
+
 	const char* const cstr_buffer =  "There\0is\0no\0cow\0level";
 	const size_t cstr_size = 22u;
 	const char* const cstr_words[] = { "There", "is", "no", "cow", "level" };
-	char* p_value = NULL;
 	size_t current_size = 0u;
+	char* p_next = NULL;
+
+	TEST_ASSERT_NULL(p_value);
 	p_value = calloc(cstr_size, sizeof(char));
 	TEST_ASSERT_NOT_NULL(p_value);
 	current_size = cstr_size;
@@ -161,7 +187,8 @@ static void si_strings_test_manipulators(void)
 
 	printf("Testing pop_str_from_heap():\n");
 	size_t counter = 0u;
-	char* p_next = pop_str_from_heap((uint8_t**)&p_value, &current_size);
+	TEST_ASSERT_NULL(p_next);
+	p_next = pop_str_from_heap((uint8_t**)&p_value, &current_size);
 	TEST_ASSERT_NOT_NULL(p_next);
 	while(NULL != p_next)
 	{

@@ -246,6 +246,114 @@ inline void str_to_lowercase(char* const p_input_str)
 	str_chr_remap(p_input_str, remap_to_lower);
 }
 
+char* strn_clone_substitute(
+	const char* const p_haystack, const size_t haystack_size,
+	const char* const p_needle, const size_t needle_size,
+	const char* const p_value, const size_t value_size)
+{
+	char* p_result = NULL;
+	if((NULL == p_haystack) || (NULL == p_needle) || (NULL == p_value))
+	{
+		goto END;
+	}
+	if(0 >= haystack_size)
+	{
+		goto END;
+	}
+	if(needle_size > haystack_size)
+	{
+		p_result = strndup(p_haystack, haystack_size);
+		goto END;
+	}
+	char* p_tmp = NULL;
+	size_t current_size = 0u;
+	size_t next_start = 0u;
+	size_t tail_length = 0u;
+	for(size_t iii = 0u; iii < haystack_size; iii++)
+	{
+		const char* const p_next = &(p_haystack[iii]);
+		if((haystack_size - iii) < needle_size)
+		{
+			tail_length = (haystack_size - iii);
+			break;
+		}
+		const int cmp_result = strncmp(p_next, p_needle, needle_size);
+		if(0 == cmp_result)
+		{
+			if(NULL == p_result)
+			{
+				current_size = (iii - next_start);
+				p_result = strndup(
+					&(p_haystack[next_start]), current_size
+				);
+			}
+			else
+			{
+				p_tmp = strn_clone_concat(
+					p_result, current_size,
+					&(p_haystack[next_start]), iii - next_start
+				);
+				current_size += (iii - next_start);
+				free(p_result);
+				p_result = p_tmp;
+				p_tmp = NULL;
+			}
+			p_tmp = strn_clone_concat(
+				p_result, current_size,
+				p_value, value_size
+			);
+			current_size += value_size;
+			free(p_result);
+			p_result = p_tmp;
+			p_tmp = NULL;
+			next_start = iii + needle_size;
+			iii += needle_size - 1u;
+			continue;
+		}
+	}
+	if(0u < tail_length)
+	{
+		current_size += tail_length;
+		if(NULL != p_result)
+		{
+			p_tmp = str_clone_concat(
+				p_result, &(p_haystack[haystack_size - tail_length])
+			);
+			if(NULL != p_tmp)
+			{
+				free(p_result);
+				p_result = p_tmp;
+				p_tmp = NULL;
+			}
+		}
+		else
+		{
+			p_result = strndup(
+				&(p_haystack[haystack_size - tail_length]), tail_length
+			);
+		}
+	}
+END:
+	return p_result;
+}
+char* str_clone_substitute(const char* const p_haystack,
+	const char* const p_needle, const char* const p_value)
+{
+	char* p_result = NULL;
+	if((NULL == p_haystack) || (NULL == p_needle) || (NULL == p_value))
+	{
+		goto END;
+	}
+	const size_t haystack_len = strnlen(p_haystack, INT64_MAX);
+	const size_t needle_len = strnlen(p_needle, INT64_MAX);
+	const size_t value_len = strnlen(p_value, INT64_MAX);
+	p_result = strn_clone_substitute(
+		p_haystack, haystack_len, p_needle, needle_len, p_value, value_len
+	);
+END:
+	return p_result;
+}
+
 char* pop_str_from_heap(uint8_t** const pp_buffer, size_t* const p_buffer_size)
 {
 	char* p_result = NULL;

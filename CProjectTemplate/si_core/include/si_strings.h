@@ -106,6 +106,26 @@ void strn_to_lowercase(char* const p_input_str, const size_t input_size);
 void str_to_lowercase(char* const p_input_str);
 
 /** Doxygen
+ * @brief Returns a new heap string cloned from haystack with all needle
+ *        instances in that haystack replaced with value instances.
+ * 
+ * @param p_haystack C String to match in and read from.
+ * @param haystack_size Size of the haystack string in characters/bytes.
+ * @param p_needle C String pattern to match inside of haystack string.
+ * @param needle_size Size of the pattern string in characters/bytes.
+ * @param p_value C String to replace needle matches with in haystack.
+ * @param value_size Size fo value string in characters/bytes.
+ * 
+ * @return Returns heap pointer on success. Returns NULL otherwise.
+ */
+char* strn_clone_substitute(
+	const char* const p_haystack, const size_t haystack_size,
+	const char* const p_needle, const size_t needle_size,
+	const char* const p_value, const size_t value_size);
+char* str_clone_substitute(const char* const p_haystack,
+	const char* const p_needle, const char* const p_value);
+
+/** Doxygen
  * @brief Seperates the first found C string from a heap buffer of a known size
  * 
  * @param pp_buffer Pointer to heap buffer to have C string value removed from.
