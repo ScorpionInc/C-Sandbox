@@ -15,8 +15,8 @@
 
 // Requires linking -lacl
 #include <acl/libacl.h> // acl_t, ACL_TYPE_ACCESS
-#include <dirent.h> // opendir(), readdir()
-#include <fcntl.h> // O_RDONLY, O_WRONLY, O_CREAT
+#include <dirent.h> // DT_DIR, opendir(), readdir()
+#include <fcntl.h> // O_RDONLY, O_WRONLY, O_CREAT, O_NOFOLLOW
 #include <sys/acl.h> // acl_get_file(), acl_free()
 #include <sys/sendfile.h> // sendfile()
 #include <sys/stat.h> // stat, stat(), lstat()
