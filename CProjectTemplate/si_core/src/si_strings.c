@@ -246,10 +246,11 @@ inline void str_to_lowercase(char* const p_input_str)
 	str_chr_remap(p_input_str, remap_to_lower);
 }
 
-char* strn_clone_substitute(
+char* strn_clone_substitute_7(
 	const char* const p_haystack, const size_t haystack_size,
 	const char* const p_needle, const size_t needle_size,
-	const char* const p_value, const size_t value_size)
+	const char* const p_value, const size_t value_size,
+	int (*p_strncmp)(const char* p_s1, const char* p_s2, const size_t n))
 {
 	char* p_result = NULL;
 	if((NULL == p_haystack) || (NULL == p_needle) || (NULL == p_value))
@@ -277,7 +278,7 @@ char* strn_clone_substitute(
 			tail_length = (haystack_size - iii);
 			break;
 		}
-		const int cmp_result = strncmp(p_next, p_needle, needle_size);
+		const int cmp_result = p_strncmp(p_next, p_needle, needle_size);
 		if(0 == cmp_result)
 		{
 			if(NULL == p_result)
@@ -336,8 +337,23 @@ char* strn_clone_substitute(
 END:
 	return p_result;
 }
-char* str_clone_substitute(const char* const p_haystack,
-	const char* const p_needle, const char* const p_value)
+inline char* strn_clone_substitute(
+	const char* const p_haystack, const size_t haystack_size,
+	const char* const p_needle, const size_t needle_size,
+	const char* const p_value, const size_t value_size)
+{
+	// Default value of p_strncmp if strncmp.
+	return strn_clone_substitute_7(
+		p_haystack, haystack_size,
+		p_needle, needle_size,
+		p_value, value_size,
+		strncmp
+	);
+}
+
+char* str_clone_substitute_4(const char* const p_haystack,
+	const char* const p_needle, const char* const p_value,
+	int (*p_strncmp)(const char* p_s1, const char* p_s2, const size_t n))
 {
 	char* p_result = NULL;
 	if((NULL == p_haystack) || (NULL == p_needle) || (NULL == p_value))
@@ -347,11 +363,22 @@ char* str_clone_substitute(const char* const p_haystack,
 	const size_t haystack_len = strnlen(p_haystack, INT64_MAX);
 	const size_t needle_len = strnlen(p_needle, INT64_MAX);
 	const size_t value_len = strnlen(p_value, INT64_MAX);
-	p_result = strn_clone_substitute(
-		p_haystack, haystack_len, p_needle, needle_len, p_value, value_len
+	p_result = strn_clone_substitute_7(
+		p_haystack, haystack_len,
+		p_needle, needle_len,
+		p_value, value_len,
+		p_strncmp
 	);
 END:
 	return p_result;
+}
+inline char* str_clone_substitute(const char* const p_haystack,
+	const char* const p_needle, const char* const p_value)
+{
+	// Default value of p_strncmp if strncmp.
+	return str_clone_substitute_4(
+		p_haystack, p_needle, p_value, strncmp
+	);
 }
 
 char* pop_str_from_heap(uint8_t** const pp_buffer, size_t* const p_buffer_size)

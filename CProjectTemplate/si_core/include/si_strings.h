@@ -115,13 +115,22 @@ void str_to_lowercase(char* const p_input_str);
  * @param needle_size Size of the pattern string in characters/bytes.
  * @param p_value C String to replace needle matches with in haystack.
  * @param value_size Size fo value string in characters/bytes.
+ * @param p_strncmp Optional function pointer to strncmp signature for matching
  * 
  * @return Returns heap pointer on success. Returns NULL otherwise.
  */
+char* strn_clone_substitute_7(
+	const char* const p_haystack, const size_t haystack_size,
+	const char* const p_needle, const size_t needle_size,
+	const char* const p_value, const size_t value_size,
+	int (*p_strncmp)(const char* p_s1, const char* p_s2, const size_t n));
 char* strn_clone_substitute(
 	const char* const p_haystack, const size_t haystack_size,
 	const char* const p_needle, const size_t needle_size,
 	const char* const p_value, const size_t value_size);
+char* str_clone_substitute_4(const char* const p_haystack,
+	const char* const p_needle, const char* const p_value,
+	int (*p_strncmp)(const char* p_s1, const char* p_s2, const size_t n));
 char* str_clone_substitute(const char* const p_haystack,
 	const char* const p_needle, const char* const p_value);
 
