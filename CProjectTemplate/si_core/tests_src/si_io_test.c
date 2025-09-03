@@ -16,7 +16,7 @@ void tearDown (void)
 }
 
 /** Doxygen
- * @brief Runs all local unit tests for si_logger
+ * @brief Runs local unit tests for si_io file_clone
  */
 static void si_io_test_file_clone(void)
 {
@@ -33,20 +33,47 @@ static void si_io_test_file_clone(void)
 	TEST_ASSERT_EQUAL_INT(0, remove_result);
 }
 
+static bool handle_file(const char* const p_fullpath, struct dirent* p_entry)
+{
+	bool do_next = false;
+	if((NULL == p_fullpath) || (NULL == p_entry))
+	{
+		goto END;
+	}
+	printf("%s\n", p_fullpath);
+	do_next = true;
+END:
+	return do_next;
+}
+
 /** Doxygen
- * @brief Runs all local unit tests for si_logger
+ * @brief Runs local unit tests for si_io for_each_file
+ */
+static void si_io_test_for_each_file(void)
+{
+	const char* const p_list_path = "./tests_resources";
+
+	TEST_ASSERT_FALSE(for_each_file_4(NULL, NULL, true, false));
+	TEST_ASSERT_FALSE(for_each_file_4(p_list_path, NULL, false, true));
+	TEST_ASSERT_FALSE(for_each_file_4(NULL, handle_file, false, false));
+	TEST_ASSERT_TRUE(for_each_file_4(p_list_path, handle_file, true, false));
+}
+
+/** Doxygen
+ * @brief Runs all local unit tests for si_io
  */
 static void si_io_test_all(void)
 {
-    UNITY_BEGIN();
-    RUN_TEST(si_io_test_file_clone);
-    UNITY_END();
+	UNITY_BEGIN();
+	RUN_TEST(si_io_test_file_clone);
+	RUN_TEST(si_io_test_for_each_file);
+	UNITY_END();
 }
 
 int main(void)
 {
-    printf("Start of si_io unit test(s).\n");
-    si_io_test_all();
-    printf("End of si_io unit test(s).\n");
-    return 0;
+	printf("Start of si_io unit test(s).\n");
+	si_io_test_all();
+	printf("End of si_io unit test(s).\n");
+	return 0;
 }
