@@ -23,6 +23,7 @@ static void si_io_test_file_clone(void)
 	const char* const p_source_path = "./tests_resources/test.txt";
 	const char* const p_sink_path   = "./tests_resources/test_copy.txt";
 
+	printf("Testing file_clone_to():\n");
 	TEST_ASSERT_FALSE(file_clone_to(NULL, NULL, false));
 	TEST_ASSERT_FALSE(file_clone_to(p_source_path, NULL, true));
 	TEST_ASSERT_FALSE(file_clone_to(NULL, p_sink_path, false));
@@ -53,6 +54,7 @@ static void si_io_test_for_each_file(void)
 {
 	const char* const p_list_path = "./tests_resources";
 
+	printf("Testing for_each_file_4():\n");
 	TEST_ASSERT_FALSE(for_each_file_4(NULL, NULL, true, false));
 	TEST_ASSERT_FALSE(for_each_file_4(p_list_path, NULL, false, true));
 	TEST_ASSERT_FALSE(for_each_file_4(NULL, handle_file, false, false));
