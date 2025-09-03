@@ -7,6 +7,7 @@
 #include <stdio.h> // FILE
 #include <stdlib.h> // free()
 #include <string.h> // strcmp()
+#include <time.h> // timespec
 
 #include "si_strings.h" // strv_clone_concat()
 
