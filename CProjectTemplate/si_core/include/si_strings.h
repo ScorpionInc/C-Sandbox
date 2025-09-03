@@ -36,6 +36,18 @@ char* str_clone_concat(const char* const p_left,
 	const char* const p_right);
 
 /** Doxygen
+ * @brief Creates a new NULL-terminated heap C string from joining an arbitrary
+ *        number of other C strings by variatic arguments.
+ * 
+ * @param argc Only required parameter size_t specifing the number of C strings
+ *             that are being joined.
+ * @param ... Any number of NULL-terminated C Strings to be joined.
+ * 
+ * @return Returns heap pointer on success. Returns NULL otherwise.
+ */
+char* strv_clone_concat(const size_t argc, ...);
+
+/** Doxygen
  * @brief Creates a new heap C string from joining/concatenating the strings in
  *        a string array seperated with an optional C string seperator.
  * 

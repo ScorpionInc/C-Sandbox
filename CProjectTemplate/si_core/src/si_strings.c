@@ -43,6 +43,41 @@ END:
 	return p_value;
 }
 
+char* strv_clone_concat(const size_t argc, ...)
+{
+	char* p_result = NULL;
+	if(0 >= argc)
+	{
+		goto END;
+	}
+	char* p_tmp = NULL;
+	va_list args = {0};
+	va_start(args, argc);
+	for(size_t iii = 0u; iii < argc; iii++)
+	{
+		char* p_arg = va_arg(args, char*);
+		if(p_arg == NULL)
+		{
+			continue;
+		}
+		if(NULL == p_result)
+		{
+			p_result = strdup(p_arg);
+			continue;
+		}
+		p_tmp = str_clone_concat(p_result, p_arg);
+		if(NULL == p_tmp)
+		{
+			continue;
+		}
+		free(p_result);
+		p_result = p_tmp;
+		p_tmp = NULL;
+	}
+END:
+	return p_result;
+}
+
 char* str_clone_join(const size_t argc,	const char* const p_seperator,
 	const char** const pp_argv)
 {
