@@ -59,6 +59,17 @@ static void si_strings_test_concats(void)
 	free(p_value);
 	p_value = NULL;
 
+	printf("Testing strv_clone_concat():\n");
+	TEST_ASSERT_NULL(strv_clone_concat(0u));
+	TEST_ASSERT_NULL(strv_clone_concat(0u, NULL));
+	TEST_ASSERT_NULL(strv_clone_concat(0u, string_a, string_b));
+	p_value = strv_clone_concat(2u, string_a, string_b);
+	TEST_ASSERT_NOT_NULL(p_value);
+	s_cmp = strcmp(p_value, string_joined_a);
+	TEST_ASSERT_EQUAL_INT(0, s_cmp);
+	free(p_value);
+	p_value = NULL;
+
 	printf("Testing str_clone_join():\n");
 	TEST_ASSERT_NULL(str_clone_join(0, NULL, NULL));
 	TEST_ASSERT_NULL(str_clone_join(SIZE_MAX, NULL, NULL));
