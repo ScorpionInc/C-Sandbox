@@ -5,7 +5,10 @@
 #include <limits.h>
 #include <stdbool.h> // bool, false, true
 #include <stdio.h> // FILE
+#include <stdlib.h> // free()
 #include <string.h> // strcmp()
+
+#include "si_strings.h" // strv_clone_concat()
 
 #ifdef __linux__
 
