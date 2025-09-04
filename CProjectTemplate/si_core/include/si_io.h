@@ -113,6 +113,20 @@ void dirent_fprint(FILE* const p_file, const struct dirent* const p_entry);
 bool path_is_dir(const char* const p_path, const bool follow_links);
 
 /** Doxygen
+ * @brief Determines the file size of file object at a file path.
+ * 
+ * @param p_path C string of the file path of file object to check.
+ * @param follow_links stdbool flag specifying if links should be followed.
+ * @param recursive stdbool flag should get size of all files in and below dir?
+ * 
+ * @return Returns a size_t of the byte size on success. Directories return 0u
+ *         if not recursive. Returns SIZE_MAX if not successful.
+ */
+size_t path_file_size_3(const char* const p_path, const bool follow_links,
+	const bool recursive);
+size_t path_file_size(const char* const p_path, const bool follow_links);
+
+/** Doxygen
  * @brief Prints permissions of file object at C string path to FILE.
  * 
  * @param p_file Pointer to FILE to be written to.

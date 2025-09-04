@@ -619,6 +619,57 @@ END:
 	return result;
 }
 
+size_t path_file_size_3(const char* const p_path, const bool follow_links,
+	const bool recursive)
+{
+	//!TODO See TODOs
+	size_t result = SIZE_MAX;
+	if(NULL == p_path)
+	{
+		goto END;
+	}
+#ifdef __linux__
+	struct stat file_stat = {0};
+	int stat_result = -1;
+	if(true == follow_links)
+	{
+		stat_result = stat(p_path, &file_stat);
+	}
+	else
+	{
+		stat_result = lstat(p_path, &file_stat);
+	}
+	if(0 != stat_result)
+	{
+		goto END;
+	}
+	const bool is_dir = S_ISDIR(file_stat.st_mode);
+	if(true == is_dir)
+	{
+		result = 0u;
+		if(true != recursive)
+		{
+			goto END;
+		}
+		// TODO Impliment directory recursion.
+	}
+	else
+	{
+		result = file_stat.st_size;
+	}
+#else
+	//!TODO Adds support for other OSs(?)
+	#warning Unsupported Operating System
+#endif//__linux__
+END:
+	return result;
+}
+inline size_t path_file_size(const char* const p_path, const bool follow_links)
+{
+	// Default value of recursive is false.
+	return path_file_size_3(p_path, follow_links, false);
+}
+
 void path_perms_fprint(FILE* const p_file, const char* const p_path)
 {
 	if((NULL == p_file) || (NULL == p_path))
