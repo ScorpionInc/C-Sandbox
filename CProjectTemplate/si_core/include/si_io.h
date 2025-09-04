@@ -1,5 +1,14 @@
 /* si_io.h
- */
+ * Language: C
+ * Authors: ScorpionInc
+ * Purpose: Defines function(s)/type(s) for working with files.
+ * Created: 20250901
+ * Updated: 20250904
+//*/
+
+#ifdef __cplusplus
+extern "C" {
+#endif //__cplusplus
 
 #include <errno.h> // errno
 #include <limits.h>
@@ -40,6 +49,9 @@ typedef bool (*for_file_handler)(const char* const);
 
 #endif //OS specific includes/defines
 
+
+#ifndef SI_IO_H
+#define SI_IO_H
 
 // Start of OS specific function prototypes
 #ifdef __linux__
@@ -165,3 +177,9 @@ bool for_each_file_3(const char* const p_path,
 	const for_file_handler p_handler, const bool handle_dirs);
 bool for_each_file(const char* const p_path,
 	const for_file_handler p_handler);
+
+#endif // SI_IO_H
+
+#ifdef __cplusplus
+}
+#endif //__cplusplus
