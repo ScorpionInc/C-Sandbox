@@ -285,6 +285,32 @@ END:
 	return;
 }
 
+bool si_array_swp(si_array_t* const p_array,
+	const size_t left, const size_t right)
+{
+	bool result = false;
+	if(NULL == p_array)
+	{
+		goto END;
+	}
+	if((p_array->capacity <= left) || (p_array->capacity <= right))
+	{
+		goto END;
+	}
+	{
+		uint8_t buffer[p_array->element_size];
+		memset(&buffer, 0x00, p_array->element_size);
+		memcpy(&buffer, si_array_at(p_array, left), p_array->element_size);
+		memcpy(
+			si_array_at(p_array, left), si_array_at(p_array, right),
+			p_array->element_size
+		);
+		memcpy(si_array_at(p_array, right), &buffer, p_array->element_size);
+	}
+END:
+	return result;
+}
+
 int si_array_cmp(const si_array_t* const p_array_a,
 	const si_array_t* const p_array_b)
 {

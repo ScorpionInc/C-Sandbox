@@ -162,6 +162,18 @@ void si_array_set(si_array_t* p_array,
 void si_array_get(const si_array_t* p_array,
 	const size_t index, void* p_item);
 
+/**Doxygen
+ * @brief Swaps the values of two indexs inside the array.
+ * 
+ * @param p_array Pointer to si_array_t struct whose buffer is to be changed.
+ * @param left An index of type size_t to be swapped.
+ * @param right An index of type size_t to be swapped.
+ * 
+ * @return Returns stdbool true on success. Returns false otherwise.
+ */
+bool si_array_swp(si_array_t* const p_array,
+	const size_t left, const size_t right);
+
 /** Doxygen
  * @brief Compares the raw byte values of two si_array_t structs data.
  *
