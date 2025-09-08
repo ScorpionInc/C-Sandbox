@@ -15,17 +15,7 @@ void si_queue_init_4(si_queue_t* p_queue, const size_t element_size,
 	// Begin
 	p_queue->front = 0u;
 	p_queue->back  = 0u;
-	if (NULL == p_settings)
-	{
-		p_queue->settings = (si_realloc_settings_t){};
-		si_realloc_settings_new(&(p_queue->settings));
-	}
-	else
-	{
-		memcpy(
-			&(p_queue->settings), p_settings, sizeof(si_realloc_settings_t)
-		);
-	}
+	p_queue->p_settings = p_settings;
 	p_queue->dynamic = (si_array_t){0};
 	si_array_init_3(
 		&(p_queue->dynamic), element_size, (initial_capacity + 1u)
@@ -143,13 +133,31 @@ size_t si_queue_enqueue(si_queue_t* p_queue, const void* p_item)
 	}
 	// Begin
 	new_count = si_queue_count(p_queue);
-	if (si_queue_is_full(p_queue))
+	const bool needs_to_grow = si_queue_is_full(p_queue);
+	if (true == needs_to_grow)
 	{
-		si_realloc_settings_grow(&(p_queue->settings), &(p_queue->dynamic));
-		if (si_queue_is_full(p_queue))
+		const bool did_settings_grow = si_realloc_settings_grow(
+			p_queue->p_settings, &(p_queue->dynamic)
+		);
+		bool is_still_full = si_queue_is_full(p_queue);
+		if ((true == did_settings_grow) && (true == is_still_full))
 		{
-			// Failed to grow.
+			// Failed to grow with defined settings.
+			// Or growth amount didn't increase capacity(0).
 			goto END;
+		}
+		else if(true != did_settings_grow)
+		{
+			// Settings failed or missing, try using a default grow by 1.
+			const bool did_grow = si_array_resize(
+				&(p_queue->dynamic), p_queue->dynamic.capacity + 1u
+			);
+			is_still_full = si_queue_is_full(p_queue);
+			if((true != did_grow) || (true == is_still_full))
+			{
+				// All else has failed.
+				goto END;
+			}
 		}
 	}
 	si_array_set(&(p_queue->dynamic), p_queue->back, p_item);

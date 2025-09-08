@@ -23,7 +23,7 @@ typedef struct si_queue_t
 {
 	size_t front;
 	size_t back;
-	si_realloc_settings_t settings;
+	const si_realloc_settings_t* p_settings;
 	si_array_t dynamic;
 } si_queue_t;
 
