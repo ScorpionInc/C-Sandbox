@@ -22,10 +22,14 @@ void si_queue_init_4(si_queue_t* p_queue, const size_t element_size,
 	}
 	else
 	{
-		memcpy(&(p_queue->settings), p_settings, sizeof(si_realloc_settings_t));
+		memcpy(
+			&(p_queue->settings), p_settings, sizeof(si_realloc_settings_t)
+		);
 	}
 	p_queue->dynamic = (si_array_t){0};
-	si_array_init_3(&(p_queue->dynamic), element_size, initial_capacity);
+	si_array_init_3(
+		&(p_queue->dynamic), element_size, (initial_capacity + 1u)
+	);
 	// End
 END:
 	return;
@@ -96,8 +100,13 @@ bool si_queue_is_empty(const si_queue_t* p_queue)
 	{
 		goto END;
 	}
+	if(1u >= p_queue->dynamic.capacity)
+	{
+		goto END;
+	}
 	// Begin
-	is_empty = (si_queue_count(p_queue) == 0u);
+	const size_t item_count = si_queue_count(p_queue);
+	is_empty = (item_count == 0u);
 	// End
 END:
 	return is_empty;
@@ -111,13 +120,13 @@ bool si_queue_is_full(const si_queue_t* p_queue)
 	{
 		goto END;
 	}
-	if(0u == p_queue->dynamic.capacity)
+	if(1u >= p_queue->dynamic.capacity)
 	{
 		goto END;
 	}
 	// Begin
 	const size_t item_count = si_queue_count(p_queue);
-	is_full = (item_count >= p_queue->dynamic.capacity);
+	is_full = (item_count >= (p_queue->dynamic.capacity - 1u));
 	// End
 END:
 		return is_full;
@@ -155,13 +164,13 @@ size_t si_queue_dequeue(si_queue_t* p_queue, void* p_item)
 {
 	size_t new_count = 0u;
 	// Validate parameters
-	if (NULL == p_queue)
+	if((NULL == p_queue) || (NULL == p_item))
 	{
 		goto END;
 	}
 	// Begin
 	new_count = si_queue_count(p_queue);
-	if (si_queue_is_empty(p_queue))
+	if (0u >= new_count)
 	{
 		goto END;
 	}
