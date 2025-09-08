@@ -133,7 +133,7 @@ void parray_test_modify(void)
 void parray_test_all(void)
 {
 	UNITY_BEGIN();
-	//RUN_TEST(parray_test_init);
+	RUN_TEST(parray_test_init);
 	RUN_TEST(parray_test_modify);
 	UNITY_END();
 }
