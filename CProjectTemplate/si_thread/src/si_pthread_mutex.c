@@ -1,7 +1,7 @@
 // si_pthread_mutex.c
 #include "si_pthread_mutex.h"
 
-#ifdef __linux__
+#if defined(__APPLE__) || defined(__linux__) || defined(__unix__)
 
 pthread_mutexattr_t* si_mutexattr_new()
 {
@@ -104,4 +104,4 @@ END:
 	return;
 }
 
-#endif // __linux__
+#endif // defined(__APPLE__) || defined(__linux__) || defined(__unix__)

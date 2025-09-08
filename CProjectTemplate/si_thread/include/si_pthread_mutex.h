@@ -1,7 +1,7 @@
 // si_pthread_mutex.h - 20250908
 // Shared common functions for working with pthread mutexs
 
-#ifdef __linux__
+#if defined(__APPLE__) || defined(__linux__) || defined(__unix__)
 
 #ifndef _POSIX_C_SOURCE
 // Define default minimum POSIX Feature version
@@ -48,4 +48,4 @@ pthread_mutex_t* si_mutex_new();
  */
 void si_mutex_destroy(pthread_mutex_t** const pp_mutex);
 
-#endif // __linux__
+#endif // defined(__APPLE__) || defined(__linux__) || defined(__unix__)
