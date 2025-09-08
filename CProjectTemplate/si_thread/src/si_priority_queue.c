@@ -2,7 +2,9 @@
 #include "si_priority_queue.h"
 
 /** Doxygen
- * @brief Generates, initializes and returns a new heap mutex pointer.
+ * @brief Generates and initializes a new heap mutex pointer.
+ * 
+ * @return Returns heap pointer on success. Returns NULL otherwise.
  */
 static pthread_mutex_t* mutex_new()
 {
@@ -12,10 +14,32 @@ static pthread_mutex_t* mutex_new()
 		goto END;
 	}
 	pthread_mutexattr_t attr = {0};
-	pthread_mutexattr_init(&attr);
-	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_NORMAL);
+	const int attr_init_result = pthread_mutexattr_init(&attr);
+	if(0 != attr_init_result)
+	{
+		goto CLEAN;
+	}
+	const int settype_result = pthread_mutexattr_settype(
+		&attr, PTHREAD_MUTEX_NORMAL
+	);
+	if(0 != settype_result)
+	{
+		pthread_mutexattr_destroy(&attr);
+		goto CLEAN;
+	}
 	const int init_results = pthread_mutex_init(p_new, &attr);
 	pthread_mutexattr_destroy(&attr);
+	if(0 != init_results)
+	{
+		goto CLEAN;
+	}
+	goto END;
+CLEAN:
+	if(NULL != p_new)
+	{
+		free(p_new);
+		p_new = NULL;
+	}
 END:
 	return p_new;
 }
