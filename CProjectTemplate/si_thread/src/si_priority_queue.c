@@ -1,69 +1,6 @@
 //si_priority_queue.c
 #include "si_priority_queue.h"
 
-/** Doxygen
- * @brief Generates and initializes a new heap attribute struct on the heap.
- * 
- * @return Returns heap pointer on success. Returns NULL otherwise.
- */
-static pthread_mutexattr_t* mutexattr_new()
-{
-	pthread_mutexattr_t* p_new = calloc(1u, sizeof(pthread_mutexattr_t));
-	if(NULL == p_new)
-	{
-		goto END;
-	}
-	const int attr_init_result = pthread_mutexattr_init(p_new);
-	if(0 != attr_init_result)
-	{
-		goto CLEAN;
-	}
-	const int settype_result = pthread_mutexattr_settype(
-		p_new, PTHREAD_MUTEX_NORMAL
-	);
-	if(0 != settype_result)
-	{
-		pthread_mutexattr_destroy(p_new);
-		goto CLEAN;
-	}
-	goto END;
-CLEAN:
-	if(NULL != p_new)
-	{
-		free(p_new);
-		p_new = NULL;
-	}
-END:
-	return p_new;
-}
-
-/** Doxygen
- * @brief Generates and initializes a new heap mutex pointer.
- * 
- * @return Returns heap pointer on success. Returns NULL otherwise.
- */
-static pthread_mutex_t* mutex_new(const pthread_mutexattr_t* const p_attr)
-{
-	pthread_mutex_t* p_new = NULL;
-	if(NULL == p_attr)
-	{
-		goto END;
-	}
-	p_new = calloc(1u, sizeof(pthread_mutex_t));
-	if(NULL == p_new)
-	{
-		goto END;
-	}
-	const int init_results = pthread_mutex_init(p_new, p_attr);
-	if(0 != init_results)
-	{
-		free(p_new);
-		p_new = NULL;
-	}
-END:
-	return p_new;
-}
-
 void si_priority_queue_init(si_priority_queue_t* const p_pqueue,
 	const size_t priority_count)
 {
@@ -81,14 +18,14 @@ void si_priority_queue_init(si_priority_queue_t* const p_pqueue,
 	si_parray_init_2(&(p_pqueue->queues), priority_count);
 
 	// Initialize queue mutexs
-	pthread_mutexattr_t* p_attr = mutexattr_new();
+	pthread_mutexattr_t* p_attr = si_mutexattr_new();
 	if(NULL == p_attr)
 	{
 		goto END;
 	}
 	for(size_t iii = 0u; iii < priority_count; iii++)
 	{
-		pthread_mutex_t* const p_lock = mutex_new(p_attr);
+		pthread_mutex_t* const p_lock = si_mutex_new_1(p_attr);
 		if(NULL == p_lock)
 		{
 			break;
@@ -99,9 +36,7 @@ void si_priority_queue_init(si_priority_queue_t* const p_pqueue,
 			break;
 		}
 	}
-	pthread_mutexattr_destroy(p_attr);
-	free(p_attr);
-	p_attr = NULL;
+	si_mutexattr_destroy(&p_attr);
 END:
 	return;
 }

@@ -17,6 +17,7 @@
 
 #include "si_queue.h" // si_queue_t
 #include "si_parray.h" // si_parray_t
+#include "si_pthread_mutex.h" // si_mutexattr_new(), si_mutex_new_1()
 #include "si_realloc_settings.h" // si_realloc_settings_t
 
 #ifndef SI_PRIORITY_QUEUE_H
