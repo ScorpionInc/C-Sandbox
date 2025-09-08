@@ -286,7 +286,7 @@ size_t si_priority_queue_feed(si_priority_queue_t* const p_pqueue,
 	}
 	for(size_t iii = 0u; iii < (p_pqueue->locks.array.capacity - 1u); iii++)
 	{
-		si_priority_queue_feed_at(p_pqueue, iii, amount);
+		result += si_priority_queue_feed_at(p_pqueue, iii, amount);
 	}
 END:
 	return result;
