@@ -25,14 +25,15 @@ static void si_threadpool_test_init(void)
 static void* example_task(si_logger_t* p_param)
 {
 	si_logger_debug(p_param, "Example task has started.");
-	for(size_t iii = 0u; iii < 100u; iii++)
-	{
-		// NOP
-		iii++;
-		sleep(1);
-		--iii;
-	}
+	// Do work
 	si_logger_debug(p_param, "Example task has stopped.");
+	return NULL;
+}
+
+static void* looping_task(si_logger_t* p_param)
+{
+	si_logger_warning(p_param, "DRINK WATER!");
+	sleep(60);
 	return NULL;
 }
 
@@ -56,11 +57,18 @@ static void si_threadpool_test_run(void)
 	si_logger_t* p_logger = si_logger_new_2(stdout, SI_LOGGER_ALL);
 	TEST_ASSERT_NOT_NULL(p_logger);
 
-	const size_t task_id = si_threadpool_enqueue_4(
-		p_threadpool, (p_task_f)example_task, p_logger, false
+	const size_t etask_id = si_threadpool_enqueue_4(
+		p_threadpool, (p_task_f)example_task, p_logger, true
 	);
-	printf("Task ID: %lu.\n", task_id);
-	TEST_ASSERT_NOT_EQUAL_size_t(SI_THREADPOOL_TASK_ID_INVALID, task_id);
+	printf("Example Task ID: %lu.\n", etask_id);
+	TEST_ASSERT_NOT_EQUAL_size_t(SI_THREADPOOL_TASK_ID_INVALID, etask_id);
+
+	const size_t ltask_id = si_threadpool_enqueue_5(
+		p_threadpool, (p_task_f)looping_task, p_logger,
+		false, (priority_count - 1u)
+	);
+	printf("Looping Task first ID: %lu.\n", ltask_id);
+	TEST_ASSERT_NOT_EQUAL_size_t(SI_THREADPOOL_TASK_ID_INVALID, ltask_id);
 	
 	si_threadpool_await(&p_threadpool);
 
@@ -81,6 +89,9 @@ static void si_threadpool_test_all(void)
 int main(void)
 {
 	printf("Begin testing of si_threadpool.\n");
+	printf("si_threadpool_t size: %lu.\n", sizeof(si_threadpool_t));
+	printf("si_parray_t size: %lu.\n", sizeof(si_parray_t));
+	printf("si_priority_queue_t size: %lu.\n", sizeof(si_priority_queue_t));
 	si_threadpool_test_all();
 	printf("End of si_threadpool testing.\n");
 	return 0;

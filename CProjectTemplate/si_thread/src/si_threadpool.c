@@ -124,24 +124,13 @@ static void* si_threadpool_worker(si_threadpool_t* const p_param)
 	{
 		goto END;
 	}
-	const int cancel_result = pthread_setcancelstate(
-		PTHREAD_CANCEL_ENABLE, NULL
-	);
-	if(0 != cancel_result)
-	{
-		// Failed to enable the cancellation state(s).
-		goto END;
-	}
 	local_task_t* p_task = NULL;
 	bool is_running = atomic_load(&(p_pool->is_running));
 	while(true == is_running)
 	{
-		is_running = atomic_load(&(p_pool->is_running));
-		pthread_testcancel();
 		p_task = si_priority_queue_dequeue(&(p_pool->queue));
 		if(NULL == p_task)
 		{
-			pthread_testcancel();
 			sleep(1);
 			goto CONTINUE;
 		}
@@ -152,7 +141,7 @@ static void* si_threadpool_worker(si_threadpool_t* const p_param)
 		p_task->p_result = p_task->p_task(p_task->p_param);
 		if(true != p_task->one_shot)
 		{
-			// Handle looping
+			// Handles looping task(s)
 			const size_t new_id = si_threadpool_enqueue_5(
 				p_pool, p_task->p_task, p_task->p_param, 0, p_task->priority
 			);
@@ -163,8 +152,7 @@ static void* si_threadpool_worker(si_threadpool_t* const p_param)
 		}
 		else
 		{
-			// Parameter might not be on the heap.
-			// Deligate parameter free responsibility to caller.
+			// Parameter free is a deligated responsibility of caller.
 			//free(p_task->p_param);
 		}
 		// Handle Results
@@ -206,7 +194,24 @@ CONTINUE:
 			p_task = NULL;
 		}
 		is_running = atomic_load(&(p_pool->is_running));
+
+		int cancel_result = pthread_setcancelstate(
+			PTHREAD_CANCEL_ENABLE, NULL
+		);
+		if(0 != cancel_result)
+		{
+			// Failed to enable the cancellation state(s).
+			goto END;
+		}
 		pthread_testcancel();
+		cancel_result = pthread_setcancelstate(
+			PTHREAD_CANCEL_DISABLE, NULL
+		);
+		if(0 != cancel_result)
+		{
+			// Failed to disable the cancellation state(s).
+			goto END;
+		}
 	}
 END:
 	pthread_exit(p_param);
