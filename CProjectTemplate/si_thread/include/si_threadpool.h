@@ -29,6 +29,7 @@
 #include <stdbool.h> //bool, false, true
 #include <time.h> // timespec, time_t, clock_gettime()
 
+#include "si_array.h" // si_array_t
 #include "si_parray.h" // si_parray_t
 #include "si_priority_queue.h" // si_priority_queue_t
 #include "si_pthread_mutex.h" // si_mutexattr_new(), si_mutex_new_1()
@@ -52,7 +53,7 @@ typedef struct si_threadpool_t
 	pthread_mutex_t results_lock;
 	volatile atomic_bool is_running;
 	volatile _Atomic size_t task_counter;
-	si_parray_t pool;
+	si_array_t pool;
 	si_parray_t results;
 	si_priority_queue_t queue;
 } si_threadpool_t;

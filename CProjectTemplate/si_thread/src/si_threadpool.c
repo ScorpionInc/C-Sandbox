@@ -259,8 +259,7 @@ void si_threadpool_init_2(si_threadpool_t* const p_pool,
 	}
 
 	atomic_store(&(p_pool->task_counter), 0u);
-	si_parray_init_2(&(p_pool->pool), 0u);
-	p_pool->pool.p_free_value = free;
+	si_array_init_3(&(p_pool->pool), sizeof(pthread_t), 0u);
 	si_parray_init_2(&(p_pool->results), 0u);
 	p_pool->results.p_free_value = free;
 
@@ -528,19 +527,27 @@ void si_threadpool_start_2(si_threadpool_t* const p_pool,
 		goto END;
 	}
 	atomic_store(&(p_pool->is_running), true);
+
 	int pool_lock = -1;
 	while(0 != pool_lock)
 	{
 		pool_lock = pthread_mutex_lock(&(p_pool->pool_lock));
 	}
-	const size_t current_thread_count = si_parray_count(&(p_pool->pool));
-	if(current_thread_count >= thread_count)
+	
+	if(0u < p_pool->pool.capacity)
 	{
+		// Already has threads!
 		goto UNLOCK;
 	}
-	for(size_t iii = 0u; iii < (thread_count - current_thread_count); iii++)
+	if(NULL != p_pool->pool.p_data)
 	{
-		pthread_t* p_thread = calloc(1u, sizeof(pthread_t));
+		si_array_free(&(p_pool->pool));
+	}
+	si_array_init_3(&(p_pool->pool), sizeof(pthread_t), thread_count);
+
+	for(size_t iii = 0u; iii < thread_count; iii++)
+	{
+		pthread_t* p_thread = si_array_at(&(p_pool->pool), iii);
 		if(NULL == p_thread)
 		{
 			break;
@@ -551,17 +558,10 @@ void si_threadpool_start_2(si_threadpool_t* const p_pool,
 		);
 		if(0 != create_result)
 		{
-			free(p_thread);
-			break;
-		}
-		const size_t new_index = si_parray_append(&(p_pool->pool), p_thread);
-		if(SIZE_MAX == new_index)
-		{
-			// Append failed
-			free(p_thread);
 			break;
 		}
 	}
+
 UNLOCK:
 	pool_lock = -1;
 	while(0 != pool_lock)
@@ -610,10 +610,10 @@ void si_threadpool_stop_2(si_threadpool_t* const p_pool,
 		pool_lock_result = pthread_mutex_lock(&(p_pool->pool_lock));
 	}
 
-	const size_t thread_count = p_pool->pool.array.capacity;
+	const size_t thread_count = p_pool->pool.capacity;
 	for(size_t iii = 0u; iii < thread_count; iii++)
 	{
-		pthread_t* p_thread = si_parray_at(&(p_pool->pool), iii);
+		pthread_t* p_thread = si_array_at(&(p_pool->pool), iii);
 		if(NULL == p_thread)
 		{
 			continue;
@@ -639,7 +639,7 @@ void si_threadpool_stop_2(si_threadpool_t* const p_pool,
 			join_result = pthread_join(*p_thread, NULL);
 		}
 	}
-	si_parray_free(&(p_pool->pool));
+	si_array_free(&(p_pool->pool));
 
 	int pool_unlock_result = -1;
 	while(0 != pool_unlock_result)
@@ -679,7 +679,7 @@ void si_threadpool_free(si_threadpool_t* const p_pool)
 		results_lock = pthread_mutex_lock(&(p_pool->results_lock));
 	}
 
-	si_parray_free(&(p_pool->pool));
+	si_array_free(&(p_pool->pool));
 	si_parray_free(&(p_pool->results));
 	si_priority_queue_free(&(p_pool->queue));
 
