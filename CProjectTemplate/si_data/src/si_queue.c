@@ -98,7 +98,6 @@ END:
 bool si_queue_is_empty(const si_queue_t* const p_queue)
 {
 	bool is_empty = true;
-	// Validate Parameter
 	if (NULL == p_queue)
 	{
 		goto END;
@@ -107,10 +106,8 @@ bool si_queue_is_empty(const si_queue_t* const p_queue)
 	{
 		goto END;
 	}
-	// Begin
 	const size_t item_count = si_queue_count(p_queue);
 	is_empty = (item_count == 0u);
-	// End
 END:
 	return is_empty;
 }
@@ -118,7 +115,6 @@ END:
 bool si_queue_is_full(const si_queue_t* const p_queue)
 {
 	bool is_full = true;
-	// Validate Parameter
 	if (NULL == p_queue)
 	{
 		goto END;
@@ -127,24 +123,19 @@ bool si_queue_is_full(const si_queue_t* const p_queue)
 	{
 		goto END;
 	}
-	// Begin
 	const size_t item_count = si_queue_count(p_queue);
 	is_full = (item_count >= (p_queue->dynamic.capacity - 1u));
-	// End
 END:
 		return is_full;
 }
 
-// Returns new count of queue
 size_t si_queue_enqueue(si_queue_t* const p_queue, const void* const p_item)
 {
 	size_t new_count = 0u;
-	// Validate parameters
 	if (NULL == p_queue)
 	{
 		goto END;
 	}
-	// Begin
 	new_count = si_queue_count(p_queue);
 	const bool needs_to_grow = si_queue_is_full(p_queue);
 	if (true == needs_to_grow)
@@ -176,7 +167,6 @@ size_t si_queue_enqueue(si_queue_t* const p_queue, const void* const p_item)
 	si_array_set(&(p_queue->dynamic), p_queue->back, p_item);
 	p_queue->back = (p_queue->back + 1) % p_queue->dynamic.capacity;
 	new_count++;
-	// End
 END:
 	return new_count;
 }
@@ -184,12 +174,10 @@ END:
 size_t si_queue_dequeue(si_queue_t* const p_queue, void* const p_item)
 {
 	size_t new_count = 0u;
-	// Validate parameters
 	if((NULL == p_queue) || (NULL == p_item))
 	{
 		goto END;
 	}
-	// Begin
 	new_count = si_queue_count(p_queue);
 	if (0u >= new_count)
 	{
@@ -198,21 +186,17 @@ size_t si_queue_dequeue(si_queue_t* const p_queue, void* const p_item)
 	si_array_get(&(p_queue->dynamic), p_queue->front, p_item);
 	p_queue->front = (p_queue->front + 1) % p_queue->dynamic.capacity;
 	new_count--;
-	// End
 END:
 	return new_count;
 }
 
 void si_queue_free(si_queue_t* const p_queue)
 {
-	// Validate parameter
 	if (NULL == p_queue)
 	{
 		goto END;
 	}
-	// Begin
 	si_array_free(&(p_queue->dynamic));
-	// End
 END:
 	return;
 }
