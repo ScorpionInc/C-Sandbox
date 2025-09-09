@@ -7,6 +7,7 @@ unitySrc="../tests_src/unity.c"
 unityInclude="../tests_include/"
 
 echo 'Building from source via CMake & make.'
+rm -rf ./build/*
 cmake -S . -B "$outputDir"
 cd "$outputDir"
 make
@@ -27,9 +28,11 @@ do
 	outputFile="${filename}.out"
 	outputFinal="${outputDir}${outputFile}"
 	echo "Building unit test: '$test' -> '$outputFinal'."
-	gcc -ggdb "$test" "$libPath" ../si_data/src/* ../si_core/src/* "../si_data/build/libsi_data.a" "$unitySrc" -I./include -I../si_data/include -I../si_core/include -I./tests_include -I"$unityInclude" -lm -o "$outputFinal"
-	#valgrind -s --log-fd=1 --fair-sched=yes --leak-check=full --show-leak-kinds=all --track-origins=yes "$outputFinal"
-	valgrind --tool=helgrind -s "$outputFinal"
+	#-fsanitize=thread
+	#-fsanitize=address
+	gcc -ggdb "$test" "$libPath" ../si_data/src/* ../si_core/src/* "../si_data/build/libsi_data.a" "$unitySrc" -I./include -I../si_data/include -I../si_core/include -I./tests_include -I"$unityInclude" -lm -lacl -o "$outputFinal"
+	valgrind -s --log-fd=1 --fair-sched=yes --leak-check=full --leak-resolution=high --show-leak-kinds=all --show-error-list=yes --track-origins=yes --time-stamp=yes --num-callers=69 --expensive-definedness-checks=yes "$outputFinal"
+	#valgrind --tool=helgrind -s "$outputFinal"
 	#./"${outputFinal}"
 	#rm -f "${outputFinal}"
 done
