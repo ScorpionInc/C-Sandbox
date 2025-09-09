@@ -53,14 +53,7 @@ END:
 	return p_new;
 }
 
-/** Doxygen
- * @brief Local function to get priority count from a priority queue.
- * 
- * @param p_pqueue Pointer to a priority queue to read from.
- * 
- * @return Returns smallest valid priority count size.
- */
-static size_t si_priority_queue_priority_count(const si_priority_queue_t* const p_pqueue)
+size_t si_priority_queue_priority_count(const si_priority_queue_t* const p_pqueue)
 {
 	size_t result = 0u;
 	if(NULL == p_pqueue)

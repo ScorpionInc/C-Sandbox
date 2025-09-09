@@ -51,6 +51,15 @@ void si_priority_queue_init(si_priority_queue_t* const p_pqueue,
 si_priority_queue_t* si_priority_queue_new(const size_t priority_count);
 
 /** Doxygen
+ * @brief Gets the priority count(number of priorites) from a priority queue.
+ * 
+ * @param p_pqueue Pointer to a priority queue to read from.
+ * 
+ * @return Returns smallest valid priority count size. (0u on error).
+ */
+size_t si_priority_queue_priority_count(const si_priority_queue_t* const p_pqueue);
+
+/** Doxygen
  * @brief Determine the entries in the priority queue
  * 
  * @param p_pqueue Pointer to the priority_queue struct to read from.
