@@ -63,6 +63,16 @@ si_queue_t* si_queue_new(const size_t element_size);
 size_t si_queue_count(const si_queue_t* p_queue);
 
 /** Doxygen
+ * @brief Determines how many elements the queue can currently hold.
+ *
+ * @param p_queue The pointer to the struct to read from.
+ *
+ * @return Returns the number of elements that can currently be stored in the
+ *         queue as a type size_t. On error returns 0u.
+ */
+size_t si_queue_capacity(const si_queue_t* const p_queue);
+
+/** Doxygen
  * @brief Determines if the queue is empty
  *
  * @param p_queue Pointer to the queue to check.

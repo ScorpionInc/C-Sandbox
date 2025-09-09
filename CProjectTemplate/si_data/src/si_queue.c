@@ -7,12 +7,10 @@
 void si_queue_init_4(si_queue_t* p_queue, const size_t element_size,
     const size_t initial_capacity, const si_realloc_settings_t* p_settings)
 {
-	// Validate parameter
 	if (NULL == p_queue)
 	{
 		goto END;
 	}
-	// Begin
 	p_queue->front = 0u;
 	p_queue->back  = 0u;
 	p_queue->p_settings = p_settings;
@@ -20,7 +18,6 @@ void si_queue_init_4(si_queue_t* p_queue, const size_t element_size,
 	si_array_init_3(
 		&(p_queue->dynamic), element_size, (initial_capacity + 1u)
 	);
-	// End
 END:
 	return;
 }
@@ -59,16 +56,13 @@ inline si_queue_t* si_queue_new(const size_t element_size)
 	return si_queue_new_2(element_size, 0u);
 }
 
-// Count elements
 size_t si_queue_count(const si_queue_t* p_queue)
 {
 	size_t result = 0u;
-	// Validate parameter
 	if (NULL == p_queue)
 	{
 		goto END;
 	}
-	// Begin
 	if (p_queue->front <= p_queue->back)
 	{
 		result = p_queue->back - p_queue->front;
@@ -77,7 +71,26 @@ size_t si_queue_count(const si_queue_t* p_queue)
 	{
 		result = (p_queue->dynamic.capacity - p_queue->front) + p_queue->back;
 	}
-	// End
+END:
+	return result;
+}
+
+size_t si_queue_capacity(const si_queue_t* const p_queue)
+{
+	/* Queue's internal array uses one extra capacity to track the end of the
+	 * queue. (Kinda like a NULL terminator) So the capacity of items that can
+	 * be stored is the array.capacity - 1u.
+	 */
+	size_t result = 0u;
+	if(NULL == p_queue)
+	{
+		goto END;
+	}
+	if(1u >= p_queue->dynamic.capacity)
+	{
+		goto END;
+	}
+	result = (p_queue->dynamic.capacity - 1u);
 END:
 	return result;
 }
