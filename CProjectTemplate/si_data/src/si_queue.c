@@ -4,7 +4,7 @@
 
 #include "si_queue.h"
 
-void si_queue_init_4(si_queue_t* p_queue, const size_t element_size,
+void si_queue_init_4(si_queue_t* const p_queue, const size_t element_size,
     const size_t initial_capacity, const si_realloc_settings_t* p_settings)
 {
 	if (NULL == p_queue)
@@ -21,13 +21,13 @@ void si_queue_init_4(si_queue_t* p_queue, const size_t element_size,
 END:
 	return;
 }
-inline void si_queue_init_3(si_queue_t* p_queue, const size_t element_size,
+inline void si_queue_init_3(si_queue_t* const p_queue, const size_t element_size,
 	const size_t initial_capacity)
 {
 	// Default p_settings value is NULL (initializes with defaults)
 	si_queue_init_4(p_queue, element_size, initial_capacity, NULL);
 }
-inline void si_queue_init(si_queue_t* p_queue, const size_t element_size)
+inline void si_queue_init(si_queue_t* const p_queue, const size_t element_size)
 {
 	// Default initial_capacity is 0
 	si_queue_init_3(p_queue, element_size, 0u);
@@ -56,7 +56,7 @@ inline si_queue_t* si_queue_new(const size_t element_size)
 	return si_queue_new_2(element_size, 0u);
 }
 
-size_t si_queue_count(const si_queue_t* p_queue)
+size_t si_queue_count(const si_queue_t* const p_queue)
 {
 	size_t result = 0u;
 	if (NULL == p_queue)
@@ -95,7 +95,7 @@ END:
 	return result;
 }
 
-bool si_queue_is_empty(const si_queue_t* p_queue)
+bool si_queue_is_empty(const si_queue_t* const p_queue)
 {
 	bool is_empty = true;
 	// Validate Parameter
@@ -115,7 +115,7 @@ END:
 	return is_empty;
 }
 
-bool si_queue_is_full(const si_queue_t* p_queue)
+bool si_queue_is_full(const si_queue_t* const p_queue)
 {
 	bool is_full = true;
 	// Validate Parameter
@@ -136,7 +136,7 @@ END:
 }
 
 // Returns new count of queue
-size_t si_queue_enqueue(si_queue_t* p_queue, const void* p_item)
+size_t si_queue_enqueue(si_queue_t* const p_queue, const void* const p_item)
 {
 	size_t new_count = 0u;
 	// Validate parameters
@@ -181,7 +181,7 @@ END:
 	return new_count;
 }
 
-size_t si_queue_dequeue(si_queue_t* p_queue, void* p_item)
+size_t si_queue_dequeue(si_queue_t* const p_queue, void* const p_item)
 {
 	size_t new_count = 0u;
 	// Validate parameters

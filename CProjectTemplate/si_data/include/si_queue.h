@@ -35,11 +35,11 @@ typedef struct si_queue_t
  * @param initial_capacity Count of items to be stored in the queue. (0)
  * @param p_settings Pointer to si_realloc_settings to read from.
  */
-void si_queue_init_4(si_queue_t* p_queue, const size_t element_size,
+void si_queue_init_4(si_queue_t* const p_queue, const size_t element_size,
 	const size_t initial_capacity, const si_realloc_settings_t* p_settings);
-void si_queue_init_3(si_queue_t* p_queue, const size_t element_size,
+void si_queue_init_3(si_queue_t* const p_queue, const size_t element_size,
 	const size_t initial_capacity);
-void si_queue_init(si_queue_t* p_queue, const size_t element_size);
+void si_queue_init(si_queue_t* const p_queue, const size_t element_size);
 
 /** Doxygen
  * @brief Allocates and Initializes a new queue struct
@@ -60,7 +60,7 @@ si_queue_t* si_queue_new(const size_t element_size);
  *
  * @return Returns the number of elements in the queue as size_t.
  */
-size_t si_queue_count(const si_queue_t* p_queue);
+size_t si_queue_count(const si_queue_t* const p_queue);
 
 /** Doxygen
  * @brief Determines how many elements the queue can currently hold.
@@ -79,7 +79,7 @@ size_t si_queue_capacity(const si_queue_t* const p_queue);
  *
  * @return Returns stdbool true if queue is empty.
  */
-bool si_queue_is_empty(const si_queue_t* p_queue);
+bool si_queue_is_empty(const si_queue_t* const p_queue);
 
 /** Doxygen
  * @brief Determines if the queue is full
@@ -88,7 +88,7 @@ bool si_queue_is_empty(const si_queue_t* p_queue);
  *
  * @return Returns stdbool true if queue is full.
  */
-bool si_queue_is_full(const si_queue_t* p_queue);
+bool si_queue_is_full(const si_queue_t* const p_queue);
 
 /** Doxygen
  * @brief Adds an item of element_size to the queue
@@ -98,7 +98,7 @@ bool si_queue_is_full(const si_queue_t* p_queue);
  *
  * @return Returns new count of the queue.
  */
-size_t si_queue_enqueue(si_queue_t* p_queue, const void* p_item);
+size_t si_queue_enqueue(si_queue_t* const p_queue, const void* const p_item);
 
 /** Doxygen
  * @brief Sets value at p_item from queue and removes the item(pop).
@@ -108,7 +108,7 @@ size_t si_queue_enqueue(si_queue_t* p_queue, const void* p_item);
  *
  * @return Returns new count of the queue.
  */
-size_t si_queue_dequeue(si_queue_t* p_queue, void* p_item);
+size_t si_queue_dequeue(si_queue_t* const p_queue, void* const p_item);
 
 /** Doxygen
  * @brief Frees the dynamically allocated values of a queue.
