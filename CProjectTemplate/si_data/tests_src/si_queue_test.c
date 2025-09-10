@@ -123,6 +123,8 @@ void si_queue_test_all(void)
 
 int main(void)
 {
+	printf("Start of queue unit test.\n");
 	si_queue_test_all();
+	printf("End of queue unit test.\n");
 	return 0;
 }
