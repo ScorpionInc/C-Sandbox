@@ -24,7 +24,7 @@ typedef struct si_queue_t
 	size_t front;
 	size_t back;
 	const si_realloc_settings_t* p_settings;
-	si_array_t dynamic;
+	si_array_t array;
 } si_queue_t;
 
 /** Doxygen

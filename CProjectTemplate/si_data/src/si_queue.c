@@ -14,9 +14,9 @@ void si_queue_init_4(si_queue_t* const p_queue, const size_t element_size,
 	p_queue->front = 0u;
 	p_queue->back  = 0u;
 	p_queue->p_settings = p_settings;
-	p_queue->dynamic = (si_array_t){0};
+	p_queue->array = (si_array_t){0};
 	si_array_init_3(
-		&(p_queue->dynamic), element_size, (initial_capacity + 1u)
+		&(p_queue->array), element_size, (initial_capacity + 1u)
 	);
 END:
 	return;
@@ -69,7 +69,7 @@ size_t si_queue_count(const si_queue_t* const p_queue)
 	}
 	else
 	{
-		result = (p_queue->dynamic.capacity - p_queue->front) + p_queue->back;
+		result = (p_queue->array.capacity - p_queue->front) + p_queue->back;
 	}
 END:
 	return result;
@@ -86,11 +86,11 @@ size_t si_queue_capacity(const si_queue_t* const p_queue)
 	{
 		goto END;
 	}
-	if(1u >= p_queue->dynamic.capacity)
+	if(1u >= p_queue->array.capacity)
 	{
 		goto END;
 	}
-	result = (p_queue->dynamic.capacity - 1u);
+	result = (p_queue->array.capacity - 1u);
 END:
 	return result;
 }
@@ -102,7 +102,7 @@ bool si_queue_is_empty(const si_queue_t* const p_queue)
 	{
 		goto END;
 	}
-	if(1u >= p_queue->dynamic.capacity)
+	if(1u >= p_queue->array.capacity)
 	{
 		goto END;
 	}
@@ -119,12 +119,12 @@ bool si_queue_is_full(const si_queue_t* const p_queue)
 	{
 		goto END;
 	}
-	if(1u >= p_queue->dynamic.capacity)
+	if(1u >= p_queue->array.capacity)
 	{
 		goto END;
 	}
 	const size_t item_count = si_queue_count(p_queue);
-	is_full = (item_count >= (p_queue->dynamic.capacity - 1u));
+	is_full = (item_count >= (p_queue->array.capacity - 1u));
 END:
 		return is_full;
 }
@@ -141,7 +141,7 @@ size_t si_queue_enqueue(si_queue_t* const p_queue, const void* const p_item)
 	if (true == needs_to_grow)
 	{
 		const bool did_settings_grow = si_realloc_settings_grow(
-			p_queue->p_settings, &(p_queue->dynamic)
+			p_queue->p_settings, &(p_queue->array)
 		);
 		bool is_still_full = si_queue_is_full(p_queue);
 		if ((true == did_settings_grow) && (true == is_still_full))
@@ -154,7 +154,7 @@ size_t si_queue_enqueue(si_queue_t* const p_queue, const void* const p_item)
 		{
 			// Settings failed or missing, try using a default grow by 1.
 			const bool did_grow = si_array_resize(
-				&(p_queue->dynamic), p_queue->dynamic.capacity + 1u
+				&(p_queue->array), p_queue->array.capacity + 1u
 			);
 			is_still_full = si_queue_is_full(p_queue);
 			if((true != did_grow) || (true == is_still_full))
@@ -164,8 +164,8 @@ size_t si_queue_enqueue(si_queue_t* const p_queue, const void* const p_item)
 			}
 		}
 	}
-	si_array_set(&(p_queue->dynamic), p_queue->back, p_item);
-	p_queue->back = (p_queue->back + 1) % p_queue->dynamic.capacity;
+	si_array_set(&(p_queue->array), p_queue->back, p_item);
+	p_queue->back = (p_queue->back + 1) % p_queue->array.capacity;
 	new_count++;
 END:
 	return new_count;
@@ -183,8 +183,8 @@ size_t si_queue_dequeue(si_queue_t* const p_queue, void* const p_item)
 	{
 		goto END;
 	}
-	si_array_get(&(p_queue->dynamic), p_queue->front, p_item);
-	p_queue->front = (p_queue->front + 1) % p_queue->dynamic.capacity;
+	si_array_get(&(p_queue->array), p_queue->front, p_item);
+	p_queue->front = (p_queue->front + 1) % p_queue->array.capacity;
 	new_count--;
 END:
 	return new_count;
@@ -196,7 +196,7 @@ void si_queue_free(si_queue_t* const p_queue)
 	{
 		goto END;
 	}
-	si_array_free(&(p_queue->dynamic));
+	si_array_free(&(p_queue->array));
 END:
 	return;
 }
@@ -233,7 +233,7 @@ void si_queue_fprint(FILE* const p_file, const si_queue_t* const p_queue)
 	const size_t count = si_queue_count(p_queue);
 	fprintf(p_file, "{front: %lu;", p_queue->front);
 	fprintf(p_file, " back: %lu;", p_queue->back);
-	fprintf(p_file, "}:%lu/%lu@%p", count, p_queue->dynamic.capacity, p_queue);
+	fprintf(p_file, "}:%lu/%lu@%p", count, p_queue->array.capacity, p_queue);
 END:
 	return;
 }
