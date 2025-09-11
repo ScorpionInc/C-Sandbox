@@ -20,7 +20,7 @@ static void si_pbar_test_main(void)
 	progress_bar.alignment = PBAR_ALIGN_BOTTOM;
 	si_true_color_from_basic(&label_color, ANSI_COLOR_WHITE, true);
 	si_true_color_from_basic(&start_color, ANSI_COLOR_RED, false);
-	si_true_color_from_basic(&stop_color, ANSI_COLOR_GREEN, false);
+	si_true_color_from_basic(&stop_color, ANSI_COLOR_GREEN, true);
 	progress_bar.p_label_color = &label_color;
 	progress_bar.p_begin_color = &start_color;
 	progress_bar.p_end_color = &stop_color;
