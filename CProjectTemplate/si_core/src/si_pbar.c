@@ -41,15 +41,75 @@ END:
 void si_pbar_terminal_setup(const si_pbar_t* const p_bar,
 	si_terminfo_t* const p_terminfo)
 {
-	//!TODO
 	if((NULL == p_bar) || (NULL == p_terminfo))
 	{
 		goto END;
 	}
-	si_terminfo_send_ansi(
-		p_terminfo, "\e[0;%dr",
-		'\0', (p_terminfo->ROWS - 1u)
-	);
+	if(NULL == p_terminfo->p_file)
+	{
+		goto END;
+	}
+
+	// Switch case fall-through is an intended behavior.
+	switch (p_bar->alignment)
+	{
+	case(PBAR_ALIGN_BOTTOM):
+	case(PBAR_ALIGN_UNSPECIFIED):
+	case(PBAR_ALIGN_INLINE):
+		// We print a line break here as it ensures we have a new line to use for
+		// the progress bar if cursor is not at the terminal line begining.
+		fprintf(p_terminfo->p_file, "\n");
+		break;
+	case(PBAR_ALIGN_TOP):
+	case(PBAR_ALIGN_INVALID):
+	default:
+		break;
+	}
+
+	// Save current cursor position (\e7)
+	si_terminfo_send_ansi(p_terminfo, "\e7");
+	si_terminfo_send_ansi(p_terminfo, "\033[s");
+
+	// Switch case fall-through is an intended behavior.
+	switch (p_bar->alignment)
+	{
+	case(PBAR_ALIGN_BOTTOM):
+		// Set the scrollable margin
+		si_terminfo_send_ansi(
+			p_terminfo, "\e[0;%dr", (p_terminfo->ROWS - 1u)
+		);
+		break;
+	case(PBAR_ALIGN_TOP):
+		// Set the scrollable margin
+		si_terminfo_send_ansi(
+			p_terminfo, "\e[1;%dr", (p_terminfo->ROWS)
+		);
+		break;
+	case(PBAR_ALIGN_UNSPECIFIED):
+	case(PBAR_ALIGN_INLINE):
+	case(PBAR_ALIGN_INVALID):
+	default:
+		break;
+	}
+
+	// Restore original cursor position (\e8)
+	si_terminfo_send_ansi(p_terminfo, "\033[u");
+	si_terminfo_send_ansi(p_terminfo, "\e8");
+
+	// Switch case fall-through is an intended behavior.
+	switch (p_bar->alignment)
+	{
+	case(PBAR_ALIGN_BOTTOM):
+	case(PBAR_ALIGN_UNSPECIFIED):
+	case(PBAR_ALIGN_INLINE):
+		// Move cursor back up from new line
+		si_terminfo_send_ansi(p_terminfo, "\e[1A");
+		break;
+	case(PBAR_ALIGN_TOP):
+	case(PBAR_ALIGN_INVALID):
+	default:
+		break;
+	}
 END:
 	return;
 }
@@ -272,7 +332,6 @@ END:
 void si_pbar_fprint(const si_pbar_t* const p_bar,
 	si_terminfo_t* const p_terminfo, const double percentage)
 {
-	//! TODO
 	if((NULL == p_terminfo) || (NULL == p_bar))
 	{
 		goto END;
@@ -281,6 +340,48 @@ void si_pbar_fprint(const si_pbar_t* const p_bar,
 	{
 		goto END;
 	}
+
+	// Save current cursor position (\e7)
+	si_terminfo_send_ansi(p_terminfo, "\e7");
+	si_terminfo_send_ansi(p_terminfo, "\033[s");
+
+	// Switch case fall-through is an intended behavior.
+	switch (p_bar->alignment)
+	{
+	case(PBAR_ALIGN_TOP):
+		// Move cursor to progress bar line (top)
+		si_terminfo_send_ansi(
+			p_terminfo, "\e[%d;0H", (0)
+		);
+		break;
+	case(PBAR_ALIGN_BOTTOM):
+		// Move cursor to progress bar line (bottom)
+		si_terminfo_send_ansi(
+			p_terminfo, "\e[%d;0H", (p_terminfo->ROWS)
+		);
+		break;
+	case(PBAR_ALIGN_UNSPECIFIED):
+	case(PBAR_ALIGN_INLINE):
+	case(PBAR_ALIGN_INVALID):
+	default:
+		break;
+	}
+
+	// Switch case fall-through is an intended behavior.
+	switch (p_bar->alignment)
+	{
+	case(PBAR_ALIGN_TOP):
+	case(PBAR_ALIGN_BOTTOM):
+		// Clears the progress bar line.
+		si_terminfo_send_ansi(p_terminfo, "\e[0K");
+		break;
+	case(PBAR_ALIGN_UNSPECIFIED):
+	case(PBAR_ALIGN_INLINE):
+	case(PBAR_ALIGN_INVALID):
+	default:
+		break;
+	}
+
 	fprintf(p_terminfo->p_file, "\r");
 	// Invalid & Unspecified case fall's through switch case intentionally.
 	switch (p_bar->label_side)
@@ -311,6 +412,24 @@ void si_pbar_fprint(const si_pbar_t* const p_bar,
 	default:
 		break;
 	}
+
+	// Switch case fall-through is an intended behavior.
+	switch (p_bar->alignment)
+	{
+	case(PBAR_ALIGN_UNSPECIFIED):
+	case(PBAR_ALIGN_INLINE):
+		fprintf(p_terminfo->p_file, "\n");
+		break;
+	case(PBAR_ALIGN_TOP):
+	case(PBAR_ALIGN_BOTTOM):
+	case(PBAR_ALIGN_INVALID):
+	default:
+		break;
+	}
+
+	// Restore original cursor position (\e8)
+	si_terminfo_send_ansi(p_terminfo, "\033[u");
+	si_terminfo_send_ansi(p_terminfo, "\e8");
 END:
 	return;
 }
@@ -318,5 +437,65 @@ END:
 void si_pbar_terminal_restore(const si_pbar_t* const p_bar,
 	si_terminfo_t* const p_terminfo)
 {
-	//!TODO
+	// Save current cursor position (\e7)
+	si_terminfo_send_ansi(p_terminfo, "\e7");
+	si_terminfo_send_ansi(p_terminfo, "\033[s");
+	
+	// Switch case fall-through is an intended behavior.
+	switch (p_bar->alignment)
+	{
+	case(PBAR_ALIGN_TOP):
+	case(PBAR_ALIGN_BOTTOM):
+		// Restores/Removes the scrollable margin
+		si_terminfo_send_ansi(
+			p_terminfo, "\e[0;%dr", (p_terminfo->ROWS)
+		);
+		break;
+	case(PBAR_ALIGN_UNSPECIFIED):
+	case(PBAR_ALIGN_INLINE):
+	case(PBAR_ALIGN_INVALID):
+	default:
+		break;
+	}
+
+	// Switch case fall-through is an intended behavior.
+	switch (p_bar->alignment)
+	{
+	case(PBAR_ALIGN_TOP):
+		// Move cursor to progress bar line (top)
+		si_terminfo_send_ansi(
+			p_terminfo, "\e[%d;0H", (0)
+		);
+		break;
+	case(PBAR_ALIGN_BOTTOM):
+		// Move cursor to progress bar line (bottom)
+		si_terminfo_send_ansi(
+			p_terminfo, "\e[%d;0H", (p_terminfo->ROWS)
+		);
+		break;
+	case(PBAR_ALIGN_UNSPECIFIED):
+	case(PBAR_ALIGN_INLINE):
+	case(PBAR_ALIGN_INVALID):
+	default:
+		break;
+	}
+
+	// Switch case fall-through is an intended behavior.
+	switch (p_bar->alignment)
+	{
+	case(PBAR_ALIGN_TOP):
+	case(PBAR_ALIGN_BOTTOM):
+		// Clears the progress bar line.
+		si_terminfo_send_ansi(p_terminfo, "\e[0K");
+		break;
+	case(PBAR_ALIGN_UNSPECIFIED):
+	case(PBAR_ALIGN_INLINE):
+	case(PBAR_ALIGN_INVALID):
+	default:
+		break;
+	}
+
+	// Restore original cursor position (\e8)
+	si_terminfo_send_ansi(p_terminfo, "\033[u");
+	si_terminfo_send_ansi(p_terminfo, "\e8");
 }

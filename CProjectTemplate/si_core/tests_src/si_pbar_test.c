@@ -17,21 +17,24 @@ static void si_pbar_test_main(void)
 
 	si_terminfo_init(&terminal_info, stdout);
 	si_pbar_init(&progress_bar);
+	progress_bar.alignment = PBAR_ALIGN_BOTTOM;
 	si_true_color_from_basic(&label_color, ANSI_COLOR_WHITE, true);
 	si_true_color_from_basic(&start_color, ANSI_COLOR_RED, false);
 	si_true_color_from_basic(&stop_color, ANSI_COLOR_GREEN, false);
+	progress_bar.p_label_color = &label_color;
 	progress_bar.p_begin_color = &start_color;
 	progress_bar.p_end_color = &stop_color;
 
 	si_pbar_terminal_setup(&progress_bar, &terminal_info);
-	return;//!Debugging
 	double fake_progress = 0.0;
 	const double fake_step = 0.038;
 	while(1.0 >= fake_progress)
 	{
 		fake_progress += fake_step;
+		printf("Example output before updated.\n");
 		si_pbar_fprint(&progress_bar, &terminal_info, fake_progress);
 		sleep(1);
+		printf("Example output after updated.\n");
 	}
 	si_pbar_terminal_restore(&progress_bar, &terminal_info);
 }
