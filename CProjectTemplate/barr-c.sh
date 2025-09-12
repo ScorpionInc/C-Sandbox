@@ -58,7 +58,7 @@ echo
 printf "${UPBAR}"
 echo "Checking for common Yoda Errors"
 printf "${RESET}"
-grep -n --binary-files=without-match -R -E '(if|while)[ ]?[(].*(==|!=|<[^<]|>[^>]|<=|>=|\|\|)[ ]*(NULL|0[ulf]?|1[ulf]?|true|false|"[\]0"|'\''[\]0'\'')[ ]*[)]' |
+grep -n --binary-files=without-match -R -E '.*(==|!=|[^<]<[^<]|[^>]>[^>]|[^<]<=|[^>]>=|\|\|)[ ]*(NULL|0[ulf]?|1[ulf]?|true|false|"[\]0"|'\''[\]0'\'')[^a-zA-Z0-9]' |
 grep -v -E '((CMake|[.]cmake[:])|build[.]sh:|[.]git/|unity(_internals[.](c|h)|-src/|[.](c|h)))' |
 grep -E '[.](c|h):' |
 cut -f1,2 -d':' | sort --unique
