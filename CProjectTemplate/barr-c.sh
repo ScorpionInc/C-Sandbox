@@ -100,9 +100,13 @@ cut -f1,2 -d':' | sort --unique
 echo
 
 printf "${UPBAR}"
-echo "Checking for variables less than 3 in length."
+echo "Checking for variables less than 3 in length. (WIP)"
 printf "${RESET}"
 # WIP / TODO
+grep -n --binary-files=without-match -R -P '((const|volatile)\s+)?([a-zA-Z*]+[a-zA-Z0-9*]*)\s+[a-zA-Z]([a-zA-Z0-9]\s|\s)' | grep -E '[.](c|h):' | grep -v -E '([0-9]:\s*[#]|[0-9]:\s+\*\s+[^\s]|.*(//|/\*|\*/))' |
+grep -v -E '((CMake|[.]cmake[:])|build[.]sh:|[.]git/|unity(_internals[.](c|h)|-src/|[.](c|h)))' |
+grep -E '[.](c|h):' |
+cut -f1,2 -d':' | sort --unique
 echo
 
 printf "${UPBAR}"
