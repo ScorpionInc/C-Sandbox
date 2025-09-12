@@ -51,6 +51,13 @@ grep -v -E '((CMake|[.]cmake[:])|build[.]sh:|[.]git/|unity(_internals[.](c|h)|-s
 cut -f1,2 -d':' | sort --unique
 echo
 
+echo "Checking for type _t suffix"
+grep -n --binary-files=without-match -R -P '^\s*typedef\s+' |
+grep -v -E '[a-zA-Z]+[a-zA-Z0-9]*(_t)' |
+grep -v -E '((CMake|[.]cmake[:])|build[.]sh:|[.]git/|unity(_internals[.](c|h)|-src/|[.](c|h)))' |
+cut -f1,2 -d':' | sort --unique
+echo
+
 echo "Checking for conditional defines"
 grep -n --binary-files=without-match -R -E '(if|while)[ ]*[(].*[^ (*][(].*[)].*[)]' |
 grep -v -E '((CMake|[.]cmake[:])|build[.]sh:|[.]git/|unity(_internals[.](c|h)|-src/|[.](c|h)))' |
