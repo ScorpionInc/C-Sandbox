@@ -53,7 +53,7 @@ typedef struct si_map_t
 void si_map_init(si_map_t* const p_map);
 
 /* Doxygen
- * @brief Initializes/Allocs a si_map_t struct at p_map's values to their defaults.
+ * @brief Initializes/Allocs a si_map_t struct at p_map's values to defaults.
  * 
  * @return Returns pointer to new si_map_t on success. Returns NULL otherwise.
  */
@@ -119,7 +119,7 @@ bool si_map_has(si_map_t* const p_map, const void* const p_key);
 bool si_map_remove_at(si_map_t* const p_map, const size_t index);
 
 /* Doxygen
- * @brief Removes key/value pair from si_map_t where provided key first matches.
+ * @brief Removes key/value pair from si_map_t where provided key first matches
  *
  * @param p_map Pointer to si_map_t struct to have pair removed from.
  * @param p_key Pointer to memory containing key to look for.
@@ -129,7 +129,7 @@ bool si_map_remove_at(si_map_t* const p_map, const size_t index);
 bool si_map_remove(si_map_t* const p_map, const void* const p_key);
 
 /* Doxygen
- * @brief Inserts a created new key/value pair into an existing si_map_t struct.
+ * @brief Inserts a created new key/value pair into an existing si_map_t struct
  *
  * @param p_map Pointer to si_map_t struct to be inserted into.
  * @param p_pair Pointer to key value pair to be added to map.
@@ -140,7 +140,7 @@ bool si_map_insert_pair(si_map_t* const p_map,
 	const si_map_pair_t* const p_pair);
 
 /* Doxygen
- * @brief Inserts a created new key/value pair into an existing si_map_t struct.
+ * @brief Inserts a created new key/value pair into an existing si_map_t struct
  *
  * @param p_map Pointer to si_map_t struct to be inserted into.
  * @param p_key Pointer to value to be used as key.

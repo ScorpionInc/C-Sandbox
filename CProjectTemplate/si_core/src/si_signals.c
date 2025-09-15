@@ -66,7 +66,11 @@ bool set_exit_signal_handler(__sighandler_t p_handler)
 		const int register_result = sigaction(next_sig, &sa, NULL);
 		if(0 != register_result)
 		{
-			fprintf(stderr, "Failed to set_exit_signal_handler() on: %s.\n", strsignal(next_sig));
+			fprintf(
+				stderr,
+				"Failed to set_exit_signal_handler() on: %s.\n",
+				strsignal(next_sig)
+			);
 			result = false;
 			break;
 		}

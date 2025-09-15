@@ -60,10 +60,9 @@ si_singular_blist_t* si_singular_blist_new_1(const bool is_circular);
 si_singular_blist_t* si_singular_blist_new();
 
 /** Doxygen
- * @brief Returns pointer to si_singular_blist node index away from current node
+ * @brief Returns pointer 2 si_singular_blist node index away from current node
  *
- * @param p_si_singular_blist* si_singular_blist_node_at(const si_singular_blist* const p_list,
-    const size_t index);list Pointer to current linked_list node to walk index times.
+ * @param p_list Pointer to current linked_list node to walk index times.
  * @param index Number of nodes away from the current node to walk. Index
  *        values larger than capacity wrap around if list is circular.
  *
@@ -126,7 +125,9 @@ bool si_singular_blist_insert(si_singular_blist_t* const p_list,
  *
  * @return Returns pointer to last si_singular_blist in p_list.
  */
-si_singular_blist_t* si_singular_blist_last_node(const si_singular_blist_t* const p_list);
+si_singular_blist_t* si_singular_blist_last_node(
+	const si_singular_blist_t* const p_list
+);
 
 /** Doxygen
  * @brief Links the tail node to the head node to create a circle.
@@ -181,7 +182,7 @@ size_t si_singular_blist_shrink_by(si_singular_blist_t* const p_list,
 	const size_t amount);
 
 /** Doxygen
- * @brief Decreases capacity of si_singular_blist to capacity. Removes from tail
+ * @brief Decreases capacity of si_singular_blist to target. Removes from tail.
  *
  * @param p_list Pointer to si_singular_blist structure to be resized.
  * @param capacity Desired capacity to shrink to. Values less than current
@@ -193,7 +194,7 @@ size_t si_singular_blist_shrink_to(si_singular_blist_t* const p_list,
 	const size_t capacity);
 
 /** Doxygen
- * @brief Changes capacity of si_singular_blist to capacity. Removes from tail.
+ * @brief Changes capacity of si_singular_blist to target. Removes from tail.
  *
  * @param p_list Pointer to si_singular_blist structure to be resized.
  * @param capacity Desired capacity to change to. Values less than current

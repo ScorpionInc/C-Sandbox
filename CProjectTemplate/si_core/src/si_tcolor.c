@@ -373,7 +373,8 @@ void si_true_color_apply_3(FILE* const p_file,
 END:
 	return;
 }
-inline void si_true_color_apply(FILE* const p_file, const si_true_color_t* const p_color)
+inline void si_true_color_apply(FILE* const p_file,
+	const si_true_color_t* const p_color)
 {
 	// Default value of foreground is true.
 	si_true_color_apply(p_file, p_color);

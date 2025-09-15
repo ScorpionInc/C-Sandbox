@@ -1,7 +1,7 @@
 /* si_array.h
  * Language: C
  * Authors: ScorpionInc
- * Purpose: Defines struct with functions for managing a dynamically allocated buffer.
+ * Purpose: Defines struct functions for managing an allocated memory buffer.
  * Created: 20150501
  * Updated: 20250813
 //*/

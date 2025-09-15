@@ -55,8 +55,8 @@ void si_map_test_modify(void)
 	si_realloc_settings_t settings = {0};
 	si_realloc_settings_new(&settings);
 
-	const char* keys[] = { "name", "age" };
-	const char* values[] = { "bob", "42" };
+	const char* p_keys[] = { "name", "age" };
+	const char* p_values[] = { "bob", "42" };
 	const size_t data_size = 2u;
 
 	si_map_t* p_map = si_map_new();
@@ -69,30 +69,30 @@ void si_map_test_modify(void)
 	printf("Testing insert():\n");
 	for(size_t iii = 0u; iii < data_size; iii++)
 	{
-		void* p_next_key = heap_string(keys[iii]);
-		void* p_next_value = heap_string(values[iii]);
+		void* p_next_key = heap_string(p_keys[iii]);
+		void* p_next_value = heap_string(p_values[iii]);
 		TEST_ASSERT_TRUE(si_map_insert(p_map, p_next_key, p_next_value));
 	}
 
 	printf("Testing at()/find():\n");
 	TEST_ASSERT_NULL(si_map_at(NULL, NULL));
-	TEST_ASSERT_NULL(si_map_at(NULL, keys[0u]));
+	TEST_ASSERT_NULL(si_map_at(NULL, p_keys[0u]));
 	TEST_ASSERT_NULL(si_map_at(p_map, NULL));
 	for(size_t iii = 0u; iii < data_size; iii++)
 	{
-		char* p_next_str = si_map_at(p_map, keys[iii]);
+		char* p_next_str = si_map_at(p_map, p_keys[iii]);
 		TEST_ASSERT_NOT_NULL(p_next_str);
-		TEST_ASSERT_EQUAL_INT(0, strcmp(p_next_str, values[iii]));
-		TEST_ASSERT_EQUAL_size_t(iii, si_map_find(p_map, values[iii]));
+		TEST_ASSERT_EQUAL_INT(0, strcmp(p_next_str, p_values[iii]));
+		TEST_ASSERT_EQUAL_size_t(iii, si_map_find(p_map, p_values[iii]));
 	}
 
 	printf("Testing remove()/count():\n");
 	TEST_ASSERT_FALSE(si_map_remove(NULL, NULL));
-	TEST_ASSERT_FALSE(si_map_remove(NULL, keys[0u]));
+	TEST_ASSERT_FALSE(si_map_remove(NULL, p_keys[0u]));
 	TEST_ASSERT_FALSE(si_map_remove(p_map, NULL));
 	for(size_t iii = 0u; iii < data_size; iii++)
 	{
-		TEST_ASSERT_TRUE(si_map_remove(p_map, keys[iii]));
+		TEST_ASSERT_TRUE(si_map_remove(p_map, p_keys[iii]));
 		TEST_ASSERT_EQUAL_size_t(data_size - (iii + 1u), si_map_count(p_map));
 	}
 

@@ -329,7 +329,8 @@ END:
 	return result;
 }
 
-static bool for_each_file_l(const char* const p_path, const for_file_handler p_handler,
+static bool for_each_file_l(const char* const p_path,
+	const for_file_handler p_handler,
 	const bool handle_dirs, const bool recursive)
 {
 	bool result = false;
@@ -463,7 +464,8 @@ END:
 	return result;
 }
 
-static bool for_each_file_w(const char* const p_path, const for_file_handler p_handler,
+static bool for_each_file_w(const char* const p_path,
+	const for_file_handler p_handler,
 	const bool handle_dirs, const bool recursive)
 {
 	bool result = false;
@@ -763,7 +765,8 @@ END:
 	return result;
 }
 
-bool for_each_file_4(const char* const p_path, const for_file_handler p_handler,
+bool for_each_file_4(const char* const p_path,
+	const for_file_handler p_handler,
 	const bool handle_dirs, const bool recursive)
 {
 	bool result = false;

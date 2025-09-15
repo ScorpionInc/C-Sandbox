@@ -65,8 +65,9 @@ void si_adler_init_prime(uint8_t* const p_bytes, const size_t block_size);
  * @param p_bytes Pointer to the si_adler struct to be initialized.
  */
 void si_adler_init(si_adler_t* const p_hash);
+
 /* Doxygen
- * @brief Creates values inside si_adler struct and calls function to initialize.
+ * @brief Creates and initializes a new heap alder struct.
  *
  * @param p_bytes Pointer to the si_adler struct to be initialized.
  * @param block_size Size in bytes of the resulting hash.

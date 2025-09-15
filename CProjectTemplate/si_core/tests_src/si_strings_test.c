@@ -29,7 +29,8 @@ static void si_strings_test_concats(void)
 		"This", "is", "an", "example", "string", "used", "for", "testing"
 	};
 	const size_t strings_count = (sizeof(p_strings) / sizeof(const char*));
-	const char* const p_string_joined_b = "This is an example string used for testing";
+	const char* const p_string_joined_b =
+		"This is an example string used for testing";
 	const char* const p_spacer = " ";
 	const size_t p_string_a_len = strlen(p_string_a);
 	const size_t p_string_b_len = strlen(p_string_b);
@@ -152,10 +153,12 @@ static void si_strings_test_manipulators(void)
 {
 	char* p_value = NULL;
 	int s_cmp = 0;
-	const char* const p_string_a = "I am the night! I am vengence! I am Bruce Wayne!";
+	const char* const p_string_a =
+		"I am the night! I am vengence! I am Bruce Wayne!";
 	const char* const p_string_b = "Bruce Wayne";
 	const char* const p_string_c = "Batman";
-	const char* const p_string_d = "I am the night! I am vengence! I am Batman!";
+	const char* const p_string_d =
+		"I am the night! I am vengence! I am Batman!";
 
 	printf("Testing str_clone_substitute():\n");
 	TEST_ASSERT_NULL(str_clone_substitute(NULL, NULL, NULL));

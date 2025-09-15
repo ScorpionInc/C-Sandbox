@@ -15,7 +15,7 @@ void tearDown (void)
 void si_adler_test_main(void)
 {
 	// TODO Use the expected results to validate.
-	const char* const inputs[] =
+	const char* const p_inputs[] =
 	{
 		"",
 		"~~~",
@@ -23,7 +23,7 @@ void si_adler_test_main(void)
 		"abd",
 		"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 	};
-	const char* const expected[] =
+	const char* const p_expected[] =
 	{
 		"0x0001",
 		"0x0680",
@@ -37,9 +37,9 @@ void si_adler_test_main(void)
 	for(size_t iii = 0u; iii < inputs_count; iii++)
 	{
 		si_adler_new(&hash, 2u);
-		size_t input_length = strlen(inputs[iii]);
-		si_adler_update(&hash, (uint8_t*)inputs[iii], input_length);
-		printf("'%48s':", inputs[iii]);
+		size_t input_length = strlen(p_inputs[iii]);
+		si_adler_update(&hash, (uint8_t*)p_inputs[iii], input_length);
+		printf("'%48s':", p_inputs[iii]);
 		si_adler_fprint(&hash, stdout); printf("\n");
 		si_adler_free(&hash);
 	}

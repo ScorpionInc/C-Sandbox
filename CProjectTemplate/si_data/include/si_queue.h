@@ -1,7 +1,7 @@
 /* si_queue.h
  * Language: C
  * Authors: ScorpionInc
- * Purpose: Defines struct with functions for managing a dynamically allocated queue.
+ * Purpose: Defines struct with functions for managing a FIFO dynamic queue.
  * Created: 20150601
  * Updated: 20250707
 //*/
@@ -48,9 +48,10 @@ void si_queue_init(si_queue_t* const p_queue, const size_t element_size);
  * @param initial_capacity Count of items to be stored in the queue. (0)
  * @param p_settings Pointer to si_realloc_settings to read from.
  */
-si_queue_t* si_queue_new_3(const size_t element_size, const size_t initial_capacity,
-	const si_realloc_settings_t* p_settings);
-si_queue_t* si_queue_new_2(const size_t element_size, const size_t initial_capacity);
+si_queue_t* si_queue_new_3(const size_t element_size,
+	const size_t initial_capacity, const si_realloc_settings_t* p_settings);
+si_queue_t* si_queue_new_2(const size_t element_size,
+	const size_t initial_capacity);
 si_queue_t* si_queue_new(const size_t element_size);
 
 /** Doxygen

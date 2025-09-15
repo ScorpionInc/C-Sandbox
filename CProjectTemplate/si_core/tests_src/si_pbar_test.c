@@ -4,8 +4,15 @@
 #include "si_terminfo.h" // si_terminfo_t
 #include "si_pbar.h" // si_pbar_t
 
-void setUp (void) {} /* Is run before every test, put unit init calls here. */
-void tearDown (void) {} /* Is run after every test, put unit clean-up calls here. */
+/* Is run before every test, put unit init calls here. */
+void setUp (void)
+{
+}
+
+/* Is run after every test, put unit clean-up calls here. */
+void tearDown (void)
+{
+}
 
 static void si_pbar_test_main(void)
 {
