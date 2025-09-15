@@ -5,13 +5,6 @@
  * Purpose: Protoype functions and structs for server-side networking.
  */
 
-#ifndef SI_SERVER_H
-#define SI_SERVER_H
-
-#ifdef __cplusplus
-extern "C" {
-#endif //__cplusplus
-
 #include <errno.h> // errno, strerror()
 #include <limits.h> // ULONG_MAX
 #include <stdbool.h> // true false
@@ -34,7 +27,7 @@ extern "C" {
 #include <pthread.h> // pthread_mutex_t, PTHREAD_MUTEX_RECURSIVE
 
 #include <sys/resource.h> // getrlimit(), rlimit
-#include <sys/socket.h> // socket(), listen(), SOL_SOCKET, SOMAXCONN, SO_KEEPALIVE
+#include <sys/socket.h> // socket(), listen(), SOL_SOCKET, SOMAXCONN
 #include <sys/stat.h> // stat()
 #include <sys/types.h> // ssize_t
 
@@ -50,12 +43,19 @@ extern "C" {
 
 #else
 #error Unsupported Operating System.
-#endif//__linux__
+#endif // __linux__
 
 #include "si_access_list.h"
 #include "si_array.h"
 #include "si_realloc_settings.h"
 #include "si_logger.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif //__cplusplus
+
+#ifndef SI_SERVER_H
+#define SI_SERVER_H
 
 /** Doxygen
  * @brief Uses error code from linux socket() to determine if IPv6 is supported
@@ -78,7 +78,7 @@ typedef bool (*event_handler_t)(struct si_server_t* const, const int);
 typedef struct si_server_t
 {
 	sa_family_t family;
-	si_accesslist_t* access_list;
+	si_accesslist_t* p_access_list;
 	pthread_mutex_t sockets_lock;
 	si_array_t sockets;
 	si_realloc_settings_t* p_settings;
@@ -115,7 +115,8 @@ bool si_server_is_blocking(si_server_t* const p_server);
 bool si_server_set_blocking(si_server_t* const p_server, const bool blocking);
 
 bool si_server_is_keepalive(si_server_t* const p_server);
-bool si_server_set_keepalive(si_server_t* const p_server, const bool keepalive);
+bool si_server_set_keepalive(si_server_t* const p_server,
+	const bool keepalive);
 
 bool si_server_add_socket(si_server_t* const p_server, const int socket_fd);
 void si_server_drop_socket(si_server_t* const p_server, const int socket_fd);
@@ -131,8 +132,8 @@ void si_server_handle_events(si_server_t* const p_server);
 void si_server_free(si_server_t* p_server);
 void si_server_free_at(si_server_t** pp_server);
 
+#endif//SI_SERVER_H
+
 #ifdef __cplusplus
 }
 #endif //__cplusplus
-
-#endif//SI_SERVER_H

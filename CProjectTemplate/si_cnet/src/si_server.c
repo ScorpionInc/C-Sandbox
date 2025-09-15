@@ -772,13 +772,13 @@ void si_server_accept(si_server_t* const p_server)
 	}
 
 	// Validate access permission(s)
-	if(NULL != p_server->access_list)
+	if(NULL != p_server->p_access_list)
 	{
 		const bool has = si_accesslist_has(
-			p_server->access_list, (struct sockaddr*)&client_addr
+			p_server->p_access_list, (struct sockaddr*)&client_addr
 		);
-		if((( true == has) && (true  == p_server->access_list->is_blacklist)) ||
-		   ((false == has) && (false == p_server->access_list->is_blacklist)))
+		if((( true == has) && (true  == p_server->p_access_list->is_blacklist)) ||
+		   ((false == has) && (false == p_server->p_access_list->is_blacklist)))
 		{
 			si_logger_custom(
 				p_server->p_logger, SI_LOGGER_INFO,
@@ -970,7 +970,7 @@ void si_server_free(si_server_t* p_server)
 		goto END;
 	}
 	p_server->family = AF_UNSPEC;
-	p_server->access_list = NULL;
+	p_server->p_access_list = NULL;
 	pthread_mutex_destroy(&(p_server->sockets_lock));
 	si_array_free(&(p_server->sockets));
 	p_server->p_settings = NULL;
