@@ -59,19 +59,20 @@ extern "C" {
 
 
 // Generates: struct intExample {
-struct SI_TEMPLATE_FUNCTION(, Example) {
+struct SI_TEMPLATE_FUNCTION(, Example)
+{
 	SI_TEMPLATE_TYPE item;
 };
 
 // Generates: void intExample_new(struct intExample* address){
-void SI_TEMPLATE_FUNCTION(, Example_new)(struct SI_TEMPLATE_FUNCTION(, Example)* address){
-	printf("There is no cow level.\n");//!Debugging
+void SI_TEMPLATE_FUNCTION(, Example_new)(struct SI_TEMPLATE_FUNCTION(, Example)* address)
+{
 }
 
-void temp(){
+void temp()
+{
 	// Generates: struct intExample e = { 0 };
 	struct SI_TEMPLATE_FUNCTION(, Example) e = { 0 };
-	printf("Hello World! %i\n", e.item);//!Debugging
 	SI_TEMPLATE_FUNCTION(, Example_new)();
 }
 

@@ -1,5 +1,4 @@
 /* si_server.h
- * Author: Scorpioninc
  * Created: 20250718
  * Updated: 20250729
  * Purpose: Protoype functions and structs for server-side networking.

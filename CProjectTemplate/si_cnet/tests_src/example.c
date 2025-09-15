@@ -33,7 +33,6 @@ static bool send_message(struct si_server_t* const p_server,
 	bool result = false;
 	if((NULL == p_server) || (SOCKET_ERROR >= socket_fd) || (NULL == p_msg))
 	{
-		printf("Send message invalid parameter(s).\n");//!Debugging
 		goto END;
 	}
 	char* p_message = NULL;
