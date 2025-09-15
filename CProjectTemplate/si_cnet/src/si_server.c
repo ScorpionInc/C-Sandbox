@@ -1,5 +1,4 @@
-//si_server.c
-
+// si_server.c
 #include "si_server.h"
 
 bool is_ipv6_supported(void)
@@ -107,7 +106,7 @@ END:
 }
 
 /** Doxygen
- * @brief Local function binds an existing server socket to all local interfaces
+ * @brief Local function binds an existing server socket 2 all local interfaces
  * 
  * @param server_fd Server socket int file descriptor
  * @param family Socket family enum/id to be initialized as
@@ -142,12 +141,14 @@ static bool si_server_socket_bind(const int server_fd,
 	switch(family)
 	{
 	case(AF_INET):
+	{
 		((struct sockaddr_in*)p_addr)->sin_addr.s_addr = htonl(INADDR_ANY);
 		((struct sockaddr_in*)p_addr)->sin_port = htons(port);
 		break;
+	}
 #ifdef AF_INET6
 	case(AF_INET6):
-
+	{
 		// Disable IPV6_only to also allow for IPv4 on the socket.
 		int disable_only = 0;
 		if(SOCKET_ERROR >= setsockopt(server_fd, IPPROTO_IPV6, IPV6_V6ONLY,
@@ -162,6 +163,7 @@ static bool si_server_socket_bind(const int server_fd,
 		((struct sockaddr_in6*)p_addr)->sin6_addr = in6addr_any;
 		((struct sockaddr_in6*)p_addr)->sin6_port = htons(port);
 		break;
+	}
 #endif//AF_INET6
 	default:
 		// Unsupported/Unknown socket family ID/enum
@@ -224,8 +226,11 @@ static bool si_server_socket_defaults(const int server_fd,
 
 	// Set address reuse for faster restart of server socket
 	int enable_reuse = 1;
-	if(SOCKET_ERROR >= setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR,
-		&enable_reuse, sizeof(enable_reuse)))
+	const int set_reuse_result = setsockopt(
+		server_fd, SOL_SOCKET, SO_REUSEADDR,
+		&enable_reuse, sizeof(enable_reuse)
+	);
+	if(SOCKET_ERROR >= set_reuse_result)
 	{
 		// Failed, log in order to enable for future debugging
 		si_logger_warning(p_logger,
@@ -243,7 +248,8 @@ static bool si_server_socket_defaults(const int server_fd,
 	}
 
 	// Mark as passive port with listen to enable client socket accept
-	if(SOCKET_SUCCESS != listen(server_fd, mut_max_queue))
+	const int listen_result = listen(server_fd, mut_max_queue);
+	if(SOCKET_SUCCESS != listen_result)
 	{
 		si_logger_error(p_logger,
 			"Server socket failed to set socket %d to passive mode.", server_fd
@@ -291,6 +297,7 @@ void si_server_init_7(si_server_t* const p_server, const uint16_t port,
 	}
 
 	p_server->family = family;
+	p_server->p_access_list = NULL;
 	p_server->p_settings = p_settings;
 	p_server->p_logger = p_logger;
 
@@ -332,7 +339,8 @@ void si_server_init_7(si_server_t* const p_server, const uint16_t port,
 	}
 
 	// Add server socket to sockets array
-	if(false == si_server_add_socket(p_server, server_fd))
+	const bool added_socket = si_server_add_socket(p_server, server_fd);
+	if(false == added_socket)
 	{
 		close(server_fd);
 		server_fd = SOCKET_ERROR;
@@ -412,7 +420,8 @@ si_server_t* si_server_new_2(const uint16_t port, const int type)
 {
 	si_server_t* p_new = NULL;
 #ifdef AF_INET6
-	if(is_ipv6_supported())
+	const bool is_v6_supported = is_ipv6_supported();
+	if(true == is_v6_supported)
 	{
 		p_new = si_server_new_3(port, type, AF_INET6);
 		goto END;
@@ -434,21 +443,39 @@ bool si_server_is_blocking(si_server_t* const p_server)
 	{
 		goto END;
 	}
-	if(SOCKET_SUCCESS != pthread_mutex_lock(&(p_server->sockets_lock)))
+	int lock_result = SOCKET_ERROR;
+	int unlock_result = SOCKET_ERROR;
+	while(SOCKET_SUCCESS != lock_result)
 	{
+		lock_result = pthread_mutex_lock(&(p_server->sockets_lock));
+	}
+	struct pollfd* p_server_struct = (struct pollfd*)(si_array_at(
+		&(p_server->sockets), 0u
+	));
+	if(NULL == p_server_struct)
+	{
+		while(SOCKET_SUCCESS != unlock_result)
+		{
+			unlock_result = pthread_mutex_unlock(&(p_server->sockets_lock));
+		}
 		goto END;
 	}
-	const int server_fd =
-		((struct pollfd*)si_array_at(&(p_server->sockets), 0u))->fd;
+	const int server_fd = p_server_struct->fd;
 	if(SOCKET_SUCCESS > server_fd)
 	{
-		pthread_mutex_unlock(&(p_server->sockets_lock));
+		while(SOCKET_SUCCESS != unlock_result)
+		{
+			unlock_result = pthread_mutex_unlock(&(p_server->sockets_lock));
+		}
 		goto END;
 	}
 
 	// in fcntl() the kernel ignores 3rd argument with F_GETFL.
 	const int flags = fcntl(server_fd, F_GETFL, 0);
-	pthread_mutex_unlock(&(p_server->sockets_lock));
+	while(SOCKET_SUCCESS != unlock_result)
+	{
+		unlock_result = pthread_mutex_unlock(&(p_server->sockets_lock));
+	}
 	if(SOCKET_ERROR >= flags)
 	{
 		goto END;
@@ -466,16 +493,16 @@ bool si_server_set_blocking(si_server_t* const p_server,
 	{
 		goto END;
 	}
-	if(SOCKET_SUCCESS != pthread_mutex_lock(&(p_server->sockets_lock)))
+	int lock_results = SOCKET_ERROR;
+	while(SOCKET_SUCCESS != lock_results)
 	{
-		goto END;
+		lock_results = pthread_mutex_lock(&(p_server->sockets_lock));
 	}
 	const int server_fd =
 		((struct pollfd*)si_array_at(&(p_server->sockets), 0u))->fd;
 	if(SOCKET_SUCCESS > server_fd)
 	{
-		pthread_mutex_unlock(&(p_server->sockets_lock));
-		goto END;
+		goto UNLOCK;
 	}
 
 	// Get all current flags and check if change is needed.
@@ -483,13 +510,11 @@ bool si_server_set_blocking(si_server_t* const p_server,
 	const int flags = fcntl(server_fd, F_GETFL, 0);
 	if(SOCKET_ERROR >= flags)
 	{
-		pthread_mutex_unlock(&(p_server->sockets_lock));
-		goto END;
+		goto UNLOCK;
 	}
 	if(blocking == (0 == (flags & O_NONBLOCK)))
 	{
-		pthread_mutex_unlock(&(p_server->sockets_lock));
-		goto END;
+		goto UNLOCK;
 	}
 
 	// Mask/Set new flag while keeping any old flags.
@@ -504,13 +529,18 @@ bool si_server_set_blocking(si_server_t* const p_server,
 	}
 
 	// Validate socket mode changed
-	if(SOCKET_ERROR >= fcntl(server_fd, F_SETFL, new_flags))
+	const int fcntl_result = fcntl(server_fd, F_SETFL, new_flags);
+	if(SOCKET_ERROR >= fcntl_result)
 	{
-		pthread_mutex_unlock(&(p_server->sockets_lock));
-		goto END;
+		goto UNLOCK;
 	}
 	result = true;
-	pthread_mutex_unlock(&(p_server->sockets_lock));
+UNLOCK:
+	int unlock_results = SOCKET_ERROR;
+	while(SOCKET_SUCCESS != unlock_results)
+	{
+		unlock_results = pthread_mutex_unlock(&(p_server->sockets_lock));
+	}
 END:
 	return result;
 }
@@ -522,26 +552,35 @@ bool si_server_is_keepalive(si_server_t* const p_server)
 	{
 		goto END;
 	}
-	if(SOCKET_SUCCESS != pthread_mutex_lock(&(p_server->sockets_lock)))
+	int lock_result = -1;
+	int unlock_result = -1;
+	while(SOCKET_SUCCESS != lock_result)
 	{
-		goto END;
+		lock_result = pthread_mutex_lock(&(p_server->sockets_lock));
 	}
 	const int server_fd =
 		((struct pollfd*)si_array_at(&(p_server->sockets), 0u))->fd;
 	if(SOCKET_SUCCESS > server_fd)
 	{
-		pthread_mutex_unlock(&(p_server->sockets_lock));
+		while(SOCKET_SUCCESS != unlock_result)
+		{
+			unlock_result = pthread_mutex_unlock(&(p_server->sockets_lock));
+		}
 		goto END;
 	}
 
 	int value = 0;
-	socklen_t value_size = (socklen_t)sizeof(value);
+	const socklen_t c_value_size = (socklen_t)sizeof(value);
+	socklen_t value_size = c_value_size;
 	int get_result = getsockopt(
 		server_fd, SOL_SOCKET, SO_KEEPALIVE,
 		&value, &value_size
 	);
-	pthread_mutex_unlock(&(p_server->sockets_lock));
-	if((SOCKET_SUCCESS > get_result) || (value_size != (socklen_t)sizeof(value)))
+	while(SOCKET_SUCCESS != unlock_result)
+	{
+		unlock_result = pthread_mutex_unlock(&(p_server->sockets_lock));
+	}
+	if((SOCKET_SUCCESS > get_result) || (value_size != c_value_size))
 	{
 		goto END;
 	}
@@ -557,14 +596,19 @@ bool si_server_set_keepalive(si_server_t* const p_server, const bool keepalive)
 	{
 		goto END;
 	}
-	if(SOCKET_SUCCESS != pthread_mutex_lock(&(p_server->sockets_lock)))
+	int lock_result = SOCKET_ERROR;
+	while(SOCKET_SUCCESS != lock_result)
 	{
-		goto END;
+		lock_result = pthread_mutex_lock(&(p_server->sockets_lock));
 	}
 	const int server_fd =
 		((struct pollfd*)si_array_at(&(p_server->sockets), 0u))->fd;
 	result = si_socket_set_keepalive(server_fd, keepalive);
-	pthread_mutex_unlock(&(p_server->sockets_lock));
+	int unlock_result = SOCKET_ERROR;
+	while(SOCKET_SUCCESS != unlock_result)
+	{
+		unlock_result = pthread_mutex_unlock(&(p_server->sockets_lock));
+	}
 END:
 	return result;
 }
@@ -577,9 +621,10 @@ bool si_server_add_socket(si_server_t* const p_server, const int socket_fd)
 		goto END;
 	}
 	// Attempt assign to open slot
-	if(SOCKET_SUCCESS != pthread_mutex_lock(&(p_server->sockets_lock)))
+	int lock_result = SOCKET_ERROR;
+	while(SOCKET_SUCCESS != lock_result)
 	{
-		goto END;
+		lock_result = pthread_mutex_lock(&(p_server->sockets_lock));
 	}
 	const size_t current_capacity = p_server->sockets.capacity;
 	for(size_t iii = 0u; iii < current_capacity; iii++)
@@ -608,11 +653,10 @@ bool si_server_add_socket(si_server_t* const p_server, const int socket_fd)
 		);
 		if(true != did_grow)
 		{
-			pthread_mutex_unlock(&(p_server->sockets_lock));
 			si_logger_error(p_server->p_logger,
 				"Failed to grow socket array with default method"
 			);
-			goto END;
+			goto UNLOCK;
 		}
 	}
 	else
@@ -625,26 +669,24 @@ bool si_server_add_socket(si_server_t* const p_server, const int socket_fd)
 			if(current_capacity >= p_server->sockets.capacity)
 			{
 				// Grow() completed but capacity is not larger.
-				pthread_mutex_unlock(&(p_server->sockets_lock));
 				si_logger_error(p_server->p_logger,
 					"Failed to grow socket array enough with p_settings method"
 				);
-				goto END;
+				goto UNLOCK;
 			}
 		}
 		else
 		{
 			// Failed to grow by settings.
-			pthread_mutex_unlock(&(p_server->sockets_lock));
 			si_logger_error(p_server->p_logger,
 				"Failed to grow socket array with p_settings method"
 			);
-			goto END;
+			goto UNLOCK;
 		}
 	}
 	// Initialize new values to invalid sockets.
 	const size_t grow_amount = (p_server->sockets.capacity - current_capacity);
-	struct pollfd initialValue = (struct pollfd){};
+	struct pollfd initialValue = (struct pollfd){0};
 	initialValue.fd = SOCKET_ERROR;
 	initialValue.events = 0;
 	initialValue.revents = 0;
@@ -655,20 +697,27 @@ bool si_server_add_socket(si_server_t* const p_server, const int socket_fd)
 		);
 	}
 	result = si_server_add_socket(p_server, socket_fd);
-	pthread_mutex_unlock(&(p_server->sockets_lock));
+UNLOCK:
+	int unlock_results = SOCKET_ERROR;
+	while(SOCKET_SUCCESS != unlock_results)
+	{
+		unlock_results = pthread_mutex_unlock(&(p_server->sockets_lock));
+	}
 END:
 	return result;
 }
 
-static void si_server_drop_socket_at(si_server_t* const p_server, const size_t index)
+static void si_server_drop_socket_at(si_server_t* const p_server,
+	const size_t index)
 {
 	if(NULL == p_server)
 	{
 		goto END;
 	}
-	if(SOCKET_SUCCESS != pthread_mutex_lock(&(p_server->sockets_lock)))
+	int lock_result = SOCKET_ERROR;
+	while(SOCKET_SUCCESS != lock_result)
 	{
-		goto END;
+		lock_result = pthread_mutex_lock(&(p_server->sockets_lock));
 	}
 	if(index >= p_server->sockets.capacity)
 	{
@@ -686,7 +735,11 @@ static void si_server_drop_socket_at(si_server_t* const p_server, const size_t i
 	}
 	p_poll->fd = SOCKET_ERROR;
 	p_poll->revents = 0;
-	pthread_mutex_unlock(&(p_server->sockets_lock));
+	int unlock_result = SOCKET_ERROR;
+	while(SOCKET_SUCCESS != unlock_result)
+	{
+		pthread_mutex_unlock(&(p_server->sockets_lock));
+	}
 END:
 	return;
 }
@@ -697,13 +750,16 @@ void si_server_drop_socket(si_server_t* const p_server, const int socket_fd)
 	{
 		goto END;
 	}
-	if(SOCKET_SUCCESS != pthread_mutex_lock(&(p_server->sockets_lock)))
+	int lock_result = SOCKET_ERROR;
+	while(SOCKET_SUCCESS != lock_result)
 	{
-		goto END;
+		lock_result = pthread_mutex_lock(&(p_server->sockets_lock));
 	}
 	for(size_t iii = 0u; iii < p_server->sockets.capacity; iii++)
 	{
-		struct pollfd* p_poll = si_array_at(&(p_server->sockets), iii);
+		struct pollfd* p_poll = (struct pollfd*)(si_array_at(
+			&(p_server->sockets), iii
+		));
 		if(NULL == p_poll)
 		{
 			// Array is invalid or index is out of bounds
@@ -728,7 +784,11 @@ void si_server_drop_socket(si_server_t* const p_server, const int socket_fd)
 			si_server_drop_socket_at(p_server, iii);
 		}
 	}
-	pthread_mutex_unlock(&(p_server->sockets_lock));
+	int unlock_result = SOCKET_ERROR;
+	while(SOCKET_SUCCESS != unlock_result)
+	{
+		unlock_result = pthread_mutex_unlock(&(p_server->sockets_lock));
+	}
 END:
 	return;
 }
@@ -740,12 +800,17 @@ void si_server_accept(si_server_t* const p_server)
 		goto END;
 	}
 	const bool is_blocking = si_server_is_blocking(p_server);
-	if(SOCKET_SUCCESS != pthread_mutex_lock(&(p_server->sockets_lock)))
+	int lock_result = SOCKET_ERROR;
+	while(SOCKET_SUCCESS != lock_result)
 	{
-		goto END;
+		lock_result = pthread_mutex_lock(&(p_server->sockets_lock));
 	}
 	const struct pollfd* p_server_fd = si_array_at(&(p_server->sockets), 0u);
-	pthread_mutex_unlock(&(p_server->sockets_lock));
+	int unlock_result = SOCKET_ERROR;
+	while(SOCKET_SUCCESS != unlock_result)
+	{
+		unlock_result = pthread_mutex_unlock(&(p_server->sockets_lock));
+	}
 	if(NULL == p_server_fd)
 	{
 		// Invalid array
@@ -791,7 +856,8 @@ void si_server_accept(si_server_t* const p_server)
 	}
 
 	// Connected & permitted
-	if(false == si_server_add_socket(p_server, client_fd))
+	const bool added_socket = si_server_add_socket(p_server, client_fd);
+	if(false == added_socket)
 	{
 		goto ERROR;
 	}
@@ -810,7 +876,7 @@ void si_server_accept(si_server_t* const p_server)
 	}
 	goto END;
 ERROR:
-	if(!((errno == EAGAIN) && (!is_blocking)))
+	if(!((EAGAIN == errno) && (false == is_blocking)))
 	{
 		si_logger_error(p_server->p_logger,
 			"Server accept() failed with the error: %s", strerror(errno)
@@ -818,7 +884,8 @@ ERROR:
 	}
 	if(SOCKET_SUCCESS <= client_fd)
 	{
-		close(client_fd);
+		// Intentionally ignoring socket close errors.
+		(void)close(client_fd);
 	}
 	client_fd = SOCKET_ERROR;
 END:
@@ -833,9 +900,10 @@ void si_server_broadcast(si_server_t* const p_server,
 	{
 		goto END;
 	}
-	if(SOCKET_SUCCESS != pthread_mutex_lock(&(p_server->sockets_lock)))
+	int lock_result = SOCKET_ERROR;
+	while(SOCKET_SUCCESS != lock_result)
 	{
-		goto END;
+		lock_result = pthread_mutex_lock(&(p_server->sockets_lock));
 	}
 	for(size_t iii = 1u; iii < p_server->sockets.capacity; iii++)
 	{
@@ -858,7 +926,11 @@ void si_server_broadcast(si_server_t* const p_server,
 			continue;
 		}
 	}
-	pthread_mutex_unlock(&(p_server->sockets_lock));
+	int unlock_result = SOCKET_ERROR;
+	while(SOCKET_SUCCESS != unlock_result)
+	{
+		unlock_result = pthread_mutex_unlock(&(p_server->sockets_lock));
+	}
 END:
 	return;
 }
@@ -870,7 +942,8 @@ END:
  * @param p_server Pointer to the si_server struct to call functions from.
  * @param p_fd Pointer to pollfd struct with socket descriptor & event flags
  */
-static void si_server_handle_socket(si_server_t* const p_server, struct pollfd* const p_fd)
+static void si_server_handle_socket(si_server_t* const p_server,
+	struct pollfd* const p_fd)
 {
 	if(NULL == p_fd)
 	{
@@ -929,19 +1002,21 @@ void si_server_handle_events(si_server_t* const p_server)
 	{
 		goto END;
 	}
-	if(SOCKET_SUCCESS != pthread_mutex_lock(&(p_server->sockets_lock)))
+	int lock_results = SOCKET_ERROR;
+	while(SOCKET_SUCCESS != lock_results)
 	{
-		goto END;
+		lock_results = pthread_mutex_lock(&(p_server->sockets_lock));
 	}
 	const bool is_blocking = si_server_is_blocking(p_server);
 	const int timeout_mills = is_blocking ? -1 : DEFAULT_POLL_TIMEOUT;
 	const size_t capacity = p_server->sockets.capacity;
-	const int poll_result = poll(p_server->sockets.p_data, capacity, timeout_mills);
+	const int poll_result = poll(
+		p_server->sockets.p_data, capacity, timeout_mills
+	);
 	// Poll client events
 	if(SOCKET_SUCCESS > poll_result)
 	{
-		pthread_mutex_unlock(&(p_server->sockets_lock));
-		goto END;
+		goto UNLOCK;
 	}
 	// Handle poll event results
 	for(size_t iii = 1u; iii < capacity; iii++)
@@ -958,7 +1033,12 @@ void si_server_handle_events(si_server_t* const p_server)
 		}
 		si_server_handle_socket(p_server, p_fd);
 	}
-	pthread_mutex_unlock(&(p_server->sockets_lock));
+UNLOCK:
+	int unlock_result = SOCKET_ERROR;
+	while(SOCKET_SUCCESS != unlock_result)
+	{
+		unlock_result = pthread_mutex_unlock(&(p_server->sockets_lock));
+	}
 END:
 	return;
 }
