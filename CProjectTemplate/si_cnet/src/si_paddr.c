@@ -302,7 +302,7 @@ int sockaddr_in_cmp(const struct sockaddr_in* const p_left,
 		&(p_right->sin_addr),
 		sizeof(struct in_addr)
 	);
-	if((0 != result) || (ignore_ports))
+	if((0 != result) || (true == ignore_ports))
 	{
 		goto END;
 	}
@@ -344,7 +344,7 @@ int sockaddr_in6_cmp(const struct sockaddr_in6* const p_left,
 		&p_right->sin6_addr,
 		sizeof(struct in6_addr)
 	);
-	if((0 != result) || (ignore_ports))
+	if((0 != result) || (true == ignore_ports))
 	{
 		goto END;
 	}
@@ -442,11 +442,7 @@ bool sockaddr_in_is_valid(struct sockaddr_in* const p_addr)
 	{
 		goto END;
 	}
-	if(AF_INET != p_addr->sin_family)
-	{
-		goto END;
-	}
-	if(0 == p_addr->sin_port)
+	if((AF_INET != p_addr->sin_family) || (0 == p_addr->sin_port))
 	{
 		goto END;
 	}
@@ -471,10 +467,12 @@ bool sockaddr_in6_is_valid(struct sockaddr_in6* const p_addr)
 	{
 		goto END;
 	}
+#ifdef AF_INET6
 	if(AF_INET6 != p_addr->sin6_family)
 	{
 		goto END;
 	}
+#endif
 	if(0 == p_addr->sin6_port)
 	{
 		goto END;
