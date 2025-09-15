@@ -60,21 +60,21 @@ bool si_tui_supports_truecolor()
 		goto END;
 	}
 	
-	const char* const valid_values[] = {
+	const char* const p_valid_values[] = {
 		"truecolor",
 		"24bit"
 	};
 	// This could be a hard coded value, but doing these checks allows us to
 	// easily change or add more valid values are needed in the future.
-	const size_t valid_count = sizeof(valid_values) / sizeof(const char*);
+	const size_t valid_count = sizeof(p_valid_values) / sizeof(const char*);
 	if(0u >= valid_count)
 	{
 		goto END;
 	}
-	size_t longest_valid_value = strnlen(valid_values[0], INT_MAX);
+	size_t longest_valid_value = strnlen(p_valid_values[0], INT_MAX);
 	for(size_t iii = 1u; iii < valid_count; iii++)
 	{
-		const size_t next_len = strnlen(valid_values[iii], INT_MAX);
+		const size_t next_len = strnlen(p_valid_values[iii], INT_MAX);
 		if(longest_valid_value < next_len)
 		{
 			longest_valid_value = next_len;
@@ -89,7 +89,7 @@ bool si_tui_supports_truecolor()
 	for(size_t iii = 0u; iii < valid_count; iii++)
 	{
 		const int cmp_result = strncmp(
-			colorterm_env, valid_values[iii], longest_valid_value
+			colorterm_env, p_valid_values[iii], longest_valid_value
 		);
 		if(0 == cmp_result)
 		{

@@ -158,7 +158,7 @@ bool add_uint_le_bytes(uint8_t* const p_a, const uint8_t* const p_b,
 		}
 		p_ull_a[iii] += p_ull_b[iii] + last_carry;
 		last_carry = 0u;
-		if(carry_flag)
+		if(true == carry_flag)
 		{
 			last_carry++;
 		}
@@ -174,7 +174,7 @@ bool add_uint_le_bytes(uint8_t* const p_a, const uint8_t* const p_b,
 		}
 		p_a[iii] += p_b[iii] + last_carry;
 		last_carry = 0u;
-		if(carry_flag)
+		if(true == carry_flag)
 		{
 			last_carry++;
 		}

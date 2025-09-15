@@ -519,7 +519,7 @@ bool si_server_set_blocking(si_server_t* const p_server,
 
 	// Mask/Set new flag while keeping any old flags.
 	int new_flags = 0;
-	if(blocking)
+	if(true == blocking)
 	{
 		new_flags = (flags & (~O_NONBLOCK));
 	}

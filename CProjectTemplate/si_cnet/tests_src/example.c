@@ -81,7 +81,8 @@ END:
  * 
  * @return Returns true on success. Returns false otherwise.
  */
-static bool handle_connect(struct si_server_t* const p_server, const int socket_fd)
+static bool handle_connect(struct si_server_t* const p_server,
+	const int socket_fd)
 {
 	bool result = false;
 	if((NULL == p_server) || (SOCKET_ERROR >= socket_fd))
@@ -103,7 +104,8 @@ END:
  * 
  * @return Returns true on success. Returns false otherwise.
  */
-static bool handle_input(struct si_server_t* const p_server, const int socket_fd)
+static bool handle_input(struct si_server_t* const p_server,
+	const int socket_fd)
 {
 	bool result = false;
 	if((NULL == p_server) || (SOCKET_ERROR >= socket_fd))
@@ -133,7 +135,8 @@ END:
  * 
  * @return Returns true on success. Returns false otherwise.
  */
-static bool handle_leave(struct si_server_t* const p_server, const int socket_fd)
+static bool handle_leave(struct si_server_t* const p_server,
+	const int socket_fd)
 {
 	bool result = false;
 	if((NULL == p_server) || (SOCKET_ERROR >= socket_fd))

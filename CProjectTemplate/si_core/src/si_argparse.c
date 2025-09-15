@@ -58,7 +58,7 @@ bool si_arg_is_valid_values(const si_arg_t* const p_arg)
 {
 	bool result = false;
 	const bool basic_valid = si_arg_is_valid(p_arg);
-	if(!basic_valid)
+	if(false == basic_valid)
 	{
 		goto END;
 	}
@@ -175,18 +175,17 @@ bool si_arg_append_value(si_arg_t* const p_arg, const void* const p_value)
 	bool result = false;
 	if(NULL == p_arg)
 	{
-		printf("Failed to add A.\n");//!Debugging
 		goto END;
 	}
 	if(NULL == p_arg->p_values)
 	{
-		printf("Failed to add B.\n");//!Debugging
 		goto END;
 	}
-	const bool did_grow = si_array_resize(p_arg->p_values, p_arg->p_values->capacity + 1u);
-	if(!did_grow)
+	const bool did_grow = si_array_resize(
+		p_arg->p_values, p_arg->p_values->capacity + 1u
+	);
+	if(false == did_grow)
 	{
-		printf("Failed to add C.\n");//!Debugging
 		goto END;
 	}
 	si_array_set(p_arg->p_values, p_arg->p_values->capacity - 1u, &p_value);
@@ -202,7 +201,7 @@ void si_arg_fprint_id(const si_arg_t* const p_arg, FILE* const p_file)
 		goto END;
 	}
 	const bool basic_valid = si_arg_is_valid(p_arg);
-	if(!basic_valid)
+	if(false == basic_valid)
 	{
 		goto END;
 	}
@@ -230,7 +229,7 @@ void si_arg_fprint(const si_arg_t* const p_arg, FILE* const p_file)
 		goto END;
 	}
 	const bool basic_valid = si_arg_is_valid(p_arg);
-	if(!basic_valid)
+	if(false == basic_valid)
 	{
 		goto END;
 	}
@@ -691,7 +690,7 @@ bool si_argparse_parse(si_argparse_t* const p_parse,
 				p_arg->p_values = si_array_new(sizeof(void*));
 			}
 			bool const added_value = si_arg_append_value(p_arg, p_parsed_value);
-			if(!added_value)
+			if(false == added_value)
 			{
 				fprintf(stderr, "Failed to add parsed item '%s' to argument '", p_next);
 				si_arg_fprint_id(p_arg, stderr);
@@ -822,7 +821,7 @@ void si_argparse_fprint_error(si_argparse_t* const p_parse, FILE* const p_file)
 			break;
 		}
 		const bool arg_valid = si_arg_is_valid_values(p_arg);
-		if(!arg_valid)
+		if(true != arg_valid)
 		{
 			fprintf(p_file, "Invalid or missing required argument: '");
 			si_arg_fprint_id(p_arg, p_file);

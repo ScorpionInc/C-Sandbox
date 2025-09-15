@@ -61,7 +61,7 @@ size_t si_parray_count(const si_parray_t* const p_array)
 	for(size_t iii = 0u; iii < p_array->array.capacity; iii++)
 	{
 		const bool is_set = si_parray_is_set(p_array, iii);
-		if(!is_set)
+		if(false == is_set)
 		{
 			// Values are contigious
 			break;
@@ -403,7 +403,7 @@ static bool claim_value_ownership(si_parray_t* const p_array)
 	for(size_t iii = 0u; iii < p_array->array.capacity; iii++)
 	{
 		const bool is_set = si_parray_is_set(p_array, iii);
-		if(!is_set)
+		if(false == is_set)
 		{
 			break;
 		}
@@ -476,7 +476,7 @@ void si_parray_set_clone(si_parray_t* const p_array, const size_t index,
 	if(NULL == p_array->p_free_value)
 	{
 		const bool is_claimed = claim_value_ownership(p_array);
-		if(!is_claimed)
+		if(false == is_claimed)
 		{
 			free(p_value);
 			p_value = NULL;
@@ -511,7 +511,7 @@ size_t si_parray_append(si_parray_t* const p_array, const void* const p_value)
 				&(p_array->array)
 			);
 		}
-		if(!did_grow)
+		if(false == did_grow)
 		{
 			goto END;
 		}
@@ -542,7 +542,7 @@ size_t si_parray_append_clone(si_parray_t* const p_array,
 	if(NULL == p_array->p_free_value)
 	{
 		const bool is_claimed = claim_value_ownership(p_array);
-		if(!is_claimed)
+		if(false == is_claimed)
 		{
 			free(p_value);
 			p_value = NULL;

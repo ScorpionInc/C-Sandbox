@@ -202,7 +202,7 @@ size_t si_singular_blist_grow_by(si_singular_blist_t* const p_list,
 	for(size_t iii = 0u; iii < amount; iii++)
 	{
 		const bool success = si_singular_list_insert_next(p_list->p_tail, NULL);
-		if(!success)
+		if(false == success)
 		{
 			break;
 		}
@@ -301,7 +301,7 @@ bool si_singular_blist_append(si_singular_blist_t* const p_list,
 		goto END;
 	}
 	result = si_singular_list_insert_next(p_list->p_tail, p_data);
-	if(result)
+	if(true == result)
 	{
 		p_list->count++;
 		p_list->capacity++;
@@ -319,7 +319,7 @@ bool si_singular_blist_remove_at(si_singular_blist_t* p_list,
 		goto END;
 	}
 	result = si_singular_list_remove_at(p_list->p_head, index);
-	if(result)
+	if(true == result)
 	{
 		p_list->count--;
 		p_list->capacity--;
@@ -370,7 +370,7 @@ size_t si_singular_blist_push(si_singular_blist_t* const p_list,
 	} while(NULL != p_iterator);
 	// No available spot to assign. Append data instead.
 	const bool success = si_singular_blist_append(p_list, p_data);
-	if(success)
+	if(true == success)
 	{
 		result = (p_list->count - 1u);
 	}

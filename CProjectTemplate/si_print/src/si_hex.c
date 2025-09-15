@@ -277,7 +277,7 @@ void fprint_grouped_hex_5(FILE* p_file,
 		fprint_hex(p_file, p_buffer, buffer_size,
 			SI_NIBBLE_BITS * grouping * print_index, grouping);
 		const bool has_more_iterations = print_index < (full_print_count - 1u);
-		if(has_more_iterations)
+		if(true == has_more_iterations)
 		{
 			fprintf(p_file, "%c", spacer);
 		}

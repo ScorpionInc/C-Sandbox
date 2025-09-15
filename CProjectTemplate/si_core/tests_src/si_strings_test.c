@@ -22,14 +22,15 @@ static void si_strings_test_concats(void)
 	// Declare test data/variables
 	const char* const p_string_a = "This is an example";
 	const char* const p_string_b = "string used for testing";
-	const char* const string_joined_a = "This is an examplestring used for testing";
+	const char* const p_string_joined_a =
+		"This is an examplestring used for testing";
 	const char* const p_strings[] =
 	{
 		"This", "is", "an", "example", "string", "used", "for", "testing"
 	};
 	const size_t strings_count = (sizeof(p_strings) / sizeof(const char*));
-	const char* const string_joined_b = "This is an example string used for testing";
-	const char* const spacer = " ";
+	const char* const p_string_joined_b = "This is an example string used for testing";
+	const char* const p_spacer = " ";
 	const size_t p_string_a_len = strlen(p_string_a);
 	const size_t p_string_b_len = strlen(p_string_b);
 	char* p_value = NULL;
@@ -43,7 +44,7 @@ static void si_strings_test_concats(void)
 		p_string_a, p_string_a_len, p_string_b, p_string_b_len
 	);
 	TEST_ASSERT_NOT_NULL(p_value);
-	s_cmp = strcmp(string_joined_a, p_value);
+	s_cmp = strcmp(p_string_joined_a, p_value);
 	TEST_ASSERT_EQUAL_INT(0, s_cmp);
 	free(p_value);
 	p_value = NULL;
@@ -54,7 +55,7 @@ static void si_strings_test_concats(void)
 	TEST_ASSERT_NULL(str_clone_concat(NULL, p_string_b));
 	p_value = str_clone_concat(p_string_a, p_string_b);
 	TEST_ASSERT_NOT_NULL(p_value);
-	s_cmp = strcmp(p_value, string_joined_a);
+	s_cmp = strcmp(p_value, p_string_joined_a);
 	TEST_ASSERT_EQUAL_INT(0, s_cmp);
 	free(p_value);
 	p_value = NULL;
@@ -65,7 +66,7 @@ static void si_strings_test_concats(void)
 	TEST_ASSERT_NULL(strv_clone_concat(0u, p_string_a, p_string_b));
 	p_value = strv_clone_concat(2u, p_string_a, p_string_b);
 	TEST_ASSERT_NOT_NULL(p_value);
-	s_cmp = strcmp(p_value, string_joined_a);
+	s_cmp = strcmp(p_value, p_string_joined_a);
 	TEST_ASSERT_EQUAL_INT(0, s_cmp);
 	free(p_value);
 	p_value = NULL;
@@ -73,22 +74,22 @@ static void si_strings_test_concats(void)
 	printf("Testing str_clone_join():\n");
 	TEST_ASSERT_NULL(str_clone_join(0, NULL, NULL));
 	TEST_ASSERT_NULL(str_clone_join(SIZE_MAX, NULL, NULL));
-	TEST_ASSERT_NULL(str_clone_join(0, spacer, NULL));
-	p_value = str_clone_join(strings_count, spacer, (const char**)p_strings);
+	TEST_ASSERT_NULL(str_clone_join(0, p_spacer, NULL));
+	p_value = str_clone_join(strings_count, p_spacer, (const char**)p_strings);
 	TEST_ASSERT_NOT_NULL(p_value);
-	s_cmp = strcmp(p_value, string_joined_b);
+	s_cmp = strcmp(p_value, p_string_joined_b);
 	TEST_ASSERT_EQUAL_INT(0, s_cmp);
 	free(p_value);
 	p_value = NULL;
 
 	printf("Testing strv_clone_join():\n");
 	TEST_ASSERT_NULL(strv_clone_join(0u, NULL));
-	TEST_ASSERT_NULL(strv_clone_join(0u, spacer));
-	p_value = strv_clone_join(8u, spacer,
+	TEST_ASSERT_NULL(strv_clone_join(0u, p_spacer));
+	p_value = strv_clone_join(8u, p_spacer,
 		"This", "is", "an", "example", "string", "used", "for", "testing"
 	);
 	TEST_ASSERT_NOT_NULL(p_value);
-	s_cmp = strcmp(p_value, string_joined_b);
+	s_cmp = strcmp(p_value, p_string_joined_b);
 	TEST_ASSERT_EQUAL_INT(0, s_cmp);
 	free(p_value);
 	p_value = NULL;
@@ -175,7 +176,7 @@ static void si_strings_test_manipulators(void)
 
 	const char* const p_cstr_buffer =  "There\0is\0no\0cow\0level";
 	const size_t cstr_size = 22u;
-	const char* const cstr_words[] = { "There", "is", "no", "cow", "level" };
+	const char* const p_cstr_words[] = { "There", "is", "no", "cow", "level" };
 	size_t current_size = 0u;
 	char* p_next = NULL;
 
@@ -194,7 +195,7 @@ static void si_strings_test_manipulators(void)
 	{
 		TEST_ASSERT_NOT_NULL(p_next);
 		printf("Testing next string: %s\n", p_next);
-		TEST_ASSERT_EQUAL_STRING(cstr_words[counter], p_next);
+		TEST_ASSERT_EQUAL_STRING(p_cstr_words[counter], p_next);
 		free(p_next);
 		p_next = NULL;
 		p_next = pop_str_from_heap((uint8_t**)&p_value, &current_size);

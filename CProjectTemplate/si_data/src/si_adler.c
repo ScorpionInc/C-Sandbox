@@ -1,5 +1,4 @@
-//si_adler.c
-
+// si_adler.c
 #include "si_adler.h"
 
 // Selects prime number to use based on block size.
@@ -29,12 +28,10 @@ END:
 // Initializes block to the Adler prime value for it's size in le.
 void si_adler_init_prime_le(uint8_t* const p_bytes, const size_t block_size)
 {
-	// Validate
 	if(NULL == p_bytes)
 	{
 		goto END;
 	}
-	// Begin
 	const size_t prime_size = block_size / 2u;
 	const unsigned long long prime = si_adler_select_prime(block_size);
 	for(size_t iii = 0; iii < sizeof(long long); iii++)
@@ -45,19 +42,16 @@ void si_adler_init_prime_le(uint8_t* const p_bytes, const size_t block_size)
 		}
 		p_bytes[iii] = ((uint8_t*)&prime)[iii];
 	}
-	// End
 END:
 	return;
 }
-// " in be.
+// Same as init_prime_le above but in big endian.
 void si_adler_init_prime_be(uint8_t* const p_bytes, const size_t block_size)
 {
-	// Validate
 	if(NULL == p_bytes)
 	{
 		goto END;
 	}
-	// Begin
 	const size_t prime_size = block_size / 2u;
 	const unsigned long long prime = si_adler_select_prime(block_size);
 	for(size_t iii = 0; iii < sizeof(long long); iii++)
@@ -69,19 +63,16 @@ void si_adler_init_prime_be(uint8_t* const p_bytes, const size_t block_size)
 		const size_t next_index = prime_size - 1u - iii;
 		p_bytes[next_index] = ((uint8_t*)&prime)[next_index];
 	}
-	// End
 END:
 	return;
 }
-// " in host order.
+// Same as init_prime_le above but in host order.
 void si_adler_init_prime(uint8_t* const p_bytes, const size_t block_size)
 {
-	// Validate
 	if(NULL == p_bytes)
 	{
 		goto END;
 	}
-	// Begin
 	if(BYTE_ORDER == LITTLE_ENDIAN)
 	{
 		si_adler_init_prime_le(p_bytes, block_size);
@@ -90,35 +81,29 @@ void si_adler_init_prime(uint8_t* const p_bytes, const size_t block_size)
 	{
 		si_adler_init_prime_be(p_bytes, block_size);
 	}
-	// End
 END:
 	return;
 }
 
 void si_adler_init(si_adler_t* const p_hash)
 {
-	// Validate parameter
 	if(NULL == p_hash)
 	{
 		goto END;
 	}
-	// Zeroize the Hash Buffer
 	memset(p_hash->p_hash, 0x00, p_hash->block_size);
 	// Seed hash buffer
 	increment_bytes(p_hash->p_hash, p_hash->block_size);
-	// End
 END:
 	return;
 }
 
 void si_adler_new(si_adler_t* const p_hash, const size_t block_size)
 {
-	// Validate parameter
 	if(NULL == p_hash)
 	{
 		goto END;
 	}
-	// Begin
 	p_hash->block_size = block_size;
 	p_hash->p_hash = calloc(sizeof(uint8_t), p_hash->block_size);
 	if(NULL == p_hash->p_hash)
@@ -126,7 +111,6 @@ void si_adler_new(si_adler_t* const p_hash, const size_t block_size)
 		goto END;
 	}
 	si_adler_init(p_hash);
-	// End
 END:
 	return;
 }
@@ -190,26 +174,22 @@ END:
 
 void si_adler_free(si_adler_t* const p_hash)
 {
-	// Validate parameter
 	if(NULL == p_hash)
 	{
 		goto END;
 	}
-	// Begin
 	if(NULL != p_hash->p_hash)
 	{
 		free(p_hash->p_hash);
 		p_hash->p_hash = NULL;
 	}
 	p_hash->block_size = 0u;
-	// End
 END:
 	return;
 }
 
 void si_adler_fprint(const si_adler_t* const p_hash, FILE* const p_file)
 {
-	// Validate parameters
 	if((NULL == p_hash) || (NULL == p_file))
 	{
 		goto END;
@@ -218,7 +198,6 @@ void si_adler_fprint(const si_adler_t* const p_hash, FILE* const p_file)
 	{
 		goto END;
 	}
-	// Begin
 	fprintf(p_file, "0x");
 	for(size_t iii = 0u; iii < p_hash->block_size; iii++)
 	{
@@ -229,7 +208,6 @@ void si_adler_fprint(const si_adler_t* const p_hash, FILE* const p_file)
 		}
 		fprintf(p_file, "%02X", p_hash->p_hash[next_index]);
 	}
-	// End
 END:
 	return;
 }

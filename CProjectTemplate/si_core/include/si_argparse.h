@@ -250,7 +250,8 @@ bool si_argparse_parse(si_argparse_t* const p_parse,
  * @param p_parse Pointer to the si_argparse to read from.
  * @param p_file Pointer to the FILE to be written to.
  */
-void si_argparse_fprint_help(si_argparse_t* const p_parse, FILE* const p_file);
+void si_argparse_fprint_help(si_argparse_t* const p_parse,
+	FILE* const p_file);
 
 /** Doxygen
  * @brief Prints generated error message to file stream from argparse struct.
@@ -258,7 +259,8 @@ void si_argparse_fprint_help(si_argparse_t* const p_parse, FILE* const p_file);
  * @param p_parse Pointer to the si_argparse to read from.
  * @param p_file Pointer to the FILE to be written to.
  */
-void si_argparse_fprint_error(si_argparse_t* const p_parse, FILE* const p_file);
+void si_argparse_fprint_error(si_argparse_t* const p_parse,
+	FILE* const p_file);
 
 /** Doxygen
  * @brief Frees allocated memory inside an argparse.

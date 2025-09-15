@@ -166,7 +166,7 @@ static void si_logger_fprint_header(FILE* p_file, const size_t msg_level,
 	}
 	fprintf(p_file, "[");
 	// Start ANSI color
-	if(is_ansi)
+	if(true == is_ansi)
 	{
 		const char* const p_color = si_logger_select_color(msg_level);
 		fprintf(p_file, "\x1b[1m%s", p_color); // Bold / Color
@@ -182,7 +182,7 @@ static void si_logger_fprint_header(FILE* p_file, const size_t msg_level,
 		fprintf(p_file, "%8s", p_header);
 	}
 	// End ANSI color
-	if(is_ansi)
+	if(true == is_ansi)
 	{
 		fprintf(p_file, "\x1b[0m");
 	}
