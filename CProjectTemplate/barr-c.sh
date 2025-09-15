@@ -163,6 +163,28 @@ grep -E "${C_LNG_MATCH}" |
 cut -f1,2 -d':' | sort --unique
 echo
 
+#printf "${UPBAR}"
+#echo "Checking for monolith function(s) over 100 lines (WIP/SLOW)"
+#printf "${RESET}"
+#counter=0
+#top_line=""
+#functions=$(pcregrep -n --exclude="${BASE_FILTER}" --binary-files=without-match -r -M -o '(?s)\b\w+\s*\([^)]*\)\s*\{(.*?)\}\s*\n' . | grep -v -P '^\s*$')
+#while IFS= read -r line; do
+#	if [[ "${line}" == "}" ]]; then
+#		if [[ "$counter" -ge 100 ]]; then
+#			echo "${top_line} -> ${counter}"
+#		fi
+#		top_line=""
+#		counter=0
+#	else
+#		if [[ -z "$top_line" ]]; then
+#			top_line="${line}"
+#		fi
+#		((counter++))
+#	fi
+#done <<< "${functions}"
+#echo
+
 printf "${COLOR}"
 echo "################################################################################"
 echo "#                           End of BARR-C check script.                        #"
