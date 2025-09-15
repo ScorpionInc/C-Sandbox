@@ -68,8 +68,8 @@ si_singular_blist_t* si_singular_blist_new();
  *
  * @return Returns pointer to linked list node by index. Or NULL on error.
  */
-si_singular_list_t* si_singular_blist_node_at(const si_singular_blist_t* const p_list,
-	const size_t index);
+si_singular_list_t* si_singular_blist_node_at(
+	const si_singular_blist_t* const p_list, const size_t index);
 
 /** Doxygen
  * @brief Returns pointer to data at index offset into list.

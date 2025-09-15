@@ -54,16 +54,16 @@ bool set_exit_signal_handler(__sighandler_t p_handler)
 	};
 	const size_t exit_count = sizeof(exit_signals) / sizeof(int);
 
-	struct sigaction sa = {0};
-    sa.sa_handler = p_handler;
-    sigemptyset(&sa.sa_mask);
-	sa.sa_flags = 0;
+	struct sigaction ssa = {0};
+    ssa.sa_handler = p_handler;
+    sigemptyset(&ssa.sa_mask);
+	ssa.sa_flags = 0;
 
 	result = true;
 	for(size_t iii = 0u; iii < exit_count; iii++)
 	{
 		const int next_sig = exit_signals[iii];
-		const int register_result = sigaction(next_sig, &sa, NULL);
+		const int register_result = sigaction(next_sig, &ssa, NULL);
 		if(0 != register_result)
 		{
 			fprintf(

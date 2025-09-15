@@ -110,7 +110,6 @@ void fprint_bytes_bits(FILE* p_file,
 	}
 }
 
-// Writes bit_count bits as 1/0 chars into p_file from p_buffer in little endian
 void fprint_le_bits_5(FILE* p_file,
 			const uint8_t* p_buffer, const size_t buffer_size,
 			const size_t bit_offset, const size_t bit_count)
@@ -134,7 +133,9 @@ void fprint_le_bits_5(FILE* p_file,
 	}
 	// Local Constants
 	const size_t beg_unord_index = (mut_bit_offset / SI_BITS_COUNT);
-	const size_t end_unord_index = ((mut_bit_count + mut_bit_offset - 1u) / SI_BITS_COUNT);
+	const size_t end_unord_index = (
+		(mut_bit_count + mut_bit_offset - 1u) / SI_BITS_COUNT
+	);
 	const size_t full_byte_count = (end_unord_index - beg_unord_index) - 1u;
 	const size_t beg_ord_index = buffer_size - 1u - beg_unord_index;
 	const size_t end_ord_index = buffer_size - 1u - end_unord_index;
@@ -148,10 +149,14 @@ void fprint_le_bits_5(FILE* p_file,
 		goto END;
 	}
 	fprint_byte_bits_4(p_file, p_buffer[beg_ord_index],
-			bit_offset_remainder, SI_BITS_COUNT - bit_offset_remainder);
-	fprint_le_bytes_bits(p_file, (&p_buffer[beg_unord_index + 1u]), full_byte_count);
+			bit_offset_remainder, SI_BITS_COUNT - bit_offset_remainder
+	);
+	fprint_le_bytes_bits(
+		p_file, (&p_buffer[beg_unord_index + 1u]), full_byte_count
+	);
 	fprint_byte_bits_4(p_file, p_buffer[end_ord_index],
-			0u, mut_bit_count - (SI_BITS_COUNT - bit_offset_remainder));
+			0u, mut_bit_count - (SI_BITS_COUNT - bit_offset_remainder)
+	);
 	// End
 END:
 	return;
@@ -193,7 +198,9 @@ void fprint_be_bits_5(FILE* p_file,
 	}
 	// Local Constants
 	const size_t beg_unord_index = (mut_bit_offset / SI_BITS_COUNT);
-	const size_t end_unord_index = ((mut_bit_count + mut_bit_offset - 1u) / SI_BITS_COUNT);
+	const size_t end_unord_index = (
+		(mut_bit_count + mut_bit_offset - 1u) / SI_BITS_COUNT
+	);
 	const size_t full_byte_count = (end_unord_index - beg_unord_index) - 1u;
 	const size_t bit_offset_remainder = (mut_bit_offset % SI_BITS_COUNT);
 	// Begin
@@ -205,10 +212,14 @@ void fprint_be_bits_5(FILE* p_file,
 		goto END;
 	}
 	fprint_byte_bits_4(p_file, p_buffer[beg_unord_index],
-			bit_offset_remainder, SI_BITS_COUNT - bit_offset_remainder);
-	fprint_be_bytes_bits(p_file, (&p_buffer[beg_unord_index + 1u]), full_byte_count);
+			bit_offset_remainder, SI_BITS_COUNT - bit_offset_remainder
+	);
+	fprint_be_bytes_bits(
+		p_file, (&p_buffer[beg_unord_index + 1u]), full_byte_count
+	);
 	fprint_byte_bits_4(p_file, p_buffer[end_unord_index],
-			0u, mut_bit_count - (SI_BITS_COUNT - bit_offset_remainder));
+			0u, mut_bit_count - (SI_BITS_COUNT - bit_offset_remainder)
+	);
 	// End
 END:
 	return;
@@ -282,7 +293,9 @@ inline void fprint_grouped_bits_4(FILE* p_file,
     const size_t grouping)
 {
 	// Default spacer = ' '
-	fprint_grouped_bits_5(p_file, p_buffer, buffer_size, grouping, SI_BITS_DEFAULT_SPACER);
+	fprint_grouped_bits_5(
+		p_file, p_buffer, buffer_size, grouping, SI_BITS_DEFAULT_SPACER
+	);
 }
 inline void fprint_grouped_bits(FILE* p_file,
     const uint8_t* p_buffer, const size_t buffer_size)

@@ -2,7 +2,8 @@
 
 #include "si_hashmap.h"
 
-static size_t si_hashmap_default_hash(const void* const p_key, const size_t key_size)
+static size_t si_hashmap_default_hash(const void* const p_key,
+	const size_t key_size)
 {
 	size_t result = 0u;
 	if(NULL == p_key)
@@ -18,7 +19,8 @@ END:
 	return result;
 }
 
-static int si_hashmap_compare_hash(const void* const p_left, const void* const p_right)
+static int si_hashmap_compare_hash(const void* const p_left,
+	const void* const p_right)
 {
 	int result = 0;
 	if(p_left == p_right)

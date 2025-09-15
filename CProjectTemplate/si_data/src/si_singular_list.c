@@ -1,20 +1,17 @@
-//si_singular_list.c
+// si_singular_list.c
 
 #include "si_singular_list.h"
 
 void si_singular_list_init_3(si_singular_list_t* const p_list,
 	const bool is_circular, const size_t initial_capacity)
 {
-	// Validate
 	if(NULL == p_list)
 	{
 		goto END;
 	}
-	// Begin
 	p_list->p_data = NULL;
 	p_list->p_next = is_circular ? p_list : NULL;
 	si_singular_list_grow_to(p_list, initial_capacity);
-	// End
 END:
 	return;
 }
@@ -53,12 +50,10 @@ inline si_singular_list_t* si_singular_list_new()
 size_t si_singular_list_count(const si_singular_list_t* const p_list)
 {
 	size_t counter = 0u;
-	// Validate
 	if(NULL == p_list)
 	{
 		goto END;
 	}
-	// Begin
 	const si_singular_list_t* p_next = p_list;
 	do
 	{
@@ -69,7 +64,6 @@ size_t si_singular_list_count(const si_singular_list_t* const p_list)
 			break;
 		}
 	} while(NULL != (p_next = p_next->p_next));
-	// End
 END:
 	return counter;
 }
@@ -96,16 +90,14 @@ END:
 	return capacity;
 }
 
-si_singular_list_t* si_singular_list_node_at(const si_singular_list_t* const p_list,
-	const size_t index)
+si_singular_list_t* si_singular_list_node_at(
+	const si_singular_list_t* const p_list, const size_t index)
 {
 	const si_singular_list_t* p_result = p_list;
-	// Validate
 	if(NULL == p_result)
 	{
 		goto END;
 	}
-	// Begin
 	for(size_t iii = 0u; iii < index; iii++)
 	{
 		p_result = p_result->p_next;
@@ -114,7 +106,6 @@ si_singular_list_t* si_singular_list_node_at(const si_singular_list_t* const p_l
 			break;
 		}
 	}
-	// End
 END:
 	return (si_singular_list_t*)p_result;
 }
@@ -123,34 +114,32 @@ void* si_singular_list_at(const si_singular_list_t* const p_list,
 	const size_t index)
 {
 	const void* p_data = NULL;
-	// Validate
 	if(NULL == p_list)
 	{
 		goto END;
 	}
-	// Begin
-	const si_singular_list_t* const p_node = si_singular_list_node_at(p_list, index);
+	const si_singular_list_t* const p_node = si_singular_list_node_at(
+		p_list, index
+	);
 	if(NULL == p_node)
 	{
 		goto END;
 	}
 	p_data = p_node->p_data;
-	// End
 END:
 	return (void*)p_data;
 }
 
 size_t si_singular_list_find_4(const si_singular_list_t* const p_list,
-	const void* const p_data, int (*p_cmp_f)(const void* const, const void* const),
+	const void* const p_data,
+	int (*p_cmp_f)(const void* const, const void* const),
 	const size_t start_index)
 {
 	size_t index = SIZE_MAX;
-	// Validate
 	if(NULL == p_list)
 	{
 		goto END;
 	}
-	// Begin
 	size_t counter = 0u;
 	const si_singular_list_t* p_iterator = p_list;
 	while(NULL != p_iterator)
@@ -171,12 +160,12 @@ size_t si_singular_list_find_4(const si_singular_list_t* const p_list,
 			break;
 		}
 	}
-	// End
 END:
 	return index;
 }
 inline size_t si_singular_list_find(const si_singular_list_t* const p_list,
-	const void* const p_data, int (*p_cmp_f)(const void* const, const void* const))
+	const void* const p_data,
+	int (*p_cmp_f)(const void* const, const void* const))
 {
 	// Default value of start_index = 0u (Current node)
 	return si_singular_list_find_4(p_list, p_data, p_cmp_f, 0u);
@@ -226,12 +215,10 @@ bool si_singular_list_insert_next(si_singular_list_t* const p_list,
 	const void* const p_data)
 {
 	bool result = false;
-	// Validate
 	if(NULL == p_list)
 	{
 		goto END;
 	}
-	// Begin
 	si_singular_list_t* next_node = si_singular_list_new_2(false, 1u);
 	if(NULL == next_node)
 	{
@@ -250,7 +237,6 @@ bool si_singular_list_insert_next(si_singular_list_t* const p_list,
 		p_list->p_next = next_node;
 	}
 	result = true;
-	// End
 END:
 	return result;
 }
@@ -260,27 +246,23 @@ bool si_singular_list_insert(si_singular_list_t* const p_list,
 {
 	bool result = false;
 	si_singular_list_t* p_node = si_singular_list_node_at(p_list, index);
-	// Validation
 	if(NULL == p_node)
 	{
 		goto END;
 	}
-	// Begin
 	result = si_singular_list_insert_next(p_node, p_data);
-	// End
 END:
 	return result;
 }
 
-si_singular_list_t* si_singular_list_last_node(const si_singular_list_t* const p_list)
+si_singular_list_t* si_singular_list_last_node(
+	const si_singular_list_t* const p_list)
 {
 	const si_singular_list_t* p_node = p_list;
-	// Validation
 	if(NULL == p_node)
 	{
 		goto END;
 	}
-	// Begin
 	while(NULL != p_node->p_next)
 	{
 		if(p_list == p_node->p_next)
@@ -290,7 +272,6 @@ si_singular_list_t* si_singular_list_last_node(const si_singular_list_t* const p
 		}
 		p_node = p_node->p_next;
 	}
-	// End
 END:
 	return (si_singular_list_t*)p_node;
 }
@@ -434,19 +415,16 @@ bool si_singular_list_append(si_singular_list_t* const p_list,
 	const void* const p_data)
 {
 	bool result = false;
-	// Validate
 	if(NULL == p_list)
 	{
 		goto END;
 	}
-	// Begin
 	si_singular_list_t* p_node = si_singular_list_last_node(p_list);
 	if(NULL == p_node)
 	{
 		goto END;
 	}
 	result = si_singular_list_insert_next(p_node, p_data);
-	// End
 END:
 	return result;
 }
@@ -454,12 +432,10 @@ END:
 bool si_singular_list_remove_next(si_singular_list_t* const p_list)
 {
 	bool result = false;
-	// Validate parameters
 	if(NULL == p_list)
 	{
 		goto END;
 	}
-	// Begin
 	if(NULL == p_list->p_next)
 	{
 		// Already Removed
@@ -474,7 +450,6 @@ bool si_singular_list_remove_next(si_singular_list_t* const p_list)
 	}
 	free(p_next_node);
 	result = true;
-	// End
 END:
 	return result;
 }
@@ -482,7 +457,6 @@ END:
 bool si_singular_list_remove(si_singular_list_t* p_list)
 {
 	bool result = false;
-	// Validate
 	if(NULL == p_list)
 	{
 		// Already Removed
@@ -510,7 +484,6 @@ bool si_singular_list_remove(si_singular_list_t* p_list)
 		free(p_next);
 	}
 	result = true;
-	// End
 END:
 	return result;
 }
@@ -519,12 +492,10 @@ bool si_singular_list_remove_at(si_singular_list_t* p_list,
 	const size_t index)
 {
 	bool result = false;
-	// Validate parameters
 	if(NULL == p_list)
 	{
 		goto END;
 	}
-	// Begin
 	if(0u == index)
 	{
 		// Self-Remove
@@ -532,9 +503,10 @@ bool si_singular_list_remove_at(si_singular_list_t* p_list,
 		goto END;
 	}
 	// Next-Remove
-	si_singular_list_t* const p_parent = si_singular_list_node_at(p_list, index - 1);
+	si_singular_list_t* const p_parent = si_singular_list_node_at(
+		p_list, index - 1
+	);
 	result = si_singular_list_remove_next(p_parent);
-	// End
 END:
 	return result;
 }
@@ -600,12 +572,10 @@ END:
 
 void si_singular_list_free(si_singular_list_t* const p_list)
 {
-	// Validate
 	if(NULL == p_list)
 	{
 		goto END;
 	}
-	// Begin
 	free(p_list->p_data);
 	p_list->p_data = NULL;
 	if(NULL != p_list->p_next)
@@ -614,7 +584,6 @@ void si_singular_list_free(si_singular_list_t* const p_list)
 		p_list->p_next = NULL;
 	}
 	free(p_list);
-	// End
 END:
 	return;
 }
@@ -631,14 +600,13 @@ END:
 	return;
 }
 
-void si_singular_list_fprint(const si_singular_list_t* const p_list, FILE* const p_file)
+void si_singular_list_fprint(const si_singular_list_t* const p_list,
+	FILE* const p_file)
 {
-	// Validate parameters
 	if((NULL == p_list) || (NULL == p_file))
 	{
 		goto END;
 	}
-	// Begin
 	const si_singular_list_t* p_iterator = p_list;
 	size_t print_count = 0u;
 	const size_t list_count = si_singular_list_count(p_iterator);
@@ -659,7 +627,6 @@ void si_singular_list_fprint(const si_singular_list_t* const p_list, FILE* const
 		p_iterator = p_iterator->p_next;
 	}
 	fprintf(p_file, "}:%lu", list_count);
-	// End
 END:
 	return;
 }

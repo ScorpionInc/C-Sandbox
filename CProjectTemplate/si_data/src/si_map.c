@@ -319,7 +319,8 @@ END:
 	return result;
 }
 
-bool si_map_insert(si_map_t* const p_map, const void* const p_key, const void* const p_value)
+bool si_map_insert(si_map_t* const p_map, const void* const p_key,
+	const void* const p_value)
 {
 	bool result = false;
 	if((NULL == p_map) || (NULL == p_key))

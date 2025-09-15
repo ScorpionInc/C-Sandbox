@@ -42,7 +42,8 @@ void fprint_byte_hex_3(FILE* p_file, const uint8_t byte,
 void fprint_byte_hex(FILE* p_file, const uint8_t byte);
 
 /** Doxygen
- * @brief Writes size bytes from p_buffer in little endian to p_file as binary chars.
+ * @brief Writes size bytes from p_buffer in little endian to p_file as
+ *        binary chars.
  *
  * @param p_file FILE pointer to be written to.
  * @param p_buffer Pointer to data buffer of size capacity to read bytes.
@@ -54,7 +55,8 @@ void fprint_le_bytes_hex(FILE* p_file, const uint8_t* p_buffer,
 	const size_t buffer_size);
 
 /** Doxygen
- * @brief Writes size bytes from p_buffer in big endian to p_file as binary chars.
+ * @brief Writes size bytes from p_buffer in big endian to p_file as
+ *        binary chars.
  *
  * @param p_file FILE pointer to be written to.
  * @param p_buffer Pointer to data buffer of size capacity to read bytes.
@@ -66,7 +68,8 @@ void fprint_be_bytes_hex(FILE* p_file, const uint8_t* p_buffer,
 	const size_t buffer_size);
 
 /** Doxygen
- * @brief Writes size bytes from p_buffer in host endian to p_file as binary chars.
+ * @brief Writes size bytes from p_buffer in host endian to p_file as
+ *        binary chars.
  *
  * @param p_file FILE pointer to be written to.
  * @param p_buffer Pointer to data buffer of size capacity to read bytes.
@@ -78,7 +81,8 @@ void fprint_bytes_hex(FILE* p_file, const uint8_t* p_buffer,
 	const size_t buffer_size);
 
 /** Doxygen
- * @brief Writes bit_count bits as 1/0 chars into p_file from p_buffer in little endian
+ * @brief Writes bit_count bits as 1/0 chars into p_file from p_buffer in
+ *        little endian
  *
  * @param p_file FILE pointer to be written to.
  * @param p_buffer Pointer to data buffer of size capacity to read bytes.
@@ -98,7 +102,8 @@ void fprint_le_hex(FILE* p_file,
 	const uint8_t* p_buffer, const size_t buffer_size);
 
 /** Doxygen
- * @brief Writes hex_count glyphs as chars into p_file from p_buffer in big endian
+ * @brief Writes hex_count glyphs as chars into p_file from p_buffer in
+ *        big endian
  *
  * @param p_file FILE pointer to be written to.
  * @param p_buffer Pointer to data buffer of size capacity to read nibbles.
@@ -118,7 +123,8 @@ void fprint_be_hex(FILE* p_file,
 	const uint8_t* p_buffer, const size_t buffer_size);
 
 /** Doxygen
- * @brief Writes bit_count bits as 1/0 chars into p_file from p_buffer in host order.
+ * @brief Writes bit_count bits as 1/0 chars into p_file from p_buffer in
+ *        host order.
  *
  * @param p_file FILE pointer to be written to.
  * @param p_buffer Pointer to data buffer of size capacity to read bytes.
@@ -133,7 +139,8 @@ void fprint_hex(FILE* p_file,
 	const size_t nibble_offset, const size_t nibble_count);
 
 /** Doxygen
- * @brief Writes bytes as hex chars from buffer in host order to file with spacers.
+ * @brief Writes bytes as hex chars from buffer in host order to file with
+ *        spacers.
  *
  * @param p_file FILE pointer to be written to.
  * @param p_buffer Pointer to data buffer of size capacity to read bytes.

@@ -5,8 +5,15 @@
 #include "unity.h" // RUN_TEST(), UNITY_BEGIN(), UNITY_END()
 #include "si_priority_queue.h" // si_priority_queue_t
 
-void setUp (void) {} /* Is run before every test, put unit init calls here. */
-void tearDown (void) {} /* Is run after every test, put unit clean-up calls here. */
+/* Is run before every test, put unit init calls here. */
+void setUp (void)
+{
+}
+
+/* Is run after every test, put unit clean-up calls here. */
+void tearDown (void)
+{
+}
 
 void si_priority_queue_test_init(void)
 {

@@ -85,8 +85,8 @@ size_t si_singular_list_capacity(const si_singular_list_t* const p_list);
  *
  * @return Returns pointer to linked list node by index. Or NULL on error.
  */
-si_singular_list_t* si_singular_list_node_at(const si_singular_list_t* const p_list,
-	const size_t index);
+si_singular_list_t* si_singular_list_node_at(
+	const si_singular_list_t* const p_list, const size_t index);
 
 /** Doxygen
  * @brief Returns pointer to data at index offset into list.
@@ -157,7 +157,8 @@ bool si_singular_list_insert(si_singular_list_t* const p_list,
  *
  * @return Returns pointer to last si_singular_list in p_list.
  */
-si_singular_list_t* si_singular_list_last_node(const si_singular_list_t* const p_list);
+si_singular_list_t* si_singular_list_last_node(
+	const si_singular_list_t* const p_list);
 
 /** Doxygen
  * @brief Links the tail node to the head node to create a circle.

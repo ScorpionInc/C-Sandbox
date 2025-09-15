@@ -57,7 +57,8 @@ si_priority_queue_t* si_priority_queue_new(const size_t priority_count);
  * 
  * @return Returns smallest valid priority count size. (0u on error).
  */
-size_t si_priority_queue_priority_count(const si_priority_queue_t* const p_pqueue);
+size_t si_priority_queue_priority_count(
+	const si_priority_queue_t* const p_pqueue);
 
 /** Doxygen
  * @brief Determine the entries in the priority queue

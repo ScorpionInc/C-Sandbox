@@ -60,8 +60,10 @@ void si_map_test_modify(void)
 	const size_t data_size = 2u;
 
 	si_map_t* p_map = si_map_new();
-	p_map->p_cmp_key_f = (int (*)(const void * const,  const void * const))strcmp;
-	p_map->p_cmp_value_f = (int (*)(const void * const,  const void * const))strcmp;
+	p_map->p_cmp_key_f =
+		(int(*)(const void* const, const void* const))strcmp;
+	p_map->p_cmp_value_f =
+		(int(*)(const void* const, const void* const))strcmp;
 	p_map->p_free_key_f = free;
 	p_map->p_free_value_f = free;
 	p_map->p_settings = &settings;

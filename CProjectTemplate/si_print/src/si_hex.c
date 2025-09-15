@@ -14,8 +14,9 @@ void fprint_byte_hex_4(FILE* p_file, const uint8_t byte,
 	size_t mut_nibble_count = nibble_count;
 	// Local Constant
 	const size_t max_bit_index = (SI_BITS_COUNT - SI_NIBBLE_BITS);
-	const size_t max_nibble_count = ((SI_BITS_COUNT - bit_start) / SI_NIBBLE_BITS);
-	// Validate parameters
+	const size_t max_nibble_count = (
+		(SI_BITS_COUNT - bit_start) / SI_NIBBLE_BITS
+	);
 	if((NULL == p_file) || (max_bit_index < bit_start))
 	{
 		// Nothing to print
@@ -26,7 +27,6 @@ void fprint_byte_hex_4(FILE* p_file, const uint8_t byte,
 	{
 		mut_nibble_count = max_nibble_count;
 	}
-	// Begin
 	for(unsigned int nibble_index = 0u; nibble_index < mut_nibble_count;
 		nibble_index++)
 	{
@@ -39,7 +39,6 @@ void fprint_byte_hex_4(FILE* p_file, const uint8_t byte,
 		);
 		fprintf(p_file, "%01x", (byte & mask) >> shift);
 	}
-	// End
 END:
 	return;
 }
@@ -113,7 +112,6 @@ void fprint_bytes_hex(FILE* p_file,
 	}
 }
 
-// Writes nibble_count nibbles as chars into p_file from p_buffer in little endian
 void fprint_le_hex_5(FILE* p_file,
 			const uint8_t* p_buffer, const size_t buffer_size,
 			const size_t bit_offset, const size_t nibble_count)
@@ -237,7 +235,7 @@ inline void fprint_be_hex(FILE* p_file, const uint8_t* p_buffer,
 	fprint_be_hex_4(p_file, p_buffer, buffer_size, 0u);
 }
 
-// Writes nibble_count nibbles as chars into p_file from p_buffer in host order.
+// Writes nibble_count nibbles as chars into p_file from p_buffer in host order
 void fprint_hex(FILE* p_file,
     const uint8_t* p_buffer, const size_t buffer_size,
     const size_t nibble_offset, const size_t nibble_count)
@@ -291,7 +289,9 @@ inline void fprint_grouped_hex_4(FILE* p_file,
     const size_t grouping)
 {
 	// Default spacer = ' '
-	fprint_grouped_hex_5(p_file, p_buffer, buffer_size, grouping, SI_HEX_DEFAULT_SPACER);
+	fprint_grouped_hex_5(
+		p_file, p_buffer, buffer_size, grouping, SI_HEX_DEFAULT_SPACER
+	);
 }
 inline void fprint_grouped_hex(FILE* p_file,
     const uint8_t* p_buffer, const size_t buffer_size)
@@ -301,7 +301,7 @@ inline void fprint_grouped_hex(FILE* p_file,
 }
 
 // Returns the length of a string representing the hex chars of a type with
-// byte_count bytes seperated every grouping number of chars by a single spacer.
+// byte_count bytes seperated every grouping number of chars by a single spacer
 size_t nibbles_string_length(const size_t byte_count, const size_t grouping)
 {
 	size_t spacer_count = 0u;

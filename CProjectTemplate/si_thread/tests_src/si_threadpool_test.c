@@ -7,8 +7,15 @@
 #include "si_signals.h"
 #include "si_threadpool.h" // si_threadpool_t
 
-void setUp (void) {} /* Is run before every test, put unit init calls here. */
-void tearDown (void) {} /* Is run after every test, put unit clean-up calls here. */
+/* Is run before every test, put unit init calls here. */
+void setUp (void)
+{
+}
+
+/* Is run after every test, put unit clean-up calls here. */
+void tearDown (void)
+{
+}
 
 si_threadpool_t* p_threadpool = NULL;
 
@@ -91,12 +98,16 @@ static void si_threadpool_test_run(void)
 		p_threadpool, (p_task_f)returns_value_task, &int_parameter,
 		true, (priority_count - 1u)
 	);
-	si_logger_debug(p_logger, "Returns Task ID: %lu. Original: %d.", rtask_id, int_parameter);
+	si_logger_debug(p_logger,
+		"Returns Task ID: %lu. Original: %d.", rtask_id, int_parameter
+	);
 	TEST_ASSERT_NOT_EQUAL_size_t(SI_THREADPOOL_TASK_ID_INVALID, rtask_id);
 
 	si_logger_info(p_logger, "Waiting for results.");
 	si_threadpool_await_results(p_threadpool, rtask_id);
-	si_logger_info(p_logger, "Got task results! New value: %d.", int_parameter);
+	si_logger_info(
+		p_logger, "Got task results! New value: %d.", int_parameter
+	);
 	si_threadpool_await(&p_threadpool);
 	si_logger_info(p_logger, "No longer awaiting.");
 

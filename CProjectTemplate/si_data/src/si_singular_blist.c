@@ -74,8 +74,8 @@ inline si_singular_blist_t* si_singular_blist_new()
 	return si_singular_blist_new_1(SI_SINGULAR_LIST_IS_CIRCULAR);
 }
 
-si_singular_list_t* si_singular_blist_node_at(const si_singular_blist_t* const p_list,
-	const size_t index)
+si_singular_list_t* si_singular_blist_node_at(
+	const si_singular_blist_t* const p_list, const size_t index)
 {
 	si_singular_list_t* p_result = NULL;
 	if(NULL == p_list)

@@ -72,8 +72,8 @@ END:
  *
  * @return Returns pointer to linked list node by index. Or NULL on error.
  */
-static si_double_node_t* si_double_node_at(const si_double_node_t* const p_node,
-	const int64_t index)
+static si_double_node_t* si_double_node_at(
+	const si_double_node_t* const p_node, const int64_t index)
 {
 	const si_double_node_t* p_result = NULL;
 	if(NULL == p_node)
@@ -81,7 +81,7 @@ static si_double_node_t* si_double_node_at(const si_double_node_t* const p_node,
 		goto END;
 	}
 	p_result = (const si_double_node_t*)p_node;
-	for(int64_t i = 0; i < index; i++)
+	for(int64_t iii = 0; iii < index; iii++)
 	{
 		if(NULL == p_result->p_next)
 		{
@@ -89,7 +89,7 @@ static si_double_node_t* si_double_node_at(const si_double_node_t* const p_node,
 		}
 		p_result = p_result->p_next;
 	}
-	for(int64_t i = 0; i < (-1 * index); i++)
+	for(int64_t iii = 0; iii < (-1 * index); iii++)
 	{
 		if(NULL == p_result->p_back)
 		{

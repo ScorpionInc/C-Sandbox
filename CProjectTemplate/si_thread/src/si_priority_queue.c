@@ -53,7 +53,8 @@ END:
 	return p_new;
 }
 
-size_t si_priority_queue_priority_count(const si_priority_queue_t* const p_pqueue)
+size_t si_priority_queue_priority_count(
+	const si_priority_queue_t* const p_pqueue)
 {
 	size_t result = 0u;
 	if(NULL == p_pqueue)
@@ -198,14 +199,22 @@ static size_t si_priority_queue_feed_at(si_priority_queue_t* const p_pqueue,
 		sink_index = SIZE_MAX;
 	}
 
-	pthread_mutex_t* const p_source_lock = si_parray_at(&(p_pqueue->locks), priority);
-	pthread_mutex_t* const p_sink_lock = si_parray_at(&(p_pqueue->locks), sink_index);
+	pthread_mutex_t* const p_source_lock = si_parray_at(
+		&(p_pqueue->locks), priority
+	);
+	pthread_mutex_t* const p_sink_lock = si_parray_at(
+		&(p_pqueue->locks), sink_index
+	);
 	if((NULL == p_source_lock) || (NULL == p_sink_lock))
 	{
 		goto END;
 	}
-	si_queue_t* const p_source_queue = si_parray_at(&(p_pqueue->queues), priority);
-	si_queue_t* const p_sink_queue = si_parray_at(&(p_pqueue->queues), priority);
+	si_queue_t* const p_source_queue = si_parray_at(
+		&(p_pqueue->queues), priority
+	);
+	si_queue_t* const p_sink_queue = si_parray_at(
+		&(p_pqueue->queues), priority
+	);
 	if((NULL == p_source_queue) || (NULL == p_sink_queue))
 	{
 		goto END;

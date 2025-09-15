@@ -369,8 +369,9 @@ END:
 	return result;
 }
 
-size_t si_threadpool_enqueue_5(si_threadpool_t* const p_pool, p_task_f const p_task,
-	void* const p_parameter, const bool one_shot, const size_t priority)
+size_t si_threadpool_enqueue_5(si_threadpool_t* const p_pool,
+	p_task_f const p_task, void* const p_parameter, const bool one_shot,
+	const size_t priority)
 {
 	size_t result = SI_THREADPOOL_TASK_ID_INVALID;
 	if((NULL == p_pool) || (NULL == p_task))
