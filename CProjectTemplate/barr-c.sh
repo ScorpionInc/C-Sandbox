@@ -118,13 +118,13 @@ cut -f1,2 -d':' | sort --unique
 echo
 
 printf "${UPBAR}"
-echo "Checking for variables less than 3 in length. (WIP)"
+echo "Checking for variables less than 3 in length."
 printf "${RESET}"
-# WIP / TODO
-grep -n --binary-files=without-match -R -P '((const|volatile)\s+)?([a-zA-Z*]+[a-zA-Z0-9*]*)\s+[a-zA-Z]([a-zA-Z0-9]\s|\s)' | grep -E '[.](c|h):' | grep -v -E '([0-9]:\s*[#]|[0-9]:\s+\*\s+[^\s]|.*(//|/\*|\*/))' |
+grep -n --binary-files=without-match -R -P '\s+[a-zA-Z]([a-zA-Z0-9]\s|\s)[=]\s' |
 grep -v -E "${BASE_FILTER}" |
 grep -E "${C_LNG_MATCH}" |
-cut -f1,2 -d':' | sort --unique
+cut -f1,2 -d':' |
+sort --unique
 echo
 
 printf "${UPBAR}"
