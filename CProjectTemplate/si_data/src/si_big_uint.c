@@ -58,6 +58,7 @@ void lshift_bytes(uint8_t* const p_bytes, const size_t size)
 END:
 	return;
 }
+
 void lshift_bytes_by(uint8_t* const p_bytes, const size_t size,
 	const size_t amount)
 {
@@ -72,6 +73,7 @@ void lshift_bytes_by(uint8_t* const p_bytes, const size_t size,
 END:
 	return;
 }
+
 void rshift_bytes(uint8_t* const p_bytes, const size_t size)
 {
 	if(NULL == p_bytes)

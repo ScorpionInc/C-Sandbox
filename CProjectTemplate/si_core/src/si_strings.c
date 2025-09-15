@@ -26,6 +26,7 @@ char* strn_clone_concat(const char* const p_left, const size_t left_size,
 END:
 	return p_result;
 }
+
 char* str_clone_concat(const char* const p_left,
 	const char* const p_right)
 {
