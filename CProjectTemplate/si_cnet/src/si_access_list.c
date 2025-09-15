@@ -12,21 +12,27 @@ void si_accesslist_init_4(si_accesslist_t* const p_access,
 	}
 
 	pthread_mutexattr_t mutex_attributes;
-	if(SOCKET_SUCCESS != pthread_mutexattr_init(&mutex_attributes))
+	const int init_attr_result = pthread_mutexattr_init(&mutex_attributes);
+	if(SOCKET_SUCCESS != init_attr_result)
 	{
 		goto END;
 	}
-	if(SOCKET_SUCCESS != pthread_mutexattr_settype(
-		&mutex_attributes, PTHREAD_MUTEX_RECURSIVE))
+	const int settype_result = pthread_mutexattr_settype(
+		&mutex_attributes, PTHREAD_MUTEX_RECURSIVE
+	);
+	if(SOCKET_SUCCESS != settype_result)
 	{
 		goto END;
 	}
-	if(SOCKET_SUCCESS != pthread_mutex_init(
-		&(p_access->entries_lock), &mutex_attributes))
+	const int init_mutex_result = pthread_mutex_init(
+		&(p_access->entries_lock), &mutex_attributes
+	);
+	if(SOCKET_SUCCESS != init_mutex_result)
 	{
         goto END;
     }
-	if(SOCKET_SUCCESS != pthread_mutexattr_destroy(&mutex_attributes))
+	const int destroy_result = pthread_mutexattr_destroy(&mutex_attributes);
+	if(SOCKET_SUCCESS != destroy_result)
 	{
 		goto END;
 	}
@@ -76,13 +82,18 @@ bool si_accesslist_is_valid_at(si_accesslist_t* const p_access,
 	{
 		goto END;
 	}
-	if(SOCKET_SUCCESS != pthread_mutex_lock(&(p_access->entries_lock)))
+	int lock_result = SOCKET_ERROR;
+	while(SOCKET_SUCCESS != lock_result)
 	{
-		goto END;
+		lock_result = pthread_mutex_lock(&(p_access->entries_lock));
 	}
 	void* p_addr = si_parray_at(&(p_access->entries), index);
 	result = sockaddr_is_valid(p_addr);
-	pthread_mutex_unlock(&(p_access->entries_lock));
+	int unlock_result = SOCKET_ERROR;
+	while(SOCKET_SUCCESS != unlock_result)
+	{
+		unlock_result = pthread_mutex_unlock(&(p_access->entries_lock));
+	}
 END:
 	return result;
 }
@@ -97,7 +108,8 @@ size_t si_accesslist_count(si_accesslist_t* const p_access)
 	result++;
 	for(size_t iii = 0u; iii < p_access->entries.array.capacity; iii++)
 	{
-			if(true == si_accesslist_is_valid_at(p_access, iii))
+			const bool is_valid = si_accesslist_is_valid_at(p_access, iii);
+			if(true == is_valid)
 			{
 				result++;
 			}
@@ -138,9 +150,10 @@ size_t si_accesslist_index_of(si_accesslist_t* const p_access,
 	{
 		goto END;
 	}
-	if(SOCKET_SUCCESS != pthread_mutex_lock(&(p_access->entries_lock)))
+	int lock_result = SOCKET_ERROR;
+	while(SOCKET_SUCCESS != lock_result)
 	{
-		goto END;
+		lock_result = pthread_mutex_lock(&(p_access->entries_lock));
 	}
 	for(size_t iii = 0u; iii < p_access->entries.array.capacity; iii++)
 	{
@@ -156,7 +169,11 @@ size_t si_accesslist_index_of(si_accesslist_t* const p_access,
 			break;
 		}
 	}
-	pthread_mutex_unlock(&(p_access->entries_lock));
+	int unlock_result = SOCKET_ERROR;
+	while(SOCKET_SUCCESS != unlock_result)
+	{
+		unlock_result = pthread_mutex_unlock(&(p_access->entries_lock));
+	}
 END:
 	return result;
 }

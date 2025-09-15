@@ -490,13 +490,17 @@ void div_uint_le_bytes(uint8_t* const p_dividend,
 	{
 		uint8_t zero[size];
 		memset(&zero[0], 0x00, size);
-		if(0 == cmp_uint_le_bytes(&p_divisor[0], &zero[0], size))
+		const int cmp_result = cmp_uint_le_bytes(
+			&p_divisor[0], &zero[0], size
+		);
+		if(0 == cmp_result)
 		{
 			// Divide by zero error.
 			goto END;
 		}
 	}
-	if(0 > cmp_uint_bytes(&p_dividend[0], &p_divisor[0], size))
+	const int cmp_result = cmp_uint_bytes(&p_dividend[0], &p_divisor[0], size);
+	if(0 > cmp_result)
 	{
 		// If not NULL set remainder.
 		if(NULL != p_remainder)
@@ -514,7 +518,10 @@ void div_uint_le_bytes(uint8_t* const p_dividend,
 		memset(&one, 0x00, size);
 		memset(&counter, 0x00, size);
 		one[0] = 0x01;
-		while(0 <= cmp_uint_le_bytes(&p_dividend[0], &p_divisor[0], size))
+		const int cmp_result = cmp_uint_le_bytes(
+			&p_dividend[0], &p_divisor[0], size
+		);
+		while(0 <= cmp_result)
 		{
 			// Divisor >= Dividend thus can divide.
 			// Update dividend

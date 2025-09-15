@@ -386,7 +386,7 @@ void* si_priority_queue_dequeue(si_priority_queue_t* const p_pqueue)
 	{
 		goto END;
 	}
-	for(size_t iii = (priority_count - 1u); iii >= 0u; iii--)
+	for(size_t iii = (priority_count - 1u); 0u <= iii; iii--)
 	{
 		p_result = si_priority_queue_dequeue_at(p_pqueue, iii);
 		if(NULL == p_result)

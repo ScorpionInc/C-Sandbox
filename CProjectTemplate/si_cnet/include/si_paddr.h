@@ -1,5 +1,4 @@
 /* si_paddr.h
- * Author: Scorpioninc
  * Created: 20250804
  * Updated: 20250804
  * Purpose: Common functions for working with linux socket addresses.

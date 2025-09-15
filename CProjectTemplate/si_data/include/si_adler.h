@@ -13,7 +13,7 @@
 
 typedef struct si_adler_t
 {
-	uint8_t* hash;
+	uint8_t* p_hash;
 	size_t block_size;
 } si_adler_t;
 

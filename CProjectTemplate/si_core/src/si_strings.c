@@ -56,7 +56,7 @@ char* strv_clone_concat(const size_t argc, ...)
 	for(size_t iii = 0u; iii < argc; iii++)
 	{
 		char* p_arg = va_arg(args, char*);
-		if(p_arg == NULL)
+		if(NULL == p_arg)
 		{
 			continue;
 		}
@@ -93,7 +93,7 @@ char* str_clone_join(const size_t argc,	const char* const p_seperator,
 	{
 		sep_len = strnlen(p_seperator, INT64_MAX);
 	}
-	for(size_t op = 0u; op < 2u; op++)
+	for(size_t opr = 0u; opr < 2u; opr++)
 	{
 		for(size_t iii = 0u; iii < argc; iii++)
 		{
@@ -103,7 +103,7 @@ char* str_clone_join(const size_t argc,	const char* const p_seperator,
 				continue;
 			}
 			size_t next_len = strnlen(p_next, INT64_MAX);
-			if((0u == op) && (iii < argc - 1u))
+			if((0u == opr) && (iii < argc - 1u))
 			{
 				// Handle overflow
 				if((SIZE_MAX - next_len) < sep_len)
@@ -117,7 +117,7 @@ char* str_clone_join(const size_t argc,	const char* const p_seperator,
 			{
 				break;
 			}
-			if(0u == op)
+			if(0u == opr)
 			{
 				new_size += next_len;
 			}
@@ -131,7 +131,7 @@ char* str_clone_join(const size_t argc,	const char* const p_seperator,
 				counter += (next_len + sep_len);
 			}
 		}
-		if(op == 0u)
+		if(0u == opr)
 		{
 			p_result = calloc(++new_size, sizeof(char));
 			if(NULL == p_result)
@@ -163,7 +163,7 @@ char* strv_clone_join(const size_t argc, const char* const p_seperator, ...)
 	for(size_t iii = 0u; iii < argc; iii++)
 	{
 		char* p_arg = va_arg(args, char*);
-		if(p_arg == NULL)
+		if(NULL == p_arg)
 		{
 			continue;
 		}

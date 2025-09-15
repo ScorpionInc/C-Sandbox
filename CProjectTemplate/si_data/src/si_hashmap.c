@@ -9,10 +9,10 @@ static size_t si_hashmap_default_hash(const void* const p_key, const size_t key_
 	{
 		goto END;
 	}
-	si_adler_t hash = (si_adler_t){};
+	si_adler_t hash = (si_adler_t){0};
 	si_adler_new(&hash, sizeof(size_t));
 	si_adler_update(&hash, p_key, key_size);
-	result = *((size_t*)hash.hash);
+	result = *((size_t*)hash.p_hash);
 	si_adler_free(&hash);
 END:
 	return result;

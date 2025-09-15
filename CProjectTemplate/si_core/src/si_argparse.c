@@ -411,7 +411,8 @@ bool si_argparse_is_valid(const si_argparse_t* const p_parse)
 		{
 			goto END;
 		}
-		if(!si_arg_is_valid(p_arg))
+		const bool is_valid = si_arg_is_valid(p_arg);
+		if(false == is_valid)
 		{
 			goto END;
 		}
@@ -440,7 +441,8 @@ bool si_argparse_is_valid_values(const si_argparse_t* const p_parse)
 		{
 			goto END;
 		}
-		if(!si_arg_is_valid_values(p_arg))
+		const bool is_valid = si_arg_is_valid_values(p_arg);
+		if(false == is_valid)
 		{
 			goto END;
 		}
@@ -463,8 +465,10 @@ bool si_argparse_add_argument(si_argparse_t* const p_parse,
 	{
 		goto END;
 	}
-	const bool did_grow = si_array_resize(&(p_parse->arguments), p_parse->arguments.capacity + 1u);
-	if(!did_grow)
+	const bool did_grow = si_array_resize(
+		&(p_parse->arguments), p_parse->arguments.capacity + 1u
+	);
+	if(false == did_grow)
 	{
 		goto END;
 	}
@@ -490,7 +494,7 @@ si_arg_t* si_argparse_at(si_argparse_t* const p_parse,
 	{
 		p_result = si_array_at(&(p_parse->arguments), iii);
 		const bool is_match = si_arg_matches(p_result, p_id);
-		if(is_match)
+		if(true == is_match)
 		{
 			goto END;
 		}
@@ -576,12 +580,12 @@ static si_arg_t* si_argparse_next_required_arg_at(si_argparse_t* const p_parse,
 	}
 	for(size_t iii = index; iii < p_parse->arguments.capacity; iii++)
 	{
-		si_arg_t* p_arg = si_array_at(&(p_parse->arguments), iii);
+		si_arg_t* const p_arg = si_array_at(&(p_parse->arguments), iii);
 		if(NULL == p_arg)
 		{
 			goto END;
 		}
-		if(p_arg->is_optional)
+		if(true == p_arg->is_optional)
 		{
 			continue;
 		}

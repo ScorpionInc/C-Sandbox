@@ -93,7 +93,7 @@ bool si_threadpool_has_result(si_threadpool_t* const p_pool,
  * @brief Enqueues a new task into the priority queue of a thread pool struct.
  * 
  * @param p_pool Pointer to the thread pool struct to add task to.
- * @param p_task Function of the task to be executed. void* func(void* p_arg){}
+ * @param p_task Function of the task to be executed. void* func(void* p_arg);
  * @param p_parameter Pointer parameter to pass to the task function on run.
  * @param one_shot Flag determines if automatically restarted. (new id ignored)
  * @param priority QoS size_t priority level of the task. 0->(priority_count-1)

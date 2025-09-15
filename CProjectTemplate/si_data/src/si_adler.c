@@ -103,9 +103,9 @@ void si_adler_init(si_adler_t* const p_hash)
 		goto END;
 	}
 	// Zeroize the Hash Buffer
-	memset(p_hash->hash, 0x00, p_hash->block_size);
+	memset(p_hash->p_hash, 0x00, p_hash->block_size);
 	// Seed hash buffer
-	increment_bytes(p_hash->hash, p_hash->block_size);
+	increment_bytes(p_hash->p_hash, p_hash->block_size);
 	// End
 END:
 	return;
@@ -120,8 +120,8 @@ void si_adler_new(si_adler_t* const p_hash, const size_t block_size)
 	}
 	// Begin
 	p_hash->block_size = block_size;
-	p_hash->hash = calloc(sizeof(uint8_t), p_hash->block_size);
-	if(NULL == p_hash->hash)
+	p_hash->p_hash = calloc(sizeof(uint8_t), p_hash->block_size);
+	if(NULL == p_hash->p_hash)
 	{
 		goto END;
 	}
@@ -156,10 +156,10 @@ void si_adler_update(si_adler_t* const p_hash, const uint8_t* const p_buffer,
 		{
 			// Buffer = LSB with +1 pad
 			memset(&lsb_buffer[0u], 0x00, buffer_size);
-			memcpy(&lsb_buffer[0u], &p_hash->hash[0u], half_bytes);
+			memcpy(&lsb_buffer[0u], &p_hash->p_hash[0u], half_bytes);
 			// Buffer = MSB with +1 pad
 			memset(&msb_buffer[0u], 0x00, buffer_size);
-			memcpy(&msb_buffer[0u], &p_hash->hash[half_bytes], half_bytes);
+			memcpy(&msb_buffer[0u], &p_hash->p_hash[half_bytes], half_bytes);
 			// Buffer input byte +2 pad
 			memset(&input_buffer[0u], 0x00, buffer_size);
 			if(BYTE_ORDER == LITTLE_ENDIAN)
@@ -179,8 +179,8 @@ void si_adler_update(si_adler_t* const p_hash, const uint8_t* const p_buffer,
 			// Mod. msb = msb % PRIME
 			mod_uint_bytes(&msb_buffer[0u], &prime[0], buffer_size);
 			// Finished LSB & MSB apply to hash
-			memcpy(&p_hash->hash[0u], &lsb_buffer[0u], half_bytes);
-			memcpy(&p_hash->hash[half_bytes], &msb_buffer[0u], half_bytes);
+			memcpy(&p_hash->p_hash[0u], &lsb_buffer[0u], half_bytes);
+			memcpy(&p_hash->p_hash[half_bytes], &msb_buffer[0u], half_bytes);
 		}
 	}
 	// End
@@ -196,10 +196,10 @@ void si_adler_free(si_adler_t* const p_hash)
 		goto END;
 	}
 	// Begin
-	if(NULL != p_hash->hash)
+	if(NULL != p_hash->p_hash)
 	{
-		free(p_hash->hash);
-		p_hash->hash = NULL;
+		free(p_hash->p_hash);
+		p_hash->p_hash = NULL;
 	}
 	p_hash->block_size = 0u;
 	// End
@@ -214,7 +214,7 @@ void si_adler_fprint(const si_adler_t* const p_hash, FILE* const p_file)
 	{
 		goto END;
 	}
-	if((NULL == p_hash->hash) || (0u >= p_hash->block_size))
+	if((NULL == p_hash->p_hash) || (0u >= p_hash->block_size))
 	{
 		goto END;
 	}
@@ -227,7 +227,7 @@ void si_adler_fprint(const si_adler_t* const p_hash, FILE* const p_file)
 		{
 			next_index = p_hash->block_size - 1u - next_index;
 		}
-		fprintf(p_file, "%02X", p_hash->hash[next_index]);
+		fprintf(p_file, "%02X", p_hash->p_hash[next_index]);
 	}
 	// End
 END:

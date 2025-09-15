@@ -20,8 +20,8 @@ void tearDown (void)
 static void si_strings_test_concats(void)
 {
 	// Declare test data/variables
-	const char* const string_a = "This is an example";
-	const char* const string_b = "string used for testing";
+	const char* const p_string_a = "This is an example";
+	const char* const p_string_b = "string used for testing";
 	const char* const string_joined_a = "This is an examplestring used for testing";
 	const char* const p_strings[] =
 	{
@@ -30,17 +30,17 @@ static void si_strings_test_concats(void)
 	const size_t strings_count = (sizeof(p_strings) / sizeof(const char*));
 	const char* const string_joined_b = "This is an example string used for testing";
 	const char* const spacer = " ";
-	const size_t string_a_len = strlen(string_a);
-	const size_t string_b_len = strlen(string_b);
+	const size_t p_string_a_len = strlen(p_string_a);
+	const size_t p_string_b_len = strlen(p_string_b);
 	char* p_value = NULL;
 	int s_cmp = 0;
 
 	printf("Testing strn_clone_concat():\n");
 	TEST_ASSERT_NULL(strn_clone_concat(NULL, 0u, NULL, 0u));
-	TEST_ASSERT_NULL(strn_clone_concat(string_a, 0u, NULL, 0u));
-	TEST_ASSERT_NULL(strn_clone_concat(NULL, 0u, string_b, 0u));
+	TEST_ASSERT_NULL(strn_clone_concat(p_string_a, 0u, NULL, 0u));
+	TEST_ASSERT_NULL(strn_clone_concat(NULL, 0u, p_string_b, 0u));
 	p_value = strn_clone_concat(
-		string_a, string_a_len, string_b, string_b_len
+		p_string_a, p_string_a_len, p_string_b, p_string_b_len
 	);
 	TEST_ASSERT_NOT_NULL(p_value);
 	s_cmp = strcmp(string_joined_a, p_value);
@@ -50,9 +50,9 @@ static void si_strings_test_concats(void)
 
 	printf("Testing str_clone_concat():\n");
 	TEST_ASSERT_NULL(str_clone_concat(NULL, NULL));
-	TEST_ASSERT_NULL(str_clone_concat(string_a, NULL));
-	TEST_ASSERT_NULL(str_clone_concat(NULL, string_b));
-	p_value = str_clone_concat(string_a, string_b);
+	TEST_ASSERT_NULL(str_clone_concat(p_string_a, NULL));
+	TEST_ASSERT_NULL(str_clone_concat(NULL, p_string_b));
+	p_value = str_clone_concat(p_string_a, p_string_b);
 	TEST_ASSERT_NOT_NULL(p_value);
 	s_cmp = strcmp(p_value, string_joined_a);
 	TEST_ASSERT_EQUAL_INT(0, s_cmp);
@@ -62,8 +62,8 @@ static void si_strings_test_concats(void)
 	printf("Testing strv_clone_concat():\n");
 	TEST_ASSERT_NULL(strv_clone_concat(0u));
 	TEST_ASSERT_NULL(strv_clone_concat(0u, NULL));
-	TEST_ASSERT_NULL(strv_clone_concat(0u, string_a, string_b));
-	p_value = strv_clone_concat(2u, string_a, string_b);
+	TEST_ASSERT_NULL(strv_clone_concat(0u, p_string_a, p_string_b));
+	p_value = strv_clone_concat(2u, p_string_a, p_string_b);
 	TEST_ASSERT_NOT_NULL(p_value);
 	s_cmp = strcmp(p_value, string_joined_a);
 	TEST_ASSERT_EQUAL_INT(0, s_cmp);
@@ -151,29 +151,29 @@ static void si_strings_test_manipulators(void)
 {
 	char* p_value = NULL;
 	int s_cmp = 0;
-	const char* const string_a = "I am the night! I am vengence! I am Bruce Wayne!";
-	const char* const string_b = "Bruce Wayne";
-	const char* const string_c = "Batman";
-	const char* const string_d = "I am the night! I am vengence! I am Batman!";
+	const char* const p_string_a = "I am the night! I am vengence! I am Bruce Wayne!";
+	const char* const p_string_b = "Bruce Wayne";
+	const char* const p_string_c = "Batman";
+	const char* const p_string_d = "I am the night! I am vengence! I am Batman!";
 
 	printf("Testing str_clone_substitute():\n");
 	TEST_ASSERT_NULL(str_clone_substitute(NULL, NULL, NULL));
-	TEST_ASSERT_NULL(str_clone_substitute(NULL, NULL, string_c));
-	TEST_ASSERT_NULL(str_clone_substitute(NULL, string_b, NULL));
-	TEST_ASSERT_NULL(str_clone_substitute(NULL, string_b, string_c));
-	TEST_ASSERT_NULL(str_clone_substitute(string_a, NULL, NULL));
-	TEST_ASSERT_NULL(str_clone_substitute(string_a, NULL, string_c));
-	TEST_ASSERT_NULL(str_clone_substitute(string_a, string_b, NULL));
+	TEST_ASSERT_NULL(str_clone_substitute(NULL, NULL, p_string_c));
+	TEST_ASSERT_NULL(str_clone_substitute(NULL, p_string_b, NULL));
+	TEST_ASSERT_NULL(str_clone_substitute(NULL, p_string_b, p_string_c));
+	TEST_ASSERT_NULL(str_clone_substitute(p_string_a, NULL, NULL));
+	TEST_ASSERT_NULL(str_clone_substitute(p_string_a, NULL, p_string_c));
+	TEST_ASSERT_NULL(str_clone_substitute(p_string_a, p_string_b, NULL));
 	TEST_ASSERT_NULL(p_value);
-	p_value = str_clone_substitute(string_a, string_b, string_c);
+	p_value = str_clone_substitute(p_string_a, p_string_b, p_string_c);
 	TEST_ASSERT_NOT_NULL(p_value);
 	printf("Substitution result(s): '%s'.\n", p_value);
-	s_cmp = strcmp(string_d, p_value);
+	s_cmp = strcmp(p_string_d, p_value);
 	TEST_ASSERT_EQUAL_INT(0, s_cmp);
 	free(p_value);
 	p_value = NULL;
 
-	const char* const cstr_buffer =  "There\0is\0no\0cow\0level";
+	const char* const p_cstr_buffer =  "There\0is\0no\0cow\0level";
 	const size_t cstr_size = 22u;
 	const char* const cstr_words[] = { "There", "is", "no", "cow", "level" };
 	size_t current_size = 0u;
@@ -183,7 +183,7 @@ static void si_strings_test_manipulators(void)
 	p_value = calloc(cstr_size, sizeof(char));
 	TEST_ASSERT_NOT_NULL(p_value);
 	current_size = cstr_size;
-	memcpy(p_value, cstr_buffer, cstr_size);
+	memcpy(p_value, p_cstr_buffer, cstr_size);
 
 	printf("Testing pop_str_from_heap():\n");
 	size_t counter = 0u;

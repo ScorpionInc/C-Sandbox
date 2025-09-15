@@ -157,7 +157,8 @@ size_t si_array_find_pointer_offset(const si_array_t* p_array,
 {
 	size_t offset = SIZE_MAX;
 	// Validate parameters
-	if( ! si_array_is_pointer_within(p_array, p_test) )
+	const bool is_within = si_array_is_pointer_within(p_array, p_test);
+	if(false == is_within)
 	{
 		// is_pointer_within verifies values are not NULL.
 		goto END;
@@ -175,18 +176,19 @@ bool si_array_is_pointer_element(const si_array_t* p_array,
 {
 	bool result = false;
 	// Validate parameters
-	if( ! si_array_is_pointer_within(p_array, p_test) )
+	const bool is_within = si_array_is_pointer_within(p_array, p_test);
+	if(false == is_within)
 	{
 		// is_pointer_within verifies values are not NULL.
 		goto END;
 	}
-	if(p_array->element_size == 0u)
+	if(0u == p_array->element_size)
 	{
 		goto END;
 	}
 	// Begin
 	const size_t offset = si_array_find_pointer_offset(p_array, p_test);
-	result = ((offset % p_array->element_size) == 0u);
+	result = (0u == (offset % p_array->element_size));
 	// End
 END:
 	return result;
@@ -198,7 +200,8 @@ size_t si_array_find_pointer_index(const si_array_t* p_array,
 	size_t index = SIZE_MAX;
 	// Validate parameters
 	// Begin
-	if( ! si_array_is_pointer_element(p_array, p_test))
+	const bool is_element = si_array_is_pointer_element(p_array, p_test);
+	if(false == is_element)
 	{
 		// is_pointer_element validates values are not NULL.
 		// is_pointer_element validates element_size > 0
@@ -215,7 +218,6 @@ void* si_array_at(const si_array_t* p_array,
 	const size_t index)
 {
 	void* p_item = NULL;
-	// Validate Parameters
 	if(NULL == p_array)
 	{
 		goto END;
@@ -224,9 +226,7 @@ void* si_array_at(const si_array_t* p_array,
 	{
 		goto END;
 	}
-	// Begin
 	p_item = (p_array->p_data + (p_array->element_size * index));
-	// End
 END:
 	return p_item;
 }
@@ -242,7 +242,6 @@ inline void* si_array_last(const si_array_t* p_array)
 void si_array_set(si_array_t* p_array,
 	const size_t index, const void* p_item)
 {
-	// Validate Parameters
 	if ((NULL == p_array) || (NULL == p_item))
 	{
 		goto END;
@@ -254,10 +253,8 @@ void si_array_set(si_array_t* p_array,
 	{
 		goto END;
 	}
-	// Begin
 	memcpy(p_array->p_data + offset, p_item,
 		p_array->element_size);
-	// End
 END:
 	return;
 }
@@ -265,7 +262,6 @@ END:
 void si_array_get(const si_array_t* p_array,
 	const size_t index, void* p_item)
 {
-	// Validate parameters
 	if ((NULL == p_array) || (NULL == p_item))
 	{
 		goto END;
@@ -277,10 +273,8 @@ void si_array_get(const si_array_t* p_array,
 	{
 		goto END;
 	}
-	// Begin
 	memcpy(p_item, p_array->p_data + offset,
 		p_array->element_size);
-	// End
 END:
 	return;
 }

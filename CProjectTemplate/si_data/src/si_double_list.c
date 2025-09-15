@@ -486,7 +486,8 @@ size_t si_double_list_find_3(const si_double_list_t* const p_list,
 	si_double_node_t* p_iterator = p_start;
 	while(NULL != p_iterator)
 	{
-		if(0 == p_list->p_cmp_f(p_iterator->p_data, p_data))
+		const int cmp_result = p_list->p_cmp_f(p_iterator->p_data, p_data);
+		if(0 == cmp_result)
 		{
 			// Match found!
 			if(p_list->is_circular)
@@ -541,7 +542,10 @@ bool si_double_list_sort(si_double_list_t* const p_list)
 				break;
 			}
 			// Ascending order
-			if(-1 == p_list->p_cmp_f(p_to_set->p_data, p_walker->p_data))
+			int cmp_result = p_list->p_cmp_f(
+				p_to_set->p_data, p_walker->p_data
+			);
+			if(0 > cmp_result)
 			{
 				// Swap
 				void* p_tmp = p_to_set->p_data;
@@ -597,8 +601,8 @@ bool si_double_list_insert(si_double_list_t* const p_list,
 		goto END;
 	}
 	// Find parent node.
-	const size_t HALF_CAP = p_list->capacity / 2;
-	if((new_index > 0u) && (new_index < HALF_CAP))
+	const size_t HALF_CAP = (p_list->capacity / 2);
+	if((0u < new_index) && (new_index < HALF_CAP))
 	{
 		// Walk from head to parent
 		si_double_node_t* const p_parent =

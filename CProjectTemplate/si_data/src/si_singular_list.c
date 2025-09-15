@@ -156,7 +156,8 @@ size_t si_singular_list_find_4(const si_singular_list_t* const p_list,
 	while(NULL != p_iterator)
 	{
 		// Test data
-		if(0 == p_cmp_f(p_iterator->p_data, p_data))
+		const int cmp_result = p_cmp_f(p_iterator->p_data, p_data);
+		if(0 == cmp_result)
 		{
 			index = counter;
 			break;
@@ -200,11 +201,14 @@ bool si_singular_list_sort(si_singular_list_t* const p_list,
 	for(size_t iii = 0u; iii < capacity; iii++)
 	{
 		// iii is the index for the next smallest value (ascending)
-		for(size_t jj = 1u; jj < (capacity - iii); jj++)
+		for(size_t jjj = 1u; jjj < (capacity - iii); jjj++)
 		{
-			// jj is the number of possible indexs after i for smaller values
-			p_test_node = si_singular_list_node_at(p_small_node, jj);
-			if(0 > p_cmp_f(p_small_node->p_data, p_test_node->p_data))
+			// jjj is the number of possible indexs after iii for smaller value
+			p_test_node = si_singular_list_node_at(p_small_node, jjj);
+			const int cmp_result = p_cmp_f(
+				p_small_node->p_data, p_test_node->p_data
+			);
+			if(0 > cmp_result)
 			{
 				// Swap values
 				void* p_tmp = p_test_node->p_data;
@@ -334,7 +338,7 @@ size_t si_singular_list_grow_by(si_singular_list_t* const p_list,
 	for(size_t iii = 0u; iii < amount; iii++)
 	{
 		const bool success = si_singular_list_insert_next(p_last, NULL);
-		if(!success)
+		if(false == success)
 		{
 			break;
 		}
@@ -348,7 +352,7 @@ size_t si_singular_list_grow_to(si_singular_list_t* const p_list,
 	const size_t capacity)
 {
 	size_t result = 0u;
-	if((NULL == p_list) || (capacity <= 1u))
+	if((NULL == p_list) || (1u >= capacity))
 	{
 		goto END;
 	}
@@ -378,7 +382,7 @@ size_t si_singular_list_shrink_by(si_singular_list_t* const p_list,
 			break;
 		}
 		const bool success = si_singular_list_remove_next(p_last);
-		if(!success)
+		if(false == success)
 		{
 			break;
 		}
@@ -392,7 +396,7 @@ size_t si_singular_list_shrink_to(si_singular_list_t* const p_list,
 	const size_t capacity)
 {
 	size_t result = 0u;
-	if((NULL == p_list) || (capacity <= 1u))
+	if((NULL == p_list) || (1u >= capacity))
 	{
 		goto END;
 	}
@@ -461,14 +465,14 @@ bool si_singular_list_remove_next(si_singular_list_t* const p_list)
 		// Already Removed
 		goto END;
 	}
-	si_singular_list_t* next_node = p_list->p_next;
-	if(NULL != next_node->p_next)
+	si_singular_list_t* p_next_node = p_list->p_next;
+	if(NULL != p_next_node->p_next)
 	{
 		// Continue the chain
-		p_list->p_next = next_node->p_next;
-		next_node->p_next = NULL;
+		p_list->p_next = p_next_node->p_next;
+		p_next_node->p_next = NULL;
 	}
-	free(next_node);
+	free(p_next_node);
 	result = true;
 	// End
 END:
@@ -568,7 +572,7 @@ END:
 
 void* si_singular_list_pop(si_singular_list_t* const p_list)
 {
-	void* result = NULL;
+	void* p_result = NULL;
 	if(NULL == p_list)
 	{
 		goto END;
@@ -580,7 +584,7 @@ void* si_singular_list_pop(si_singular_list_t* const p_list)
 		if(NULL == p_next->p_data)
 		{
 			// p_iterator is the last contiguous node with data
-			result = p_iterator->p_data;
+			p_result = p_iterator->p_data;
 			p_iterator->p_data = NULL;
 			goto END;
 		}
@@ -588,10 +592,10 @@ void* si_singular_list_pop(si_singular_list_t* const p_list)
 		p_next = p_iterator->p_next;
 	}
 	// Reached end of list
-	result = p_iterator->p_data;
+	p_result = p_iterator->p_data;
 	p_iterator->p_data = NULL;
 END:
-	return result;
+	return p_result;
 }
 
 void si_singular_list_free(si_singular_list_t* const p_list)

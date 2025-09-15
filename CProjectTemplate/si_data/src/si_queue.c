@@ -107,7 +107,7 @@ bool si_queue_is_empty(const si_queue_t* const p_queue)
 		goto END;
 	}
 	const size_t item_count = si_queue_count(p_queue);
-	is_empty = (item_count == 0u);
+	is_empty = (0u == item_count);
 END:
 	return is_empty;
 }

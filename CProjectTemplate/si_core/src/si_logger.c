@@ -8,10 +8,10 @@ void fprint_stacktrace_3(FILE* const p_file,
 	{
 		goto END;
 	}
-	const char* mut_prefix = "";
+	const char* p_mut_prefix = "";
 	if(NULL != p_prefix)
 	{
-		mut_prefix = p_prefix;
+		p_mut_prefix = p_prefix;
 	}
 #ifdef __linux__
 	const size_t MAX_STACK_DEPTH = 256u;
@@ -32,11 +32,11 @@ void fprint_stacktrace_3(FILE* const p_file,
 	}
 	for(size_t iii = skip_count; iii < backtrace_size; iii++)
 	{
-		fprintf(p_file, "%s%s\n", mut_prefix, p_stack_strs[iii]);
+		fprintf(p_file, "%s%s\n", p_mut_prefix, p_stack_strs[iii]);
 	}
 	if(backtrace_size >= MAX_STACK_DEPTH)
 	{
-		fprintf(p_file, "%s(callstack truncated)\n", mut_prefix);
+		fprintf(p_file, "%s(callstack truncated)\n", p_mut_prefix);
 	}
 	free(p_stack_strs);
 	p_stack_strs = NULL;

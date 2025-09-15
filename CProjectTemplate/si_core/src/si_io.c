@@ -14,7 +14,8 @@ bool acl_is_basic(const acl_t const p_acl)
 	acl_entry_t entry = {0};
 	int entry_id = ACL_FIRST_ENTRY;
 	size_t entry_counter = 0u;
-	while(acl_get_entry(p_acl, entry_id, &entry))
+	bool got_entry = acl_get_entry(p_acl, entry_id, &entry);
+	while(true == got_entry)
 	{
 		entry_counter++;
 		entry_id = ACL_NEXT_ENTRY;
@@ -22,6 +23,7 @@ bool acl_is_basic(const acl_t const p_acl)
 		{
 			break;
 		}
+		got_entry = acl_get_entry(p_acl, entry_id, &entry);
 	}
 	result = (BASIC_ACL_COUNT >= entry_counter);
 END:
@@ -76,32 +78,39 @@ END:
 static char mode_type_char(const mode_t mode)
 {
 	char result = '-';
-	if(S_ISBLK(mode))
+	// Can't use switch here as each case test is a different macro
+	const bool is_blk = S_ISBLK(mode);
+	if(true == is_blk)
 	{
 		result = 'b';
 		goto END;
 	}
-	if(S_ISCHR(mode))
+	const bool is_chr = S_ISCHR(mode);
+	if(true == is_chr)
 	{
 		result = 'c';
 		goto END;
 	}
-	if(S_ISDIR(mode))
+	const bool is_dir = S_ISDIR(mode);
+	if(true == is_dir)
 	{
 		result = 'd';
 		goto END;
 	}
-	if(S_ISFIFO(mode))
+	const bool is_fifo = S_ISFIFO(mode);
+	if(true == is_fifo)
 	{
 		result = 'f';
 		goto END;
 	}
-	if(S_ISLNK(mode))
+	const bool is_lnk = S_ISLNK(mode);
+	if(true == is_lnk)
 	{
 		result = 'l';
 		goto END;
 	}
-	if(S_ISSOCK(mode))
+	const bool is_sock = S_ISSOCK(mode);
+	if(true == is_sock)
 	{
 		result = 's';
 		goto END;
@@ -136,7 +145,7 @@ void mode_t_fprint(FILE* const p_file, const mode_t mode)
 			fprintf(p_file, "s");
 			continue;
 		}
-		fprintf(p_file, "%s", (mode_group % 2) >= 1 ? "x" : "-");
+		fprintf(p_file, "%s", 1 <= (mode_group % 2) ? "x" : "-");
 	}
 END:
 	return;
@@ -340,7 +349,7 @@ static bool for_each_file_l(const char* const p_path, const for_file_handler p_h
 	}
 
 	p_dir_entry = readdir(p_dir);
-	while(p_dir_entry != NULL)
+	while(NULL != p_dir_entry)
 	{
 		bool is_dot_dir = (0 == strcmp(".", p_dir_entry->d_name));
 		is_dot_dir |= (0 == strcmp("..", p_dir_entry->d_name));
@@ -678,7 +687,8 @@ void path_perms_fprint(FILE* const p_file, const char* const p_path)
 	}
 #ifdef __linux__
 	struct stat file_stat = {0};
-	if(lstat(p_path, &file_stat) < 0)
+	const int lstat_result = lstat(p_path, &file_stat);
+	if(0 > lstat_result)
 	{
 		goto END;
 	}

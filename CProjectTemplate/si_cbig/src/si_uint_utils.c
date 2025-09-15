@@ -161,7 +161,7 @@ bool add_uint_le_bytes(uint8_t* const p_a, const uint8_t* const p_b,
 		}
 		p_ull_a[iii] += p_ull_b[iii] + last_carry;
 		last_carry = 0u;
-		if(carry_flag)
+		if(true == carry_flag)
 		{
 			last_carry++;
 		}
@@ -177,7 +177,7 @@ bool add_uint_le_bytes(uint8_t* const p_a, const uint8_t* const p_b,
 		}
 		p_a[iii] += p_b[iii] + last_carry;
 		last_carry = 0u;
-		if(carry_flag)
+		if(true == carry_flag)
 		{
 			last_carry++;
 		}
@@ -481,7 +481,6 @@ void div_uint_le_bytes(uint8_t* const p_dividend,
 	const uint8_t* const p_divisor, const size_t size,
 	uint8_t* const p_remainder)
 {
-	// Validation
 	if((NULL == p_dividend) || (NULL == p_divisor))
 	{
 		goto END;
@@ -493,13 +492,19 @@ void div_uint_le_bytes(uint8_t* const p_dividend,
 	{
 		uint8_t zero[size];
 		memset(&zero[0], 0x00, size);
-		if(0 == cmp_uint_le_bytes(&p_divisor[0], &zero[0], size))
+		const int cmp_result = cmp_uint_le_bytes(
+			&p_divisor[0], &zero[0], size
+		);
+		if(0 == cmp_result)
 		{
 			// Divide by zero error.
 			goto END;
 		}
 	}
-	if(0 > cmp_uint_bytes(&p_dividend[0], &p_divisor[0], size))
+	const int cmp_result = cmp_uint_bytes(
+		&p_dividend[0], &p_divisor[0], size
+	);
+	if(0 > cmp_result)
 	{
 		// If not NULL set remainder.
 		if(NULL != p_remainder)
@@ -510,11 +515,11 @@ void div_uint_le_bytes(uint8_t* const p_dividend,
 		memset(&p_dividend[0], 0x00, size);
 		goto END;
 	}
-	// Begin
+	// Start of main loop
 	{
 		uint8_t one[size];
-		uint8_t counter[size];
 		memset(&one, 0x00, size);
+		uint8_t counter[size];
 		memset(&counter, 0x00, size);
 		one[0] = 0x01;
 		while(0 <= cmp_uint_le_bytes(&p_dividend[0], &p_divisor[0], size))
@@ -552,6 +557,7 @@ void div_uint_be_bytes(uint8_t* const p_dividend,
 	reverse_bytes(&p_dividend[0], size);
 	{
 		uint8_t p_mut_divisor[size];
+		memset(p_mut_divisor, 0x00, size);
 		memcpy(&p_mut_divisor[0], &p_divisor[0], size);
 		reverse_bytes(&p_mut_divisor[0], size);
 		div_uint_le_bytes(&p_dividend[0], &p_mut_divisor[0], size,
@@ -601,6 +607,7 @@ void mod_uint_le_bytes(uint8_t* const p_dividend,
 	// Begin
 	{
 		uint8_t quotient[size];
+		memset(&quotient, 0x00, size);
 		memcpy(&quotient[0u], &p_dividend[0u], size);
 		div_uint_le_bytes(&quotient[0u], &p_divisor[0u], size, &p_dividend[0]);
 	}
@@ -620,6 +627,7 @@ void mod_uint_be_bytes(uint8_t* const p_dividend,
 	// Begin
 	{
 		uint8_t quotient[size];
+		memset(&quotient, 0x00, size);
 		memcpy(&quotient[0u], &p_dividend[0u], size);
 		div_uint_be_bytes(&quotient[0u], &p_divisor[0u], size, &p_dividend[0]);
 	}

@@ -413,7 +413,7 @@ static bool claim_value_ownership(si_parray_t* const p_array)
 		{
 			// Failed to convert to indirect!
 			// Undo changes and return false
-			for(size_t jjj = 0u; (jjj < (iii - 1u)) && (iii > 0u); jjj++)
+			for(size_t jjj = 0u; (jjj < (iii - 1u)) && (0u < iii); jjj++)
 			{
 				pp_indirect = si_array_at(&(p_array->array), jjj);
 				pp_direct = *pp_indirect;

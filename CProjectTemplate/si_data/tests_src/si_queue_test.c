@@ -14,7 +14,7 @@ void tearDown (void)
 
 void si_queue_test_init(void)
 {
-	si_queue_t queue = (si_queue_t){};
+	si_queue_t queue = (si_queue_t){0};
 	si_queue_init(&queue, sizeof(char));
 	TEST_ASSERT_EQUAL_size_t(0u, queue.front);
 	TEST_ASSERT_EQUAL_size_t(0u, queue.back);

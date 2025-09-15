@@ -87,7 +87,7 @@ size_t si_realloc_settings_next_grow_capacity(
 			break;
 		case SCALAR:
 			// Prevent Overflows
-			if (p_settings->grow_value != 0.0f)
+			if (0.0f != p_settings->grow_value)
 			{
 				// Don't divide by zero.
 				if ((new_capacity * p_settings->grow_value) /
@@ -155,7 +155,7 @@ size_t si_realloc_settings_next_shrink_capacity(
 			break;
 		case SCALAR:
 			// Prevent Underflow
-			if (p_settings->shrink_value != 0.0f)
+			if (0.0f != p_settings->shrink_value)
 			{
 				// Don't divide by zero.
 				if ((new_capacity / p_settings->shrink_value) *
@@ -172,7 +172,7 @@ size_t si_realloc_settings_next_shrink_capacity(
 		{
 			// Prevent Underflow
 			size_t calculated_result = new_capacity;
-			if (p_settings->shrink_value != 0.0f)
+			if (0.0f != p_settings->shrink_value)
 			{
 				// Don't divide by zero.
 				calculated_result = pow(new_capacity,

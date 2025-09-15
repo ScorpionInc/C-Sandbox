@@ -116,7 +116,8 @@ size_t si_map_index_of(const si_map_t* const p_map, const void* const p_key)
 		{
 			continue;
 		}
-		if(0 == p_map->p_cmp_key_f((*pp_pair)->p_key, p_key))
+		int cmp_result = p_map->p_cmp_key_f((*pp_pair)->p_key, p_key);
+		if(0 == cmp_result)
 		{
 			// Key Match Found!
 			result = iii;
@@ -156,7 +157,8 @@ size_t si_map_find(const si_map_t* const p_map, const void* const p_value)
 		{
 			continue;
 		}
-		if(0 == p_map->p_cmp_value_f((*pp_pair)->p_value, p_value))
+		int cmp_result = p_map->p_cmp_value_f((*pp_pair)->p_value, p_value);
+		if(0 == cmp_result)
 		{
 			// Value Match Found!
 			result = iii;
@@ -274,7 +276,8 @@ bool si_map_insert_pair(si_map_t* const p_map,
 		goto END;
 	}
 	// Ensure key is unique
-	if(SIZE_MAX != si_map_index_of(p_map, p_pair->p_key))
+	const size_t map_index = si_map_index_of(p_map, p_pair->p_key);
+	if(SIZE_MAX != map_index)
 	{
 		goto END;
 	}
@@ -308,7 +311,7 @@ bool si_map_insert_pair(si_map_t* const p_map,
 			p_map->p_settings, &(p_map->entries)
 		);
 	}
-	if(did_grow)
+	if(true == did_grow)
 	{
 		result = si_map_insert_pair(p_map, p_pair);
 	}

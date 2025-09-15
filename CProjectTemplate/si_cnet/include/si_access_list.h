@@ -1,5 +1,4 @@
 /* si_access_list.h
- * Author: Scorpioninc
  * Created: 20250801
  * Updated: 20250804
  * Purpose: List of network addresses for whitelisting or blacklisting.

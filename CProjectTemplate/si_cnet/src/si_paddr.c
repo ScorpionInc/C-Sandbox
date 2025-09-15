@@ -156,7 +156,7 @@ bool is_ipv6_a_mapped_ipv4(const uint8_t p_address[INET6_ADDRESS_SIZE])
 	// Validate zero padding
 	for(size_t iii = 0u; iii < PADDING_END; iii++)
 	{
-		if(p_address[iii] != 0u)
+		if(0u != p_address[iii])
 		{
 			goto END;
 		}
@@ -164,7 +164,7 @@ bool is_ipv6_a_mapped_ipv4(const uint8_t p_address[INET6_ADDRESS_SIZE])
 	// Validate 0xFF prefix
 	for(size_t iii = PADDING_END; iii < INET_START; iii++)
 	{
-		if(p_address[iii] != __UINT8_MAX__)
+		if(__UINT8_MAX__ != p_address[iii])
 		{
 			goto END;
 		}
@@ -178,7 +178,8 @@ uint32_t ipv4_from_ipv6(const uint8_t p_address[INET6_ADDRESS_SIZE])
 {
 	// Assumes in network order. Returns host order.
 	uint32_t result = UINT32_MAX;
-	if(false == is_ipv6_a_mapped_ipv4(p_address))
+	const bool is_mapped = is_ipv6_a_mapped_ipv4(p_address);
+	if(false == is_mapped)
 	{
 		goto END;
 	}
@@ -207,7 +208,7 @@ bool does_ipv6_map_to_ipv4(const struct sockaddr_in6* const p_v6addr,
 	}
 	const uint32_t addr = ntohl(*((uint32_t*)&(p_v4addr->sin_addr)));
 	result = (mapped_address == addr);
-	if((!result) || (ignore_ports))
+	if((true != result) || (true == ignore_ports))
 	{
 		goto END;
 	}
@@ -551,7 +552,8 @@ void sin6_addr_fprint(FILE* const p_file,
 		}
 	}
 	// Handle IPv4 mapped addresses
-	if(is_ipv6_a_mapped_ipv4(p_address))
+	const bool is_mapped = is_ipv6_a_mapped_ipv4(p_address);
+	if(true == is_mapped)
 	{
 		fprintf(p_file, "(");
 		const uint32_t h_v4_addr = ipv4_from_ipv6(p_address);
@@ -571,16 +573,20 @@ void sockaddr_fprint(FILE* const p_file, const struct sockaddr* const p_addr)
 	switch(family)
 	{
 		case(AF_INET):
+		{
 			struct sockaddr_in* p_sai = (struct sockaddr_in*)p_addr;
 			sin_addr_fprint(p_file, (uint8_t*)&p_sai->sin_addr);
 			fprintf(p_file, ":%hu", p_sai->sin_port);
 			break;
+		}
 #ifdef AF_INET6
 		case(AF_INET6):
+		{
 			struct sockaddr_in6* p_sai6 = (struct sockaddr_in6*)p_addr;
 			sin6_addr_fprint(p_file, (uint8_t*)&p_sai6->sin6_addr);
 			fprintf(p_file, ":%hu", p_sai6->sin6_port);
 			break;
+		}
 #endif//AF_INET6
 		default:
 			// Unknown/Unsupported family type.

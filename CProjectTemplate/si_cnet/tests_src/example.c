@@ -197,7 +197,7 @@ int main(int argc, char** pp_argv)
 	}
 	p_loopback->sin_addr.s_addr = htonl(0x7F000001);
 	si_accesslist_append(p_access, (struct sockaddr*)p_loopback);
-	p_server->access_list = p_access;
+	p_server->p_access_list = p_access;
 
 	si_server_set_blocking(p_server, false);
 	while(0 == g_exit_signal)

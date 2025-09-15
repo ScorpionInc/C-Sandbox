@@ -66,7 +66,7 @@ void fprint_le_bytes_hex(FILE* p_file,
 	}
 	// Begin
 	// Little Endian prints bytes in reverse order.
-	for(size_t byte_offset = buffer_size - 1u; byte_offset >= 0u; byte_offset--)
+	for(size_t byte_offset = buffer_size - 1u; 0u <= byte_offset; byte_offset--)
 	{
 		fprint_byte_hex(p_file, p_buffer[byte_offset]);
 		if(0u == byte_offset)
@@ -305,7 +305,7 @@ inline void fprint_grouped_hex(FILE* p_file,
 size_t nibbles_string_length(const size_t byte_count, const size_t grouping)
 {
 	size_t spacer_count = 0u;
-	if(grouping > 0u)
+	if(0u < grouping)
 	{
 		spacer_count = (((SI_NIBBLE_COUNT * byte_count) - 1u) / grouping);
 	}
