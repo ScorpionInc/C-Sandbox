@@ -178,6 +178,113 @@ END:
 	return p_result;
 }
 
+char** strn_split(const char* const p_haystack, const size_t haystack_len,
+	const char* const p_needle, const size_t needle_len,
+	size_t* const p_count)
+{
+	char** pp_result = NULL;
+	if((NULL == p_haystack) || (NULL == p_needle) || (NULL == p_count))
+	{
+		goto END;
+	}
+	if(0u >= haystack_len)
+	{
+		goto END;
+	}
+	size_t tail = 0u;
+	if((0u >= needle_len) || (needle_len > haystack_len))
+	{
+		// No matches possible. Returns one element containing haystack clone.
+		goto TAIL;
+	}
+	for(size_t iii = 0u; iii < (haystack_len - needle_len); iii++)
+	{
+		const int cmp_result = memcmp(&(p_haystack[iii]), p_needle, needle_len);
+		if(0 == cmp_result)
+		{
+			*p_count += 1u;
+			pp_result = realloc(pp_result, (*p_count) * sizeof(char*));
+			if(NULL == pp_result)
+			{
+				goto END;
+			}
+			const size_t next_len = (iii - tail) + 1u;
+			pp_result[*p_count - 1u] = calloc(next_len, sizeof(char));
+			if(NULL == pp_result[*p_count - 1u])
+			{
+				goto END;
+			}
+			memcpy(
+				pp_result[*p_count - 1u], &(p_haystack[tail]), next_len - 1u
+			);
+			pp_result[*p_count - 1u][next_len - 1u] = '\0';
+			tail = iii + needle_len;
+			iii += needle_len;
+		}
+	}
+TAIL:
+	if((haystack_len - 1u) <= tail)
+	{
+		goto END;
+	}
+	*p_count += 1u;
+	pp_result = realloc(pp_result, (*p_count) * sizeof(char*));
+	if(NULL == pp_result)
+	{
+		goto END;
+	}
+	const size_t tail_len = (haystack_len - tail);
+	pp_result[*p_count - 1u] = strndup(&(p_haystack[tail]), tail_len);
+END:
+	return pp_result;
+}
+char** str_split(const char* const p_haystack, const char* p_needle,
+	size_t* const p_count)
+{
+	char** pp_result = NULL;
+	if((NULL == p_haystack) || (NULL == p_needle) || (NULL == p_count))
+	{
+		goto END;
+	}
+	const size_t haystack_len = strnlen(p_haystack, INT64_MAX);
+	if((haystack_len < 0) || (haystack_len >= INT64_MAX))
+	{
+		goto END;
+	}
+	const size_t needle_len = strnlen(p_needle, INT64_MAX);
+	if((haystack_len < 0) || (haystack_len >= INT64_MAX))
+	{
+		goto END;
+	}
+	pp_result = strn_split(
+		p_haystack, haystack_len, p_needle, needle_len, p_count
+	);
+END:
+	return pp_result;
+}
+
+void str_split_destroy(char*** const ppp_array, const size_t arg_count)
+{
+	if(NULL == ppp_array)
+	{
+		goto END;
+	}
+	if(NULL == *ppp_array)
+	{
+		// Already freed
+		goto END;
+	}
+	for(size_t iii = 0u; iii < arg_count; iii++)
+	{
+		free((*ppp_array)[iii]);
+		(*ppp_array)[iii] = NULL;
+	}
+	free(*ppp_array);
+	*ppp_array = NULL;
+END:
+	return;
+}
+
 void strn_chr_remap(char* const p_input_str, const size_t input_size,
 	chr_remap_f p_map_chr)
 {

@@ -146,6 +146,61 @@ static void si_strings_test_formatters(void)
 	p_buffer = NULL;
 }
 
+static void print_string_array(char** const pp_array, const size_t count)
+{
+	if(NULL == pp_array)
+	{
+		goto END;
+	}
+	printf("{");
+	for(size_t iii = 0u; iii < count; iii++)
+	{
+		printf("%p:'%s'", &(pp_array[iii]), pp_array[iii]);
+		if(count - 1u > iii)
+		{
+			printf(", ");
+		}
+	}
+	printf("}:%lu\n", count);
+END:
+	return;
+}
+
+static void si_strings_test_split(void)
+{
+	const char* const p_haystack = "This is a test string.";
+	const char* const p_needle = " ";
+	char** pp_result = NULL;
+	size_t items = 0u;
+	const size_t expected_items = 5u;
+	const char* p_expected[5u] = {"This", "is", "a", "test", "string."};
+
+	TEST_ASSERT_NULL(str_split(NULL, NULL, NULL));
+	TEST_ASSERT_NULL(str_split(NULL, p_needle, &items));
+	TEST_ASSERT_NULL(str_split(p_haystack, NULL, &items));
+	TEST_ASSERT_NULL(str_split(NULL, p_needle, NULL));
+	TEST_ASSERT_NULL(str_split(p_haystack, p_needle, NULL));
+	TEST_ASSERT_NULL(str_split(p_haystack, NULL, NULL));
+	TEST_ASSERT_NULL(str_split(NULL, NULL, &items));
+	pp_result = str_split(p_haystack, p_needle, &items);
+	TEST_ASSERT_NOT_NULL(pp_result);
+	print_string_array(pp_result, items);
+	TEST_ASSERT_EQUAL_size_t(expected_items, items);
+	for(size_t iii = 0u; iii < expected_items; iii++)
+	{
+		printf(
+			"Comparing split string vs expected: '%s' == '%s'\n",
+			pp_result[iii], p_expected[iii]
+		);
+		const int cmp_result = strncmp(
+			pp_result[iii], p_expected[iii], CHAR_MAX
+		);
+		TEST_ASSERT_EQUAL_INT(0, cmp_result);
+	}
+	str_split_destroy(&pp_result, items);
+	TEST_ASSERT_NULL(pp_result);
+}
+
 /** Doxygen
  * @brief Tests si_strings functions that modify strings length/size
  */
@@ -214,6 +269,7 @@ static void si_strings_test_all(void)
 	UNITY_BEGIN();
 	RUN_TEST(si_strings_test_concats);
 	RUN_TEST(si_strings_test_formatters);
+	RUN_TEST(si_strings_test_split);
 	RUN_TEST(si_strings_test_manipulators);
 	UNITY_END();
 }
