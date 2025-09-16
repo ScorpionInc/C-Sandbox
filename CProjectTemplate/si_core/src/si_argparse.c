@@ -1,5 +1,4 @@
-//si_argparse.c
-
+// si_argparse.c
 #include "si_argparse.h"
 
 void si_arg_init(si_arg_t* const p_arg)
@@ -126,23 +125,19 @@ bool si_arg_matches(const si_arg_t* const p_arg, const char* p_str)
 		goto END;
 	}
 	result = true;
-	int cmp = 0;
+	int cmp = -1;
 	// Direct compares
 	if(NULL != p_arg->p_full)
 	{
 		cmp = strcmp(p_arg->p_full, p_str);
-		if(0 == cmp)
-		{
-			goto END;
-		}
 	}
 	if(NULL != p_arg->p_flag)
 	{
 		cmp = strcmp(p_arg->p_flag, p_str);
-		if(0 == cmp)
-		{
-			goto END;
-		}
+	}
+	if(0 == cmp)
+	{
+		goto END;
 	}
 	// Handle -'s
 	size_t str_len = strlen(p_str);
@@ -151,18 +146,14 @@ bool si_arg_matches(const si_arg_t* const p_arg, const char* p_str)
 		if(('-' == p_str[0u]) && (NULL != p_arg->p_flag))
 		{
 			cmp = strcmp(p_arg->p_flag, &p_str[1u]);
-			if(0 == cmp)
-			{
-				goto END;
-			}
 		}
 		if(('-' == p_str[1u]) && (NULL != p_arg->p_full))
 		{
 			cmp = strcmp(p_arg->p_full, &p_str[2u]);
-			if(0 == cmp)
-			{
-				goto END;
-			}
+		}
+		if(0 == cmp)
+		{
+			goto END;
 		}
 	}
 	result = false;
@@ -318,24 +309,19 @@ void si_arg_free(si_arg_t* const p_arg)
 	{
 		goto END;
 	}
-	if(NULL != p_arg->p_values)
+	if((NULL != p_arg->p_values) && (NULL != p_arg->p_free_value))
 	{
-		if(NULL != p_arg->p_free_value)
+		for(size_t iii = 0u; iii < p_arg->p_values->capacity; iii++)
 		{
-			for(size_t iii = 0u; iii < p_arg->p_values->capacity; iii++)
+			void** pp_value = si_array_at(p_arg->p_values, iii);
+			if(NULL != pp_value)
 			{
-				void** pp_value = si_array_at(p_arg->p_values, iii);
-				if(NULL == pp_value)
-				{
-					continue;
-				}
-				if(NULL == *pp_value)
-				{
-					continue;
-				}
 				p_arg->p_free_value(*pp_value);
 			}
 		}
+	}
+	if(NULL != p_arg->p_values)
+	{
 		si_array_free(p_arg->p_values);
 		free(p_arg->p_values);
 		p_arg->p_values = NULL;
@@ -522,11 +508,10 @@ size_t si_argparse_count_optional(const si_argparse_t* const p_parse)
 		{
 			break;
 		}
-		if(false == p_arg->is_optional)
+		if(false != p_arg->is_optional)
 		{
-			continue;
+			result++;
 		}
-		result++;
 	}
 END:
 	return result;
@@ -808,7 +793,6 @@ END:
 
 void si_argparse_fprint_error(si_argparse_t* const p_parse, FILE* const p_file)
 {
-	// TODO
 	if((NULL == p_parse) || (NULL == p_file))
 	{
 		goto END;
@@ -847,11 +831,10 @@ void si_argparse_free(si_argparse_t* const p_parse)
 	for(size_t iii = 0u; iii < p_parse->arguments.capacity; iii++)
 	{
 		si_arg_t* p_arg = si_array_at(&(p_parse->arguments), iii);
-		if(NULL == p_arg)
+		if(NULL != p_arg)
 		{
-			continue;
+			si_arg_free(p_arg);
 		}
-		si_arg_free(p_arg);
 	}
 	si_array_free(&(p_parse->arguments));
 END:
