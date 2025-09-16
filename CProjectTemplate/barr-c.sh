@@ -65,8 +65,8 @@ validate_tool()
 		printf "${CLR_RED}"
 		echo "Required tool: '${1}' was not found."
 		if command -v "apt-cache" &> /dev/null; then
-			echo "The possible package names for installing it are:"
-			apt-cache search ".*${1}.*"
+			echo "Checking for possible package names for installing it. (Ctrl+C to break):"
+			apt-config search ".*${1}.*" | grep -P "^(?!${1})*[a-zA-Z0-9]*(${1})[^-]*[-]"
 		fi
 		printf "${RESET}"
 		exit 1
