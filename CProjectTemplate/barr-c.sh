@@ -139,6 +139,28 @@ check_errors()
 		"${check}" "${@}"
 
 	check=$(
+		grep -n --binary-files=without-match -R -E '^\s*auto\s+' |
+		grep -v -E "${BASE_FILTER}" |
+		grep -E "${C_LNG_MATCH}" |
+		sort --unique
+	)
+	check_error\
+		"forbidden keyword: 'auto'"\
+		"The auto keyword is an unnecessary historical feature of C and forbidden by BARR-C."\
+		"${check}" "${@}"
+
+	check=$(
+		grep -n --binary-files=without-match -R -E '^\s*register\s+' |
+		grep -v -E "${BASE_FILTER}" |
+		grep -E "${C_LNG_MATCH}" |
+		sort --unique
+	)
+	check_error\
+		"forbidden keyword: 'register'"\
+		"The register keyword presumes a programmer is smarter than a compiler & is forbidden."\
+		"${check}" "${@}"
+
+	check=$(
 		grep -n --binary-files=without-match -R -P '^\s*((const|volatile)\s+)?([a-zA-Z_]+[0-9]*[a-zA-Z_]*)[*]+\s+(const\s+([^p\s]|[p]+[^p_\s])|((?!const\s+)[^p\s]|[p]+[^p_\s]))[^*]+' |
 		grep -v -E '([(]|[)])' |
 		grep -v -E "${BASE_FILTER}" |
