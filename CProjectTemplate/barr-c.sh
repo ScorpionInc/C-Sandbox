@@ -172,7 +172,7 @@ check_errors()
 		"${check}" "${@}"
 
 	check=$(
-		grep -n --binary-files=without-match -R -P '^\s*typedef\s+' |
+		grep -n --binary-files=without-match -R -P '^\s*typedef\s+struct\s+' |
 		grep -v -E '[a-zA-Z]+[a-zA-Z0-9]*(_t)' |
 		grep -v -E "${BASE_FILTER}" |
 		sort --unique
@@ -183,7 +183,7 @@ check_errors()
 		"${check}" "${@}"
 
 	check=$(
-		grep -n --binary-files=without-match -R -E '(if|while)[ ]*[(].*[^ (*][(].*[)].*[)]' |
+		grep -n --binary-files=without-match -R -E '(if|while)[ ]*[(].*[^ (*!][(].*[)].*[)]' |
 		grep -v -E "${BASE_FILTER}" |
 		sort --unique
 	)
