@@ -90,11 +90,11 @@ check_error()
 	if [ -n "${3}" ]; then
 		printf "${UPBAR}"
 		if [ -n "${1}" ]; then
-			echo "Checking for ${1}"
+			echo -n "Checking for ${1}"
 		else
-			echo "Checking for an unspecified error"
+			echo -n "Checking for an unspecified error"
 		fi
-		printf "${RESET}"
+		printf "${RESET}\n"
 		if [ -n "${2}" ]; then
 			array_has_value "${@}" "-v" || echo -e "\t${2}"
 		fi
@@ -291,11 +291,11 @@ check_warning()
 	if [ -n "${3}" ]; then
 		printf "${UPBAR}"
 		if [ -n "${1}" ]; then
-			echo "Checking for ${1}"
+			echo -n "Checking for ${1}"
 		else
-			echo "Checking for an unspecified warning"
+			echo -n "Checking for an unspecified warning"
 		fi
-		printf "${RESET}"
+		printf "${RESET}\n"
 		if [ -n "${2}" ]; then
 			array_has_value "${@}" "-v" || echo -e "\t${2}"
 		fi
