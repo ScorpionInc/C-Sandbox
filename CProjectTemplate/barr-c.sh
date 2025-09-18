@@ -40,7 +40,7 @@ array_has_value "${@}" "--no-ansi" && RESET='\e[0m' || RESET=''
 # Global Constants
 CMAKE_FILTER='(CMake|[.]cmake[:])'
 GIT_FILTER='[.]git/'
-UNITY_FILTER='unity(_internals[.](c|h)|-src/|[.](c|h))'
+UNITY_FILTER='unity(([_-](internals|src|build|subbuild|populate))|[.](c|h))'
 SCRIPT_FILENAME=$(basename "${0}")
 
 BASE_FILTER="(${CMAKE_FILTER}|${GIT_FILTER}|${UNITY_FILTER}|${SCRIPT_FILENAME}:)"
@@ -125,6 +125,17 @@ check_errors()
 	check_error\
 		"{ inlining"\
 		"If a brace is inline. E.G. if(conditional == condition){"\
+		"${check}" "${@}"
+
+	check=$(
+		grep -n --binary-files=without-match -R -P '^([ ]{4}|\t){4,}' |
+		grep -v -E "${BASE_FILTER}" |
+		grep -E "${C_LNG_MATCH}" |
+		sort --unique
+	)
+	check_error\
+		"deep nesting. (>= 4)"\
+		"When code indentations are >=4 would probably benefit from refactoring."\
 		"${check}" "${@}"
 
 	check=$(
