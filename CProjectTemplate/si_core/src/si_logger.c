@@ -218,7 +218,7 @@ static char* si_logger_header_new(const size_t msg_level, const bool is_ansi)
 	}
 	si_logger_fprint_header(p_file, msg_level, is_ansi);
 	fflush(p_file);
-	fclose(p_file);
+	(void)fclose(p_file);
 	p_file = NULL;
 END:
 	return p_header;

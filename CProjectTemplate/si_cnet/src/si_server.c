@@ -12,7 +12,7 @@ bool is_ipv6_supported(void)
 		goto END;
 	}
 	result = true;
-	close(tmp);
+	(void)close(tmp);
 	tmp = SOCKET_ERROR;
 #endif//AF_INET6 && __linux__
 END:
@@ -333,7 +333,7 @@ void si_server_init_7(si_server_t* const p_server, const uint16_t port,
 	);
 	if(true != set_socket_options)
 	{
-		close(server_fd);
+		(void)close(server_fd);
 		server_fd = SOCKET_ERROR;
 		goto END;
 	}
@@ -342,7 +342,7 @@ void si_server_init_7(si_server_t* const p_server, const uint16_t port,
 	const bool added_socket = si_server_add_socket(p_server, server_fd);
 	if(false == added_socket)
 	{
-		close(server_fd);
+		(void)close(server_fd);
 		server_fd = SOCKET_ERROR;
 		goto END;
 	}
@@ -643,7 +643,7 @@ bool si_server_add_socket(si_server_t* const p_server, const int socket_fd)
 		p_fd->events = (POLLIN | POLLOUT | POLLHUP);
 		p_fd->revents = 0;
 		result = true;
-		goto END;
+		goto UNLOCK;
 	}
 	// Append instead as there was no open slot to assign
 	if(NULL == p_server->p_settings)
@@ -731,7 +731,7 @@ static void si_server_drop_socket_at(si_server_t* const p_server,
 	p_poll->events = 0;
 	if(SOCKET_SUCCESS <= p_poll->fd)
 	{
-		close(p_poll->fd);
+		(void)close(p_poll->fd);
 	}
 	p_poll->fd = SOCKET_ERROR;
 	p_poll->revents = 0;
@@ -920,7 +920,7 @@ void si_server_broadcast(si_server_t* const p_server,
 		ssize_t send_result = send(next_fd, p_buffer, buffer_size, 0);
 		if(SOCKET_ERROR >= send_result)
 		{
-			close(next_fd);
+			(void)close(next_fd);
 			p_next_poll->fd = SOCKET_ERROR;
 			si_server_drop_socket(p_server, next_fd);
 			continue;

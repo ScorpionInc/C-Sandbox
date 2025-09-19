@@ -229,12 +229,12 @@ static bool file_clone_data_l(const char* const p_source_path,
 CLEAN:
 	if(0 <= source_fd)
 	{
-		close(source_fd);
+		(void)close(source_fd);
 	}
 	source_fd = -1;
 	if(0 <= sink_fd)
 	{
-		close(sink_fd);
+		(void)close(sink_fd);
 	}
 	sink_fd = -1;
 END:
@@ -322,7 +322,7 @@ static bool file_clone_meta_l(const char* const p_source_path,
 CLEAN:
 	if(0 <= sink_fd)
 	{
-		close(sink_fd);
+		(void)close(sink_fd);
 	}
 	sink_fd = -1;
 END:
@@ -409,7 +409,7 @@ static bool for_each_file_l(const char* const p_path,
 		free((void*)p_fullpath);
 		p_fullpath = NULL;
 	}
-	closedir(p_dir);
+	(void)closedir(p_dir);
 	p_dir = NULL;
 	result = true;
 END:
@@ -587,11 +587,11 @@ static bool file_clone_data_u(const char* const p_source_path,
 CLEAN:
 	if(NULL != p_source)
 	{
-		fclose(p_source);
+		(void)fclose(p_source);
 	}
 	if(NULL != p_sink)
 	{
-		fclose(p_sink);
+		(void)fclose(p_sink);
 	}
 END:
 	return result;
