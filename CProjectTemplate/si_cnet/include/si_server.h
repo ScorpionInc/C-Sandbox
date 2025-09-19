@@ -5,7 +5,7 @@
  */
 
 #include <errno.h> // errno, strerror()
-#include <limits.h> // ULONG_MAX
+#include <limits.h> // INT_MAX, ULONG_MAX
 #include <stdbool.h> // true false
 #include <stdint.h> // SIZE_MAX
 #include <stdlib.h> // calloc()
