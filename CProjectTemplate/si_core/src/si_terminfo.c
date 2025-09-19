@@ -228,6 +228,67 @@ END:
 	return;
 }
 
+int si_terminfo_printf_centered(si_terminfo_t* const p_terminfo,
+	const char* const p_format, ...)
+{
+	int result = -1;
+	if((NULL == p_terminfo) || (NULL == p_format))
+	{
+		goto END;
+	}
+	va_list args = {0};
+	va_start(args, p_format);
+
+	// Handles an Unknown or Undefined terminal width size.
+	if((NULL == p_terminfo->p_file) || (0u >= p_terminfo->COLUMNS))
+	{
+		goto ERROR;
+	}
+
+	// To string, if we can't determine the output length then can't center it.
+	char* p_str = str_from_fprint(
+		(str_fprint_f)vfprintf, p_format, args
+	);
+	if(NULL == p_str)
+	{
+		goto ERROR;
+	}
+	const size_t output_len = str_countf(p_str, (should_count_char_f)isprint);
+	if((SIZE_MAX <= output_len) || (0u >= output_len) ||
+	   (p_terminfo->COLUMNS < output_len))
+	{
+		goto ERROR;
+	}
+
+	// Prints the spacers followed by the formatted string value.
+	fprintf(p_terminfo->p_file, "\r");
+	const size_t spacer_count = ((p_terminfo->COLUMNS / 2) - (output_len / 2));
+	for(size_t iii = 0u; spacer_count > iii; iii++)
+	{
+		const int print_spacer_result = fprintf(p_terminfo->p_file, "%c", ' ');
+		if(0 >= print_spacer_result)
+		{
+			break;
+		}
+	}
+	result = fprintf(p_terminfo->p_file, "%s", p_str);
+	goto CLEAN;
+ERROR:
+	if(NULL != p_terminfo->p_file)
+	{
+		result = vfprintf(p_terminfo->p_file, p_format, args);
+	}
+CLEAN:
+	va_end(args);
+	if(NULL != p_str)
+	{
+		free(p_str);
+		p_str = NULL;
+	}
+END:
+	return result;
+}
+
 void si_terminfo_free(si_terminfo_t* const p_terminfo)
 {
 	//! TODO No heap data (yet?)

@@ -22,6 +22,8 @@
 #include <stdlib.h> // calloc(), free(), getenv()
 #include <string.h> // strnlen(), strncmp()
 
+#include "si_strings.h" // str_countf, str_from_fprint()
+
 // ANSI CODES (\x1b)
 #define ANSI_RESET (0)
 #define ANSI_BOLD (1)
@@ -142,6 +144,18 @@ bool si_terminfo_update(si_terminfo_t* const p_terminfo);
  */
 void si_terminfo_send_ansi(si_terminfo_t* const p_terminfo,
 	const char* p_code, ...);
+
+/** Doxygen
+ * @brief Prints a formated string to the terminal centered on the current line
+ * 
+ * @param p_terminfo Pointer to a si_terminfo_t struct.
+ * @param p_format C String formatting the desired output.
+ * @param ... Variatic optional parameter values.
+ * 
+ * @return Positive int number of non-spacer chars printed on success else -1.
+ */
+int si_terminfo_printf_centered(si_terminfo_t* const p_terminfo,
+	const char* const p_format, ...);
 
 /** Doxygen
  * @brief Frees any allocated heap data inside an existing si_terminfo_t struct
