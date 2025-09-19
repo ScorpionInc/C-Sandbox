@@ -97,8 +97,8 @@ static bool si_server_init_rmutex(pthread_mutex_t* const p_mutex)
 	);
 	if(SOCKET_SUCCESS != func_result)
 	{
-        goto END;
-    }
+		goto END;
+	}
 	func_result = pthread_mutexattr_destroy(&mutex_attributes);
 	result = (SOCKET_SUCCESS == func_result);
 END:
