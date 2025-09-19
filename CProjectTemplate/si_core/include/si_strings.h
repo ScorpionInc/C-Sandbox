@@ -6,14 +6,22 @@
  * Updated: 20250825
 //*/
 
+#ifdef __linux__
+
+//Avoids redefining
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif//_GNU_SOURCE
+
+#endif//__linux__
+
 #include <ctype.h> // toupper()
 #include <stdarg.h> // ...
 #include <stddef.h> // size_t
 #include <stdint.h> // SIZE_MAX
+#include <stdio.h> // FILE
 #include <stdlib.h> // calloc()
 #include <string.h> // memcpy(), strnlen()
-
-#include <stdio.h> //!Debugging
 
 #ifndef SI_STRINGS_H
 #define SI_STRINGS_H
@@ -172,6 +180,17 @@ char* str_clone_substitute(const char* const p_haystack,
  */
 char* pop_str_from_heap(uint8_t** const pp_buffer,
 	size_t* const p_buffer_size);
+
+typedef int (*str_fprint_f)(FILE* const, const void* const, ...);
+
+/** Doxygen
+ * @brief Calls a specified file print function with (a) specified value(s) and
+ *        saves the printed output to a new returned heap string buffer.
+ * 
+ * @param fprint_f Function to call that will print a value to a FILE
+ * @param p_value Pointer to the value that will be passed to the fprint funct.
+ */
+char* str_from_fprint(str_fprint_f fprint_f, const void* const p_value, ...);
 
 #ifdef __cplusplus
 }

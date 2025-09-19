@@ -261,6 +261,69 @@ static void si_strings_test_manipulators(void)
 	}
 }
 
+static struct example_t
+{
+	uint32_t height_inches;
+	uint32_t age;
+} example_t;
+
+/** Doxygen
+ * @brief Demonstrates usage of the str_from_fprint() with a custom function.
+ * 
+ * @param p_file FILE pointer to be written to.
+ * @param p_example Pointer to an example_t struct to print values from.
+ * 
+ * @return Returns fprintf results on success. Returns -1 otherwise.
+ */
+static int custom_example_fprint(FILE* const p_file,
+	const struct example_t* const p_example)
+{
+	int result = -1;
+	if((NULL == p_file) || (NULL == p_example))
+	{
+		goto END;
+	}
+	const int fprintf_result = fprintf(
+		p_file, "%u years old, %u inches tall",
+		p_example->age, p_example->height_inches
+	);
+	result = fprintf_result;
+END:
+	return result;
+}
+
+/** Doxygen
+ * @brief Tests si_strings function str_from_fprint()
+ */
+static void si_strings_test_from_fprint(void)
+{
+	const uint32_t age = 42u;
+	const uint32_t height = 69u;
+	const char* const P_DATA = "Hello World!";
+
+	char* p_str = NULL;
+
+	struct example_t example = {0};
+	example.age = age;
+	example.height_inches = height;
+
+	TEST_ASSERT_NULL(str_from_fprint(NULL, NULL));
+	TEST_ASSERT_NULL(str_from_fprint((str_fprint_f)fprintf, NULL));
+	TEST_ASSERT_NULL(str_from_fprint(NULL, &P_DATA));
+
+	p_str = str_from_fprint((str_fprint_f)fprintf, P_DATA);
+	TEST_ASSERT_NOT_NULL(p_str);
+	fprintf(stdout, "Got string value of: '%s'.\n", p_str);
+	free(p_str);
+	p_str = NULL;
+
+	p_str = str_from_fprint((str_fprint_f)custom_example_fprint, &example);
+	TEST_ASSERT_NOT_NULL(p_str);
+	fprintf(stdout, "Got string value of: '%s'.\n", p_str);
+	free(p_str);
+	p_str = NULL;
+}
+
 /** Doxygen
  * @brief Runs all local unit tests for si_strings
  */
@@ -271,6 +334,7 @@ static void si_strings_test_all(void)
 	RUN_TEST(si_strings_test_formatters);
 	RUN_TEST(si_strings_test_split);
 	RUN_TEST(si_strings_test_manipulators);
+	RUN_TEST(si_strings_test_from_fprint);
 	UNITY_END();
 }
 

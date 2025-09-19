@@ -524,3 +524,41 @@ char* pop_str_from_heap(uint8_t** const pp_buffer, size_t* const p_buffer_size)
 END:
 	return p_result;
 }
+
+char* str_from_fprint(str_fprint_f fprint_f, const void* const p_value, ...)
+{
+	char* p_buffer = NULL;
+	if((NULL == fprint_f) || (NULL == p_value))
+	{
+		goto END;
+	}
+	va_list args = {0};
+	va_start(args, p_value);
+#ifdef __linux__
+	size_t buffer_size = 0u;
+	FILE* const p_file = open_memstream(&p_buffer, &buffer_size);
+	if(NULL == p_file)
+	{
+		goto CLEAN;
+	}
+	const int fprint_result = fprint_f(p_file, p_value, args);
+	const int flush_result = fflush(p_file);
+	(void)fclose(p_file);
+	if((0 > fprint_result) || (0 > flush_result))
+	{
+		goto CLEAN;
+	}
+	goto END;
+#else
+#warning Unsupported/Unknown OS
+#endif//__linux__
+CLEAN:
+	va_end(args);
+	if(NULL != p_buffer)
+	{
+		free(p_buffer);
+		p_buffer = NULL;
+	}
+END:
+	return p_buffer;
+}
