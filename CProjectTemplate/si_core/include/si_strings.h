@@ -15,7 +15,7 @@
 
 #endif//__linux__
 
-#include <ctype.h> // toupper()
+#include <ctype.h> // isprint(), tolower(), toupper()
 #include <stdarg.h> // ...
 #include <stddef.h> // size_t
 #include <stdint.h> // SIZE_MAX
@@ -105,6 +105,21 @@ char** str_split(const char* const p_haystack, const char* p_needle,
  * @param arg_count Number of elements in the array to be freed.
  */
 void str_split_destroy(char*** const ppp_array, const size_t arg_count);
+
+typedef int (*should_count_char_f)(const char);
+
+/** Doxygen
+ * @brief Uses a provided function to determine if a character in a C str
+ *        should be counted up to a maximum length specified.
+ * 
+ * @param p_str C string pointer to read narrow characters from.
+ * @param max_len Maximum number of characters to read from string as size_t.
+ * @param should_count_char Function pointer determines if character is counted
+ */
+size_t strn_countf(const char* const p_str, const size_t max_len,
+	should_count_char_f should_count_char);
+size_t str_countf(const char* const p_str,
+	should_count_char_f should_count_char);
 
 typedef char (* const chr_remap_f)(const char, const size_t);
 

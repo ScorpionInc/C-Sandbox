@@ -36,9 +36,15 @@ char* str_clone_concat(const char* const p_left,
 	{
 		goto END;
 	}
+	const size_t left_size = strnlen(p_left, INT64_MAX);
+	const size_t right_size = strnlen(p_right, INT64_MAX);
+	if((left_size >= INT64_MAX) || (right_size >= INT64_MAX))
+	{
+		goto END;
+	}
 	p_value = strn_clone_concat(
-		p_left, strnlen(p_left, INT64_MAX),
-		p_right, strnlen(p_right, INT64_MAX)
+		p_left, left_size,
+		p_right, right_size
 	);
 END:
 	return p_value;
@@ -93,6 +99,10 @@ char* str_clone_join(const size_t argc,	const char* const p_seperator,
 	if(NULL != p_seperator)
 	{
 		sep_len = strnlen(p_seperator, INT64_MAX);
+		if(INT64_MAX <= sep_len)
+		{
+			sep_len = 0u;
+		}
 	}
 	for(size_t opr = 0u; opr < 2u; opr++)
 	{
@@ -104,6 +114,10 @@ char* str_clone_join(const size_t argc,	const char* const p_seperator,
 				continue;
 			}
 			size_t next_len = strnlen(p_next, INT64_MAX);
+			if(INT64_MAX <= next_len)
+			{
+				continue;
+			}
 			if((0u == opr) && (iii < argc - 1u))
 			{
 				// Handle overflow
@@ -247,12 +261,12 @@ char** str_split(const char* const p_haystack, const char* p_needle,
 		goto END;
 	}
 	const size_t haystack_len = strnlen(p_haystack, INT64_MAX);
-	if((haystack_len < 0) || (haystack_len >= INT64_MAX))
+	if(INT64_MAX <= haystack_len)
 	{
 		goto END;
 	}
 	const size_t needle_len = strnlen(p_needle, INT64_MAX);
-	if((haystack_len < 0) || (haystack_len >= INT64_MAX))
+	if(INT64_MAX <= needle_len)
 	{
 		goto END;
 	}
@@ -283,6 +297,49 @@ void str_split_destroy(char*** const ppp_array, const size_t arg_count)
 	*ppp_array = NULL;
 END:
 	return;
+}
+
+size_t strn_countf(const char* const p_str, const size_t max_len,
+	should_count_char_f should_count_char)
+{
+	size_t result = max_len;
+	if((NULL == p_str) || (0u >= max_len) || (NULL == should_count_char))
+	{
+		goto END;
+	}
+	result = 0u;
+	for(size_t iii = 0u; iii < max_len; iii++)
+	{
+		const char next_char = p_str[iii];
+		const int should_be_counted = should_count_char(next_char);
+		if(0 < should_be_counted)
+		{
+			result++;
+		}
+		if('\0' == next_char)
+		{
+			break;
+		}
+	}
+END:
+	return result;
+}
+size_t str_countf(const char* const p_str,
+	should_count_char_f should_count_char)
+{
+	size_t result = SIZE_MAX;
+	if((NULL == p_str) || (NULL == should_count_char))
+	{
+		goto END;
+	}
+	const size_t str_size = strnlen(p_str, INT64_MAX);
+	if(INT64_MAX <= str_size)
+	{
+		goto END;
+	}
+	result = strn_countf(p_str, str_size + 1u, should_count_char);
+END:
+	return result;
 }
 
 void strn_chr_remap(char* const p_input_str, const size_t input_size,
@@ -548,6 +605,7 @@ char* str_from_fprint(str_fprint_f fprint_f, const void* const p_value, ...)
 	{
 		goto CLEAN;
 	}
+	p_buffer[fprint_result] = '\0';
 	goto END;
 #else
 #warning Unsupported/Unknown OS
