@@ -30,7 +30,7 @@ do
 	echo "Building unit test: '$test' -> '$outputFinal'."
 	#-fsanitize=thread
 	#-fsanitize=address
-	gcc -ggdb "$test" "$libPath" ../si_data/src/* ../si_core/src/* "../si_data/build/libsi_data.a" "$unitySrc" -I./include -I../si_data/include -I../si_core/include -I./tests_include -I"$unityInclude" -lm -lacl -o "$outputFinal"
+	gcc -ggdb -Wall -Wextra -pedantic -Wundef -Wcast-align -Wconversion "$test" "$libPath" ../si_data/src/* ../si_core/src/* "../si_data/build/libsi_data.a" "$unitySrc" -I./include -I../si_data/include -I../si_core/include -I./tests_include -I"$unityInclude" -lm -lacl -o "$outputFinal"
 	valgrind -s --log-fd=1 --fair-sched=yes --leak-check=full --leak-resolution=high --show-leak-kinds=all --show-error-list=yes --track-origins=yes --time-stamp=yes --num-callers=69 --expensive-definedness-checks=yes "$outputFinal"
 	#valgrind --tool=helgrind -s "$outputFinal"
 	#./"${outputFinal}"
