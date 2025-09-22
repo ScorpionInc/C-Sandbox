@@ -16,27 +16,24 @@ extern "C" {
 void fprint_byte_bits_4(FILE* p_file, const uint8_t byte,
 			const unsigned int bit_start, const size_t bit_length)
 {
-	// Local Mutable Variables
 	size_t mut_bit_length = bit_length;
-	// Validate parameters
-	if((NULL == p_file) || (SI_BITS_COUNT <= bit_start))
+	if ((NULL == p_file) || (SI_BITS_COUNT <= bit_start))
 	{
 		goto END;
 	}
 	// Clamp bit_length to within a byte
-	if((SI_BITS_COUNT - bit_start) < mut_bit_length)
+	if ((SI_BITS_COUNT - bit_start) < mut_bit_length)
 	{
 		mut_bit_length = (SI_BITS_COUNT - bit_start);
 	}
 	// Begin
 	const unsigned int bit_end = (bit_start + mut_bit_length);
-	for(unsigned int bit_index = bit_start;
+	for (unsigned int bit_index = bit_start;
 		bit_index < bit_end; bit_index++)
 	{
 		// Prints from MSB
 		fprintf(p_file, "%c", byte & (0x80 >> bit_index) ? '1' : '0');
 	}
-	// End
 END:
 	return;
 }
@@ -56,22 +53,19 @@ inline void fprint_byte_bits(FILE* p_file, const uint8_t byte)
 void fprint_le_bytes_bits(FILE* p_file,
 			const uint8_t* p_buffer, const size_t buffer_size)
 {
-	// Validate parameters
-	if((NULL == p_file) || (NULL == p_buffer) || (0u == buffer_size))
+	if ((NULL == p_file) || (NULL == p_buffer) || (0u == buffer_size))
 	{
 		goto END;
 	}
-	// Begin
 	// Little Endian prints bytes in reverse order.
-	for(size_t byte_offset = buffer_size - 1u; 0u <= byte_offset; byte_offset--)
+	for (size_t byte_offset = buffer_size - 1u; 0u <= byte_offset; byte_offset--)
 	{
 		fprint_byte_bits(p_file, p_buffer[byte_offset]);
-		if(0u == byte_offset)
+		if (0u == byte_offset)
 		{
 			break;
 		}
 	}
-	// End
 END:
 	return;
 }
@@ -80,18 +74,15 @@ END:
 void fprint_be_bytes_bits(FILE* p_file,
 			const uint8_t* p_buffer, const size_t buffer_size)
 {
-	// Validate parameters
-	if((NULL == p_file) || (NULL == p_buffer) || (0u == buffer_size))
+	if ((NULL == p_file) || (NULL == p_buffer) || (0u == buffer_size))
 	{
 		goto END;
 	}
-	// Begin
 	// Big Endian prints bytes in order.
-	for(size_t byte_offset = 0u; byte_offset < buffer_size; byte_offset++)
+	for (size_t byte_offset = 0u; byte_offset < buffer_size; byte_offset++)
 	{
 		fprint_byte_bits(p_file, p_buffer[byte_offset]);
 	}
-	// End
 END:
 	return;
 }
@@ -100,7 +91,7 @@ END:
 void fprint_bytes_bits(FILE* p_file,
 			const uint8_t* p_buffer, const size_t buffer_size)
 {
-	if(BYTE_ORDER == LITTLE_ENDIAN)
+	if (BYTE_ORDER == LITTLE_ENDIAN)
 	{
 		fprint_le_bytes_bits(p_file, p_buffer, buffer_size);
 	}
@@ -119,15 +110,15 @@ void fprint_le_bits_5(FILE* p_file,
 	size_t mut_bit_offset = bit_offset;
 	size_t mut_bit_count = bit_count;
 	// Validate parameters
-	if((NULL == p_file) || (NULL == p_buffer) || (0u == bit_count))
+	if ((NULL == p_file) || (NULL == p_buffer) || (0u == bit_count))
 	{
 		goto END;
 	}
-	if(max_bit < mut_bit_offset)
+	if (max_bit < mut_bit_offset)
 	{
 		mut_bit_offset = max_bit;
 	}
-	if(max_bit < (mut_bit_count + mut_bit_offset))
+	if (max_bit < (mut_bit_count + mut_bit_offset))
 	{
 		mut_bit_count = (max_bit - mut_bit_offset);
 	}
@@ -141,7 +132,7 @@ void fprint_le_bits_5(FILE* p_file,
 	const size_t end_ord_index = buffer_size - 1u - end_unord_index;
 	const size_t bit_offset_remainder = (mut_bit_offset % SI_BITS_COUNT);
 	// Begin
-	if(beg_unord_index == end_unord_index)
+	if (beg_unord_index == end_unord_index)
 	{
 		// This is printing all or part of 1 byte.
 		fprint_byte_bits_4(p_file, p_buffer[beg_ord_index],
@@ -184,15 +175,15 @@ void fprint_be_bits_5(FILE* p_file,
 	size_t mut_bit_offset = bit_offset;
 	size_t mut_bit_count = bit_count;
 	// Validate parameters
-	if((NULL == p_file) || (NULL == p_buffer) || (0u == bit_count))
+	if ((NULL == p_file) || (NULL == p_buffer) || (0u == bit_count))
 	{
 		goto END;
 	}
-	if(max_bit < mut_bit_offset)
+	if (max_bit < mut_bit_offset)
 	{
 		mut_bit_offset = max_bit;
 	}
-	if(max_bit < (mut_bit_count + mut_bit_offset))
+	if (max_bit < (mut_bit_count + mut_bit_offset))
 	{
 		mut_bit_count = (max_bit - mut_bit_offset);
 	}
@@ -204,7 +195,7 @@ void fprint_be_bits_5(FILE* p_file,
 	const size_t full_byte_count = (end_unord_index - beg_unord_index) - 1u;
 	const size_t bit_offset_remainder = (mut_bit_offset % SI_BITS_COUNT);
 	// Begin
-	if(beg_unord_index == end_unord_index)
+	if (beg_unord_index == end_unord_index)
 	{
 		// This is printing all or part of 1 byte.
 		fprint_byte_bits_4(p_file, p_buffer[beg_unord_index],
@@ -242,7 +233,7 @@ void fprint_bits(FILE* p_file,
     const uint8_t* p_buffer, const size_t buffer_size,
     const size_t bit_offset, const size_t bit_count)
 {
-	if(BYTE_ORDER == LITTLE_ENDIAN)
+	if (BYTE_ORDER == LITTLE_ENDIAN)
 	{
 		fprint_le_bits_5(p_file, p_buffer, buffer_size, bit_offset, bit_count);
 	}
@@ -259,11 +250,11 @@ void fprint_grouped_bits_5(FILE* p_file,
 {
 	const size_t max_bit = (buffer_size * SI_BITS_COUNT);
 	// Validate Parameters
-	if((NULL == p_file) || (NULL == p_buffer))
+	if ((NULL == p_file) || (NULL == p_buffer))
 	{
 		goto END;
 	}
-	if((0u >= grouping) || (max_bit <= grouping))
+	if ((0u >= grouping) || (max_bit <= grouping))
 	{
 		fprint_bytes_bits(p_file, p_buffer, buffer_size);
 		goto END;
@@ -272,12 +263,12 @@ void fprint_grouped_bits_5(FILE* p_file,
 	const size_t full_print_bits  = (full_print_count * grouping);
 	const bool has_remainder_bits = full_print_bits != max_bit;
 	// Begin
-	for(size_t print_index = 0u; print_index < full_print_count; print_index++)
+	for (size_t print_index = 0u; print_index < full_print_count; print_index++)
 	{
 		fprint_bits(p_file, p_buffer, buffer_size,
 			grouping * print_index, grouping);
 		const bool has_more_iterations = print_index < (full_print_count - 1u);
-		if(has_more_iterations || has_remainder_bits)
+		if (has_more_iterations || has_remainder_bits)
 		{
 			fprintf(p_file, "%c", spacer);
 		}
@@ -309,7 +300,7 @@ inline void fprint_grouped_bits(FILE* p_file,
 size_t bits_string_length(const size_t byte_count, const size_t grouping)
 {
 	size_t spacer_count = 0u;
-	if(0u < grouping)
+	if (0u < grouping)
 	{
 		spacer_count = (((SI_BITS_COUNT * byte_count) - 1u) / grouping);
 	}
@@ -325,18 +316,18 @@ size_t snprint_bits_6(char* string, const size_t n,
 {
 	size_t written = 0u;
 	// Validate Parameters
-	if((0u == n) || (0u == count))
+	if ((0u == n) || (0u == count))
 	{
 		goto END;
 	}
 	const size_t string_length = bits_string_length(count, grouping);
-	if(n < string_length)
+	if (n < string_length)
 	{
 		// Would write past the length of the buffer.
 		goto END;
 	}
 	FILE* p_stream = fmemopen(string, n, "r+");
-	if(NULL == p_stream)
+	if (NULL == p_stream)
 	{
 		// Failed to open buffer as file.
 		goto END;

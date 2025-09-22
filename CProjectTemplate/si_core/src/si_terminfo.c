@@ -6,7 +6,7 @@
 bool si_tui_is_ansi_l(const int file_d)
 {
 	bool result = false;
-	if(0 > file_d)
+	if (0 > file_d)
 	{
 		goto END;
 	}
@@ -19,7 +19,7 @@ END:
 bool si_tui_update_winsize(struct winsize* p_size, const int file_d)
 {
 	bool result = false;
-	if((NULL == p_size) || (0 > file_d))
+	if ((NULL == p_size) || (0 > file_d))
 	{
 		goto END;
 	}
@@ -35,13 +35,13 @@ END:
 bool si_tui_is_ansi(FILE* const p_file)
 {
 	bool result = false;
-	if(NULL == p_file)
+	if (NULL == p_file)
 	{
 		goto END;
 	}
 #ifdef __linux__
 	const int file_no = fileno(p_file);
-	if(0 > file_no)
+	if (0 > file_no)
 	{
 		goto END;
 	}
@@ -55,7 +55,7 @@ bool si_tui_supports_truecolor()
 {
 	bool result = false;
 	const char* const colorterm_env = getenv("COLORTERM");
-	if(NULL == colorterm_env)
+	if (NULL == colorterm_env)
 	{
 		goto END;
 	}
@@ -67,31 +67,31 @@ bool si_tui_supports_truecolor()
 	// This could be a hard coded value, but doing these checks allows us to
 	// easily change or add more valid values are needed in the future.
 	const size_t valid_count = sizeof(p_valid_values) / sizeof(const char*);
-	if(0u >= valid_count)
+	if (0u >= valid_count)
 	{
 		goto END;
 	}
 	size_t longest_valid_value = strnlen(p_valid_values[0], INT_MAX);
-	for(size_t iii = 1u; iii < valid_count; iii++)
+	for (size_t iii = 1u; iii < valid_count; iii++)
 	{
 		const size_t next_len = strnlen(p_valid_values[iii], INT_MAX);
-		if(longest_valid_value < next_len)
+		if (longest_valid_value < next_len)
 		{
 			longest_valid_value = next_len;
 		}
 	}
-	if(0u >= longest_valid_value)
+	if (0u >= longest_valid_value)
 	{
 		goto END;
 	}
 
 	// Actually checking of environment value
-	for(size_t iii = 0u; iii < valid_count; iii++)
+	for (size_t iii = 0u; iii < valid_count; iii++)
 	{
 		const int cmp_result = strncmp(
 			colorterm_env, p_valid_values[iii], longest_valid_value
 		);
-		if(0 == cmp_result)
+		if (0 == cmp_result)
 		{
 			result = true;
 			goto END;
@@ -105,13 +105,13 @@ bool si_tui_supports_unicode()
 {
 	bool result = false;
 	const char* p_locale = setlocale(LC_CTYPE, NULL);
-	if(NULL == p_locale)
+	if (NULL == p_locale)
 	{
 		goto END;
 	}
 	const char* const p_needle = "UTF";
 	const char* const p_result = strstr(p_locale, p_needle);
-	if(NULL == p_result)
+	if (NULL == p_result)
 	{
 		goto END;
 	}
@@ -122,12 +122,12 @@ END:
 
 void si_tui_send_ansi(FILE* const p_file, const char* p_code, ...)
 {
-	if((NULL == p_file) || (NULL == p_code))
+	if ((NULL == p_file) || (NULL == p_code))
 	{
 		goto END;
 	}
 	const bool is_ansi = si_tui_is_ansi(p_file);
-	if(true != is_ansi)
+	if (true != is_ansi)
 	{
 		goto END;
 	}
@@ -143,7 +143,7 @@ END:
 void si_terminfo_init(si_terminfo_t* const p_terminfo, FILE* const p_file)
 {
 	// Values that don't often change about the terminal get defined here.
-	if(NULL == p_terminfo)
+	if (NULL == p_terminfo)
 	{
 		goto END;
 	}
@@ -156,7 +156,7 @@ void si_terminfo_init(si_terminfo_t* const p_terminfo, FILE* const p_file)
 	);
 	p_terminfo->COLUMNS = 0u;
 	p_terminfo->ROWS = 0u;
-	if(NULL != p_file)
+	if (NULL != p_file)
 	{
 		si_terminfo_update(p_terminfo);
 	}
@@ -168,7 +168,7 @@ si_terminfo_t* si_terminfo_new(FILE* const p_file)
 {
 	si_terminfo_t* p_result = NULL;
 	p_result = calloc(1u, sizeof(si_terminfo_t));
-	if(NULL == p_result)
+	if (NULL == p_result)
 	{
 		goto END;
 	}
@@ -181,23 +181,23 @@ bool si_terminfo_update(si_terminfo_t* const p_terminfo)
 {
 	// Updates often changing terminal values here
 	bool result = false;
-	if(NULL == p_terminfo)
+	if (NULL == p_terminfo)
 	{
 		goto END;
 	}
 #ifdef __linux__
 	struct winsize wsize = {0};
-	if(NULL == p_terminfo->p_file)
+	if (NULL == p_terminfo->p_file)
 	{
 		goto END;
 	}
 	const int file_no = fileno(p_terminfo->p_file);
-	if(0 > file_no)
+	if (0 > file_no)
 	{
 		goto END;
 	}
 	const bool update_result = si_tui_update_winsize(&wsize, file_no);
-	if(true != update_result)
+	if (true != update_result)
 	{
 		goto END;
 	}
@@ -212,11 +212,11 @@ END:
 void si_terminfo_send_ansi(si_terminfo_t* const p_terminfo,
 	const char* p_code, ...)
 {
-	if((NULL == p_terminfo) || (NULL == p_code))
+	if ((NULL == p_terminfo) || (NULL == p_code))
 	{
 		goto END;
 	}
-	if((NULL == p_terminfo->p_file) || (true != p_terminfo->supports_ansi))
+	if ((NULL == p_terminfo->p_file) || (true != p_terminfo->supports_ansi))
 	{
 		goto END;
 	}
@@ -232,7 +232,7 @@ int si_terminfo_printf_centered(si_terminfo_t* const p_terminfo,
 	const char* const p_format, ...)
 {
 	int result = -1;
-	if((NULL == p_terminfo) || (NULL == p_format))
+	if ((NULL == p_terminfo) || (NULL == p_format))
 	{
 		goto END;
 	}
@@ -240,7 +240,7 @@ int si_terminfo_printf_centered(si_terminfo_t* const p_terminfo,
 	va_start(args, p_format);
 
 	// Handles an Unknown or Undefined terminal width size.
-	if((NULL == p_terminfo->p_file) || (0u >= p_terminfo->COLUMNS))
+	if ((NULL == p_terminfo->p_file) || (0u >= p_terminfo->COLUMNS))
 	{
 		goto ERROR;
 	}
@@ -249,13 +249,13 @@ int si_terminfo_printf_centered(si_terminfo_t* const p_terminfo,
 	char* p_str = str_from_fprint(
 		(str_fprint_f)vfprintf, p_format, args
 	);
-	if(NULL == p_str)
+	if (NULL == p_str)
 	{
 		goto ERROR;
 	}
 	const size_t output_len = str_countf(p_str, (should_count_char_f)isprint);
-	if((SIZE_MAX <= output_len) || (0u >= output_len) ||
-	   (p_terminfo->COLUMNS < output_len))
+	if ((SIZE_MAX <= output_len) || (0u >= output_len) ||
+	    (p_terminfo->COLUMNS < output_len))
 	{
 		goto ERROR;
 	}
@@ -263,10 +263,10 @@ int si_terminfo_printf_centered(si_terminfo_t* const p_terminfo,
 	// Prints the spacers followed by the formatted string value.
 	fprintf(p_terminfo->p_file, "\r");
 	const size_t spacer_count = ((p_terminfo->COLUMNS / 2) - (output_len / 2));
-	for(size_t iii = 0u; spacer_count > iii; iii++)
+	for (size_t iii = 0u; spacer_count > iii; iii++)
 	{
 		const int print_spacer_result = fprintf(p_terminfo->p_file, "%c", ' ');
-		if(0 >= print_spacer_result)
+		if (0 >= print_spacer_result)
 		{
 			break;
 		}
@@ -274,13 +274,13 @@ int si_terminfo_printf_centered(si_terminfo_t* const p_terminfo,
 	result = fprintf(p_terminfo->p_file, "%s", p_str);
 	goto CLEAN;
 ERROR:
-	if(NULL != p_terminfo->p_file)
+	if (NULL != p_terminfo->p_file)
 	{
 		result = vfprintf(p_terminfo->p_file, p_format, args);
 	}
 CLEAN:
 	va_end(args);
-	if(NULL != p_str)
+	if (NULL != p_str)
 	{
 		free(p_str);
 		p_str = NULL;
@@ -292,7 +292,7 @@ END:
 void si_terminfo_free(si_terminfo_t* const p_terminfo)
 {
 	//! TODO No heap data (yet?)
-	if(NULL == p_terminfo)
+	if (NULL == p_terminfo)
 	{
 		goto END;
 	}
@@ -302,11 +302,11 @@ END:
 
 void si_terminfo_destroy(si_terminfo_t** pp_terminfo)
 {
-	if(NULL == pp_terminfo)
+	if (NULL == pp_terminfo)
 	{
 		goto END;
 	}
-	if(NULL == *pp_terminfo)
+	if (NULL == *pp_terminfo)
 	{
 		// Already Freed
 		goto END;

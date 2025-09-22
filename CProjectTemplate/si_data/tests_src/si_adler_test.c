@@ -34,7 +34,7 @@ void si_adler_test_main(void)
 	const size_t inputs_count = 5u;
 
 	si_adler_t hash = (si_adler_t){0};
-	for(size_t iii = 0u; iii < inputs_count; iii++)
+	for (size_t iii = 0u; iii < inputs_count; iii++)
 	{
 		si_adler_new(&hash, 2u);
 		size_t input_length = strlen(p_inputs[iii]);

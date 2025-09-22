@@ -27,7 +27,7 @@ struct exampleObject
  */
 static void example_object_fprint(FILE* p_file, struct exampleObject* p_object)
 {
-	if((NULL == p_file) || (NULL == p_object))
+	if ((NULL == p_file) || (NULL == p_object))
 	{
 		goto END;
 	}

@@ -37,7 +37,7 @@ si_queue_t* si_queue_new_3(const size_t element_size,
 	const size_t initial_capacity, const si_realloc_settings_t* p_settings)
 {
 	si_queue_t* p_new = calloc(1u, sizeof(si_queue_t));
-	if(NULL == p_new)
+	if (NULL == p_new)
 	{
 		goto END;
 	}
@@ -83,11 +83,11 @@ size_t si_queue_capacity(const si_queue_t* const p_queue)
 	 * be stored is the array.capacity - 1u.
 	 */
 	size_t result = 0u;
-	if(NULL == p_queue)
+	if (NULL == p_queue)
 	{
 		goto END;
 	}
-	if(1u >= p_queue->array.capacity)
+	if (1u >= p_queue->array.capacity)
 	{
 		goto END;
 	}
@@ -103,7 +103,7 @@ bool si_queue_is_empty(const si_queue_t* const p_queue)
 	{
 		goto END;
 	}
-	if(1u >= p_queue->array.capacity)
+	if (1u >= p_queue->array.capacity)
 	{
 		goto END;
 	}
@@ -120,7 +120,7 @@ bool si_queue_is_full(const si_queue_t* const p_queue)
 	{
 		goto END;
 	}
-	if(1u >= p_queue->array.capacity)
+	if (1u >= p_queue->array.capacity)
 	{
 		goto END;
 	}
@@ -151,14 +151,14 @@ size_t si_queue_enqueue(si_queue_t* const p_queue, const void* const p_item)
 			// Or growth amount didn't increase capacity(0).
 			goto END;
 		}
-		else if(true != did_settings_grow)
+		else if (true != did_settings_grow)
 		{
 			// Settings failed or missing, try using a default grow by 1.
 			const bool did_grow = si_array_resize(
 				&(p_queue->array), p_queue->array.capacity + 1u
 			);
 			is_still_full = si_queue_is_full(p_queue);
-			if((true != did_grow) || (true == is_still_full))
+			if ((true != did_grow) || (true == is_still_full))
 			{
 				// All else has failed.
 				goto END;
@@ -175,7 +175,7 @@ END:
 size_t si_queue_dequeue(si_queue_t* const p_queue, void* const p_item)
 {
 	size_t new_count = 0u;
-	if((NULL == p_queue) || (NULL == p_item))
+	if ((NULL == p_queue) || (NULL == p_item))
 	{
 		goto END;
 	}
@@ -204,11 +204,11 @@ END:
 
 void si_queue_free_at(si_queue_t** pp_queue)
 {
-	if(NULL == pp_queue)
+	if (NULL == pp_queue)
 	{
 		goto END;
 	}
-	if(NULL == *pp_queue)
+	if (NULL == *pp_queue)
 	{
 		// Already freed
 		goto END;
@@ -222,11 +222,11 @@ END:
 
 void si_queue_fprint(FILE* const p_file, const si_queue_t* const p_queue)
 {
-	if(NULL == p_file)
+	if (NULL == p_file)
 	{
 		goto END;
 	}
-	if(NULL == p_queue)
+	if (NULL == p_queue)
 	{
 		fprintf(p_file, "NULL");
 		goto END;

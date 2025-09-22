@@ -40,7 +40,7 @@ void si_queue_test_modify(void)
 
 	printf("Testing enqueue():\n");
 	char chr = 'a';
-	for(size_t iii = 0u; iii < data_size; iii++)
+	for (size_t iii = 0u; iii < data_size; iii++)
 	{
 		printf("Count: %lu\t", si_queue_count(p_queue));
 		TEST_ASSERT_EQUAL_size_t(iii + 1u, si_queue_enqueue(p_queue, &chr));
@@ -52,7 +52,7 @@ void si_queue_test_modify(void)
 	printf("\n");
 	
 	printf("Testing dequeue():\n");
-	for(size_t iii = 0; iii < data_size; iii++)
+	for (size_t iii = 0; iii < data_size; iii++)
 	{
 		printf("Count: %lu\t", si_queue_count(p_queue));
 		TEST_ASSERT_EQUAL_size_t(
@@ -79,7 +79,7 @@ void si_queue_test_template(void)
 	TEST_ASSERT_TRUE(si_queue_is_empty(p_queue));
 
 	printf("Testing enqueue():\n");
-	for(size_t iii = 0; iii < data_size; iii++)
+	for (size_t iii = 0; iii < data_size; iii++)
 	{
 		char chr = 'a' + iii;
 		printf("Count: %lu\t", si_queue_count(p_queue));
@@ -94,7 +94,7 @@ void si_queue_test_template(void)
 	printf("\n");
 
 	printf("Testing dequeue():\n");
-	for(size_t iii = 0; iii < data_size; iii++)
+	for (size_t iii = 0; iii < data_size; iii++)
 	{
 		printf("Count: %lu\t", si_queue_count(p_queue));
 		char chr = char_queue_dequeue(p_queue);

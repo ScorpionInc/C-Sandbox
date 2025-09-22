@@ -5,18 +5,18 @@ char* strn_clone_concat(const char* const p_left, const size_t left_size,
 	const char* const p_right, const size_t right_size)
 {
 	char* p_result = NULL;
-	if((NULL == p_left) || (NULL == p_right))
+	if ((NULL == p_left) || (NULL == p_right))
 	{
 		goto END;
 	}
 	size_t new_size = (left_size + right_size + 1u);
 	// Handle Overflow
-	if((new_size < left_size) || (new_size < right_size))
+	if ((new_size < left_size) || (new_size < right_size))
 	{
 		goto END;
 	}
 	p_result = calloc(new_size, sizeof(char));
-	if(NULL == p_result)
+	if (NULL == p_result)
 	{
 		goto END;
 	}
@@ -32,13 +32,13 @@ char* str_clone_concat(const char* const p_left,
 {
 	// Defaults to strnlen(p_str, INT64_MAX) for string size.
 	char* p_value = NULL;
-	if((NULL == p_left) || (NULL == p_right))
+	if ((NULL == p_left) || (NULL == p_right))
 	{
 		goto END;
 	}
 	const size_t left_size = strnlen(p_left, INT64_MAX);
 	const size_t right_size = strnlen(p_right, INT64_MAX);
-	if((left_size >= INT64_MAX) || (right_size >= INT64_MAX))
+	if ((left_size >= INT64_MAX) || (right_size >= INT64_MAX))
 	{
 		goto END;
 	}
@@ -53,27 +53,27 @@ END:
 char* strv_clone_concat(const size_t argc, ...)
 {
 	char* p_result = NULL;
-	if(0 >= argc)
+	if (0 >= argc)
 	{
 		goto END;
 	}
 	char* p_tmp = NULL;
 	va_list args = {0};
 	va_start(args, argc);
-	for(size_t iii = 0u; iii < argc; iii++)
+	for (size_t iii = 0u; iii < argc; iii++)
 	{
 		char* p_arg = va_arg(args, char*);
-		if(NULL == p_arg)
+		if (NULL == p_arg)
 		{
 			continue;
 		}
-		if(NULL == p_result)
+		if (NULL == p_result)
 		{
 			p_result = strdup(p_arg);
 			continue;
 		}
 		p_tmp = str_clone_concat(p_result, p_arg);
-		if(NULL == p_tmp)
+		if (NULL == p_tmp)
 		{
 			continue;
 		}
@@ -89,67 +89,67 @@ char* str_clone_join(const size_t argc,	const char* const p_seperator,
 	const char** const pp_argv)
 {
 	char* p_result = NULL;
-	if((0u >= argc) || (NULL == pp_argv))
+	if ((0u >= argc) || (NULL == pp_argv))
 	{
 		goto END;
 	}
 	size_t sep_len = 0u;
 	size_t new_size = 0u;
 	size_t counter = 0u;
-	if(NULL != p_seperator)
+	if (NULL != p_seperator)
 	{
 		sep_len = strnlen(p_seperator, INT64_MAX);
-		if(INT64_MAX <= sep_len)
+		if (INT64_MAX <= sep_len)
 		{
 			sep_len = 0u;
 		}
 	}
-	for(size_t opr = 0u; opr < 2u; opr++)
+	for (size_t opr = 0u; opr < 2u; opr++)
 	{
-		for(size_t iii = 0u; iii < argc; iii++)
+		for (size_t iii = 0u; iii < argc; iii++)
 		{
 			const char* const p_next = pp_argv[iii];
-			if(NULL == p_next)
+			if (NULL == p_next)
 			{
 				continue;
 			}
 			size_t next_len = strnlen(p_next, INT64_MAX);
-			if(INT64_MAX <= next_len)
+			if (INT64_MAX <= next_len)
 			{
 				continue;
 			}
-			if((0u == opr) && (iii < argc - 1u))
+			if ((0u == opr) && (iii < argc - 1u))
 			{
 				// Handle overflow
-				if((SIZE_MAX - next_len) < sep_len)
+				if ((SIZE_MAX - next_len) < sep_len)
 				{
 					break;
 				}
 				next_len += sep_len;
 			}
 			// Handle overflow
-			if((SIZE_MAX - next_len) < new_size)
+			if ((SIZE_MAX - next_len) < new_size)
 			{
 				break;
 			}
-			if(0u == opr)
+			if (0u == opr)
 			{
 				new_size += next_len;
 			}
 			else
 			{
 				memcpy(&(p_result[counter]), p_next, next_len);
-				if(iii < argc - 1u)
+				if (iii < argc - 1u)
 				{
 					memcpy(&p_result[counter + next_len], p_seperator, sep_len);
 				}
 				counter += (next_len + sep_len);
 			}
 		}
-		if(0u == opr)
+		if (0u == opr)
 		{
 			p_result = calloc(++new_size, sizeof(char));
-			if(NULL == p_result)
+			if (NULL == p_result)
 			{
 				break;
 			}
@@ -168,17 +168,17 @@ char* strv_clone_join(const size_t argc, const char* const p_seperator, ...)
 {
 	char* p_result = NULL;
 	const char** pp_argv = calloc(argc, sizeof(char*));
-	if(NULL == pp_argv)
+	if (NULL == pp_argv)
 	{
 		goto END;
 	}
 	va_list args = {0};
 	va_start(args, p_seperator);
 	size_t valid_counter = 0u;
-	for(size_t iii = 0u; iii < argc; iii++)
+	for (size_t iii = 0u; iii < argc; iii++)
 	{
 		char* p_arg = va_arg(args, char*);
-		if(NULL == p_arg)
+		if (NULL == p_arg)
 		{
 			continue;
 		}
@@ -197,34 +197,34 @@ char** strn_split(const char* const p_haystack, const size_t haystack_len,
 	size_t* const p_count)
 {
 	char** pp_result = NULL;
-	if((NULL == p_haystack) || (NULL == p_needle) || (NULL == p_count))
+	if ((NULL == p_haystack) || (NULL == p_needle) || (NULL == p_count))
 	{
 		goto END;
 	}
-	if(0u >= haystack_len)
+	if (0u >= haystack_len)
 	{
 		goto END;
 	}
 	size_t tail = 0u;
-	if((0u >= needle_len) || (needle_len > haystack_len))
+	if ((0u >= needle_len) || (needle_len > haystack_len))
 	{
 		// No matches possible. Returns one element containing haystack clone.
 		goto TAIL;
 	}
-	for(size_t iii = 0u; iii < (haystack_len - needle_len); iii++)
+	for (size_t iii = 0u; iii < (haystack_len - needle_len); iii++)
 	{
 		const int cmp_result = memcmp(&(p_haystack[iii]), p_needle, needle_len);
-		if(0 == cmp_result)
+		if (0 == cmp_result)
 		{
 			*p_count += 1u;
 			pp_result = realloc(pp_result, (*p_count) * sizeof(char*));
-			if(NULL == pp_result)
+			if (NULL == pp_result)
 			{
 				goto END;
 			}
 			const size_t next_len = (iii - tail) + 1u;
 			pp_result[*p_count - 1u] = calloc(next_len, sizeof(char));
-			if(NULL == pp_result[*p_count - 1u])
+			if (NULL == pp_result[*p_count - 1u])
 			{
 				goto END;
 			}
@@ -237,13 +237,13 @@ char** strn_split(const char* const p_haystack, const size_t haystack_len,
 		}
 	}
 TAIL:
-	if((haystack_len - 1u) <= tail)
+	if ((haystack_len - 1u) <= tail)
 	{
 		goto END;
 	}
 	*p_count += 1u;
 	pp_result = realloc(pp_result, (*p_count) * sizeof(char*));
-	if(NULL == pp_result)
+	if (NULL == pp_result)
 	{
 		goto END;
 	}
@@ -256,17 +256,17 @@ char** str_split(const char* const p_haystack, const char* p_needle,
 	size_t* const p_count)
 {
 	char** pp_result = NULL;
-	if((NULL == p_haystack) || (NULL == p_needle) || (NULL == p_count))
+	if ((NULL == p_haystack) || (NULL == p_needle) || (NULL == p_count))
 	{
 		goto END;
 	}
 	const size_t haystack_len = strnlen(p_haystack, INT64_MAX);
-	if(INT64_MAX <= haystack_len)
+	if (INT64_MAX <= haystack_len)
 	{
 		goto END;
 	}
 	const size_t needle_len = strnlen(p_needle, INT64_MAX);
-	if(INT64_MAX <= needle_len)
+	if (INT64_MAX <= needle_len)
 	{
 		goto END;
 	}
@@ -279,16 +279,16 @@ END:
 
 void str_split_destroy(char*** const ppp_array, const size_t arg_count)
 {
-	if(NULL == ppp_array)
+	if (NULL == ppp_array)
 	{
 		goto END;
 	}
-	if(NULL == *ppp_array)
+	if (NULL == *ppp_array)
 	{
 		// Already freed
 		goto END;
 	}
-	for(size_t iii = 0u; iii < arg_count; iii++)
+	for (size_t iii = 0u; iii < arg_count; iii++)
 	{
 		free((*ppp_array)[iii]);
 		(*ppp_array)[iii] = NULL;
@@ -303,20 +303,20 @@ size_t strn_countf(const char* const p_str, const size_t max_len,
 	should_count_char_f should_count_char)
 {
 	size_t result = max_len;
-	if((NULL == p_str) || (0u >= max_len) || (NULL == should_count_char))
+	if ((NULL == p_str) || (0u >= max_len) || (NULL == should_count_char))
 	{
 		goto END;
 	}
 	result = 0u;
-	for(size_t iii = 0u; iii < max_len; iii++)
+	for (size_t iii = 0u; iii < max_len; iii++)
 	{
 		const char next_char = p_str[iii];
 		const int should_be_counted = should_count_char(next_char);
-		if(0 < should_be_counted)
+		if (0 < should_be_counted)
 		{
 			result++;
 		}
-		if('\0' == next_char)
+		if ('\0' == next_char)
 		{
 			break;
 		}
@@ -328,12 +328,12 @@ size_t str_countf(const char* const p_str,
 	should_count_char_f should_count_char)
 {
 	size_t result = SIZE_MAX;
-	if((NULL == p_str) || (NULL == should_count_char))
+	if ((NULL == p_str) || (NULL == should_count_char))
 	{
 		goto END;
 	}
 	const size_t str_size = strnlen(p_str, INT64_MAX);
-	if(INT64_MAX <= str_size)
+	if (INT64_MAX <= str_size)
 	{
 		goto END;
 	}
@@ -345,11 +345,11 @@ END:
 void strn_chr_remap(char* const p_input_str, const size_t input_size,
 	chr_remap_f p_map_chr)
 {
-	if(NULL == p_input_str)
+	if (NULL == p_input_str)
 	{
 		goto END;
 	}
-	for(size_t iii = 0u; iii < input_size; iii++)
+	for (size_t iii = 0u; iii < input_size; iii++)
 	{
 		const char next_char = p_map_chr(p_input_str[iii], iii);
 		p_input_str[iii] = next_char;
@@ -359,7 +359,7 @@ END:
 }
 void str_chr_remap(char* const p_input_str, chr_remap_f p_map_chr)
 {
-	if((NULL == p_input_str) || (NULL == p_map_chr))
+	if ((NULL == p_input_str) || (NULL == p_map_chr))
 	{
 		goto END;
 	}
@@ -418,15 +418,15 @@ char* strn_clone_substitute_7(
 	int (*p_strncmp)(const char* p_s1, const char* p_s2, const size_t n))
 {
 	char* p_result = NULL;
-	if((NULL == p_haystack) || (NULL == p_needle) || (NULL == p_value))
+	if ((NULL == p_haystack) || (NULL == p_needle) || (NULL == p_value))
 	{
 		goto END;
 	}
-	if(0 >= haystack_size)
+	if (0 >= haystack_size)
 	{
 		goto END;
 	}
-	if(needle_size > haystack_size)
+	if (needle_size > haystack_size)
 	{
 		p_result = strndup(p_haystack, haystack_size);
 		goto END;
@@ -435,18 +435,18 @@ char* strn_clone_substitute_7(
 	size_t current_size = 0u;
 	size_t next_start = 0u;
 	size_t tail_length = 0u;
-	for(size_t iii = 0u; iii < haystack_size; iii++)
+	for (size_t iii = 0u; iii < haystack_size; iii++)
 	{
 		const char* const p_next = &(p_haystack[iii]);
-		if((haystack_size - iii) < needle_size)
+		if ((haystack_size - iii) < needle_size)
 		{
 			tail_length = (haystack_size - iii);
 			break;
 		}
 		const int cmp_result = p_strncmp(p_next, p_needle, needle_size);
-		if(0 == cmp_result)
+		if (0 == cmp_result)
 		{
-			if(NULL == p_result)
+			if (NULL == p_result)
 			{
 				current_size = (iii - next_start);
 				p_result = strndup(
@@ -477,15 +477,15 @@ char* strn_clone_substitute_7(
 			continue;
 		}
 	}
-	if(0u < tail_length)
+	if (0u < tail_length)
 	{
 		current_size += tail_length;
-		if(NULL != p_result)
+		if (NULL != p_result)
 		{
 			p_tmp = str_clone_concat(
 				p_result, &(p_haystack[haystack_size - tail_length])
 			);
-			if(NULL != p_tmp)
+			if (NULL != p_tmp)
 			{
 				free(p_result);
 				p_result = p_tmp;
@@ -521,7 +521,7 @@ char* str_clone_substitute_4(const char* const p_haystack,
 	int (*p_strncmp)(const char* p_s1, const char* p_s2, const size_t n))
 {
 	char* p_result = NULL;
-	if((NULL == p_haystack) || (NULL == p_needle) || (NULL == p_value))
+	if ((NULL == p_haystack) || (NULL == p_needle) || (NULL == p_value))
 	{
 		goto END;
 	}
@@ -549,28 +549,28 @@ inline char* str_clone_substitute(const char* const p_haystack,
 char* pop_str_from_heap(uint8_t** const pp_buffer, size_t* const p_buffer_size)
 {
 	char* p_result = NULL;
-	if((NULL == pp_buffer) || (NULL == p_buffer_size))
+	if ((NULL == pp_buffer) || (NULL == p_buffer_size))
 	{
 		goto END;
 	}
-	if(0u >= *p_buffer_size)
+	if (0u >= *p_buffer_size)
 	{
 		goto END;
 	}
 	size_t string_length = strnlen((char*)*pp_buffer, *p_buffer_size);
-	if(string_length >= *p_buffer_size)
+	if (string_length >= *p_buffer_size)
 	{
 		goto END;
 	}
 	p_result = calloc(string_length + 1u, sizeof(char));
-	if(NULL == p_result)
+	if (NULL == p_result)
 	{
 		goto END;
 	}
 	strncpy(p_result, (const char*)(*pp_buffer), string_length + 1u);
 	p_result[string_length] = '\0';
 	const size_t non_str_len = *p_buffer_size - (string_length + 1u);
-	if((0u < non_str_len) && ((string_length + 1u) < *p_buffer_size))
+	if ((0u < non_str_len) && ((string_length + 1u) < *p_buffer_size))
 	{
 		memcpy(
 			&((*pp_buffer)[0]), &((*pp_buffer)[string_length + 1u]), non_str_len
@@ -585,7 +585,7 @@ END:
 char* str_from_fprint(str_fprint_f fprint_f, const void* const p_value, ...)
 {
 	char* p_buffer = NULL;
-	if((NULL == fprint_f) || (NULL == p_value))
+	if ((NULL == fprint_f) || (NULL == p_value))
 	{
 		goto END;
 	}
@@ -594,14 +594,14 @@ char* str_from_fprint(str_fprint_f fprint_f, const void* const p_value, ...)
 #ifdef __linux__
 	size_t buffer_size = 0u;
 	FILE* const p_file = open_memstream(&p_buffer, &buffer_size);
-	if(NULL == p_file)
+	if (NULL == p_file)
 	{
 		goto CLEAN;
 	}
 	const int fprint_result = fprint_f(p_file, p_value, args);
 	const int flush_result = fflush(p_file);
 	(void)fclose(p_file);
-	if((0 > fprint_result) || (0 > flush_result))
+	if ((0 > fprint_result) || (0 > flush_result))
 	{
 		goto CLEAN;
 	}
@@ -612,7 +612,7 @@ char* str_from_fprint(str_fprint_f fprint_f, const void* const p_value, ...)
 #endif//__linux__
 CLEAN:
 	va_end(args);
-	if(NULL != p_buffer)
+	if (NULL != p_buffer)
 	{
 		free(p_buffer);
 		p_buffer = NULL;

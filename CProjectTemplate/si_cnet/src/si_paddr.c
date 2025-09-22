@@ -6,11 +6,11 @@ void convert_ipv4_addr_to_network(
 	uint8_t p_address[INET_ADDRESS_SIZE],
 	const uint8_t p_sub_msk[INET_ADDRESS_SIZE])
 {
-	if(NULL == p_address)
+	if (NULL == p_address)
 	{
 		goto END;
 	}
-	for(size_t iii = 0u; iii < INET_ADDRESS_SIZE; iii++)
+	for (size_t iii = 0u; iii < INET_ADDRESS_SIZE; iii++)
 	{
 		p_address[iii] = (p_address[iii] & p_sub_msk[iii]);
 	}
@@ -25,9 +25,9 @@ bool is_within_ipv4_network(
 {
 	// Assumes all are in the same byte order
 	bool result = false;
-	if((NULL == p_network_address) ||
-	   (NULL == p_subnet_mask)     ||
-	   (NULL == p_test_address))
+	if ((NULL == p_network_address) ||
+	    (NULL == p_subnet_mask)     ||
+	    (NULL == p_test_address))
 	{
 		goto END;
 	}
@@ -38,9 +38,9 @@ bool is_within_ipv4_network(
 	memcpy(p_test, p_test_address, INET_ADDRESS_SIZE);
 	convert_ipv4_addr_to_network(p_network, p_subnet_mask);
 	convert_ipv4_addr_to_network(p_test, p_subnet_mask);
-	for(size_t iii = 0u; iii < INET_ADDRESS_SIZE; iii++)
+	for (size_t iii = 0u; iii < INET_ADDRESS_SIZE; iii++)
 	{
-		if(p_network[iii] != p_test[iii])
+		if (p_network[iii] != p_test[iii])
 		{
 			goto END;
 		}
@@ -54,7 +54,7 @@ bool is_localhost_address_v4(const struct sockaddr_in* const p_address)
 {
 	// Assumes address is in network order
 	bool result = false;
-	if(NULL == p_address)
+	if (NULL == p_address)
 	{
 		goto END;
 	}
@@ -67,7 +67,7 @@ bool is_localhost_address_v4(const struct sockaddr_in* const p_address)
 		(const uint8_t*)&loopback_mask,
 		(const uint8_t*)&address
 	);
-	if(true == result)
+	if (true == result)
 	{
 		goto END;
 	}
@@ -75,9 +75,9 @@ bool is_localhost_address_v4(const struct sockaddr_in* const p_address)
 	// it is an unassigned address. Thus, is one of the loopback addresses but
 	// would still be related to localhost so we will pass it. (For now)
 	const uint8_t* const p_bytes = (uint8_t*)&(p_address->sin_addr);
-	for(size_t iii = 0u; iii < INET_ADDRESS_SIZE; iii++)
+	for (size_t iii = 0u; iii < INET_ADDRESS_SIZE; iii++)
 	{
-		if(0x00 != p_bytes[iii])
+		if (0x00 != p_bytes[iii])
 		{
 			goto END;
 		}
@@ -90,19 +90,19 @@ bool is_localhost_address_v6(const struct sockaddr_in6* const p_address)
 {
 	// Assumes network is in network order
 	bool result = false;
-	if(NULL == p_address)
+	if (NULL == p_address)
 	{
 		goto END;
 	}
 	uint8_t* const address_bytes = (uint8_t*)&(p_address->sin6_addr);
-	for(size_t iii = 0u; iii < INET6_ADDRESS_SIZE - 1u; iii++)
+	for (size_t iii = 0u; iii < INET6_ADDRESS_SIZE - 1u; iii++)
 	{
-		if(0x00 != address_bytes[iii])
+		if (0x00 != address_bytes[iii])
 		{
 			goto END;
 		}
 	}
-	if( 0x00 == address_bytes[INET6_ADDRESS_SIZE - 1u] ||
+	if (0x00 == address_bytes[INET6_ADDRESS_SIZE - 1u] ||
 		0x01 == address_bytes[INET6_ADDRESS_SIZE - 1u] )
 	{
 		// Technically the address of :: is all of the local interfaces or
@@ -118,11 +118,11 @@ bool is_localhost_address(const struct sockaddr* const p_address)
 {
 	// Assumes address is in network order
 	bool result = false;
-	if(NULL == p_address)
+	if (NULL == p_address)
 	{
 		goto END;
 	}
-	switch(p_address->sa_family)
+	switch (p_address->sa_family)
 	{
 		case(AF_INET):
 			result = is_localhost_address_v4((struct sockaddr_in*)p_address);
@@ -144,7 +144,7 @@ bool is_ipv6_a_mapped_ipv4(const uint8_t p_address[INET6_ADDRESS_SIZE])
 {
 	// TODO IN6_IS_ADDR_V4MAPPED from <netinet/in.h> might also work.
 	bool result = false;
-	if(NULL == p_address)
+	if (NULL == p_address)
 	{
 		goto END;
 	}
@@ -154,17 +154,17 @@ bool is_ipv6_a_mapped_ipv4(const uint8_t p_address[INET6_ADDRESS_SIZE])
 	);
 	const size_t INET_START = (PADDING_END + PREFIX_SIZE);
 	// Validate zero padding
-	for(size_t iii = 0u; iii < PADDING_END; iii++)
+	for (size_t iii = 0u; iii < PADDING_END; iii++)
 	{
-		if(0u != p_address[iii])
+		if (0u != p_address[iii])
 		{
 			goto END;
 		}
 	}
 	// Validate 0xFF prefix
-	for(size_t iii = PADDING_END; iii < INET_START; iii++)
+	for (size_t iii = PADDING_END; iii < INET_START; iii++)
 	{
-		if(__UINT8_MAX__ != p_address[iii])
+		if (__UINT8_MAX__ != p_address[iii])
 		{
 			goto END;
 		}
@@ -179,7 +179,7 @@ uint32_t ipv4_from_ipv6(const uint8_t p_address[INET6_ADDRESS_SIZE])
 	// Assumes in network order. Returns host order.
 	uint32_t result = UINT32_MAX;
 	const bool is_mapped = is_ipv6_a_mapped_ipv4(p_address);
-	if(false == is_mapped)
+	if (false == is_mapped)
 	{
 		goto END;
 	}
@@ -196,19 +196,19 @@ bool does_ipv6_map_to_ipv4(const struct sockaddr_in6* const p_v6addr,
 {
 	// Assumes both are in network order.
 	bool result = false;
-	if((NULL == p_v6addr) || (NULL == p_v4addr))
+	if ((NULL == p_v6addr) || (NULL == p_v4addr))
 	{
 		goto END;
 	}
 	const uint8_t* const p_v6_bytes = (uint8_t*)&(p_v6addr->sin6_addr);
 	const uint32_t mapped_address = ipv4_from_ipv6(p_v6_bytes);
-	if(UINT32_MAX == mapped_address)
+	if (UINT32_MAX == mapped_address)
 	{
 		goto END;
 	}
 	const uint32_t addr = ntohl(*((uint32_t*)&(p_v4addr->sin_addr)));
 	result = (mapped_address == addr);
-	if((true != result) || (true == ignore_ports))
+	if ((true != result) || (true == ignore_ports))
 	{
 		goto END;
 	}
@@ -220,7 +220,7 @@ END:
 size_t sockaddr_sizeof(const sa_family_t family)
 {
 	size_t result = 0u;
-	switch(family)
+	switch (family)
 	{
 		case(AF_INET):
 			result = sizeof(struct sockaddr_in);
@@ -241,21 +241,21 @@ struct sockaddr* sockaddr_new(const sa_family_t family)
 {
 	struct sockaddr* result = NULL;
 	const size_t addr_size = sockaddr_sizeof(family);
-	if(0u >= addr_size)
+	if (0u >= addr_size)
 	{
 		goto END;
 	}
 
 	// Create/Allocate new address struct
 	result = calloc(1u, addr_size);
-	if(NULL == result)
+	if (NULL == result)
 	{
 		goto END;
 	}
 	memset(result, 0x00, addr_size);
 
 	// Initialize address values
-	switch(family)
+	switch (family)
 	{
 		case(AF_INET):
 			((struct sockaddr_in*)result)->sin_family = AF_INET;
@@ -277,12 +277,12 @@ int sockaddr_in_cmp(const struct sockaddr_in* const p_left,
 	const struct sockaddr_in* const p_right, const bool ignore_ports)
 {
 	int result = 0;
-	if(p_left == p_right)
+	if (p_left == p_right)
 	{
 		goto END;
 	}
 	result = -1;
-	if(NULL == p_left)
+	if (NULL == p_left)
 	{
 		goto END;
 	}
@@ -292,7 +292,7 @@ int sockaddr_in_cmp(const struct sockaddr_in* const p_left,
 		&(p_right->sin_family),
 		sizeof(sa_family_t)
 	);
-	if(0 != result)
+	if (0 != result)
 	{
 		// Doesn't handle mapped addresses
 		goto END;
@@ -302,7 +302,7 @@ int sockaddr_in_cmp(const struct sockaddr_in* const p_left,
 		&(p_right->sin_addr),
 		sizeof(struct in_addr)
 	);
-	if((0 != result) || (true == ignore_ports))
+	if ((0 != result) || (true == ignore_ports))
 	{
 		goto END;
 	}
@@ -319,12 +319,12 @@ int sockaddr_in6_cmp(const struct sockaddr_in6* const p_left,
 	const struct sockaddr_in6* const p_right, const bool ignore_ports)
 {
 	int result = 0;
-	if(p_left == p_right)
+	if (p_left == p_right)
 	{
 		goto END;
 	}
 	result = -1;
-	if(NULL == p_left)
+	if (NULL == p_left)
 	{
 		goto END;
 	}
@@ -334,7 +334,7 @@ int sockaddr_in6_cmp(const struct sockaddr_in6* const p_left,
 		&p_right->sin6_family,
 		sizeof(sa_family_t)
 	);
-	if(0 != result)
+	if (0 != result)
 	{
 		// Doesn't handle mapped addresses
 		goto END;
@@ -344,7 +344,7 @@ int sockaddr_in6_cmp(const struct sockaddr_in6* const p_left,
 		&p_right->sin6_addr,
 		sizeof(struct in6_addr)
 	);
-	if((0 != result) || (true == ignore_ports))
+	if ((0 != result) || (true == ignore_ports))
 	{
 		goto END;
 	}
@@ -361,16 +361,16 @@ int sockaddr_cmp(const struct sockaddr* const p_left,
 	const struct sockaddr* const p_right, const bool ignore_ports)
 {
 	int result = 0;
-	if((NULL == p_left) || (NULL == p_right))
+	if ((NULL == p_left) || (NULL == p_right))
 	{
 		goto END;
 	}
 	const sa_family_t left_family = p_left->sa_family;
 	const sa_family_t right_family = p_right->sa_family;
-	switch(left_family)
+	switch (left_family)
 	{
 		case(AF_INET):
-			switch(right_family)
+			switch (right_family)
 			{
 				case(AF_INET):
 					result = sockaddr_in_cmp(
@@ -387,7 +387,7 @@ int sockaddr_cmp(const struct sockaddr* const p_left,
 						(const struct sockaddr_in*)p_left,
 						ignore_ports
 					);
-					if(true == match)
+					if (true == match)
 					{
 						result = 0;
 					}
@@ -400,7 +400,7 @@ int sockaddr_cmp(const struct sockaddr* const p_left,
 			break;
 #ifdef AF_INET6
 		case(AF_INET6):
-			switch(right_family)
+			switch (right_family)
 			{
 				case(AF_INET):
 					result = -1;
@@ -409,7 +409,7 @@ int sockaddr_cmp(const struct sockaddr* const p_left,
 						(const struct sockaddr_in*)p_right,
 						ignore_ports
 					);
-					if(true == match)
+					if (true == match)
 					{
 						result = 0;
 					}
@@ -438,19 +438,19 @@ END:
 bool sockaddr_in_is_valid(struct sockaddr_in* const p_addr)
 {
 	bool result = false;
-	if(NULL == p_addr)
+	if (NULL == p_addr)
 	{
 		goto END;
 	}
-	if((AF_INET != p_addr->sin_family) || (0 == p_addr->sin_port))
+	if ((AF_INET != p_addr->sin_family) || (0 == p_addr->sin_port))
 	{
 		goto END;
 	}
 	// Doesn't validate sin_addr
 	const size_t ZERO_SIZE = 8u;
-	for(size_t iii = 0u; iii < ZERO_SIZE; iii++)
+	for (size_t iii = 0u; iii < ZERO_SIZE; iii++)
 	{
-		if(0 != p_addr->sin_zero[iii])
+		if (0 != p_addr->sin_zero[iii])
 		{
 			goto END;
 		}
@@ -463,17 +463,17 @@ END:
 bool sockaddr_in6_is_valid(struct sockaddr_in6* const p_addr)
 {
 	bool result = false;
-	if(NULL == p_addr)
+	if (NULL == p_addr)
 	{
 		goto END;
 	}
 #ifdef AF_INET6
-	if(AF_INET6 != p_addr->sin6_family)
+	if (AF_INET6 != p_addr->sin6_family)
 	{
 		goto END;
 	}
 #endif
-	if(0 == p_addr->sin6_port)
+	if (0 == p_addr->sin6_port)
 	{
 		goto END;
 	}
@@ -488,12 +488,12 @@ END:
 bool sockaddr_is_valid(struct sockaddr* const p_addr)
 {
 	bool result = false;
-	if(NULL == p_addr)
+	if (NULL == p_addr)
 	{
 		goto END;
 	}
 	const sa_family_t family = p_addr->sa_family;
-	switch(family)
+	switch (family)
 	{
 		case(AF_INET):
 			result = sockaddr_in_is_valid((struct sockaddr_in*)p_addr);
@@ -515,14 +515,14 @@ void sin_addr_fprint(FILE* const p_file,
 	const uint8_t p_address[INET_ADDRESS_SIZE])
 {
 	// Assumes address is in network order
-	if((NULL == p_file) || (NULL == p_address))
+	if ((NULL == p_file) || (NULL == p_address))
 	{
 		goto END;
 	}
-	for(size_t iii = 0u; iii < INET_ADDRESS_SIZE; iii++)
+	for (size_t iii = 0u; iii < INET_ADDRESS_SIZE; iii++)
 	{
 		fprintf(p_file, "%u", p_address[iii]);
-		if(iii < (INET_ADDRESS_SIZE - 1u))
+		if (iii < (INET_ADDRESS_SIZE - 1u))
 		{
 			fprintf(p_file, ".");
 		}
@@ -536,22 +536,22 @@ void sin6_addr_fprint(FILE* const p_file,
 	const uint8_t p_address[INET6_ADDRESS_SIZE])
 {
 	// Assumes address is in network order
-	if((NULL == p_file) || (NULL == p_address))
+	if ((NULL == p_file) || (NULL == p_address))
 	{
 		goto END;
 	}
 	// Uses IPv6 expanded address format
-	for(size_t iii = 0u; iii < INET6_ADDRESS_SIZE; iii++)
+	for (size_t iii = 0u; iii < INET6_ADDRESS_SIZE; iii++)
 	{
 		fprintf(p_file, "%02x", p_address[iii]);
-		if((iii < (INET6_ADDRESS_SIZE - 1u)) && (1u == (iii % 2u)))
+		if ((iii < (INET6_ADDRESS_SIZE - 1u)) && (1u == (iii % 2u)))
 		{
 			fprintf(p_file, ":");
 		}
 	}
 	// Handle IPv4 mapped addresses
 	const bool is_mapped = is_ipv6_a_mapped_ipv4(p_address);
-	if(true == is_mapped)
+	if (true == is_mapped)
 	{
 		fprintf(p_file, "(");
 		const uint32_t h_v4_addr = ipv4_from_ipv6(p_address);
@@ -568,7 +568,7 @@ void sockaddr_fprint(FILE* const p_file, const struct sockaddr* const p_addr)
 {
 	// Assumes address is in network order
 	const sa_family_t family = p_addr->sa_family;
-	switch(family)
+	switch (family)
 	{
 		case(AF_INET):
 		{
@@ -595,7 +595,7 @@ void sockaddr_fprint(FILE* const p_file, const struct sockaddr* const p_addr)
 char* sockaddr_as_str(const struct sockaddr* const p_addr)
 {
 	char* p_result = NULL;
-	if(NULL == p_addr)
+	if (NULL == p_addr)
 	{
 		goto END;
 	}
@@ -611,7 +611,7 @@ char* sockaddr_as_str(const struct sockaddr* const p_addr)
 		char p_buffer[MAX_STR_LEN];
 		memset(p_buffer, 0x00, MAX_STR_LEN);
 		FILE* p_stream = fmemopen(p_buffer, MAX_STR_LEN, "r+");
-		if(NULL == p_stream)
+		if (NULL == p_stream)
 		{
 			// Failed to open buffer as file.
 			goto END;
@@ -621,7 +621,7 @@ char* sockaddr_as_str(const struct sockaddr* const p_addr)
 		p_buffer[MAX_STR_LEN - 1u] = '\0';
 		const size_t str_len = strnlen(p_buffer, MAX_STR_LEN - 1u);
 		p_result = calloc(str_len + 1u, sizeof(char));
-		if(NULL == p_result)
+		if (NULL == p_result)
 		{
 			goto END;
 		}

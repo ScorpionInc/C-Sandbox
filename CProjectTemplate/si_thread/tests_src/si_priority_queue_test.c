@@ -40,12 +40,12 @@ void si_priority_queue_test_modify(void)
 	TEST_ASSERT_NOT_NULL(p_queue);
 
 	printf("p_data:%lu @ %p {\n", data_count, p_data);
-	for(size_t iii = 0u; iii < data_count; iii++)
+	for (size_t iii = 0u; iii < data_count; iii++)
 	{
 		printf("\t[%lu]: %d @ %p\n", iii, p_data[iii], &p_data[iii]);
 	}printf("}\n");
 
-	for(size_t iii = 0u; iii < data_count; iii++)
+	for (size_t iii = 0u; iii < data_count; iii++)
 	{
 		const int* p_next = &p_data[iii];
 		const bool enq_result = si_priority_queue_enqueue(
@@ -55,7 +55,7 @@ void si_priority_queue_test_modify(void)
 	}
 
 	printf("p_expected:%lu @ %p {\n", data_count, p_expected);
-	for(size_t iii = 0u; iii < data_count; iii++)
+	for (size_t iii = 0u; iii < data_count; iii++)
 	{
 		int* p_next = si_priority_queue_dequeue(p_queue);
 		TEST_ASSERT_NOT_NULL(p_next);

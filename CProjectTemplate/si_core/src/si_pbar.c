@@ -3,7 +3,7 @@
 
 void si_pbar_init(si_pbar_t* const p_bar)
 {
-	if(NULL == p_bar)
+	if (NULL == p_bar)
 	{
 		goto END;
 	}
@@ -29,7 +29,7 @@ END:
 si_pbar_t* si_pbar_new()
 {
 	si_pbar_t* p_new = calloc(1u, sizeof(si_pbar_t));
-	if(NULL == p_new)
+	if (NULL == p_new)
 	{
 		goto END;
 	}
@@ -41,11 +41,11 @@ END:
 void si_pbar_terminal_setup(const si_pbar_t* const p_bar,
 	si_terminfo_t* const p_terminfo)
 {
-	if((NULL == p_bar) || (NULL == p_terminfo))
+	if ((NULL == p_bar) || (NULL == p_terminfo))
 	{
 		goto END;
 	}
-	if(NULL == p_terminfo->p_file)
+	if (NULL == p_terminfo->p_file)
 	{
 		goto END;
 	}
@@ -125,11 +125,11 @@ static double clamp_percentage_d(const double percentage)
 {
 	// Clamps percentage value to valid range
 	double mut_percentage = percentage;
-	if(0.0 > mut_percentage)
+	if (0.0 > mut_percentage)
 	{
 		mut_percentage = 0.0;
 	}
-	if(1.0 < mut_percentage)
+	if (1.0 < mut_percentage)
 	{
 		mut_percentage = 1.0;
 	}
@@ -148,11 +148,11 @@ static int si_pbar_label_strlen(const si_pbar_t* const p_bar,
 	const double percentage)
 {
 	int result = 0u;
-	if(NULL == p_bar)
+	if (NULL == p_bar)
 	{
 		goto END;
 	}
-	if(true != p_bar->enable_label)
+	if (true != p_bar->enable_label)
 	{
 		goto END;
 	}
@@ -160,7 +160,7 @@ static int si_pbar_label_strlen(const si_pbar_t* const p_bar,
 	const int result_len = snprintf(
 		NULL, 0, "%.*lf%%", p_bar->precision, scaled_percentage
 	);
-	if(0 > result_len)
+	if (0 > result_len)
 	{
 		goto END;
 	}
@@ -179,21 +179,21 @@ END:
 static void si_pbar_fprint_label(const si_pbar_t* const p_bar,
 	si_terminfo_t* const p_terminfo, const double percentage)
 {
-	if((NULL == p_bar) || (NULL == p_terminfo))
+	if ((NULL == p_bar) || (NULL == p_terminfo))
 	{
 		goto END;
 	}
-	if((NULL == p_terminfo->p_file) || (true != p_bar->enable_label))
+	if ((NULL == p_terminfo->p_file) || (true != p_bar->enable_label))
 	{
 		goto END;
 	}
 	const double scaled_percentage = clamp_percentage_d(percentage) * 100.0;
-	if(NULL != p_bar->p_label_color)
+	if (NULL != p_bar->p_label_color)
 	{
 		si_terminfo_set_color(p_terminfo, p_bar->p_label_color);
 	}
 	fprintf(p_terminfo->p_file, "%.*lf%%", p_bar->precision, scaled_percentage);
-	if(NULL != p_bar->p_label_color)
+	if (NULL != p_bar->p_label_color)
 	{
 		si_terminfo_send_ansi(p_terminfo, "\e[%dm", ANSI_FR_RESET);
 	}
@@ -213,34 +213,34 @@ const uint16_t si_pbar_bar_strlen(const si_pbar_t* const p_bar,
 	si_terminfo_t* const p_terminfo, const double percentage)
 {
 	uint16_t bar_size = 0u;
-	if((NULL == p_bar) || (NULL == p_terminfo))
+	if ((NULL == p_bar) || (NULL == p_terminfo))
 	{
 		goto END;
 	}
-	if(NULL == p_terminfo->p_file)
+	if (NULL == p_terminfo->p_file)
 	{
 		goto END;
 	}
 	const double clamped_percentage = clamp_percentage_d(percentage);
 
 	bar_size = p_terminfo->COLUMNS;
-	if((0u < p_bar->max_bar_width) &&
+	if ((0u < p_bar->max_bar_width) &&
 	   (p_terminfo->COLUMNS > p_bar->max_bar_width))
 	{
 		bar_size = p_bar->max_bar_width;
 	}
 	const size_t label_size = (si_pbar_label_strlen(p_bar, percentage) + 1u);
-	if(bar_size <= label_size)
+	if (bar_size <= label_size)
 	{
 		goto END;
 	}
 	bar_size -= label_size;
-	if(NULL != p_bar->p_prefix)
+	if (NULL != p_bar->p_prefix)
 	{
 		const size_t prefix_len = strnlen(p_bar->p_prefix, INT_MAX);
 		bar_size -= prefix_len;
 	}
-	if(NULL != p_bar->p_suffix)
+	if (NULL != p_bar->p_suffix)
 	{
 		const size_t suffix_len = strnlen(p_bar->p_suffix, INT_MAX);
 		bar_size -= suffix_len;
@@ -259,11 +259,11 @@ END:
 static void si_pbar_fprint_bar(const si_pbar_t* const p_bar,
 	si_terminfo_t* const p_terminfo, const double percentage)
 {
-	if((NULL == p_bar) || (NULL == p_terminfo))
+	if ((NULL == p_bar) || (NULL == p_terminfo))
 	{
 		goto END;
 	}
-	if(NULL == p_terminfo->p_file)
+	if (NULL == p_terminfo->p_file)
 	{
 		goto END;
 	}
@@ -272,11 +272,11 @@ static void si_pbar_fprint_bar(const si_pbar_t* const p_bar,
 		p_bar, p_terminfo, percentage
 	);
 	uint16_t inner_size = bar_size;
-	if('\0' != p_bar->left_bar_char)
+	if ('\0' != p_bar->left_bar_char)
 	{
 		inner_size -= 1u;
 	}
-	if('\0' != p_bar->right_bar_char)
+	if ('\0' != p_bar->right_bar_char)
 	{
 		inner_size -= 1u;
 	}
@@ -285,20 +285,20 @@ static void si_pbar_fprint_bar(const si_pbar_t* const p_bar,
 	si_true_color_init(&next_color, 0xFF, 0xFF, 0xFF);
 
 	fprintf(p_terminfo->p_file, "%c", p_bar->left_bar_char);
-	for(size_t iii = 0u; iii < inner_size; iii++)
+	for (size_t iii = 0u; iii < inner_size; iii++)
 	{
 		const double progress = (((double)iii) / inner_size);
 		const double next_progress = (((double)(iii + 1u)) / inner_size);
-		if(NULL != p_bar->p_begin_color)
+		if (NULL != p_bar->p_begin_color)
 		{
 			memcpy(&next_color, p_bar->p_begin_color, sizeof(si_true_color_t));
 		}
-		if(NULL != p_bar->p_end_color)
+		if (NULL != p_bar->p_end_color)
 		{
 			// Accuracy loss due to cast here is fine affecting only visuals.
 			si_true_color_mix(&next_color, p_bar->p_end_color, (float)progress);
 		}
-		if(NULL != p_bar->p_begin_color)
+		if (NULL != p_bar->p_begin_color)
 		{
 			si_terminfo_set_color(p_terminfo, &next_color);
 		}
@@ -306,15 +306,15 @@ static void si_pbar_fprint_bar(const si_pbar_t* const p_bar,
 		char next_bar = is_filled ?
 			p_bar->filled_bar_char : p_bar->empty_bar_char;
 		const bool is_head = is_filled && (next_progress > clamped_percentage);
-		if(is_head && ('\0' != p_bar->bar_head_char))
+		if (is_head && ('\0' != p_bar->bar_head_char))
 		{
 			next_bar = p_bar->bar_head_char;
 		}
 		fprintf(p_terminfo->p_file, "%c", next_bar);
 	}
-	if(NULL != p_bar->p_begin_color)
+	if (NULL != p_bar->p_begin_color)
 	{
-		if(NULL != p_bar->p_label_color)
+		if (NULL != p_bar->p_label_color)
 		{
 			si_terminfo_set_color(p_terminfo, p_bar->p_label_color);
 		}
@@ -332,11 +332,11 @@ END:
 void si_pbar_fprint(const si_pbar_t* const p_bar,
 	si_terminfo_t* const p_terminfo, const double percentage)
 {
-	if((NULL == p_terminfo) || (NULL == p_bar))
+	if ((NULL == p_terminfo) || (NULL == p_bar))
 	{
 		goto END;
 	}
-	if(NULL == p_terminfo->p_file)
+	if (NULL == p_terminfo->p_file)
 	{
 		goto END;
 	}

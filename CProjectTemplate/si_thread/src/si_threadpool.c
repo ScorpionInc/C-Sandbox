@@ -45,12 +45,12 @@ static local_task_t* local_task_new_5(const size_t task_id,
 	const size_t priority)
 {
 	local_task_t* p_result = NULL;
-	if((NULL == p_task) || (SI_THREADPOOL_TASK_ID_INVALID == task_id))
+	if ((NULL == p_task) || (SI_THREADPOOL_TASK_ID_INVALID == task_id))
 	{
 		goto END;
 	}
 	p_result = calloc(1u, sizeof(local_task_t));
-	if(NULL == p_result)
+	if (NULL == p_result)
 	{
 		goto END;
 	}
@@ -94,12 +94,12 @@ static inline local_task_t* local_task_new(const size_t task_id,
 static local_task_t* local_task_clone(local_task_t* p_local)
 {
 	local_task_t* p_result = NULL;
-	if(NULL == p_local)
+	if (NULL == p_local)
 	{
 		goto END;
 	}
-	if((NULL == p_local->p_task) ||
-	   (SI_THREADPOOL_TASK_ID_INVALID == p_local->task_id))
+	if ((NULL == p_local->p_task) ||
+	    (SI_THREADPOOL_TASK_ID_INVALID == p_local->task_id))
 	{
 		goto END;
 	}
@@ -120,32 +120,32 @@ END:
 static void* si_threadpool_worker(si_threadpool_t* const p_param)
 {
 	si_threadpool_t* const p_pool = p_param;
-	if(NULL == p_pool)
+	if (NULL == p_pool)
 	{
 		goto END;
 	}
 	local_task_t* p_task = NULL;
 	bool is_running = atomic_load(&(p_pool->is_running));
-	while(true == is_running)
+	while (true == is_running)
 	{
 		p_task = si_priority_queue_dequeue(&(p_pool->queue));
-		if(NULL == p_task)
+		if (NULL == p_task)
 		{
 			sleep(1);
 			goto CONTINUE;
 		}
-		if(NULL == p_task->p_task)
+		if (NULL == p_task->p_task)
 		{
 			goto CONTINUE;
 		}
 		p_task->p_result = p_task->p_task(p_task->p_param);
-		if(true != p_task->one_shot)
+		if (true != p_task->one_shot)
 		{
 			// Handles looping task(s)
 			const size_t new_id = si_threadpool_enqueue_5(
 				p_pool, p_task->p_task, p_task->p_param, 0, p_task->priority
 			);
-			if(SI_THREADPOOL_TASK_ID_INVALID == new_id)
+			if (SI_THREADPOOL_TASK_ID_INVALID == new_id)
 			{
 				// NOP ignore failed loop.
 			}
@@ -156,10 +156,10 @@ static void* si_threadpool_worker(si_threadpool_t* const p_param)
 			//free(p_task->p_param);
 		}
 		// Handle Results
-		if(NULL != p_task->p_result)
+		if (NULL != p_task->p_result)
 		{
 			local_task_t* p_results = local_task_clone(p_task);
-			if(NULL == p_results)
+			if (NULL == p_results)
 			{
 				goto CONTINUE;
 			}
@@ -167,28 +167,28 @@ static void* si_threadpool_worker(si_threadpool_t* const p_param)
 			p_results->p_task = NULL;
 			p_results->p_param = NULL;
 			int results_lock = -1;
-			while(0 != results_lock)
+			while (0 != results_lock)
 			{
 				results_lock = pthread_mutex_lock(&(p_pool->results_lock));
 			}
 			const size_t append_index = si_parray_append(
 				&(p_pool->results), p_results
 			);
-			if(SIZE_MAX == append_index)
+			if (SIZE_MAX == append_index)
 			{
 				// Append failed.
 				free(p_results);
 				goto CONTINUE;
 			}
 			results_lock = -1;
-			while(0 != results_lock)
+			while (0 != results_lock)
 			{
 				results_lock = pthread_mutex_unlock(&(p_pool->results_lock));
 			}
 		}
 CONTINUE:
 		// Free and test for cancel/running
-		if(NULL != p_task)
+		if (NULL != p_task)
 		{
 			free(p_task);
 			p_task = NULL;
@@ -198,7 +198,7 @@ CONTINUE:
 		int cancel_result = pthread_setcancelstate(
 			PTHREAD_CANCEL_ENABLE, NULL
 		);
-		if(0 != cancel_result)
+		if (0 != cancel_result)
 		{
 			// Failed to enable the cancellation state(s).
 			goto END;
@@ -207,7 +207,7 @@ CONTINUE:
 		cancel_result = pthread_setcancelstate(
 			PTHREAD_CANCEL_DISABLE, NULL
 		);
-		if(0 != cancel_result)
+		if (0 != cancel_result)
 		{
 			// Failed to disable the cancellation state(s).
 			goto END;
@@ -222,21 +222,21 @@ END:
 void si_threadpool_init_2(si_threadpool_t* const p_pool,
 	const size_t priority_count)
 {
-	if(NULL == p_pool)
+	if (NULL == p_pool)
 	{
 		goto END;
 	}
 	atomic_store(&(p_pool->is_running), 0);
 	
 	pthread_mutexattr_t* p_attr = si_mutexattr_new();
-	if(NULL == p_attr)
+	if (NULL == p_attr)
 	{
 		goto END;
 	}
 	const int task_counter_results = pthread_mutex_init(
 		&(p_pool->task_counter_lock), p_attr
 	);
-	if(0 != task_counter_results)
+	if (0 != task_counter_results)
 	{
 		si_mutexattr_destroy(&p_attr);
 		goto END;
@@ -244,7 +244,7 @@ void si_threadpool_init_2(si_threadpool_t* const p_pool,
 	const int pool_init_results = pthread_mutex_init(
 		&(p_pool->pool_lock), p_attr
 	);
-	if(0 != pool_init_results)
+	if (0 != pool_init_results)
 	{
 		si_mutexattr_destroy(&p_attr);
 		goto END;
@@ -253,7 +253,7 @@ void si_threadpool_init_2(si_threadpool_t* const p_pool,
 		&(p_pool->results_lock), p_attr
 	);
 	si_mutexattr_destroy(&p_attr);
-	if(0 != results_init_results)
+	if (0 != results_init_results)
 	{
 		goto END;
 	}
@@ -277,12 +277,12 @@ inline void si_threadpool_init(si_threadpool_t* const p_pool)
 si_threadpool_t* si_threadpool_new_1(const size_t priority_count)
 {
 	void* p_results = NULL;
-	if(0u >= priority_count)
+	if (0u >= priority_count)
 	{
 		goto END;
 	}
 	p_results = calloc(1u, sizeof(si_threadpool_t));
-	if(NULL == p_results)
+	if (NULL == p_results)
 	{
 		goto END;
 	}
@@ -300,26 +300,26 @@ bool si_threadpool_has_result(si_threadpool_t* const p_pool,
 	const size_t task_id)
 {
 	bool result = false;
-	if((NULL == p_pool) || (SI_THREADPOOL_TASK_ID_INVALID == task_id))
+	if ((NULL == p_pool) || (SI_THREADPOOL_TASK_ID_INVALID == task_id))
 	{
 		goto END;
 	}
 
 	int results_lock = -1;
-	while(0 != results_lock)
+	while (0 != results_lock)
 	{
 		results_lock = pthread_mutex_lock(&(p_pool->results_lock));
 	}
 
 	const size_t results_capacity = p_pool->results.array.capacity;
-	for(size_t iii = 0u; iii < results_capacity; iii++)
+	for (size_t iii = 0u; iii < results_capacity; iii++)
 	{
 		local_task_t* p_task = si_parray_at(&(p_pool->results), iii);
-		if(NULL == p_task)
+		if (NULL == p_task)
 		{
 			continue;
 		}
-		if(p_task->task_id == task_id)
+		if (p_task->task_id == task_id)
 		{
 			result = true;
 			break;
@@ -327,7 +327,7 @@ bool si_threadpool_has_result(si_threadpool_t* const p_pool,
 	}
 
 	results_lock = -1;
-	while(0 != results_lock)
+	while (0 != results_lock)
 	{
 		results_lock = pthread_mutex_unlock(&(p_pool->results_lock));
 	}
@@ -345,23 +345,23 @@ END:
 static size_t si_threadpool_next_task_id(si_threadpool_t* const p_pool)
 {
 	size_t result = SI_THREADPOOL_TASK_ID_INVALID;
-	if(NULL == p_pool)
+	if (NULL == p_pool)
 	{
 		goto END;
 	}
 	pthread_mutex_t* p_lock = &(p_pool->task_counter_lock);
 	int lock_results = -1;
-	while(0 != lock_results)
+	while (0 != lock_results)
 	{
 		lock_results = pthread_mutex_lock(p_lock);
 	}
 	result = atomic_fetch_add(&(p_pool->task_counter), 1u);
 	int unlock_results = -1;
-	while(0 != unlock_results)
+	while (0 != unlock_results)
 	{
 		unlock_results = pthread_mutex_unlock(p_lock);
 	}
-	if(SI_THREADPOOL_TASK_ID_INVALID == result)
+	if (SI_THREADPOOL_TASK_ID_INVALID == result)
 	{
 		result = 0u;
 	}
@@ -374,20 +374,20 @@ size_t si_threadpool_enqueue_5(si_threadpool_t* const p_pool,
 	const size_t priority)
 {
 	size_t result = SI_THREADPOOL_TASK_ID_INVALID;
-	if((NULL == p_pool) || (NULL == p_task))
+	if ((NULL == p_pool) || (NULL == p_task))
 	{
 		goto END;
 	}
 	const size_t priority_count = si_priority_queue_priority_count(
 		&(p_pool->queue)
 	);
-	if(priority >= priority_count)
+	if (priority >= priority_count)
 	{
 		goto END;
 	}
 	// Get next task from threadpool UID
 	const size_t task_id = si_threadpool_next_task_id(p_pool);
-	if(SI_THREADPOOL_TASK_ID_INVALID == task_id)
+	if (SI_THREADPOOL_TASK_ID_INVALID == task_id)
 	{
 		goto END;
 	}
@@ -399,7 +399,7 @@ size_t si_threadpool_enqueue_5(si_threadpool_t* const p_pool,
 	const bool did_enqueue = si_priority_queue_enqueue(
 		&(p_pool->queue), p_local, priority
 	);
-	if(true != did_enqueue)
+	if (true != did_enqueue)
 	{
 		free(p_local);
 		p_local = NULL;
@@ -436,25 +436,25 @@ void* si_threadpool_pop_results(si_threadpool_t* const p_pool,
 	const size_t task_id)
 {
 	void* p_result = NULL;
-	if((NULL == p_pool) || (SI_THREADPOOL_TASK_ID_INVALID == task_id))
+	if ((NULL == p_pool) || (SI_THREADPOOL_TASK_ID_INVALID == task_id))
 	{
 		goto END;
 	}
 	int results_lock = -1;
-	while(0 != results_lock)
+	while (0 != results_lock)
 	{
 		results_lock = pthread_mutex_lock(&(p_pool->results_lock));
 	}
 
 	const size_t results_capacity = p_pool->results.array.capacity;
-	for(size_t iii = 0u; iii < results_capacity; iii++)
+	for (size_t iii = 0u; iii < results_capacity; iii++)
 	{
 		local_task_t* p_task = si_parray_at(&(p_pool->results), iii);
-		if(NULL == p_task)
+		if (NULL == p_task)
 		{
 			continue;
 		}
-		if(p_task->task_id == task_id)
+		if (p_task->task_id == task_id)
 		{
 			p_result = p_task->p_result;
 			si_parray_remove_at(&(p_pool->results), iii);
@@ -463,7 +463,7 @@ void* si_threadpool_pop_results(si_threadpool_t* const p_pool,
 	}
 
 	results_lock = -1;
-	while(0 != results_lock)
+	while (0 != results_lock)
 	{
 		results_lock = pthread_mutex_unlock(&(p_pool->results_lock));
 	}
@@ -475,10 +475,10 @@ void* si_threadpool_await_results(si_threadpool_t* const p_pool,
 	const size_t task_id)
 {
 	void* p_results = NULL;
-	while(NULL == p_results)
+	while (NULL == p_results)
 	{
 		p_results = si_threadpool_pop_results(p_pool, task_id);
-		if(NULL == p_results)
+		if (NULL == p_results)
 		{
 			sleep(1);
 		}
@@ -489,22 +489,22 @@ END:
 
 void si_threadpool_await(si_threadpool_t** const pp_pool)
 {
-	if(NULL == pp_pool)
+	if (NULL == pp_pool)
 	{
 		goto END;
 	}
-	if(NULL == *pp_pool)
+	if (NULL == *pp_pool)
 	{
 		goto END;
 	}
 	bool is_running = atomic_load(&((*pp_pool)->is_running));
-	while(true == is_running)
+	while (true == is_running)
 	{
-		if(NULL == pp_pool)
+		if (NULL == pp_pool)
 		{
 			break;
 		}
-		if(NULL == *pp_pool)
+		if (NULL == *pp_pool)
 		{
 			break;
 		}
@@ -518,38 +518,38 @@ END:
 void si_threadpool_start_2(si_threadpool_t* const p_pool,
 	const size_t thread_count)
 {
-	if((NULL == p_pool) || (0u >= thread_count))
+	if ((NULL == p_pool) || (0u >= thread_count))
 	{
 		goto END;
 	}
 	const bool is_running = atomic_load(&(p_pool->is_running));
-	if(true == is_running)
+	if (true == is_running)
 	{
 		goto END;
 	}
 	atomic_store(&(p_pool->is_running), true);
 
 	int pool_lock = -1;
-	while(0 != pool_lock)
+	while (0 != pool_lock)
 	{
 		pool_lock = pthread_mutex_lock(&(p_pool->pool_lock));
 	}
 	
-	if(0u < p_pool->pool.capacity)
+	if (0u < p_pool->pool.capacity)
 	{
 		// Already has threads!
 		goto UNLOCK;
 	}
-	if(NULL != p_pool->pool.p_data)
+	if (NULL != p_pool->pool.p_data)
 	{
 		si_array_free(&(p_pool->pool));
 	}
 	si_array_init_3(&(p_pool->pool), sizeof(pthread_t), thread_count);
 
-	for(size_t iii = 0u; iii < thread_count; iii++)
+	for (size_t iii = 0u; iii < thread_count; iii++)
 	{
 		pthread_t* p_thread = si_array_at(&(p_pool->pool), iii);
-		if(NULL == p_thread)
+		if (NULL == p_thread)
 		{
 			break;
 		}
@@ -557,7 +557,7 @@ void si_threadpool_start_2(si_threadpool_t* const p_pool,
 			p_thread, NULL,
 			(void* (*)(void*))si_threadpool_worker, (void*)p_pool
 		);
-		if(0 != create_result)
+		if (0 != create_result)
 		{
 			break;
 		}
@@ -565,7 +565,7 @@ void si_threadpool_start_2(si_threadpool_t* const p_pool,
 
 UNLOCK:
 	pool_lock = -1;
-	while(0 != pool_lock)
+	while (0 != pool_lock)
 	{
 		pool_lock = pthread_mutex_unlock(&(p_pool->pool_lock));
 	}
@@ -582,13 +582,13 @@ inline void si_threadpool_start(si_threadpool_t* const p_pool)
 void si_threadpool_stop_2(si_threadpool_t* const p_pool,
 	const time_t timeout_offset)
 {
-	if(NULL == p_pool)
+	if (NULL == p_pool)
 	{
 		goto END;
 	}
 
 	const bool is_running = atomic_load(&(p_pool->is_running));
-	if(true == is_running)
+	if (true == is_running)
 	{
 		atomic_store(&(p_pool->is_running), false);
 	}
@@ -596,7 +596,7 @@ void si_threadpool_stop_2(si_threadpool_t* const p_pool,
 	bool timeout_created = true;
 	struct timespec timeout = {0};
 	const int gettime_result = clock_gettime(CLOCK_REALTIME, &timeout);
-	if(0 != gettime_result)
+	if (0 != gettime_result)
 	{
 		timeout_created = false;
 	}
@@ -606,22 +606,22 @@ void si_threadpool_stop_2(si_threadpool_t* const p_pool,
 	}
 
 	int pool_lock_result = -1;
-	while(0 != pool_lock_result)
+	while (0 != pool_lock_result)
 	{
 		pool_lock_result = pthread_mutex_lock(&(p_pool->pool_lock));
 	}
 
 	const size_t thread_count = p_pool->pool.capacity;
-	for(size_t iii = 0u; iii < thread_count; iii++)
+	for (size_t iii = 0u; iii < thread_count; iii++)
 	{
 		pthread_t* p_thread = si_array_at(&(p_pool->pool), iii);
-		if(NULL == p_thread)
+		if (NULL == p_thread)
 		{
 			continue;
 		}
 		pthread_cancel(*p_thread);
 		int join_result = EXIT_FAILURE;
-		if((true == timeout_created) && (0 < timeout_offset))
+		if ((true == timeout_created) && (0 < timeout_offset))
 		{
 			join_result = pthread_timedjoin_np(*p_thread, NULL, &timeout);
 		}
@@ -629,10 +629,10 @@ void si_threadpool_stop_2(si_threadpool_t* const p_pool,
 		{
 			join_result = pthread_join(*p_thread, NULL);
 		}
-		if(ETIMEDOUT == join_result)
+		if (ETIMEDOUT == join_result)
 		{
 			const int sent_kill = pthread_kill(*p_thread, SIGKILL);
-			if(0 != sent_kill)
+			if (0 != sent_kill)
 			{
 				// Join timed out and can't kill it.
 				continue;
@@ -643,7 +643,7 @@ void si_threadpool_stop_2(si_threadpool_t* const p_pool,
 	si_array_free(&(p_pool->pool));
 
 	int pool_unlock_result = -1;
-	while(0 != pool_unlock_result)
+	while (0 != pool_unlock_result)
 	{
 		pool_unlock_result = pthread_mutex_unlock(&(p_pool->pool_lock));
 	}
@@ -658,7 +658,7 @@ inline void si_threadpool_stop(si_threadpool_t* const p_pool)
 
 void si_threadpool_free(si_threadpool_t* const p_pool)
 {
-	if(NULL == p_pool)
+	if (NULL == p_pool)
 	{
 		goto END;
 	}
@@ -667,15 +667,15 @@ void si_threadpool_free(si_threadpool_t* const p_pool)
 	int counter_lock = -1;
 	int pool_lock = -1;
 	int results_lock = -1;
-	while(0 != counter_lock)
+	while (0 != counter_lock)
 	{
 		counter_lock = pthread_mutex_lock(&(p_pool->task_counter_lock));
 	}
-	while(0 != pool_lock)
+	while (0 != pool_lock)
 	{
 		pool_lock = pthread_mutex_lock(&(p_pool->pool_lock));
 	}
-	while(0 != results_lock)
+	while (0 != results_lock)
 	{
 		results_lock = pthread_mutex_lock(&(p_pool->results_lock));
 	}
@@ -687,17 +687,17 @@ void si_threadpool_free(si_threadpool_t* const p_pool)
 	counter_lock = -1;
 	pool_lock = -1;
 	results_lock = -1;
-	while(0 != counter_lock)
+	while (0 != counter_lock)
 	{
 		counter_lock = pthread_mutex_unlock(&(p_pool->task_counter_lock));
 	}
 	pthread_mutex_destroy(&(p_pool->task_counter_lock));
-	while(0 != pool_lock)
+	while (0 != pool_lock)
 	{
 		pool_lock = pthread_mutex_unlock(&(p_pool->pool_lock));
 	}
 	pthread_mutex_destroy(&(p_pool->pool_lock));
-	while(0 != results_lock)
+	while (0 != results_lock)
 	{
 		results_lock = pthread_mutex_unlock(&(p_pool->results_lock));
 	}
@@ -708,11 +708,11 @@ END:
 
 void si_threadpool_destroy(si_threadpool_t** const pp_pool)
 {
-	if(NULL == pp_pool)
+	if (NULL == pp_pool)
 	{
 		goto END;
 	}
-	if(NULL == *pp_pool)
+	if (NULL == *pp_pool)
 	{
 		// Already freed
 		goto END;

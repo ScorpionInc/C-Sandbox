@@ -6,7 +6,7 @@ static size_t si_hashmap_default_hash(const void* const p_key,
 	const size_t key_size)
 {
 	size_t result = 0u;
-	if(NULL == p_key)
+	if (NULL == p_key)
 	{
 		goto END;
 	}
@@ -23,18 +23,18 @@ static int si_hashmap_compare_hash(const void* const p_left,
 	const void* const p_right)
 {
 	int result = 0;
-	if(p_left == p_right)
+	if (p_left == p_right)
 	{
 		goto END;
 	}
 	const size_t* const p_lhash = (const size_t*)p_left;
 	const size_t* const p_rhash = (const size_t*)p_right;
-	if(*p_lhash == *p_rhash)
+	if (*p_lhash == *p_rhash)
 	{
 		goto END;
 	}
 	result = -1;
-	if(*p_lhash < *p_rhash)
+	if (*p_lhash < *p_rhash)
 	{
 		goto END;
 	}
@@ -45,16 +45,16 @@ END:
 
 void si_hashmap_init(si_hashmap_t* const p_hashmap, const size_t capacity)
 {
-	if(NULL == p_hashmap)
+	if (NULL == p_hashmap)
 	{
 		goto END;
 	}
-	if(0u >= capacity)
+	if (0u >= capacity)
 	{
 		goto END;
 	}
 	si_array_init_3(&(p_hashmap->maps), sizeof(void*), capacity);
-	if(NULL == p_hashmap->p_hash_f)
+	if (NULL == p_hashmap->p_hash_f)
 	{
 		p_hashmap->p_hash_f = si_hashmap_default_hash;
 	}
@@ -65,12 +65,12 @@ END:
 si_hashmap_t* si_hashmap_new(const size_t capacity)
 {
 	si_hashmap_t* p_new = NULL;
-	if(0u >= capacity)
+	if (0u >= capacity)
 	{
 		goto END;
 	}
 	p_new = calloc(1u, sizeof(si_hashmap_t));
-	if(NULL != p_new)
+	if (NULL != p_new)
 	{
 		si_hashmap_init(p_new, capacity);
 	}
@@ -80,18 +80,18 @@ END:
 
 void si_hashmap_update_settings(si_hashmap_t* const p_hashmap)
 {
-	if(NULL == p_hashmap)
+	if (NULL == p_hashmap)
 	{
 		goto END;
 	}
-	for(size_t iii = 0u; iii < p_hashmap->maps.capacity; iii++)
+	for (size_t iii = 0u; iii < p_hashmap->maps.capacity; iii++)
 	{
 		si_map_t** const pp_map = si_array_at(&(p_hashmap->maps), iii);
-		if(NULL == pp_map)
+		if (NULL == pp_map)
 		{
 			break;
 		}
-		if(NULL == *pp_map)
+		if (NULL == *pp_map)
 		{
 			continue;
 		}
@@ -104,23 +104,23 @@ END:
 size_t si_hashmap_count(const si_hashmap_t* const p_hashmap)
 {
 	size_t result = SIZE_MAX;
-	if(NULL == p_hashmap)
+	if (NULL == p_hashmap)
 	{
 		goto END;
 	}
-	if(NULL == p_hashmap->maps.p_data)
+	if (NULL == p_hashmap->maps.p_data)
 	{
 		goto END;
 	}
 	result++;
-	for(size_t iii = 0u; iii < p_hashmap->maps.capacity; iii++)
+	for (size_t iii = 0u; iii < p_hashmap->maps.capacity; iii++)
 	{
 		si_map_t** pp_map = si_array_at(&(p_hashmap->maps), iii);
-		if(NULL == pp_map)
+		if (NULL == pp_map)
 		{
 			continue;
 		}
-		if(NULL == *pp_map)
+		if (NULL == *pp_map)
 		{
 			continue;
 		}
@@ -133,7 +133,7 @@ END:
 bool si_hashmap_is_empty(const si_hashmap_t* const p_hashmap)
 {
 	bool result = true;
-	if(NULL == p_hashmap)
+	if (NULL == p_hashmap)
 	{
 		goto END;
 	}
@@ -146,11 +146,11 @@ size_t si_hashmap_hash(const si_hashmap_t* const p_hashmap,
 	const void* const p_key, const size_t key_size)
 {
 	size_t result = SIZE_MAX;
-	if((NULL == p_hashmap) || (NULL == p_key))
+	if ((NULL == p_hashmap) || (NULL == p_key))
 	{
 		goto END;
 	}
-	if(NULL == p_hashmap->p_hash_f)
+	if (NULL == p_hashmap->p_hash_f)
 	{
 		// The dutchman must have a captain.
 		result = si_hashmap_default_hash(p_key, key_size);
@@ -167,7 +167,7 @@ void* si_hashmap_at(const si_hashmap_t* p_hashmap, const void* const p_key,
 	const size_t key_size)
 {
 	void* p_result = NULL;
-	if(NULL == p_hashmap)
+	if (NULL == p_hashmap)
 	{
 		goto END;
 	}
@@ -180,17 +180,17 @@ END:
 void* si_hashmap_at_hash(const si_hashmap_t* p_hashmap, const size_t hash)
 {
 	void* p_result = NULL;
-	if(NULL == p_hashmap)
+	if (NULL == p_hashmap)
 	{
 		goto END;
 	}
 	const size_t index = (hash % p_hashmap->maps.capacity);
 	si_map_t** pp_map = si_array_at(&(p_hashmap->maps), index);
-	if(NULL == pp_map)
+	if (NULL == pp_map)
 	{
 		goto END;
 	}
-	if(NULL == *pp_map)
+	if (NULL == *pp_map)
 	{
 		goto END;
 	}
@@ -203,7 +203,7 @@ bool si_hashmap_has(si_hashmap_t* const p_hashmap, const void* const p_key,
 	const size_t key_size)
 {
 	bool result = false;
-	if((NULL == p_hashmap) || (NULL == p_key))
+	if ((NULL == p_hashmap) || (NULL == p_key))
 	{
 		goto END;
 	}
@@ -215,7 +215,7 @@ END:
 bool si_hashmap_has_hash(si_hashmap_t* const p_hashmap, const size_t hash)
 {
 	bool result = false;
-	if(NULL == p_hashmap)
+	if (NULL == p_hashmap)
 	{
 		goto END;
 	}
@@ -228,32 +228,32 @@ bool si_hashmap_find(si_hashmap_t* const p_hashmap, const void* const p_value,
 	const size_t** pp_hash)
 {
 	bool result = false;
-	if((NULL == p_hashmap) || (NULL == p_value))
+	if ((NULL == p_hashmap) || (NULL == p_value))
 	{
 		goto END;
 	}
-	for(size_t iii = 0u; iii < p_hashmap->maps.capacity; iii++)
+	for (size_t iii = 0u; iii < p_hashmap->maps.capacity; iii++)
 	{
 		const si_map_t** pp_next = si_array_at(&(p_hashmap->maps), iii);
-		if(NULL == pp_next)
+		if (NULL == pp_next)
 		{
 			continue;
 		}
-		if(NULL == *pp_next)
+		if (NULL == *pp_next)
 		{
 			continue;
 		}
 		const size_t index = si_map_find(*pp_next, p_value);
-		if(SIZE_MAX != index)
+		if (SIZE_MAX != index)
 		{
 			si_map_pair_t** pp_pair = si_array_at(
 				&((*pp_next)->entries), index
 			);
-			if(NULL == pp_pair)
+			if (NULL == pp_pair)
 			{
 				continue;
 			}
-			if(NULL == *pp_pair)
+			if (NULL == *pp_pair)
 			{
 				continue;
 			}
@@ -270,7 +270,7 @@ bool si_hashmap_insert(si_hashmap_t* const p_hashmap, const void* const p_key,
 	const size_t key_size, const void* const p_value)
 {
 	bool result = false;
-	if((NULL == p_hashmap) || (NULL == p_key))
+	if ((NULL == p_hashmap) || (NULL == p_key))
 	{
 		goto END;
 	}
@@ -284,21 +284,21 @@ bool si_hashmap_insert_hash(si_hashmap_t* const p_hashmap, const size_t hash,
 	const void* const p_value)
 {
 	bool result = false;
-	if(NULL == p_hashmap)
+	if (NULL == p_hashmap)
 	{
 		goto END;
 	}
 	const size_t index = hash % p_hashmap->maps.capacity;
 	si_map_t** pp_map = si_array_at(&(p_hashmap->maps), index);
-	if(NULL == pp_map)
+	if (NULL == pp_map)
 	{
 		goto END;
 	}
-	if(NULL == *pp_map)
+	if (NULL == *pp_map)
 	{
 		// Initialize map at index
 		*pp_map = si_map_new();
-		if(NULL == *pp_map)
+		if (NULL == *pp_map)
 		{
 			// Failed to initialize new map.
 			goto END;
@@ -308,7 +308,7 @@ bool si_hashmap_insert_hash(si_hashmap_t* const p_hashmap, const size_t hash,
 		(*pp_map)->p_free_key_f = free;
 	}
 	size_t* p_heap_key = calloc(1u, sizeof(size_t));
-	if(NULL == p_heap_key)
+	if (NULL == p_heap_key)
 	{
 		goto END;
 	}
@@ -322,7 +322,7 @@ bool si_hashmap_assign(si_hashmap_t* const p_hashmap, const void* const p_key,
 	const size_t key_size, const void* const p_value)
 {
 	bool result = false;
-	if((NULL == p_hashmap) || (NULL == p_key))
+	if ((NULL == p_hashmap) || (NULL == p_key))
 	{
 		goto END;
 	}
@@ -336,17 +336,17 @@ bool si_hashmap_assign_hash(si_hashmap_t* const p_hashmap,
 	const size_t hash, const void* const p_value)
 {
 	bool result = false;
-	if(NULL == p_hashmap)
+	if (NULL == p_hashmap)
 	{
 		goto END;
 	}
 	const size_t index = (hash % p_hashmap->maps.capacity);
 	si_map_t** pp_map = si_array_at(&(p_hashmap->maps), index);
-	if(NULL == pp_map)
+	if (NULL == pp_map)
 	{
 		goto END;
 	}
-	if(NULL == *pp_map)
+	if (NULL == *pp_map)
 	{
 		goto END;
 	}
@@ -359,7 +359,7 @@ bool si_hashmap_remove(si_hashmap_t* const p_hashmap, const void* const p_key,
 	const size_t key_size)
 {
 	bool result = false;
-	if((NULL == p_hashmap) || (NULL == p_key))
+	if ((NULL == p_hashmap) || (NULL == p_key))
 	{
 		goto END;
 	}
@@ -372,17 +372,17 @@ END:
 bool si_hashmap_remove_hash(si_hashmap_t* const p_hashmap, const size_t hash)
 {
 	bool result = false;
-	if(NULL == p_hashmap)
+	if (NULL == p_hashmap)
 	{
 		goto END;
 	}
 	const size_t index = (hash % p_hashmap->maps.capacity);
 	si_map_t** pp_map = si_array_at(&(p_hashmap->maps), index);
-	if(NULL == pp_map)
+	if (NULL == pp_map)
 	{
 		goto END;
 	}
-	if(NULL == *pp_map)
+	if (NULL == *pp_map)
 	{
 		goto END;
 	}
@@ -393,18 +393,18 @@ END:
 
 void si_hashmap_free(si_hashmap_t* p_hashmap)
 {
-	if(NULL == p_hashmap)
+	if (NULL == p_hashmap)
 	{
 		goto END;
 	}
-	for(size_t iii = 0u; iii < p_hashmap->maps.capacity; iii++)
+	for (size_t iii = 0u; iii < p_hashmap->maps.capacity; iii++)
 	{
 		si_map_t** pp_map = si_array_at(&(p_hashmap->maps), iii);
-		if(NULL == pp_map)
+		if (NULL == pp_map)
 		{
 			break;
 		}
-		if(NULL == *pp_map)
+		if (NULL == *pp_map)
 		{
 			continue;
 		}
@@ -418,11 +418,11 @@ END:
 
 void si_hashmap_free_at(si_hashmap_t** pp_hashmap)
 {
-	if(NULL == pp_hashmap)
+	if (NULL == pp_hashmap)
 	{
 		goto END;
 	}
-	if(NULL == *pp_hashmap)
+	if (NULL == *pp_hashmap)
 	{
 		// Already freed
 		goto END;

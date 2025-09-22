@@ -5,12 +5,12 @@ int si_tcolor_get_ansi_color_code_3(const ANSI_Color color,
 	const bool foreground, const bool intense)
 {
 	int result = -1;
-	if((0 > color) || (ANSI_COLOR_INVALID <= color))
+	if ((0 > color) || (ANSI_COLOR_INVALID <= color))
 	{
 		goto END;
 	}
 	result = (true == foreground) ? ANSI_FR : ANSI_BK;
-	if(true == intense)
+	if (true == intense)
 	{
 		result += ANSI_INTENSE;
 	}
@@ -33,14 +33,14 @@ inline int si_tcolor_get_ansi_color_code(const ANSI_Color color)
 void si_tcolor_set_color_4(FILE* const p_file, const ANSI_Color color,
 	const bool foreground, const bool intense)
 {
-	if(NULL == p_file)
+	if (NULL == p_file)
 	{
 		goto END;
 	}
 	const int ansi_code = si_tcolor_get_ansi_color_code_3(
 		color, foreground, intense
 	);
-	if(0 > ansi_code)
+	if (0 > ansi_code)
 	{
 		goto END;
 	}
@@ -63,7 +63,7 @@ inline void si_tcolor_set_color(FILE* const p_file, const ANSI_Color color)
 void si_true_color_init(si_true_color_t* const p_color,
 	const uint8_t red, const uint8_t green, const uint8_t blue)
 {
-	if(NULL == p_color)
+	if (NULL == p_color)
 	{
 		goto END;
 	}
@@ -79,7 +79,7 @@ void si_true_color_from_basic(si_true_color_t* const p_color,
 {
 	// Mapping to eclipse palette from:
 	// https://cli.r-lib.org/reference/ansi_palettes.html
-	if(NULL == p_color)
+	if (NULL == p_color)
 	{
 		goto END;
 	}
@@ -168,7 +168,7 @@ END:
 static bool si_true_color_is_intense(const si_true_color_t* const p_color)
 {
 	bool result = false;
-	if(NULL == p_color)
+	if (NULL == p_color)
 	{
 		goto END;
 	}
@@ -192,16 +192,16 @@ END:
 static uint8_t si_true_color_channel_max(const si_true_color_t* const p_color)
 {
 	uint8_t result = 0u;
-	if(NULL == p_color)
+	if (NULL == p_color)
 	{
 		goto END;
 	}
 	result = p_color->red;
-	if(result < p_color->green)
+	if (result < p_color->green)
 	{
 		result = p_color->green;
 	}
-	if(result < p_color->blue)
+	if (result < p_color->blue)
 	{
 		result = p_color->blue;
 	}
@@ -212,7 +212,7 @@ END:
 ANSI_Color si_true_color_to_basic(const si_true_color_t* const p_color)
 {
 	ANSI_Color result = ANSI_COLOR_INVALID;
-	if(NULL == p_color)
+	if (NULL == p_color)
 	{
 		goto END;
 	}
@@ -222,14 +222,14 @@ ANSI_Color si_true_color_to_basic(const si_true_color_t* const p_color)
 	const bool mostly_green = (max_channel == p_color->green);
 	const bool mostly_blue = (max_channel == p_color->blue);
 
-	if(true == mostly_red)
+	if (true == mostly_red)
 	{
-		if(true == mostly_green)
+		if (true == mostly_green)
 		{
 			result = mostly_blue ? ANSI_COLOR_WHITE : ANSI_COLOR_YELLOW;
 			goto LUMA;
 		}
-		if(true == mostly_blue)
+		if (true == mostly_blue)
 		{
 			result = ANSI_COLOR_PURPLE;
 			goto END;
@@ -237,9 +237,9 @@ ANSI_Color si_true_color_to_basic(const si_true_color_t* const p_color)
 		result = ANSI_COLOR_RED;
 		goto END;
 	}
-	if(true == mostly_green)
+	if (true == mostly_green)
 	{
-		if(true == mostly_blue)
+		if (true == mostly_blue)
 		{
 			result = ANSI_COLOR_CYAN;
 			goto END;
@@ -253,7 +253,7 @@ ANSI_Color si_true_color_to_basic(const si_true_color_t* const p_color)
 	// Handle greyscale
 LUMA:
 	const bool is_intense = si_true_color_is_intense(p_color);
-	if((ANSI_COLOR_WHITE == result) && (true != is_intense))
+	if ((ANSI_COLOR_WHITE == result) && (true != is_intense))
 	{
 		result = ANSI_COLOR_BLACK;
 	}
@@ -274,11 +274,11 @@ static float clamp_f(const float input,
 	const float lower, const float upper)
 {
 	float result = input;
-	if(lower > result)
+	if (lower > result)
 	{
 		result = lower;
 	}
-	if(upper < result)
+	if (upper < result)
 	{
 		result = upper;
 	}
@@ -298,11 +298,11 @@ static int clamp_i(const int input,
 	const int lower, const int upper)
 {
 	int result = input;
-	if(lower > result)
+	if (lower > result)
 	{
 		result = lower;
 	}
-	if(upper < result)
+	if (upper < result)
 	{
 		result = upper;
 	}
@@ -312,7 +312,7 @@ static int clamp_i(const int input,
 void si_true_color_mix(si_true_color_t* const p_left,
 	const si_true_color_t* const p_right, const float percent)
 {
-	if((NULL == p_left) || (NULL == p_right) || (0.0f >= percent))
+	if ((NULL == p_left) || (NULL == p_right) || (0.0f >= percent))
 	{
 		goto END;
 	}
@@ -352,12 +352,12 @@ END:
 void si_true_color_apply_3(FILE* const p_file,
 	const si_true_color_t* const p_color, const bool foreground)
 {
-	if((NULL == p_file) || (NULL == p_color))
+	if ((NULL == p_file) || (NULL == p_color))
 	{
 		goto END;
 	}
 	const bool is_supported = si_tui_supports_truecolor();
-	if(true != is_supported)
+	if (true != is_supported)
 	{
 		// Fall back on basic ANSI color support
 		ANSI_Color a_color = si_true_color_to_basic(p_color);
@@ -385,14 +385,14 @@ bool si_terminfo_set_ansi_color_4(si_terminfo_t* const p_terminfo,
 	const ANSI_Color color, const bool foreground, const bool intense)
 {
 	bool result = false;
-	if((NULL == p_terminfo) || (ANSI_COLOR_INVALID <= color))
+	if ((NULL == p_terminfo) || (ANSI_COLOR_INVALID <= color))
 	{
 		goto END;
 	}
 	const int ansi_code = si_tcolor_get_ansi_color_code_3(
 		color, foreground, intense
 	);
-	if(0 > ansi_code)
+	if (0 > ansi_code)
 	{
 		goto END;
 	}
@@ -417,16 +417,16 @@ bool si_terminfo_set_color_3(si_terminfo_t* const p_terminfo,
 	const si_true_color_t* const p_color, const bool foreground)
 {
 	bool result = false;
-	if((NULL == p_terminfo) || (NULL == p_color))
+	if ((NULL == p_terminfo) || (NULL == p_color))
 	{
 		goto END;
 	}
-	if(NULL == p_terminfo->p_file)
+	if (NULL == p_terminfo->p_file)
 	{
 		goto END;
 	}
 	const bool is_supported = p_terminfo->supports_true_color;
-	if(true != is_supported)
+	if (true != is_supported)
 	{
 		// Falls back on basic ANSI Color support
 		ANSI_Color a_color = si_true_color_to_basic(p_color);

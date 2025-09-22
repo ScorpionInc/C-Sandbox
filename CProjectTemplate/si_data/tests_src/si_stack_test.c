@@ -15,13 +15,13 @@ void si_stack_test_modify(void)
 	// TODO Use unity TEST macros
 	si_stack_t stack = {0};
 	si_stack_new(&stack, sizeof(int));
-	for(int iii = 0; iii < 6; iii++)
+	for (int iii = 0; iii < 6; iii++)
 	{
 		printf("Pushed onto the stack: %i\n", iii);
 		si_stack_push(&stack, &iii);
 	}
 	int buffer = 9;
-	for(int iii = 0; iii < 3; iii++)
+	for (int iii = 0; iii < 3; iii++)
 	{
 		si_stack_pop(&stack, &buffer);
 		printf("Popped off the stack: %i\n", buffer);
@@ -38,12 +38,12 @@ void si_stack_test_template(void)
 	// TODO Use unity TEST macros
 	int_stack_t stack = {0};
 	int_stack_new(&stack);
-	for(int iii = 0; iii < 6; iii++)
+	for (int iii = 0; iii < 6; iii++)
 	{
 		printf("Pushed onto the stack: %i\n", iii);
 		int_stack_push(&stack, iii);
 	}
-	for(int iii = 0; iii < 3; iii++)
+	for (int iii = 0; iii < 3; iii++)
 	{
 		printf("Popped off the stack: %i\n", int_stack_pop(&stack));
 	}

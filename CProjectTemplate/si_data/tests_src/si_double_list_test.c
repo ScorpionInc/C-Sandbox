@@ -15,20 +15,20 @@ void tearDown (void)
 
 void print_int_double_list(const si_double_list_t* const p_list)
 {
-	if(NULL == p_list)
+	if (NULL == p_list)
 	{
 		goto END;
 	}
 	printf("{");
 	size_t print_counter = 0u;
-	for(size_t iii = 0u; iii < p_list->capacity; iii++)
+	for (size_t iii = 0u; iii < p_list->capacity; iii++)
 	{
 		int* p_data = si_double_list_at(p_list, iii);
-		if(NULL != p_data)
+		if (NULL != p_data)
 		{
 			printf("%d", *p_data);
 			print_counter++;
-			if(print_counter < (p_list->capacity))
+			if (print_counter < (p_list->capacity))
 			{
 				printf(", ");
 			}
@@ -116,7 +116,7 @@ void double_list_test_modify(void)
 
 	printf("Testing push():");
 	TEST_ASSERT_EQUAL_size_t(SIZE_MAX, si_double_list_push(NULL, &data[0u]));
-	for(size_t iii = 0u; iii < data_size; iii++)
+	for (size_t iii = 0u; iii < data_size; iii++)
 	{
 		TEST_ASSERT_EQUAL_size_t(iii, si_double_list_push(p_list, &data[iii]));
 		TEST_ASSERT_EQUAL(&data[iii], si_double_list_at(p_list, iii));
@@ -128,7 +128,7 @@ void double_list_test_modify(void)
 	// TODO
 
 	printf("Testing pop()\n");
-	for(size_t iii = 0u; iii < data_size; iii++)
+	for (size_t iii = 0u; iii < data_size; iii++)
 	{
 		int* p_data = si_double_list_pop(p_list);
 		TEST_ASSERT_NOT_NULL(p_data);
@@ -141,7 +141,7 @@ void double_list_test_modify(void)
 	printf("Testing sort()\n");
 	// Re-add values to be sorted.
 	TEST_ASSERT_FALSE(si_double_list_sort(NULL));
-	for(size_t iii = 0u; iii < data_size; iii++)
+	for (size_t iii = 0u; iii < data_size; iii++)
 	{
 		TEST_ASSERT_EQUAL_size_t(iii, si_double_list_push(p_list, &data[iii]));
 		TEST_ASSERT_EQUAL(&data[iii], si_double_list_at(p_list, iii));

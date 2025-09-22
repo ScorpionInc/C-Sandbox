@@ -1,25 +1,22 @@
-//si_big_uint.c
+// si_big_uint.c
 
 #include "si_uint_utils.h"
 
 // Used for easy but inefficient big endian implementations
 void reverse_bytes(uint8_t* const p_bytes, const size_t size)
 {
-	// Validation
-	if(NULL == p_bytes)
+	if (NULL == p_bytes)
 	{
 		goto END;
 	}
-	// Begin
 	uint8_t byte = 0x00;
-	for(size_t iii = 0u; iii < (size / 2); iii++)
+	for (size_t iii = 0u; iii < (size / 2); iii++)
 	{
 		const size_t far_index = (size - 1u - iii);
 		byte = p_bytes[0];
 		p_bytes[0] = p_bytes[far_index];
 		p_bytes[far_index] = byte;
 	}
-	// End
 END:
 	return;
 }
@@ -28,17 +25,14 @@ END:
 // No change to bytes on error.
 void invert_uint_bytes(uint8_t* const p_bytes, const size_t size)
 {
-	// Validation parameters
-	if(NULL == p_bytes)
+	if (NULL == p_bytes)
 	{
 		goto END;
 	}
-	// Begin
-	for(size_t iii = 0u; iii < size; iii++)
+	for (size_t iii = 0u; iii < size; iii++)
 	{
 		p_bytes[iii] = ~p_bytes[iii];
 	}
-	// End
 END:
 	return;
 }
@@ -48,23 +42,20 @@ END:
 // TODO Add support for multiple bit shifts per operation.
 void lshift_bytes(uint8_t* const p_bytes, const size_t size)
 {
-	// Validation
-	if(NULL == p_bytes)
+	if (NULL == p_bytes)
 	{
 		goto END;
 	}
-	// Begin
-	for(size_t iii = 0u; iii < size; iii++)
+	for (size_t iii = 0u; iii < size; iii++)
 	{
 		uint8_t bit = 0x00;
-		if(iii < (size - 1))
+		if (iii < (size - 1))
 		{
 			bit = (p_bytes[iii + 1] & (1u << (CHAR_BIT - 1u))) ? 1u : 0u;
 		}
 		p_bytes[iii] <<= 1;
 		p_bytes[iii] |= bit;
 	}
-	// End
 END:
 	return;
 }
@@ -72,40 +63,34 @@ END:
 void lshift_bytes_by(uint8_t* const p_bytes, const size_t size,
 	const size_t amount)
 {
-	// Validation
-	if(NULL == p_bytes)
+	if (NULL == p_bytes)
 	{
 		goto END;
 	}
-	// Begin
-	for(size_t iii = 0u; iii < amount; iii++)
+	for (size_t iii = 0u; iii < amount; iii++)
 	{
 		lshift_bytes(p_bytes, size);
 	}
-	// End
 END:
 	return;
 }
 
 void rshift_bytes(uint8_t* const p_bytes, const size_t size)
 {
-	// Validation
-	if(NULL == p_bytes)
+	if (NULL == p_bytes)
 	{
 		goto END;
 	}
-	// Begin
-	for(size_t iii = 0u; iii < size; iii++)
+	for (size_t iii = 0u; iii < size; iii++)
 	{
 		uint8_t bit = 0x00;
-		if(iii < (size - 1))
+		if (iii < (size - 1))
 		{
 			bit = p_bytes[iii] & 1;
 		}
 		p_bytes[iii] >>= 1;
 		p_bytes[iii] |= (bit << (CHAR_BIT - 1u));
 	}
-	// End
 END:
 	return;
 }
@@ -113,17 +98,14 @@ END:
 void rshift_bytes_by(uint8_t* const p_bytes, const size_t size,
 	const size_t amount)
 {
-	// Validation
-	if(NULL == p_bytes)
+	if (NULL == p_bytes)
 	{
 		goto END;
 	}
-	// Begin
-	for(size_t iii = 0u; iii < amount; iii++)
+	for (size_t iii = 0u; iii < amount; iii++)
 	{
 		rshift_bytes(p_bytes, size);
 	}
-	// End
 END:
 	return;
 }
@@ -135,54 +117,51 @@ bool add_uint_le_bytes(uint8_t* const p_a, const uint8_t* const p_b,
 	const size_t size)
 {
 	bool carry_flag = false;
-	// Validate
-	if((NULL == p_a) || (NULL == p_b))
+	if ((NULL == p_a) || (NULL == p_b))
 	{
 		goto END;
 	}
-	if(0u >= size)
+	if (0u >= size)
 	{
 		goto END;
 	}
-	// Begin
 	uint8_t last_carry = 0u;
 	// Add unsigned long long when possible for fewer ops(faster)
 	const size_t ull_size = sizeof(unsigned long long);
 	const size_t full_ull_count = size / ull_size;
 	unsigned long long* p_ull_a = (unsigned long long*)p_a;
 	unsigned long long* p_ull_b = (unsigned long long*)p_b;
-	for(size_t iii = 0u; iii < full_ull_count; iii++)
+	for (size_t iii = 0u; iii < full_ull_count; iii++)
 	{
 		carry_flag = false;
-		if(p_ull_a[iii] > (ULLONG_MAX - p_ull_b[iii] - last_carry))
+		if (p_ull_a[iii] > (ULLONG_MAX - p_ull_b[iii] - last_carry))
 		{
 			// Overflow
 			carry_flag = true;
 		}
 		p_ull_a[iii] += p_ull_b[iii] + last_carry;
 		last_carry = 0u;
-		if(true == carry_flag)
+		if (true == carry_flag)
 		{
 			last_carry++;
 		}
 	}
 	// Add remaining individual bytes
-	for(size_t iii = (full_ull_count * ull_size); iii < size; iii++)
+	for (size_t iii = (full_ull_count * ull_size); iii < size; iii++)
 	{
 		carry_flag = false;
-		if(p_a[iii] > (UINT8_MAX - p_b[iii] - last_carry))
+		if (p_a[iii] > (UINT8_MAX - p_b[iii] - last_carry))
 		{
 			// Overflow
 			carry_flag = true;
 		}
 		p_a[iii] += p_b[iii] + last_carry;
 		last_carry = 0u;
-		if(true == carry_flag)
+		if (true == carry_flag)
 		{
 			last_carry++;
 		}
 	}
-	// End
 END:
 	return carry_flag;
 }
@@ -193,11 +172,11 @@ bool add_uint_be_bytes(uint8_t* const p_a, const uint8_t* const p_b,
 {
 	bool result = false;
 	// Validate
-	if((NULL == p_a) || (NULL == p_b))
+	if ((NULL == p_a) || (NULL == p_b))
 	{
 		goto END;
 	}
-	if(0u == size)
+	if (0u == size)
 	{
 		goto END;
 	}
@@ -222,17 +201,16 @@ bool add_uint_bytes(uint8_t* const p_a, const uint8_t* const p_b,
 	const size_t size)
 {
 	bool result = false;
-	// Validate parameters
-	if((NULL == p_a) || (NULL == p_b))
+	if ((NULL == p_a) || (NULL == p_b))
 	{
 		goto END;
 	}
-	if(0u >= size)
+	if (0u >= size)
 	{
 		goto END;
 	}
-	// Begin
-	if(BYTE_ORDER == LITTLE_ENDIAN)
+	// Calls based upon local machine's byte order
+	if (BYTE_ORDER == LITTLE_ENDIAN)
 	{
 		result = add_uint_le_bytes(p_a, p_b, size);
 	}
@@ -240,7 +218,6 @@ bool add_uint_bytes(uint8_t* const p_a, const uint8_t* const p_b,
 	{
 		result = add_uint_be_bytes(p_a, p_b, size);
 	}
-	// End
 END:
 	return result;
 }
@@ -248,12 +225,10 @@ END:
 // Needed for generation of a 2's compliment.
 void increment_le_bytes(uint8_t* const p_bytes, const size_t size)
 {
-	// Validation
-	if(NULL == p_bytes)
+	if (NULL == p_bytes)
 	{
 		goto END;
 	}
-	// Begin
 	{
 		// Create a new big uint with a value of one in little endian.
 		uint8_t one[size];
@@ -264,7 +239,6 @@ void increment_le_bytes(uint8_t* const p_bytes, const size_t size)
 		// Add it to p_bytes
 		add_uint_le_bytes(&p_bytes[0u], &one[0u], size);
 	}
-	// End
 END:
 	return;
 }
@@ -272,12 +246,10 @@ END:
 // Needed for generation of a 2's compliment.
 void increment_be_bytes(uint8_t* const p_bytes, const size_t size)
 {
-	// Validation
-	if(NULL == p_bytes)
+	if (NULL == p_bytes)
 	{
 		goto END;
 	}
-	// Begin
 	{
 		// Create a big uint with a value of one in big endian.
 		uint8_t one[size];
@@ -287,7 +259,6 @@ void increment_be_bytes(uint8_t* const p_bytes, const size_t size)
 		// Add it to p_bytes
 		add_uint_le_bytes(&p_bytes[0u], &one[0u], size);
 	}
-	// End
 END:
 	return;
 }
@@ -295,13 +266,13 @@ END:
 // Needed for generation of a 2's compliment.
 void increment_bytes(uint8_t* const p_bytes, const size_t size)
 {
-	// Validation
-	if(NULL == p_bytes)
+	if (NULL == p_bytes)
 	{
 		goto END;
 	}
-	// Begin
-	if(BYTE_ORDER == LITTLE_ENDIAN)
+
+	// Calls implimentation based upon local machine's byte order.
+	if (BYTE_ORDER == LITTLE_ENDIAN)
 	{
 		increment_le_bytes(p_bytes, size);
 	}
@@ -309,7 +280,6 @@ void increment_bytes(uint8_t* const p_bytes, const size_t size)
 	{
 		increment_be_bytes(p_bytes, size);
 	}
-	// End
 END:
 	return;
 }
@@ -320,16 +290,14 @@ bool sub_uint_le_bytes(uint8_t* const p_a, const uint8_t* const p_b,
 	const size_t size)
 {
 	bool underflow = false;
-	// Validation parameters
-	if((NULL == p_a) || (NULL == p_b))
+	if ((NULL == p_a) || (NULL == p_b))
 	{
 		goto END;
 	}
-	if(0u >= size)
+	if (0u >= size)
 	{
 		goto END;
 	}
-	// Begin
 	{
 		uint8_t b_compliment[size];
 		memcpy(&b_compliment[0], p_b, size);
@@ -338,7 +306,6 @@ bool sub_uint_le_bytes(uint8_t* const p_a, const uint8_t* const p_b,
 
 		underflow = !add_uint_le_bytes(p_a, &b_compliment[0], size);
 	}
-	// End
 END:
 	return underflow;
 }
@@ -347,15 +314,15 @@ bool sub_uint_be_bytes(uint8_t* const p_a, const uint8_t* const p_b,
 	const size_t size)
 {
 	bool result = false;
-	// Validation
-	if((NULL == p_a) || (NULL == p_b))
+	if ((NULL == p_a) || (NULL == p_b))
 	{
 		goto END;
 	}
-	if(0u == size)
+	if (0u == size)
 	{
 		goto END;
 	}
+
 	// TODO See add_uint_be_bytes about reversing efficiency
 	reverse_bytes(p_a, size);
 	{
@@ -374,17 +341,17 @@ bool sub_uint_bytes(uint8_t* const p_a, const uint8_t* const p_b,
 	const size_t size)
 {
 	bool result = false;
-	// Validate parameters
-	if((NULL == p_a) || (NULL == p_b))
+	if ((NULL == p_a) || (NULL == p_b))
 	{
 		goto END;
 	}
-	if(0u >= size)
+	if (0u >= size)
 	{
 		goto END;
 	}
-	// Begin
-	if(BYTE_ORDER == LITTLE_ENDIAN)
+
+	// Calls implimentation based upon local machine's byte order.
+	if (BYTE_ORDER == LITTLE_ENDIAN)
 	{
 		result = sub_uint_le_bytes(p_a, p_b, size);
 	}
@@ -392,7 +359,6 @@ bool sub_uint_bytes(uint8_t* const p_a, const uint8_t* const p_b,
 	{
 		result = sub_uint_be_bytes(p_a, p_b, size);
 	}
-	// End
 END:
 	return result;
 }
@@ -402,33 +368,31 @@ int cmp_uint_le_bytes(const uint8_t* const p_a, const uint8_t* const p_b,
 	const size_t size)
 {
 	int result = 0;
-	// Validation
-	if(p_a == p_b)
+	if (p_a == p_b)
 	{
 		// Pointing to the same address
 		goto END;
 	}
-	if((NULL == p_a) || (NULL == p_b))
+	if ((NULL == p_a) || (NULL == p_b))
 	{
 		// Undefined behavior
 		goto END;
 	}
-	// Begin
-	for(size_t iii = 0u; iii < size; iii++)
+
+	for (size_t iii = 0u; iii < size; iii++)
 	{
 		const size_t next_index = size - 1u - iii;
-		if(p_a[next_index] > p_b[next_index])
+		if (p_a[next_index] > p_b[next_index])
 		{
 			result = 1;
 			goto END;
 		}
-		if(p_a[next_index] < p_b[next_index])
+		if (p_a[next_index] < p_b[next_index])
 		{
 			result = -1;
 			goto END;
 		}
 	}
-	// End
 END:
 	return result;
 }
@@ -438,15 +402,12 @@ int cmp_uint_be_bytes(const uint8_t* const p_a, const uint8_t* const p_b,
 	const size_t size)
 {
 	int result = 0;
-	// Validation
-	if((NULL == p_a) || (NULL == p_b))
+	if ((NULL == p_a) || (NULL == p_b))
 	{
 		// Undefined behavior
 		goto END;
 	}
-	// Begin
 	result = memcmp(p_a, p_b, size);
-	// End
 END:
 	return result;
 }
@@ -455,13 +416,13 @@ int cmp_uint_bytes(const uint8_t* const p_a, const uint8_t* const p_b,
 	const size_t size)
 {
 	int result = 0;
-	// Validate parameters
-	if((NULL == p_a) || (NULL == p_b))
+	if ((NULL == p_a) || (NULL == p_b))
 	{
 		goto END;
 	}
-	// Begin
-	if(BYTE_ORDER == LITTLE_ENDIAN)
+
+	// Calls implimentation based upon local machine's byte order.
+	if (BYTE_ORDER == LITTLE_ENDIAN)
 	{
 		result = cmp_uint_le_bytes(p_a, p_b, size);
 	}
@@ -469,7 +430,6 @@ int cmp_uint_bytes(const uint8_t* const p_a, const uint8_t* const p_b,
 	{
 		result = cmp_uint_be_bytes(p_a, p_b, size);
 	}
-	// End
 END:
 	return result;
 }
@@ -481,11 +441,11 @@ void div_uint_le_bytes(uint8_t* const p_dividend,
 	const uint8_t* const p_divisor, const size_t size,
 	uint8_t* const p_remainder)
 {
-	if((NULL == p_dividend) || (NULL == p_divisor))
+	if ((NULL == p_dividend) || (NULL == p_divisor))
 	{
 		goto END;
 	}
-	if(0u >= size)
+	if (0u >= size)
 	{
 		goto END;
 	}
@@ -495,7 +455,7 @@ void div_uint_le_bytes(uint8_t* const p_dividend,
 		const int cmp_result = cmp_uint_le_bytes(
 			&p_divisor[0], &zero[0], size
 		);
-		if(0 == cmp_result)
+		if (0 == cmp_result)
 		{
 			// Divide by zero error.
 			goto END;
@@ -504,10 +464,10 @@ void div_uint_le_bytes(uint8_t* const p_dividend,
 	const int cmp_result = cmp_uint_bytes(
 		&p_dividend[0], &p_divisor[0], size
 	);
-	if(0 > cmp_result)
+	if (0 > cmp_result)
 	{
 		// If not NULL set remainder.
-		if(NULL != p_remainder)
+		if (NULL != p_remainder)
 		{
 			memcpy(&p_remainder[0], &p_dividend[0], size);
 		}
@@ -525,7 +485,7 @@ void div_uint_le_bytes(uint8_t* const p_dividend,
 		int cmp_results = cmp_uint_le_bytes(
 			&p_dividend[0], &p_divisor[0], size
 		);
-		while(0 <= cmp_results)
+		while (0 <= cmp_results)
 		{
 			// Divisor >= Dividend thus can divide.
 			// Update dividend
@@ -538,13 +498,12 @@ void div_uint_le_bytes(uint8_t* const p_dividend,
 			);
 		}
 		// Set dividend to quotient and if not NULL set remainder.
-		if(NULL != p_remainder)
+		if (NULL != p_remainder)
 		{
 			memcpy(&p_remainder[0], &p_dividend[0], size);
 		}
 		memcpy(&p_dividend[0], &counter[0], size);
 	}
-	// End
 END:
 	return;
 }
@@ -554,12 +513,10 @@ void div_uint_be_bytes(uint8_t* const p_dividend,
 	const uint8_t* const p_divisor, const size_t size,
 	uint8_t* const p_remainder)
 {
-	// Validation
-	if((NULL == p_dividend) || (NULL == p_divisor))
+	if ((NULL == p_dividend) || (NULL == p_divisor))
 	{
 		goto END;
 	}
-	// Begin
 	// TODO See add_uint_be_bytes about reversing efficiency
 	reverse_bytes(&p_dividend[0], size);
 	{
@@ -570,12 +527,11 @@ void div_uint_be_bytes(uint8_t* const p_dividend,
 		div_uint_le_bytes(&p_dividend[0], &p_mut_divisor[0], size,
 			p_remainder);
 	}
-	if(NULL != p_remainder)
+	if (NULL != p_remainder)
 	{
 		reverse_bytes(&p_remainder[0], size);
 	}
 	reverse_bytes(&p_dividend[0], size);
-	// End
 END:
 	return;
 }
@@ -584,13 +540,13 @@ void div_uint_bytes(uint8_t* const p_dividend,
     const uint8_t* const p_divisor, const size_t size,
     uint8_t* const p_remainder)
 {
-	// Validation
-	if((NULL == p_dividend) || (NULL == p_divisor))
+	if ((NULL == p_dividend) || (NULL == p_divisor))
 	{
 		goto END;
 	}
-	// Begin
-	if(BYTE_ORDER == LITTLE_ENDIAN)
+
+	// Calls implimentation based upon local machine's byte order.
+	if (BYTE_ORDER == LITTLE_ENDIAN)
 	{
 		div_uint_le_bytes(p_dividend, p_divisor, size, p_remainder);
 	}
@@ -598,7 +554,6 @@ void div_uint_bytes(uint8_t* const p_dividend,
 	{
 		div_uint_be_bytes(p_dividend, p_divisor, size, p_remainder);
 	}
-	// End
 END:
 	return;
 }
@@ -606,19 +561,16 @@ END:
 void mod_uint_le_bytes(uint8_t* const p_dividend,
 	const uint8_t* const p_divisor, const size_t size)
 {
-	// Validation
-	if((NULL == p_dividend) || (NULL == p_divisor))
+	if ((NULL == p_dividend) || (NULL == p_divisor))
 	{
 		goto END;
 	}
-	// Begin
 	{
 		uint8_t quotient[size];
 		memset(&quotient, 0x00, size);
 		memcpy(&quotient[0u], &p_dividend[0u], size);
 		div_uint_le_bytes(&quotient[0u], &p_divisor[0u], size, &p_dividend[0]);
 	}
-	// End
 END:
 	return;
 }
@@ -626,19 +578,16 @@ END:
 void mod_uint_be_bytes(uint8_t* const p_dividend,
 	const uint8_t* const p_divisor, const size_t size)
 {
-	// Validation
-	if((NULL == p_dividend) || (NULL == p_divisor))
+	if ((NULL == p_dividend) || (NULL == p_divisor))
 	{
 		goto END;
 	}
-	// Begin
 	{
 		uint8_t quotient[size];
 		memset(&quotient, 0x00, size);
 		memcpy(&quotient[0u], &p_dividend[0u], size);
 		div_uint_be_bytes(&quotient[0u], &p_divisor[0u], size, &p_dividend[0]);
 	}
-	// End
 END:
 	return;
 }
@@ -646,13 +595,13 @@ END:
 void mod_uint_bytes(uint8_t* const p_dividend,
 	const uint8_t* const p_divisor, const size_t size)
 {
-	// Validation
-	if((NULL == p_dividend) || (NULL == p_divisor))
+	if ((NULL == p_dividend) || (NULL == p_divisor))
 	{
 		goto END;
 	}
-	// Begin
-	if(BYTE_ORDER == LITTLE_ENDIAN)
+
+	// Calls implimentation based upon local machine's byte order.
+	if (BYTE_ORDER == LITTLE_ENDIAN)
 	{
 		mod_uint_le_bytes(p_dividend, p_divisor, size);
 	}
@@ -660,7 +609,6 @@ void mod_uint_bytes(uint8_t* const p_dividend,
 	{
 		mod_uint_be_bytes(p_dividend, p_divisor, size);
 	}
-	// End
 END:
 	return;
 }

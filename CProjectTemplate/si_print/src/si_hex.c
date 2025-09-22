@@ -17,17 +17,17 @@ void fprint_byte_hex_4(FILE* p_file, const uint8_t byte,
 	const size_t max_nibble_count = (
 		(SI_BITS_COUNT - bit_start) / SI_NIBBLE_BITS
 	);
-	if((NULL == p_file) || (max_bit_index < bit_start))
+	if ((NULL == p_file) || (max_bit_index < bit_start))
 	{
 		// Nothing to print
 		goto END;
 	}
 	// Clamp nibble_count to within the byte
-	if(max_nibble_count < mut_nibble_count)
+	if (max_nibble_count < mut_nibble_count)
 	{
 		mut_nibble_count = max_nibble_count;
 	}
-	for(unsigned int nibble_index = 0u; nibble_index < mut_nibble_count;
+	for (unsigned int nibble_index = 0u; nibble_index < mut_nibble_count;
 		nibble_index++)
 	{
 		// Prints from MSB
@@ -59,16 +59,16 @@ void fprint_le_bytes_hex(FILE* p_file,
 			const uint8_t* p_buffer, const size_t buffer_size)
 {
 	// Validate parameters
-	if((NULL == p_file) || (NULL == p_buffer) || (0u == buffer_size))
+	if ((NULL == p_file) || (NULL == p_buffer) || (0u == buffer_size))
 	{
 		goto END;
 	}
 	// Begin
 	// Little Endian prints bytes in reverse order.
-	for(size_t byte_offset = buffer_size - 1u; 0u <= byte_offset; byte_offset--)
+	for (size_t byte_offset = buffer_size - 1u; 0u <= byte_offset; byte_offset--)
 	{
 		fprint_byte_hex(p_file, p_buffer[byte_offset]);
-		if(0u == byte_offset)
+		if (0u == byte_offset)
 		{
 			break;
 		}
@@ -83,13 +83,13 @@ void fprint_be_bytes_hex(FILE* p_file,
 			const uint8_t* p_buffer, const size_t buffer_size)
 {
 	// Validate parameters
-	if((NULL == p_file) || (NULL == p_buffer) || (0u == buffer_size))
+	if ((NULL == p_file) || (NULL == p_buffer) || (0u == buffer_size))
 	{
 		goto END;
 	}
 	// Begin
 	// Big Endian prints bytes in order.
-	for(size_t byte_offset = 0u; byte_offset < buffer_size; byte_offset++)
+	for (size_t byte_offset = 0u; byte_offset < buffer_size; byte_offset++)
 	{
 		fprint_byte_hex(p_file, p_buffer[byte_offset]);
 	}
@@ -102,7 +102,7 @@ END:
 void fprint_bytes_hex(FILE* p_file,
 			const uint8_t* p_buffer, const size_t buffer_size)
 {
-	if(BYTE_ORDER == LITTLE_ENDIAN)
+	if (BYTE_ORDER == LITTLE_ENDIAN)
 	{
 		fprint_le_bytes_hex(p_file, p_buffer, buffer_size);
 	}
@@ -121,15 +121,15 @@ void fprint_le_hex_5(FILE* p_file,
 	size_t mut_bit_offset = bit_offset;
 	size_t mut_nibble_count = nibble_count;
 	// Validate parameters
-	if((NULL == p_file) || (NULL == p_buffer) || (0u == nibble_count))
+	if ((NULL == p_file) || (NULL == p_buffer) || (0u == nibble_count))
 	{
 		goto END;
 	}
-	if(max_bit < mut_bit_offset)
+	if (max_bit < mut_bit_offset)
 	{
 		mut_bit_offset = max_bit;
 	}
-	if(max_bit < ((mut_nibble_count * SI_NIBBLE_BITS) + mut_bit_offset))
+	if (max_bit < ((mut_nibble_count * SI_NIBBLE_BITS) + mut_bit_offset))
 	{
 		mut_nibble_count = (max_bit - mut_bit_offset) / SI_NIBBLE_BITS;
 	}
@@ -144,7 +144,7 @@ void fprint_le_hex_5(FILE* p_file,
 	const size_t end_ord_index = buffer_size - 1u - end_unord_index;
 	const size_t bit_offset_remainder = (mut_bit_offset % SI_BITS_COUNT);
 	// Begin
-	if(beg_unord_index == end_unord_index)
+	if (beg_unord_index == end_unord_index)
 	{
 		// This is printing all or part of 1 byte.
 		fprint_byte_hex_4(p_file, p_buffer[beg_ord_index],
@@ -184,15 +184,15 @@ void fprint_be_hex_5(FILE* p_file,
 	size_t mut_bit_offset = bit_offset;
 	size_t mut_nibble_count = nibble_count;
 	// Validate parameters
-	if((NULL == p_file) || (NULL == p_buffer) || (0u == nibble_count))
+	if ((NULL == p_file) || (NULL == p_buffer) || (0u == nibble_count))
 	{
 		goto END;
 	}
-	if(max_bit < mut_bit_offset)
+	if (max_bit < mut_bit_offset)
 	{
 		mut_bit_offset = max_bit;
 	}
-	if(max_bit < ((mut_nibble_count * SI_NIBBLE_BITS) + mut_bit_offset))
+	if (max_bit < ((mut_nibble_count * SI_NIBBLE_BITS) + mut_bit_offset))
 	{
 		mut_nibble_count = (max_bit - mut_bit_offset) / SI_NIBBLE_BITS;
 	}
@@ -205,7 +205,7 @@ void fprint_be_hex_5(FILE* p_file,
 	const size_t full_byte_count = (end_unord_index - beg_unord_index) - 1u;
 	const size_t bit_offset_remainder = (mut_bit_offset % SI_BITS_COUNT);
 	// Begin
-	if(beg_unord_index == end_unord_index)
+	if (beg_unord_index == end_unord_index)
 	{
 		// This is printing all or part of 1 byte.
 		fprint_byte_hex_4(p_file, p_buffer[beg_unord_index],
@@ -240,7 +240,7 @@ void fprint_hex(FILE* p_file,
     const uint8_t* p_buffer, const size_t buffer_size,
     const size_t nibble_offset, const size_t nibble_count)
 {
-	if(BYTE_ORDER == LITTLE_ENDIAN)
+	if (BYTE_ORDER == LITTLE_ENDIAN)
 	{
 		fprint_le_hex_5(p_file, p_buffer, buffer_size, nibble_offset, nibble_count);
 	}
@@ -257,12 +257,11 @@ void fprint_grouped_hex_5(FILE* p_file,
 {
 	const size_t max_bit = (buffer_size * SI_BITS_COUNT);
 	const size_t max_nibble = (max_bit / SI_NIBBLE_BITS);
-	// Validate Parameters
-	if((NULL == p_file) || (NULL == p_buffer))
+	if ((NULL == p_file) || (NULL == p_buffer))
 	{
 		goto END;
 	}
-	if((0u >= grouping) || (max_bit <= grouping))
+	if ((0u >= grouping) || (max_bit <= grouping))
 	{
 		// Output isn't grouped just print
 		fprint_bytes_hex(p_file, p_buffer, buffer_size);
@@ -270,17 +269,16 @@ void fprint_grouped_hex_5(FILE* p_file,
 	}
 	const size_t full_print_count = (max_nibble / grouping);
 	// Begin
-	for(size_t print_index = 0u; print_index < full_print_count; print_index++)
+	for (size_t print_index = 0u; print_index < full_print_count; print_index++)
 	{
 		fprint_hex(p_file, p_buffer, buffer_size,
 			SI_NIBBLE_BITS * grouping * print_index, grouping);
 		const bool has_more_iterations = print_index < (full_print_count - 1u);
-		if(true == has_more_iterations)
+		if (true == has_more_iterations)
 		{
 			fprintf(p_file, "%c", spacer);
 		}
 	}
-	// End
 END:
 	return;
 }
@@ -305,7 +303,7 @@ inline void fprint_grouped_hex(FILE* p_file,
 size_t nibbles_string_length(const size_t byte_count, const size_t grouping)
 {
 	size_t spacer_count = 0u;
-	if(0u < grouping)
+	if (0u < grouping)
 	{
 		spacer_count = (((SI_NIBBLE_COUNT * byte_count) - 1u) / grouping);
 	}
@@ -321,18 +319,18 @@ size_t snprint_hex_6(char* string, const size_t n,
 {
 	size_t written = 0u;
 	// Validate Parameters
-	if((0u == n) || (0u == count))
+	if ((0u == n) || (0u == count))
 	{
 		goto END;
 	}
 	const size_t string_length = nibbles_string_length(count, grouping);
-	if(n < string_length)
+	if (n < string_length)
 	{
 		// Would write past the length of the buffer.
 		goto END;
 	}
 	FILE* p_stream = fmemopen(string, n, "r+");
-	if(NULL == p_stream)
+	if (NULL == p_stream)
 	{
 		// Failed to open buffer as file.
 		goto END;

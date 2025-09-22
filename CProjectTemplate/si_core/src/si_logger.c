@@ -4,12 +4,12 @@
 void fprint_stacktrace_3(FILE* const p_file,
 	const size_t skip_count, const char* const p_prefix)
 {
-	if(NULL == p_file)
+	if (NULL == p_file)
 	{
 		goto END;
 	}
 	const char* p_mut_prefix = "";
-	if(NULL != p_prefix)
+	if (NULL != p_prefix)
 	{
 		p_mut_prefix = p_prefix;
 	}
@@ -18,23 +18,23 @@ void fprint_stacktrace_3(FILE* const p_file,
 	const size_t STACK_BUFFER_SIZE = (MAX_STACK_DEPTH * sizeof(void*));
 	void* p_addresses = NULL;
 	p_addresses = calloc(1u, STACK_BUFFER_SIZE);
-	if(NULL == p_addresses)
+	if (NULL == p_addresses)
 	{
 		goto END;
 	}
 	const size_t backtrace_size = backtrace(p_addresses, MAX_STACK_DEPTH);
 	char** p_stack_strs = backtrace_symbols(p_addresses, backtrace_size);
-	if(NULL == p_stack_strs)
+	if (NULL == p_stack_strs)
 	{
 		free(p_addresses);
 		p_addresses = NULL;
 		goto END;
 	}
-	for(size_t iii = skip_count; iii < backtrace_size; iii++)
+	for (size_t iii = skip_count; iii < backtrace_size; iii++)
 	{
 		fprintf(p_file, "%s%s\n", p_mut_prefix, p_stack_strs[iii]);
 	}
-	if(backtrace_size >= MAX_STACK_DEPTH)
+	if (backtrace_size >= MAX_STACK_DEPTH)
 	{
 		fprintf(p_file, "%s(callstack truncated)\n", p_mut_prefix);
 	}
@@ -70,7 +70,7 @@ inline void fprint_stacktrace(FILE* const p_file)
 static bool si_logger_is_ansi(FILE* p_file)
 {
 	bool result = false;
-	if(NULL == p_file)
+	if (NULL == p_file)
 	{
 		goto END;
 	}
@@ -91,7 +91,7 @@ END:
 static const char* const si_logger_select_header(const size_t msg_level)
 {
 	const char* p_result = NULL;
-	switch(msg_level)
+	switch (msg_level)
 	{
 		case(SI_LOGGER_ALL):
 			p_result = "VERBOSE";
@@ -127,17 +127,17 @@ static const char* const si_logger_select_header(const size_t msg_level)
 static const char* const si_logger_select_color(const size_t msg_level)
 {
 	const char* p_ansi = "";
-	if(SI_LOGGER_ALL == msg_level)
+	if (SI_LOGGER_ALL == msg_level)
 	{
 		// Light Gray
 		p_ansi = "\x1b[90m";
 	}
-	else if(SI_LOGGER_INFO >= msg_level)
+	else if (SI_LOGGER_INFO >= msg_level)
 	{
 		// Green
 		p_ansi = "\x1b[32m";
 	}
-	else if(SI_LOGGER_WARNING >= msg_level)
+	else if (SI_LOGGER_WARNING >= msg_level)
 	{
 		// Yellow
 		p_ansi = "\x1b[33m";
@@ -160,20 +160,20 @@ static const char* const si_logger_select_color(const size_t msg_level)
 static void si_logger_fprint_header(FILE* p_file, const size_t msg_level,
 	const bool is_ansi)
 {
-	if(NULL == p_file)
+	if (NULL == p_file)
 	{
 		goto END;
 	}
 	fprintf(p_file, "[");
 	// Start ANSI color
-	if(true == is_ansi)
+	if (true == is_ansi)
 	{
 		const char* const p_color = si_logger_select_color(msg_level);
 		fprintf(p_file, "\x1b[1m%s", p_color); // Bold / Color
 	}
 	// Header text
 	const char* p_header = si_logger_select_header(msg_level);
-	if(NULL == p_header)
+	if (NULL == p_header)
 	{
 		fprintf(p_file, "%8lu", msg_level);
 	}
@@ -182,7 +182,7 @@ static void si_logger_fprint_header(FILE* p_file, const size_t msg_level,
 		fprintf(p_file, "%8s", p_header);
 	}
 	// End ANSI color
-	if(true == is_ansi)
+	if (true == is_ansi)
 	{
 		fprintf(p_file, "\x1b[0m");
 	}
@@ -204,13 +204,13 @@ static char* si_logger_header_new(const size_t msg_level, const bool is_ansi)
 	char* p_header = NULL;
 	const size_t MAX_LENGTH = 64u;
 	p_header = calloc(MAX_LENGTH, sizeof(char));
-	if(NULL == p_header)
+	if (NULL == p_header)
 	{
 		goto END;
 	}
 	FILE* p_file = NULL;
 	p_file = fmemopen(p_header, MAX_LENGTH, "w");
-	if(NULL == p_file)
+	if (NULL == p_file)
 	{
 		free(p_header);
 		p_header = NULL;
@@ -247,7 +247,7 @@ si_logger_t* si_logger_new_2(FILE* const p_file, const size_t logging_level)
 {
 	si_logger_t* p_new = NULL;
 	p_new = calloc(1u, sizeof(si_logger_t));
-	if(NULL == p_new)
+	if (NULL == p_new)
 	{
 		goto END;
 	}
@@ -270,26 +270,26 @@ void si_logger_custom(si_logger_t* const p_logger, const size_t msg_level,
 	const char* p_prefix, const void* const p_data, const char* p_suffix,
 	void p_print(FILE* const, const void* const))
 {
-	if(NULL == p_logger)
+	if (NULL == p_logger)
 	{
 		goto END;
 	}
-	if(NULL == p_logger->p_file)
+	if (NULL == p_logger->p_file)
 	{
 		goto END;
 	}
-	if(p_logger->logging_level > msg_level)
+	if (p_logger->logging_level > msg_level)
 	{
 		goto END;
 	}
 	const bool is_ansi = si_logger_is_ansi(p_logger->p_file);
 	pthread_mutex_lock(&(p_logger->file_lock));
 	si_logger_fprint_header(p_logger->p_file, msg_level, is_ansi);
-	if(NULL != p_prefix)
+	if (NULL != p_prefix)
 	{
 		fprintf(p_logger->p_file, "%s", p_prefix);
 	}
-	if(NULL != p_print)
+	if (NULL != p_print)
 	{
 		p_print(p_logger->p_file, p_data);
 	}
@@ -297,7 +297,7 @@ void si_logger_custom(si_logger_t* const p_logger, const size_t msg_level,
 	{
 		fprintf(p_logger->p_file, "%p", p_data);
 	}
-	if(NULL != p_suffix)
+	if (NULL != p_suffix)
 	{
 		fprintf(p_logger->p_file, "%s", p_suffix);
 	}
@@ -318,21 +318,21 @@ END:
 static void _si_logger_log(si_logger_t* const p_logger,
 	const char* const p_format, const size_t msg_level, va_list args)
 {
-	if(NULL == p_logger)
+	if (NULL == p_logger)
 	{
 		goto END;
 	}
-	if(NULL == p_logger->p_file)
+	if (NULL == p_logger->p_file)
 	{
 		goto END;
 	}
-	if(p_logger->logging_level > msg_level)
+	if (p_logger->logging_level > msg_level)
 	{
 		goto END;
 	}
 	const bool is_ansi = si_logger_is_ansi(p_logger->p_file);
 	const char* p_header = si_logger_header_new(msg_level, is_ansi);
-	if(p_logger->stacktrace_level <= msg_level)
+	if (p_logger->stacktrace_level <= msg_level)
 	{
 		// Skips printing the stackcall printing functions
 		const size_t skip_count = 3u;
@@ -408,7 +408,7 @@ void si_logger_critical(si_logger_t* const p_logger,
 
 void si_logger_free(si_logger_t* const p_logger)
 {
-	if(NULL == p_logger)
+	if (NULL == p_logger)
 	{
 		goto END;
 	}
@@ -419,11 +419,11 @@ END:
 
 void si_logger_destroy(si_logger_t** pp_logger)
 {
-	if(NULL == pp_logger)
+	if (NULL == pp_logger)
 	{
 		goto END;
 	}
-	if(NULL == *pp_logger)
+	if (NULL == *pp_logger)
 	{
 		// Already freed
 		goto END;

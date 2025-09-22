@@ -13,7 +13,6 @@ void si_array_init_3(si_array_t* p_array, const size_t element_size,
 	{
 		goto END;
 	}
-	// Begin
 	p_array->p_data = calloc(capacity, element_size);
 	if (NULL == p_array->p_data)
 	{
@@ -21,8 +20,7 @@ void si_array_init_3(si_array_t* p_array, const size_t element_size,
 	}
 	p_array->element_size = element_size;
 	p_array->capacity = capacity;
-	// End
-	END:
+END:
 		return;
 }
 inline void si_array_init(si_array_t* p_array, const size_t element_size)
@@ -35,7 +33,7 @@ si_array_t* si_array_new_2(const size_t element_size, const size_t capacity)
 {
 	si_array_t* p_new = NULL;
 	p_new = calloc(1u, sizeof(si_array_t));
-	if(NULL == p_new)
+	if (NULL == p_new)
 	{
 		goto END;
 	}
@@ -52,7 +50,6 @@ inline si_array_t* si_array_new(const size_t element_size)
 size_t si_array_size(const si_array_t* p_array)
 {
 	size_t result = 0u;
-	// Validate Parameters
 	if (NULL == p_array)
 	{
 		goto END;
@@ -61,7 +58,6 @@ size_t si_array_size(const si_array_t* p_array)
 	{
 		goto END;
 	}
-	// Begin
 	// Prevent Overflows
 	if ((p_array->capacity * p_array->element_size) /
 		p_array->element_size != p_array->capacity)
@@ -70,7 +66,6 @@ size_t si_array_size(const si_array_t* p_array)
 		goto END;
 	}
 	result = p_array->element_size * p_array->capacity;
-	// End
 END:
 	return result;
 }
@@ -79,28 +74,26 @@ bool si_array_resize(si_array_t* p_array,
     const size_t new_capacity)
 {
 	bool result = false;
-	// Validate parameter
 	if (NULL == p_array)
 	{
 		goto END;
 	}
-	// Begin
 	const size_t old_capacity = p_array->capacity;
 	const size_t old_size = (p_array->element_size * old_capacity);
 	const size_t new_size =	(p_array->element_size * new_capacity);
 	// Check for overflows
-	if(0u < p_array->element_size)
+	if (0u < p_array->element_size)
 	{
-		if((old_size / p_array->element_size) != old_capacity)
+		if ((old_size / p_array->element_size) != old_capacity)
 		{
 			goto END;
 		}
-		if((new_size / p_array->element_size) != new_capacity)
+		if ((new_size / p_array->element_size) != new_capacity)
 		{
 			goto END;
 		}
 	}
-	if(0u == new_size)
+	if (0u == new_size)
 	{
 		free(p_array->p_data);
 		p_array->p_data = NULL;
@@ -109,20 +102,19 @@ bool si_array_resize(si_array_t* p_array,
 		goto END;
 	}
 	void* tmp = realloc(p_array->p_data, new_size);
-	if(NULL == tmp)
+	if (NULL == tmp)
 	{
 		goto END;
 	}
 	p_array->p_data = tmp;
 	p_array->capacity = new_capacity;
 	// If grown, initialize new memory to 0x00(NULL).
-	if(new_size > old_size)
+	if (new_size > old_size)
 	{
 		char* p_end = &((char*)p_array->p_data)[old_size];
 		memset(p_end, 0x00, new_size - old_size);
 	}
 	result = true;
-	// End
 END:
 	return result;
 }
@@ -131,23 +123,20 @@ bool si_array_is_pointer_within(const si_array_t* p_array,
 	const void* p_test)
 {
 	bool result = false;
-	// Validate parameters
-	if((NULL == p_array) || (NULL == p_test))
+	if ((NULL == p_array) || (NULL == p_test))
 	{
 		goto END;
 	}
-	if(NULL == p_array->p_data)
+	if (NULL == p_array->p_data)
 	{
 		goto END;
 	}
-	// Begin
 	result = (p_test >= p_array->p_data);
-	if(true == result)
+	if (true == result)
 	{
 		const size_t size = si_array_size(p_array);
 		result = (p_test < (p_array->p_data + size));
 	}
-	// End
 END:
 	return result;
 }
@@ -156,17 +145,14 @@ size_t si_array_find_pointer_offset(const si_array_t* p_array,
 	const void* p_test)
 {
 	size_t offset = SIZE_MAX;
-	// Validate parameters
 	const bool is_within = si_array_is_pointer_within(p_array, p_test);
-	if(false == is_within)
+	if (false == is_within)
 	{
 		// is_pointer_within verifies values are not NULL.
 		goto END;
 	}
-	// Begin
 	const size_t size = si_array_size(p_array);
 	offset = (p_array->p_data + size) - p_test;
-	// End
 END:
 	return offset;
 }
@@ -175,21 +161,18 @@ bool si_array_is_pointer_element(const si_array_t* p_array,
 	const void* p_test)
 {
 	bool result = false;
-	// Validate parameters
 	const bool is_within = si_array_is_pointer_within(p_array, p_test);
-	if(false == is_within)
+	if (false == is_within)
 	{
 		// is_pointer_within verifies values are not NULL.
 		goto END;
 	}
-	if(0u == p_array->element_size)
+	if (0u == p_array->element_size)
 	{
 		goto END;
 	}
-	// Begin
 	const size_t offset = si_array_find_pointer_offset(p_array, p_test);
 	result = (0u == (offset % p_array->element_size));
-	// End
 END:
 	return result;
 }
@@ -198,10 +181,8 @@ size_t si_array_find_pointer_index(const si_array_t* p_array,
 	const void* p_test)
 {
 	size_t index = SIZE_MAX;
-	// Validate parameters
-	// Begin
 	const bool is_element = si_array_is_pointer_element(p_array, p_test);
-	if(false == is_element)
+	if (false == is_element)
 	{
 		// is_pointer_element validates values are not NULL.
 		// is_pointer_element validates element_size > 0
@@ -209,7 +190,6 @@ size_t si_array_find_pointer_index(const si_array_t* p_array,
 	}
 	const size_t offset = si_array_find_pointer_offset(p_array, p_test);
 	index = offset / p_array->element_size;
-	// End
 END:
 	return index;
 }
@@ -218,11 +198,11 @@ void* si_array_at(const si_array_t* p_array,
 	const size_t index)
 {
 	void* p_item = NULL;
-	if(NULL == p_array)
+	if (NULL == p_array)
 	{
 		goto END;
 	}
-	if(index >= p_array->capacity)
+	if (index >= p_array->capacity)
 	{
 		goto END;
 	}
@@ -249,7 +229,7 @@ void si_array_set(si_array_t* p_array,
 	const size_t offset = (p_array->element_size * index);
 	const size_t allocated_size = si_array_size(p_array);
 	// Bounds Check
-	if(offset >= allocated_size)
+	if (offset >= allocated_size)
 	{
 		goto END;
 	}
@@ -269,7 +249,7 @@ void si_array_get(const si_array_t* p_array,
 	const size_t offset = (p_array->element_size * index);
 	const size_t allocated_size = si_array_size(p_array);
 	// Bounds Check
-	if(offset >= allocated_size)
+	if (offset >= allocated_size)
 	{
 		goto END;
 	}
@@ -283,11 +263,11 @@ bool si_array_swp(si_array_t* const p_array,
 	const size_t left, const size_t right)
 {
 	bool result = false;
-	if(NULL == p_array)
+	if (NULL == p_array)
 	{
 		goto END;
 	}
-	if((p_array->capacity <= left) || (p_array->capacity <= right))
+	if ((p_array->capacity <= left) || (p_array->capacity <= right))
 	{
 		goto END;
 	}
@@ -309,19 +289,19 @@ int si_array_cmp(const si_array_t* const p_array_a,
 	const si_array_t* const p_array_b)
 {
 	int result = 0;
-	if(p_array_a == p_array_b)
+	if (p_array_a == p_array_b)
 	{
 		// Pointing to the same struct or same memory.
 		goto END;
 	}
 	// We will treat NULL as the smallest possible value.
-	if(NULL == p_array_a)
+	if (NULL == p_array_a)
 	{
 		// a(0) < b(?)
 		result = -1;
 		goto END;
 	}
-	if(NULL == p_array_b)
+	if (NULL == p_array_b)
 	{
 		// a(?) > b(0)
 		result = 1;
@@ -333,7 +313,7 @@ int si_array_cmp(const si_array_t* const p_array_a,
 	const size_t b_size = si_array_size(p_array_b);
 	size_t min_size = 0u;
 	size_t max_size = 0u;
-	if(a_size >= b_size)
+	if (a_size >= b_size)
 	{
 		max_size = a_size;
 		min_size = b_size;
@@ -346,22 +326,22 @@ int si_array_cmp(const si_array_t* const p_array_a,
 	// Compare safe bounds values.
 	uint8_t next_a = 0u;
 	uint8_t next_b = 0u;
-	for(size_t iii = 0u; iii < min_size; iii++)
+	for (size_t iii = 0u; iii < min_size; iii++)
 	{
 		next_a = ((uint8_t*)p_array_a->p_data)[iii];
 		next_b = ((uint8_t*)p_array_b->p_data)[iii];
-		if(next_a == next_b)
+		if (next_a == next_b)
 		{
 			continue;
 		}
 		result = -1;
-		if(next_a > next_b)
+		if (next_a > next_b)
 		{
 			result = 1;
 		}
 		goto END;
 	}
-	if(min_size == max_size)
+	if (min_size == max_size)
 	{
 		// Equal :)
 		goto END;
@@ -375,7 +355,7 @@ int si_array_cmp(const si_array_t* const p_array_a,
 	 * Instead we will return the larger allocated size as the largest.
 	 */
 	result = -1;
-	if(a_size > b_size)
+	if (a_size > b_size)
 	{
 		result = 1;
 	}
@@ -385,14 +365,12 @@ END:
 
 void fprint_si_array(FILE* const p_file, const si_array_t* const p_array)
 {
-	// Validate parameters
-	if((NULL == p_file) || (NULL == p_array))
+	if ((NULL == p_file) || (NULL == p_array))
 	{
 		goto END;
 	}
-	// Begin
 	fprintf(p_file, "{data address: ");
-	if(NULL == p_array->p_data)
+	if (NULL == p_array->p_data)
 	{
 		fprintf(p_file, "NULL, ");
 	}
@@ -403,26 +381,22 @@ void fprint_si_array(FILE* const p_file, const si_array_t* const p_array)
 	fprintf(p_file, "element size: %lu, ", p_array->element_size);
 	fprintf(p_file, "capacity: %lu", p_array->capacity);
 	fprintf(p_file, "}");
-	// End
 END:
 	return;
 }
 
 void si_array_free(si_array_t* const p_array)
 {
-	// Validate parameter
 	if (NULL == p_array)
 	{
 		goto END;
 	}
-	// Begin
 	if (NULL != p_array->p_data)
 	{
 		free(p_array->p_data);
 		p_array->p_data = NULL;
 	}
 	p_array->capacity = 0u;
-	// End
 END:
 	return;
 }

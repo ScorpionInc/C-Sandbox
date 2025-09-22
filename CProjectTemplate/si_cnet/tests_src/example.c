@@ -31,7 +31,7 @@ static bool send_message(struct si_server_t* const p_server,
 	const int socket_fd, const char* const p_msg)
 {
 	bool result = false;
-	if((NULL == p_server) || (SOCKET_ERROR >= socket_fd) || (NULL == p_msg))
+	if ((NULL == p_server) || (SOCKET_ERROR >= socket_fd) || (NULL == p_msg))
 	{
 		goto END;
 	}
@@ -44,14 +44,14 @@ static bool send_message(struct si_server_t* const p_server,
 		socket_fd, (struct sockaddr*)&peer_address, &peer_address_len
 	);
 	char* p_tmp = NULL;
-	if(SOCKET_SUCCESS != gpn_result)
+	if (SOCKET_SUCCESS != gpn_result)
 	{
 		p_tmp = strdup("*");
 	}
 	else
 	{
 		p_tmp = sockaddr_as_str((struct sockaddr*)&peer_address);
-		if(NULL == p_tmp)
+		if (NULL == p_tmp)
 		{
 			goto END;
 		}
@@ -59,7 +59,7 @@ static bool send_message(struct si_server_t* const p_server,
 
 	p_message = strv_clone_join(4u, NULL, "[", p_tmp, "]: ", p_msg);
 	free(p_tmp);
-	if(NULL == p_message)
+	if (NULL == p_message)
 	{
 		goto END;
 	}
@@ -84,7 +84,7 @@ static bool handle_connect(struct si_server_t* const p_server,
 	const int socket_fd)
 {
 	bool result = false;
-	if((NULL == p_server) || (SOCKET_ERROR >= socket_fd))
+	if ((NULL == p_server) || (SOCKET_ERROR >= socket_fd))
 	{
 		goto END;
 	}
@@ -107,14 +107,14 @@ static bool handle_input(struct si_server_t* const p_server,
 	const int socket_fd)
 {
 	bool result = false;
-	if((NULL == p_server) || (SOCKET_ERROR >= socket_fd))
+	if ((NULL == p_server) || (SOCKET_ERROR >= socket_fd))
 	{
 		goto END;
 	}
 	// Handle input
 	char buffer[BUF_SIZE] = {0};
 	ssize_t r_result = read(socket_fd, buffer, BUF_SIZE - 1u);
-	if(0 >= r_result)
+	if (0 >= r_result)
 	{
 		goto END;
 	}
@@ -138,7 +138,7 @@ static bool handle_leave(struct si_server_t* const p_server,
 	const int socket_fd)
 {
 	bool result = false;
-	if((NULL == p_server) || (SOCKET_ERROR >= socket_fd))
+	if ((NULL == p_server) || (SOCKET_ERROR >= socket_fd))
 	{
 		goto END;
 	}
@@ -173,7 +173,7 @@ int main(int argc, char** pp_argv)
 		PORT, DEFAULT_TYPE, DEFAULT_FAMILY,
 		get_client_queue_limit(), NULL, &logger
 	);
-	if(NULL == p_server)
+	if (NULL == p_server)
 	{
 		goto END;
 	}
@@ -182,14 +182,14 @@ int main(int argc, char** pp_argv)
 	p_server->p_on_leave = handle_leave;
 
 	si_accesslist_t* p_access = si_accesslist_new(false, true);
-	if(NULL == p_access)
+	if (NULL == p_access)
 	{
 		free(p_server);
 		p_server = NULL;
 		goto END;
 	}
 	struct sockaddr_in* p_loopback = (struct sockaddr_in*)sockaddr_new(AF_INET);
-	if(NULL == p_loopback)
+	if (NULL == p_loopback)
 	{
 		free(p_access);
 		free(p_server);
@@ -202,20 +202,20 @@ int main(int argc, char** pp_argv)
 	p_server->p_access_list = p_access;
 
 	si_server_set_blocking(p_server, false);
-	while(0 == g_exit_signal)
+	while (0 == g_exit_signal)
 	{
 		si_server_accept(p_server);
 		si_server_handle_events(p_server);
 	}
 
 	// Handle cleanup
-	if(NULL != p_access)
+	if (NULL != p_access)
 	{
 		si_accesslist_free(p_access);
 		free(p_access);
 		p_access = NULL;
 	}
-	if(NULL != p_loopback)
+	if (NULL != p_loopback)
 	{
 		free(p_loopback);
 		p_loopback = NULL;

@@ -4,11 +4,11 @@
 void si_priority_queue_init(si_priority_queue_t* const p_pqueue,
 	const size_t priority_count)
 {
-	if(NULL == p_pqueue)
+	if (NULL == p_pqueue)
 	{
 		goto END;
 	}
-	if(0u >= priority_count)
+	if (0u >= priority_count)
 	{
 		goto END;
 	}
@@ -19,19 +19,19 @@ void si_priority_queue_init(si_priority_queue_t* const p_pqueue,
 
 	// Initialize queue mutexs
 	pthread_mutexattr_t* p_attr = si_mutexattr_new();
-	if(NULL == p_attr)
+	if (NULL == p_attr)
 	{
 		goto END;
 	}
-	for(size_t iii = 0u; iii < priority_count; iii++)
+	for (size_t iii = 0u; iii < priority_count; iii++)
 	{
 		pthread_mutex_t* const p_lock = si_mutex_new_1(p_attr);
-		if(NULL == p_lock)
+		if (NULL == p_lock)
 		{
 			break;
 		}
 		const size_t append_index = si_parray_append(&(p_pqueue->locks), p_lock);
-		if(priority_count <= append_index)
+		if (priority_count <= append_index)
 		{
 			break;
 		}
@@ -44,7 +44,7 @@ END:
 si_priority_queue_t* si_priority_queue_new(const size_t priority_count)
 {
 	si_priority_queue_t* p_new = calloc(1u, sizeof(si_priority_queue_t));
-	if(NULL == p_new)
+	if (NULL == p_new)
 	{
 		goto END;
 	}
@@ -57,12 +57,12 @@ size_t si_priority_queue_priority_count(
 	const si_priority_queue_t* const p_pqueue)
 {
 	size_t result = 0u;
-	if(NULL == p_pqueue)
+	if (NULL == p_pqueue)
 	{
 		goto END;
 	}
 	result = p_pqueue->locks.array.capacity;
-	if(p_pqueue->queues.array.capacity < result)
+	if (p_pqueue->queues.array.capacity < result)
 	{
 		result = p_pqueue->queues.array.capacity;
 	}
@@ -73,43 +73,43 @@ END:
 size_t si_priority_queue_count(const si_priority_queue_t* const p_pqueue)
 {
 	size_t result = SIZE_MAX;
-	if(NULL == p_pqueue)
+	if (NULL == p_pqueue)
 	{
 		goto END;
 	}
 	result = 0u;
 	const size_t priority_count = si_priority_queue_priority_count(p_pqueue);
-	for(size_t iii = 0u; iii < priority_count; iii++)
+	for (size_t iii = 0u; iii < priority_count; iii++)
 	{
 		pthread_mutex_t* const p_lock = si_parray_at(&(p_pqueue->locks), iii);
-		if(NULL == p_lock)
+		if (NULL == p_lock)
 		{
 			break;
 		}
 		int lock_result = -1;
-		while(0 != lock_result)
+		while (0 != lock_result)
 		{
 			lock_result = pthread_mutex_lock(p_lock);
 		}
 	}
-	for(size_t iii = 0u; iii < priority_count; iii++)
+	for (size_t iii = 0u; iii < priority_count; iii++)
 	{
 		si_queue_t* p_queue = si_parray_at(&(p_pqueue->queues), iii);
-		if(NULL == p_queue)
+		if (NULL == p_queue)
 		{
 			continue;
 		}
 		result += si_queue_count(p_queue);
 	}
-	for(size_t iii = 0u; iii < priority_count; iii++)
+	for (size_t iii = 0u; iii < priority_count; iii++)
 	{
 		pthread_mutex_t* const p_lock = si_parray_at(&(p_pqueue->locks), iii);
-		if(NULL == p_lock)
+		if (NULL == p_lock)
 		{
 			break;
 		}
 		int unlock_result = -1;
-		while(0 != unlock_result)
+		while (0 != unlock_result)
 		{
 			unlock_result = pthread_mutex_unlock(p_lock);
 		}
@@ -121,47 +121,47 @@ END:
 bool si_priority_queue_is_empty(const si_priority_queue_t* const p_pqueue)
 {
 	bool result = true;
-	if(NULL == p_pqueue)
+	if (NULL == p_pqueue)
 	{
 		goto END;
 	}
 	const size_t priority_count = si_priority_queue_priority_count(p_pqueue);
-	for(size_t iii = 0u; iii < priority_count; iii++)
+	for (size_t iii = 0u; iii < priority_count; iii++)
 	{
 		pthread_mutex_t* const p_lock = si_parray_at(&(p_pqueue->locks), iii);
-		if(NULL == p_lock)
+		if (NULL == p_lock)
 		{
 			break;
 		}
 		int lock_result = -1;
-		while(0 != lock_result)
+		while (0 != lock_result)
 		{
 			lock_result = pthread_mutex_lock(p_lock);
 		}
 	}
-	for(size_t iii = 0u; iii < priority_count; iii++)
+	for (size_t iii = 0u; iii < priority_count; iii++)
 	{
 		si_queue_t* p_queue = si_parray_at(&(p_pqueue->queues), iii);
-		if(NULL == p_queue)
+		if (NULL == p_queue)
 		{
 			continue;
 		}
 		const size_t next_count = si_queue_count(p_queue);
-		if(0 < next_count)
+		if (0 < next_count)
 		{
 			result = false;
 			break;
 		}
 	}
-	for(size_t iii = 0u; iii < priority_count; iii++)
+	for (size_t iii = 0u; iii < priority_count; iii++)
 	{
 		pthread_mutex_t* const p_lock = si_parray_at(&(p_pqueue->locks), iii);
-		if(NULL == p_lock)
+		if (NULL == p_lock)
 		{
 			break;
 		}
 		int unlock_result = -1;
-		while(0 != unlock_result)
+		while (0 != unlock_result)
 		{
 			unlock_result = pthread_mutex_unlock(p_lock);
 		}
@@ -184,17 +184,17 @@ static size_t si_priority_queue_feed_at(si_priority_queue_t* const p_pqueue,
 	const size_t priority, const size_t amount)
 {
 	size_t result = 0u;
-	if((NULL == p_pqueue) || (0u >= amount))
+	if ((NULL == p_pqueue) || (0u >= amount))
 	{
 		goto END;
 	}
-	if(p_pqueue->locks.array.capacity <= priority)
+	if (p_pqueue->locks.array.capacity <= priority)
 	{
 		goto END;
 	}
 	size_t sink_index = priority + amount;
 	// Handle overflow for ridiculous number of priority levels
-	if(sink_index <= priority)
+	if (sink_index <= priority)
 	{
 		sink_index = SIZE_MAX;
 	}
@@ -205,7 +205,7 @@ static size_t si_priority_queue_feed_at(si_priority_queue_t* const p_pqueue,
 	pthread_mutex_t* const p_sink_lock = si_parray_at(
 		&(p_pqueue->locks), sink_index
 	);
-	if((NULL == p_source_lock) || (NULL == p_sink_lock))
+	if ((NULL == p_source_lock) || (NULL == p_sink_lock))
 	{
 		goto END;
 	}
@@ -215,30 +215,30 @@ static size_t si_priority_queue_feed_at(si_priority_queue_t* const p_pqueue,
 	si_queue_t* const p_sink_queue = si_parray_at(
 		&(p_pqueue->queues), priority
 	);
-	if((NULL == p_source_queue) || (NULL == p_sink_queue))
+	if ((NULL == p_source_queue) || (NULL == p_sink_queue))
 	{
 		goto END;
 	}
 
 	// Lock source and sink queues
 	int source_lock_result = -1;
-	while(0 != source_lock_result)
+	while (0 != source_lock_result)
 	{
 		source_lock_result = pthread_mutex_lock(p_source_lock);
 	}
 	int sink_lock_result = -1;
-	while(0 != sink_lock_result)
+	while (0 != sink_lock_result)
 	{
 		sink_lock_result = pthread_mutex_lock(p_sink_lock);
 	}
 
 	// Moves items from source to sink
 	const size_t count_items = si_queue_count(p_source_queue);
-	for(size_t iii = 0u; iii < count_items; iii++)
+	for (size_t iii = 0u; iii < count_items; iii++)
 	{
 		void* p_data = NULL;
 		si_queue_dequeue(p_source_queue, &p_data);
-		if(NULL == p_data)
+		if (NULL == p_data)
 		{
 			continue;
 		}
@@ -248,12 +248,12 @@ static size_t si_priority_queue_feed_at(si_priority_queue_t* const p_pqueue,
 
 	// Unlock source and sink queues
 	int sink_unlock_result = -1;
-	while(0 != sink_unlock_result)
+	while (0 != sink_unlock_result)
 	{
 		sink_unlock_result = pthread_mutex_unlock(p_sink_lock);
 	}
 	int source_unlock_result = -1;
-	while(0 != source_unlock_result)
+	while (0 != source_unlock_result)
 	{
 		source_unlock_result = pthread_mutex_unlock(p_source_lock);
 	}
@@ -265,15 +265,15 @@ size_t si_priority_queue_feed(si_priority_queue_t* const p_pqueue,
 	const size_t amount)
 {
 	size_t result = 0u;
-	if((NULL == p_pqueue) || (0 >= amount))
+	if ((NULL == p_pqueue) || (0 >= amount))
 	{
 		goto END;
 	}
-	if(0 >= p_pqueue->locks.array.capacity)
+	if (0 >= p_pqueue->locks.array.capacity)
 	{
 		goto END;
 	}
-	for(size_t iii = 0u; iii < (p_pqueue->locks.array.capacity - 1u); iii++)
+	for (size_t iii = 0u; iii < (p_pqueue->locks.array.capacity - 1u); iii++)
 	{
 		result += si_priority_queue_feed_at(p_pqueue, iii, amount);
 	}
@@ -285,28 +285,28 @@ bool si_priority_queue_enqueue(si_priority_queue_t* const p_pqueue,
 	void* const p_data, const size_t priority)
 {
 	bool result = false;
-	if((NULL == p_pqueue) || (NULL == p_data))
+	if ((NULL == p_pqueue) || (NULL == p_data))
 	{
 		goto END;
 	}
-	if(p_pqueue->queues.array.capacity <= priority)
+	if (p_pqueue->queues.array.capacity <= priority)
 	{
 		goto END;
 	}
 	si_queue_t* p_queue = si_parray_at(&(p_pqueue->queues), priority);
 	pthread_mutex_t* const p_lock = si_parray_at(&(p_pqueue->locks), priority);
-	if(NULL == p_lock)
+	if (NULL == p_lock)
 	{
 		goto END;
 	}
 	int lock_result = -1;
-	while(0 != lock_result)
+	while (0 != lock_result)
 	{
 		lock_result = pthread_mutex_lock(p_lock);
 	}
 
 	size_t queue_count = 0u;
-	if(NULL == p_queue)
+	if (NULL == p_queue)
 	{
 		// Initialize queue
 		p_queue = si_queue_new_3(sizeof(void*), 1u, p_pqueue->p_settings);
@@ -317,7 +317,7 @@ bool si_priority_queue_enqueue(si_priority_queue_t* const p_pqueue,
 		queue_count = si_queue_count(p_queue);
 	}
 	// Validate queue was initialized.
-	if(NULL == p_queue)
+	if (NULL == p_queue)
 	{
 		goto UNLOCK;
 	}
@@ -326,7 +326,7 @@ bool si_priority_queue_enqueue(si_priority_queue_t* const p_pqueue,
 	result = (new_count > queue_count);
 UNLOCK:
 	int unlock_result = -1;
-	while(0 != unlock_result)
+	while (0 != unlock_result)
 	{
 		unlock_result = pthread_mutex_unlock(p_lock);
 	}
@@ -346,28 +346,28 @@ static void* si_priority_queue_dequeue_at(si_priority_queue_t* const p_pqueue,
 	const size_t priority)
 {
 	void* p_result = NULL;
-	if(NULL == p_pqueue)
+	if (NULL == p_pqueue)
 	{
 		goto END;
 	}
-	if(p_pqueue->locks.array.capacity <= priority)
+	if (p_pqueue->locks.array.capacity <= priority)
 	{
 		goto END;
 	}
 	pthread_mutex_t* const p_lock = si_parray_at(&(p_pqueue->locks), priority);
 	si_queue_t* const p_queue = si_parray_at(&(p_pqueue->queues), priority);
-	if((NULL == p_lock) || (NULL == p_queue))
+	if ((NULL == p_lock) || (NULL == p_queue))
 	{
 		goto END;
 	}
 	int lock_result = -1;
-	while(0 != lock_result)
+	while (0 != lock_result)
 	{
 		lock_result = pthread_mutex_lock(p_lock);
 	}
 
 	const size_t count = si_queue_count(p_queue);
-	if(0 >= count)
+	if (0 >= count)
 	{
 		goto UNLOCK;
 	}
@@ -375,7 +375,7 @@ static void* si_priority_queue_dequeue_at(si_priority_queue_t* const p_pqueue,
 
 UNLOCK:
 	int unlock_result = -1;
-	while(0 != unlock_result)
+	while (0 != unlock_result)
 	{
 		unlock_result = pthread_mutex_unlock(p_lock);
 	}
@@ -386,21 +386,21 @@ END:
 void* si_priority_queue_dequeue(si_priority_queue_t* const p_pqueue)
 {
 	void* p_result = NULL;
-	if(NULL == p_pqueue)
+	if (NULL == p_pqueue)
 	{
 		goto END;
 	}
 	const size_t priority_count = si_priority_queue_priority_count(p_pqueue);
-	if(0u >= priority_count)
+	if (0u >= priority_count)
 	{
 		goto END;
 	}
-	for(size_t iii = (priority_count - 1u); 0u <= iii; iii--)
+	for (size_t iii = (priority_count - 1u); 0u <= iii; iii--)
 	{
 		p_result = si_priority_queue_dequeue_at(p_pqueue, iii);
-		if(NULL == p_result)
+		if (NULL == p_result)
 		{
-			if(0u == iii)
+			if (0u == iii)
 			{
 				break;
 			}
@@ -410,7 +410,7 @@ void* si_priority_queue_dequeue(si_priority_queue_t* const p_pqueue)
 		{
 			break;
 		}
-		if(0u == iii)
+		if (0u == iii)
 		{
 			break;
 		}
@@ -421,27 +421,27 @@ END:
 
 void si_priority_queue_update_settings(si_priority_queue_t* const p_pqueue)
 {
-	if(NULL == p_pqueue)
+	if (NULL == p_pqueue)
 	{
 		goto END;
 	}
 	const size_t priority_count = si_priority_queue_priority_count(p_pqueue);
-	for(size_t iii = 0u; iii < priority_count; iii++)
+	for (size_t iii = 0u; iii < priority_count; iii++)
 	{
 		pthread_mutex_t* const p_lock = si_parray_at(&(p_pqueue->locks), iii);
 		si_queue_t* const p_queue = si_parray_at(&(p_pqueue->queues), iii);
-		if((NULL == p_lock) || (NULL == p_queue))
+		if ((NULL == p_lock) || (NULL == p_queue))
 		{
 			continue;
 		}
 		int lock_result = -1;
-		while(0 != lock_result)
+		while (0 != lock_result)
 		{
 			lock_result = pthread_mutex_lock(p_lock);
 		}
 		p_queue->p_settings = p_pqueue->p_settings;
 		int unlock_result = -1;
-		while(0 != unlock_result)
+		while (0 != unlock_result)
 		{
 			unlock_result = pthread_mutex_unlock(p_lock);
 		}
@@ -459,28 +459,28 @@ END:
 static void si_priority_queue_free_at(si_priority_queue_t* const p_pqueue,
 	const size_t priority)
 {
-	if(NULL == p_pqueue)
+	if (NULL == p_pqueue)
 	{
 		goto END;
 	}
 	pthread_mutex_t* const p_lock = si_parray_at(&(p_pqueue->locks), priority);
 	si_queue_t* const p_queue = si_parray_at(&(p_pqueue->queues), priority);
-	if(NULL != p_lock)
+	if (NULL != p_lock)
 	{
 		int lock_result = -1;
-		while(0 != lock_result)
+		while (0 != lock_result)
 		{
 			lock_result = pthread_mutex_lock(p_lock);
 		}
 	}
-	if((NULL != p_pqueue->p_free_value) && (NULL != p_queue))
+	if ((NULL != p_pqueue->p_free_value) && (NULL != p_queue))
 	{
 		void* p_data = NULL;
 		const size_t count = si_queue_count(p_queue);
-		for(size_t iii = 0u; iii < count; iii++)
+		for (size_t iii = 0u; iii < count; iii++)
 		{
 			si_queue_dequeue(p_queue, &p_data);
-			if(NULL == p_data)
+			if (NULL == p_data)
 			{
 				continue;
 			}
@@ -490,10 +490,10 @@ static void si_priority_queue_free_at(si_priority_queue_t* const p_pqueue,
 	si_queue_free(p_queue);
 	free(p_queue);
 	si_parray_set(&(p_pqueue->queues), priority, NULL);
-	if(NULL != p_lock)
+	if (NULL != p_lock)
 	{
 		int unlock_result = -1;
-		while(0 != unlock_result)
+		while (0 != unlock_result)
 		{
 			unlock_result = pthread_mutex_unlock(p_lock);
 		}
@@ -507,12 +507,12 @@ END:
 
 void si_priority_queue_free(si_priority_queue_t* const p_pqueue)
 {
-	if(NULL == p_pqueue)
+	if (NULL == p_pqueue)
 	{
 		goto END;
 	}
 	const size_t priority_count = si_priority_queue_priority_count(p_pqueue);
-	for(size_t iii = 0u; iii < priority_count; iii++)
+	for (size_t iii = 0u; iii < priority_count; iii++)
 	{
 		si_priority_queue_free_at(p_pqueue, iii);
 	}
@@ -524,11 +524,11 @@ END:
 
 void si_priority_queue_destroy(si_priority_queue_t** pp_pqueue)
 {
-	if(NULL == pp_pqueue)
+	if (NULL == pp_pqueue)
 	{
 		goto END;
 	}
-	if(NULL == *pp_pqueue)
+	if (NULL == *pp_pqueue)
 	{
 		// Already freed
 		goto END;

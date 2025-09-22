@@ -4,7 +4,7 @@ void si_stack_new_4(si_stack_t* p_stack, const size_t element_size,
     const size_t initial_capacity, const si_realloc_settings_t* p_settings)
 {
 	p_stack->count = 0u;
-	if(NULL == p_settings)
+	if (NULL == p_settings)
 	{
 		si_realloc_settings_new(&(p_stack->settings));
 	}
@@ -28,7 +28,7 @@ inline void si_stack_new(si_stack_t* p_stack, const size_t element_size)
 bool si_stack_is_full(const si_stack_t* p_stack)
 {
 	bool is_full = true;
-	if(NULL == p_stack)
+	if (NULL == p_stack)
 	{
 		goto END;
 	}
@@ -40,7 +40,7 @@ END:
 bool si_stack_is_empty(const si_stack_t* p_stack)
 {
 	bool is_empty = true;
-	if(NULL == p_stack)
+	if (NULL == p_stack)
 	{
 		goto END;
 	}
@@ -51,23 +51,23 @@ END:
 
 void si_stack_push(si_stack_t* p_stack, const void* p_item)
 {
-	if((NULL == p_stack) || (NULL == p_item))
+	if ((NULL == p_stack) || (NULL == p_item))
 	{
 		goto END;
 	}
 	bool is_full = si_stack_is_full(p_stack);
-	if(true == is_full)
+	if (true == is_full)
 	{
 		const bool did_grow = si_realloc_settings_grow(
 			&(p_stack->settings), &(p_stack->dynamic)
 		);
-		if(true != did_grow)
+		if (true != did_grow)
 		{
 			// Failed to grow
 			goto END;
 		}
 		is_full = si_stack_is_full(p_stack);
-		if(true == is_full)
+		if (true == is_full)
 		{
 			// Growth was insufficient
 			goto END;
@@ -81,12 +81,12 @@ END:
 
 void si_stack_pop(si_stack_t* p_stack, void* p_item)
 {
-	if(NULL == p_stack)
+	if (NULL == p_stack)
 	{
 		goto END;
 	}
 	const bool is_empty = si_stack_is_empty(p_stack);
-	if(true == is_empty)
+	if (true == is_empty)
 	{
 		goto END;
 	}
@@ -94,7 +94,7 @@ void si_stack_pop(si_stack_t* p_stack, void* p_item)
 	const size_t next_shrink = si_realloc_settings_next_shrink_capacity(
 		&(p_stack->settings), p_stack->dynamic.capacity);
 	const bool safe_to_shrink = (p_stack->count <= next_shrink);
-	if(true == safe_to_shrink)
+	if (true == safe_to_shrink)
 	{
 		si_realloc_settings_shrink(&(p_stack->settings), &(p_stack->dynamic));
 	}
@@ -105,7 +105,7 @@ END:
 
 void si_stack_free(si_stack_t* p_stack)
 {
-	if(NULL == p_stack)
+	if (NULL == p_stack)
 	{
 		goto END;
 	}

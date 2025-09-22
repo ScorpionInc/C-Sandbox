@@ -15,7 +15,7 @@ void tearDown (void)
 
 void si_hashmap_test_print_map(const si_map_t* p_map)
 {
-	if(NULL == p_map)
+	if (NULL == p_map)
 	{
 		goto END;
 	}
@@ -23,20 +23,20 @@ void si_hashmap_test_print_map(const si_map_t* p_map)
 	const size_t capacity = p_map->entries.capacity;
 	size_t counter = 0u;
 	printf("[");
-	for(size_t iii = 0u; iii < capacity; iii++)
+	for (size_t iii = 0u; iii < capacity; iii++)
 	{
 		si_map_pair_t** pp_pair = si_array_at(&(p_map->entries), iii);
-		if(NULL == pp_pair)
+		if (NULL == pp_pair)
 		{
 			break;
 		}
-		if(NULL == *pp_pair)
+		if (NULL == *pp_pair)
 		{
 			continue;
 		}
 		printf("{%p: %p(0x%lx)->%p}", *pp_pair, (*pp_pair)->p_key,
 			*((size_t*)(*pp_pair)->p_key), (*pp_pair)->p_value);
-		if(count > (counter + 1u))
+		if (count > (counter + 1u))
 		{
 			printf(", ");
 		}
@@ -48,21 +48,21 @@ END:
 
 void si_hashmap_test_print(const si_hashmap_t* const p_hashmap)
 {
-	if(NULL == p_hashmap)
+	if (NULL == p_hashmap)
 	{
 		goto END;
 	}
 	printf("{");
-	for(size_t iii = 0u; iii < p_hashmap->maps.capacity; iii++)
+	for (size_t iii = 0u; iii < p_hashmap->maps.capacity; iii++)
 	{
 		si_map_t** pp_map = NULL;
 		pp_map = si_array_at(&(p_hashmap->maps), iii);
-		if(NULL == pp_map)
+		if (NULL == pp_map)
 		{
 			break;
 		}
 		printf("%lu:", iii);
-		if(NULL == *pp_map)
+		if (NULL == *pp_map)
 		{
 			printf("NULL");
 		}
@@ -70,7 +70,7 @@ void si_hashmap_test_print(const si_hashmap_t* const p_hashmap)
 		{
 			si_hashmap_test_print_map(*pp_map);
 		}
-		if((p_hashmap->maps.capacity - 1u) > iii)
+		if ((p_hashmap->maps.capacity - 1u) > iii)
 		{
 			printf(", ");
 		}
@@ -115,7 +115,7 @@ void si_hashmap_test_modify(void)
 	TEST_ASSERT_EQUAL_size_t(0u, si_hashmap_count(p_hashmap));
 
 	printf("Testing insert(), count() 2/2:\n");
-	for(size_t iii = 0u; iii < data_size; iii++)
+	for (size_t iii = 0u; iii < data_size; iii++)
 	{
 		TEST_ASSERT_TRUE(si_hashmap_insert(
 			p_hashmap, &(keys[iii]), sizeof(size_t), &data[iii]

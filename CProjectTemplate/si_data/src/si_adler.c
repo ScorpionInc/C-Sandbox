@@ -6,17 +6,17 @@
 unsigned long long si_adler_select_prime(const size_t block_size)
 {
 	unsigned long long prime = ADLER_128_PRIME;
-	if(2u >= block_size)
+	if (2u >= block_size)
 	{
 		prime = ADLER_16_PRIME;
 		goto END;
 	}
-	if(4u >= block_size)
+	if (4u >= block_size)
 	{
 		prime = ADLER_32_PRIME;
 		goto END;
 	}
-	if(8u >= block_size)
+	if (8u >= block_size)
 	{
 		prime = ADLER_64_PRIME;
 	}
@@ -28,15 +28,15 @@ END:
 // Initializes block to the Adler prime value for it's size in le.
 void si_adler_init_prime_le(uint8_t* const p_bytes, const size_t block_size)
 {
-	if(NULL == p_bytes)
+	if (NULL == p_bytes)
 	{
 		goto END;
 	}
 	const size_t prime_size = block_size / 2u;
 	const unsigned long long prime = si_adler_select_prime(block_size);
-	for(size_t iii = 0; iii < sizeof(long long); iii++)
+	for (size_t iii = 0; iii < sizeof(long long); iii++)
 	{
-		if(iii >= prime_size)
+		if (iii >= prime_size)
 		{
 			break;
 		}
@@ -48,15 +48,15 @@ END:
 // Same as init_prime_le above but in big endian.
 void si_adler_init_prime_be(uint8_t* const p_bytes, const size_t block_size)
 {
-	if(NULL == p_bytes)
+	if (NULL == p_bytes)
 	{
 		goto END;
 	}
 	const size_t prime_size = block_size / 2u;
 	const unsigned long long prime = si_adler_select_prime(block_size);
-	for(size_t iii = 0; iii < sizeof(long long); iii++)
+	for (size_t iii = 0; iii < sizeof(long long); iii++)
 	{
-		if(iii >= prime_size)
+		if (iii >= prime_size)
 		{
 			break;
 		}
@@ -69,11 +69,11 @@ END:
 // Same as init_prime_le above but in host order.
 void si_adler_init_prime(uint8_t* const p_bytes, const size_t block_size)
 {
-	if(NULL == p_bytes)
+	if (NULL == p_bytes)
 	{
 		goto END;
 	}
-	if(BYTE_ORDER == LITTLE_ENDIAN)
+	if (BYTE_ORDER == LITTLE_ENDIAN)
 	{
 		si_adler_init_prime_le(p_bytes, block_size);
 	}
@@ -87,7 +87,7 @@ END:
 
 void si_adler_init(si_adler_t* const p_hash)
 {
-	if(NULL == p_hash)
+	if (NULL == p_hash)
 	{
 		goto END;
 	}
@@ -100,13 +100,13 @@ END:
 
 void si_adler_new(si_adler_t* const p_hash, const size_t block_size)
 {
-	if(NULL == p_hash)
+	if (NULL == p_hash)
 	{
 		goto END;
 	}
 	p_hash->block_size = block_size;
 	p_hash->p_hash = calloc(sizeof(uint8_t), p_hash->block_size);
-	if(NULL == p_hash->p_hash)
+	if (NULL == p_hash->p_hash)
 	{
 		goto END;
 	}
@@ -120,7 +120,7 @@ void si_adler_update(si_adler_t* const p_hash, const uint8_t* const p_buffer,
 	const size_t input_buffer_size)
 {
 	// Validate parameters
-	if((NULL == p_hash) || (NULL == p_buffer))
+	if ((NULL == p_hash) || (NULL == p_buffer))
 	{
 		goto END;
 	}
@@ -136,7 +136,7 @@ void si_adler_update(si_adler_t* const p_hash, const uint8_t* const p_buffer,
 		memset(&prime[0], 0x00, buffer_size);
 		si_adler_init_prime(&prime[0u], p_hash->block_size);
 		// Digest fixed block size input
-		for(size_t iii = 0u; iii < input_buffer_size; iii++)
+		for (size_t iii = 0u; iii < input_buffer_size; iii++)
 		{
 			// Buffer = LSB with +1 pad
 			memset(&lsb_buffer[0u], 0x00, buffer_size);
@@ -146,7 +146,7 @@ void si_adler_update(si_adler_t* const p_hash, const uint8_t* const p_buffer,
 			memcpy(&msb_buffer[0u], &p_hash->p_hash[half_bytes], half_bytes);
 			// Buffer input byte +2 pad
 			memset(&input_buffer[0u], 0x00, buffer_size);
-			if(BYTE_ORDER == LITTLE_ENDIAN)
+			if (BYTE_ORDER == LITTLE_ENDIAN)
 			{
 				input_buffer[0u] = p_buffer[iii];
 			}
@@ -174,11 +174,11 @@ END:
 
 void si_adler_free(si_adler_t* const p_hash)
 {
-	if(NULL == p_hash)
+	if (NULL == p_hash)
 	{
 		goto END;
 	}
-	if(NULL != p_hash->p_hash)
+	if (NULL != p_hash->p_hash)
 	{
 		free(p_hash->p_hash);
 		p_hash->p_hash = NULL;
@@ -190,19 +190,19 @@ END:
 
 void si_adler_fprint(const si_adler_t* const p_hash, FILE* const p_file)
 {
-	if((NULL == p_hash) || (NULL == p_file))
+	if ((NULL == p_hash) || (NULL == p_file))
 	{
 		goto END;
 	}
-	if((NULL == p_hash->p_hash) || (0u >= p_hash->block_size))
+	if ((NULL == p_hash->p_hash) || (0u >= p_hash->block_size))
 	{
 		goto END;
 	}
 	fprintf(p_file, "0x");
-	for(size_t iii = 0u; iii < p_hash->block_size; iii++)
+	for (size_t iii = 0u; iii < p_hash->block_size; iii++)
 	{
 		size_t next_index = iii;
-		if(BYTE_ORDER == LITTLE_ENDIAN)
+		if (BYTE_ORDER == LITTLE_ENDIAN)
 		{
 			next_index = p_hash->block_size - 1u - next_index;
 		}

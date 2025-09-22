@@ -3,20 +3,20 @@
 
 void fprint_signal_debug(FILE* const p_file)
 {
-	if(NULL == p_file)
+	if (NULL == p_file)
 	{
 		goto END;
 	}
-	for(size_t iii = 0u; iii < SI_SIGNALS_MAX; iii++)
+	for (size_t iii = 0u; iii < SI_SIGNALS_MAX; iii++)
 	{
 		struct sigaction query = {0};
 		const int query_result = sigaction(iii, NULL, &query);
-		if(0 > query_result)
+		if (0 > query_result)
 		{
 			continue;
 		}
 		const char* p_sig_desc = strsignal(iii);
-		if(SIG_DFL == query.sa_handler)
+		if (SIG_DFL == query.sa_handler)
 		{
 			fprintf(p_file, "[%24s][%2lu] Default signal handler\n",
 				p_sig_desc, iii
@@ -40,7 +40,7 @@ END:
 bool set_exit_signal_handler(__sighandler_t p_handler)
 {
 	bool result = false;
-	if(NULL == p_handler)
+	if (NULL == p_handler)
 	{
 		goto END;
 	}
@@ -60,11 +60,11 @@ bool set_exit_signal_handler(__sighandler_t p_handler)
 	ssa.sa_flags = 0;
 
 	result = true;
-	for(size_t iii = 0u; iii < exit_count; iii++)
+	for (size_t iii = 0u; iii < exit_count; iii++)
 	{
 		const int next_sig = exit_signals[iii];
 		const int register_result = sigaction(next_sig, &ssa, NULL);
-		if(0 != register_result)
+		if (0 != register_result)
 		{
 			fprintf(
 				stderr,

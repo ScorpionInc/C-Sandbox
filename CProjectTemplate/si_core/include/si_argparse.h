@@ -7,6 +7,7 @@
 //*/
 
 #include <stdbool.h>// true, false
+#include <stddef.h> // NULL
 #include <stdio.h> // fprintf(), FILE
 #include <stdlib.h> // calloc(), free()
 

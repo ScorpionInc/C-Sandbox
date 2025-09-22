@@ -37,7 +37,7 @@ static void si_io_test_file_clone(void)
 static bool handle_file(const char* const p_fullpath, struct dirent* p_entry)
 {
 	bool do_next = false;
-	if((NULL == p_fullpath) || (NULL == p_entry))
+	if ((NULL == p_fullpath) || (NULL == p_entry))
 	{
 		goto END;
 	}

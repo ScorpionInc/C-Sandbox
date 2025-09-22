@@ -63,7 +63,7 @@ typedef bool (*for_file_handler)(const char* const);
  * 
  * @return Returns stdbool true if ACL is basic. Returns false otherwise.
  */
-bool acl_is_basic(const acl_t const p_acl);
+bool acl_is_basic(const acl_t p_acl);
 
 /** Doxygen
  * @brief Determines if file object at path has an extended ACL.

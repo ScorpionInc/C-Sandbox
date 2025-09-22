@@ -148,15 +148,15 @@ static void si_strings_test_formatters(void)
 
 static void print_string_array(char** const pp_array, const size_t count)
 {
-	if(NULL == pp_array)
+	if (NULL == pp_array)
 	{
 		goto END;
 	}
 	printf("{");
-	for(size_t iii = 0u; iii < count; iii++)
+	for (size_t iii = 0u; iii < count; iii++)
 	{
 		printf("%p:'%s'", &(pp_array[iii]), pp_array[iii]);
-		if(count - 1u > iii)
+		if (count - 1u > iii)
 		{
 			printf(", ");
 		}
@@ -186,7 +186,7 @@ static void si_strings_test_split(void)
 	TEST_ASSERT_NOT_NULL(pp_result);
 	print_string_array(pp_result, items);
 	TEST_ASSERT_EQUAL_size_t(expected_items, items);
-	for(size_t iii = 0u; iii < expected_items; iii++)
+	for (size_t iii = 0u; iii < expected_items; iii++)
 	{
 		printf(
 			"Comparing split string vs expected: '%s' == '%s'\n",
@@ -249,7 +249,7 @@ static void si_strings_test_manipulators(void)
 	TEST_ASSERT_NULL(p_next);
 	p_next = pop_str_from_heap((uint8_t**)&p_value, &current_size);
 	TEST_ASSERT_NOT_NULL(p_next);
-	while(NULL != p_next)
+	while (NULL != p_next)
 	{
 		TEST_ASSERT_NOT_NULL(p_next);
 		printf("Testing next string: %s\n", p_next);
@@ -279,7 +279,7 @@ static int custom_example_fprint(FILE* const p_file,
 	const struct example_t* const p_example)
 {
 	int result = -1;
-	if((NULL == p_file) || (NULL == p_example))
+	if ((NULL == p_file) || (NULL == p_example))
 	{
 		goto END;
 	}

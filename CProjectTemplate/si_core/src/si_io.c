@@ -6,7 +6,7 @@
 bool acl_is_basic(const acl_t const p_acl)
 {
 	bool result = false;
-	if(NULL == p_acl)
+	if (NULL == p_acl)
 	{
 		goto END;
 	}
@@ -15,11 +15,11 @@ bool acl_is_basic(const acl_t const p_acl)
 	int entry_id = ACL_FIRST_ENTRY;
 	size_t entry_counter = 0u;
 	bool got_entry = acl_get_entry(p_acl, entry_id, &entry);
-	while(true == got_entry)
+	while (true == got_entry)
 	{
 		entry_counter++;
 		entry_id = ACL_NEXT_ENTRY;
-		if(BASIC_ACL_COUNT < entry_counter)
+		if (BASIC_ACL_COUNT < entry_counter)
 		{
 			break;
 		}
@@ -33,12 +33,12 @@ END:
 bool path_has_acl(const char* const p_path)
 {
 	bool result = false;
-	if(NULL == p_path)
+	if (NULL == p_path)
 	{
 		goto END;
 	}
 	acl_t p_acl = acl_get_file(p_path, ACL_TYPE_ACCESS);
-	if(NULL == p_acl)
+	if (NULL == p_acl)
 	{
 		goto END;
 	}
@@ -52,12 +52,12 @@ END:
 bool fd_has_acl(const int file_d)
 {
 	bool result = false;
-	if(0 > file_d)
+	if (0 > file_d)
 	{
 		goto END;
 	}
 	acl_t p_acl = acl_get_fd(file_d);
-	if(NULL == p_acl)
+	if (NULL == p_acl)
 	{
 		goto END;
 	}
@@ -80,37 +80,37 @@ static char mode_type_char(const mode_t mode)
 	char result = '-';
 	// Can't use switch here as each case test is a different macro
 	const bool is_blk = S_ISBLK(mode);
-	if(true == is_blk)
+	if (true == is_blk)
 	{
 		result = 'b';
 		goto END;
 	}
 	const bool is_chr = S_ISCHR(mode);
-	if(true == is_chr)
+	if (true == is_chr)
 	{
 		result = 'c';
 		goto END;
 	}
 	const bool is_dir = S_ISDIR(mode);
-	if(true == is_dir)
+	if (true == is_dir)
 	{
 		result = 'd';
 		goto END;
 	}
 	const bool is_fifo = S_ISFIFO(mode);
-	if(true == is_fifo)
+	if (true == is_fifo)
 	{
 		result = 'f';
 		goto END;
 	}
 	const bool is_lnk = S_ISLNK(mode);
-	if(true == is_lnk)
+	if (true == is_lnk)
 	{
 		result = 'l';
 		goto END;
 	}
 	const bool is_sock = S_ISSOCK(mode);
-	if(true == is_sock)
+	if (true == is_sock)
 	{
 		result = 's';
 		goto END;
@@ -121,7 +121,7 @@ END:
 
 void mode_t_fprint(FILE* const p_file, const mode_t mode)
 {
-	if(NULL == p_file)
+	if (NULL == p_file)
 	{
 		goto END;
 	}
@@ -131,7 +131,7 @@ void mode_t_fprint(FILE* const p_file, const mode_t mode)
 		(sizeof(mode_t) * CHAR_BIT - PERMISSION_BITS);
 	const char type_char = mode_type_char(mode);
 	fprintf(p_file, "%c", type_char);
-	for(size_t iii = 0u; iii < PERMISSION_GROUPS; iii++)
+	for (size_t iii = 0u; iii < PERMISSION_GROUPS; iii++)
 	{
 		const size_t mask_shift = PERMISSION_BITS *
 			(PERMISSION_GROUPS - 1 - iii);
@@ -140,7 +140,7 @@ void mode_t_fprint(FILE* const p_file, const mode_t mode)
 		) >> mask_shift;
 		fprintf(p_file, "%s", (mode_group) >= 4 ? "r" : "-");
 		fprintf(p_file, "%s", (mode_group % 4) >= 2 ? "w" : "-");
-		if((0 == iii) && (mode & S_ISUID))
+		if ((0 == iii) && (mode & S_ISUID))
 		{
 			fprintf(p_file, "s");
 			continue;
@@ -153,7 +153,7 @@ END:
 
 void dirent_fprint(FILE* const p_file, const struct dirent* const p_entry)
 {
-	if((NULL == p_file) || (NULL == p_entry))
+	if ((NULL == p_file) || (NULL == p_entry))
 	{
 		goto END;
 	}
@@ -182,7 +182,7 @@ static bool file_clone_data_l(const char* const p_source_path,
 	const char* const p_sink_path, const bool follow_links)
 {
 	bool result = false;
-	if((NULL == p_source_path) || (NULL == p_sink_path))
+	if ((NULL == p_source_path) || (NULL == p_sink_path))
 	{
 		goto END;
 	}
@@ -192,12 +192,12 @@ static bool file_clone_data_l(const char* const p_source_path,
 	const int source_flags = O_RDONLY |
 		(follow_links ? 0x00 : O_NOFOLLOW);
 	int source_fd = open(p_source_path, source_flags);
-	if(0 > source_fd)
+	if (0 > source_fd)
 	{
 		goto END;
 	}
 	const int stat_result = fstat(source_fd, &source_stat);
-	if(0 > stat_result)
+	if (0 > stat_result)
 	{
 		goto CLEAN;
 	}
@@ -206,7 +206,7 @@ static bool file_clone_data_l(const char* const p_source_path,
 	int sink_fd = open(
 		p_sink_path, sink_flags, source_stat.st_mode
 	);
-	if(0 > sink_fd)
+	if (0 > sink_fd)
 	{
 		goto CLEAN;
 	}
@@ -214,12 +214,12 @@ static bool file_clone_data_l(const char* const p_source_path,
 	// Sends the data creating the file as needed.
 	off_t offset = 0;
 	ssize_t send_file_result = 1;
-	while(0 < send_file_result)
+	while (0 < send_file_result)
 	{
 		send_file_result = sendfile(
 			sink_fd, source_fd, &offset, source_stat.st_size - offset
 		);
-		if(0 > send_file_result)
+		if (0 > send_file_result)
 		{
 			goto CLEAN;
 		}
@@ -227,12 +227,12 @@ static bool file_clone_data_l(const char* const p_source_path,
 
 	result = true;
 CLEAN:
-	if(0 <= source_fd)
+	if (0 <= source_fd)
 	{
 		(void)close(source_fd);
 	}
 	source_fd = -1;
-	if(0 <= sink_fd)
+	if (0 <= sink_fd)
 	{
 		(void)close(sink_fd);
 	}
@@ -254,7 +254,7 @@ static bool file_clone_meta_l(const char* const p_source_path,
 	const char* const p_sink_path, const bool follow_links)
 {
 	bool result = false;
-	if((NULL == p_source_path) || (NULL == p_sink_path))
+	if ((NULL == p_source_path) || (NULL == p_sink_path))
 	{
 		goto END;
 	}
@@ -264,7 +264,7 @@ static bool file_clone_meta_l(const char* const p_source_path,
 	const int stat_result = follow_links ?
 		stat(p_source_path, &source_stat) :
 		lstat(p_source_path, &source_stat);
-	if(0 > stat_result)
+	if (0 > stat_result)
 	{
 		goto END;
 	}
@@ -273,14 +273,14 @@ static bool file_clone_meta_l(const char* const p_source_path,
 	int sink_fd = open(
 		p_sink_path, sink_flags, source_stat.st_mode
 	);
-	if(0 > sink_fd)
+	if (0 > sink_fd)
 	{
 		goto END;
 	}
 
 	// Change File Mode
 	const int mode_result = fchmod(sink_fd, source_stat.st_mode);
-	if(0 > mode_result)
+	if (0 > mode_result)
 	{
 		goto CLEAN;
 	}
@@ -289,7 +289,7 @@ static bool file_clone_meta_l(const char* const p_source_path,
 	const int owner_result = fchown(
 		sink_fd, source_stat.st_uid, source_stat.st_gid
 	);
-	if(0 > owner_result)
+	if (0 > owner_result)
 	{
 		goto CLEAN;
 	}
@@ -299,17 +299,17 @@ static bool file_clone_meta_l(const char* const p_source_path,
 	new_times[0] = source_stat.st_atim; // Access
 	new_times[1] = source_stat.st_mtim; // Modify
 	const int time_result = futimens(sink_fd, new_times);
-	if(0 > time_result)
+	if (0 > time_result)
 	{
 		goto CLEAN;
 	}
 
 	// Clone File ACL(s)
 	acl_t p_acl = acl_get_file(p_source_path, ACL_TYPE_ACCESS);
-	if(NULL == p_acl)
+	if (NULL == p_acl)
 	{
 		// This may not be an error if no ACL is defined.
-		if(ENODATA == errno)
+		if (ENODATA == errno)
 		{
 			result = true;
 		}
@@ -320,7 +320,7 @@ static bool file_clone_meta_l(const char* const p_source_path,
 	acl_free(p_acl);
 	p_acl = NULL;
 CLEAN:
-	if(0 <= sink_fd)
+	if (0 <= sink_fd)
 	{
 		(void)close(sink_fd);
 	}
@@ -334,7 +334,7 @@ static bool for_each_file_l(const char* const p_path,
 	const bool handle_dirs, const bool recursive)
 {
 	bool result = false;
-	if((NULL == p_path) || (NULL == p_handler))
+	if ((NULL == p_path) || (NULL == p_handler))
 	{
 		goto END;
 	}
@@ -344,24 +344,24 @@ static bool for_each_file_l(const char* const p_path,
 	struct dirent* p_dir_entry = NULL;
 
 	p_dir = opendir(p_path);
-	if(NULL == p_dir)
+	if (NULL == p_dir)
 	{
 		goto END;
 	}
 
 	p_dir_entry = readdir(p_dir);
-	while(NULL != p_dir_entry)
+	while (NULL != p_dir_entry)
 	{
 		bool is_dot_dir = (0 == strcmp(".", p_dir_entry->d_name));
 		is_dot_dir |= (0 == strcmp("..", p_dir_entry->d_name));
-		if(true == is_dot_dir)
+		if (true == is_dot_dir)
 		{
 			// Skip dot dirs
 			p_dir_entry = readdir(p_dir);
 			continue;
 		}
 		p_fullpath = strv_clone_concat(3u, p_path, "/", p_dir_entry->d_name);
-		if(NULL == p_fullpath)
+		if (NULL == p_fullpath)
 		{
 			p_dir_entry = readdir(p_dir);
 			continue;
@@ -372,20 +372,20 @@ static bool for_each_file_l(const char* const p_path,
 #else
 		is_dir = path_is_dir(p_fullpath, false);
 #endif//_DIRENT_HAVE_D_TYPE
-		if(true == is_dir)
+		if (true == is_dir)
 		{
-			if(true == recursive)
+			if (true == recursive)
 			{
 				// Depth-First enumeration
 				const bool dir_result = for_each_file_l(
 					p_fullpath, p_handler, handle_dirs, recursive
 				);
-				if(true != dir_result)
+				if (true != dir_result)
 				{
 					break;
 				}
 			}
-			if(true != handle_dirs)
+			if (true != handle_dirs)
 			{
 				// Skip Directories
 				free((void*)p_fullpath);
@@ -396,7 +396,7 @@ static bool for_each_file_l(const char* const p_path,
 		}
 		// Handle file/link/ect.
 		const bool is_good = p_handler(p_fullpath, p_dir_entry);
-		if(true != is_good)
+		if (true != is_good)
 		{
 			break;
 		}
@@ -404,7 +404,7 @@ static bool for_each_file_l(const char* const p_path,
 		p_fullpath = NULL;
 		p_dir_entry = readdir(p_dir);
 	}
-	if(NULL != p_fullpath)
+	if (NULL != p_fullpath)
 	{
 		free((void*)p_fullpath);
 		p_fullpath = NULL;
@@ -432,7 +432,7 @@ static bool file_clone_data_w(const char* const p_source_path,
 {
 	//!TODO
 	bool result = false;
-	if((NULL == p_source_path) || (NULL == p_sink_path))
+	if ((NULL == p_source_path) || (NULL == p_sink_path))
 	{
 		goto END;
 	}
@@ -455,7 +455,7 @@ static bool file_clone_meta_w(const char* const p_source_path,
 {
 	//!TODO
 	bool result = false;
-	if((NULL == p_source_path) || (NULL == p_sink_path))
+	if ((NULL == p_source_path) || (NULL == p_sink_path))
 	{
 		goto END;
 	}
@@ -469,7 +469,7 @@ static bool for_each_file_w(const char* const p_path,
 	const bool handle_dirs, const bool recursive)
 {
 	bool result = false;
-	if((NULL == p_path) || (NULL == p_handler))
+	if ((NULL == p_path) || (NULL == p_handler))
 	{
 		goto END;
 	}
@@ -482,7 +482,7 @@ static bool for_each_file_w(const char* const p_path,
 	char search_str[MAX_PATH] = {0};
 	sprintf_s(search_str, MAX_PATH, "%s\\*.*", p_path);
 	file_handle = FindFirstFile(search_str, &find_data);
-	if(INVALID_HANDLE_VALUE == file_handle)
+	if (INVALID_HANDLE_VALUE == file_handle)
 	{
 		goto END;
 	}
@@ -491,31 +491,34 @@ static bool for_each_file_w(const char* const p_path,
 	{
 		bool is_dot_dir = (0 == strcmp(".", find_data.cFileName));
 		is_dot_dir |= (0 == strcmp("..", find_data.cFileName));
-		if(true == is_dot_dir)
+		if (true == is_dot_dir)
 		{
 			// Skip dot dirs
 			find_next_result = FindNextFile(file_handle, &find_data);
 			continue;
 		}
 		p_fullpath = strv_clone_concat(p_path, "\\", find_data.cFileName);
-		if(NULL == p_fullpath)
+		if (NULL == p_fullpath)
 		{
 			find_next_result = FindNextFile(file_handle, &find_data);
 			continue;
 		}
-		if(FILE_ATTRIBUTE_DIRECTORY & findData.dwFileAttributes)
+		const DWORD fad = (
+			FILE_ATTRIBUTE_DIRECTORY & findData.dwFileAttributes
+		);
+		if (0 < fad)
 		{
-			if(true == recursive)
+			if (true == recursive)
 			{
 				const bool dir_result = for_each_file_w(
 					p_fullpath, p_handler, handle_dirs, recursive
 				);
-				if(true != dir_result)
+				if (true != dir_result)
 				{
 					break;
 				}
 			}
-			if(true != handle_dirs)
+			if (true != handle_dirs)
 			{
 				// Skip directories
 				free(p_fullpath);
@@ -526,15 +529,15 @@ static bool for_each_file_w(const char* const p_path,
 		}
 		// Handle files/links/ect.
 		const bool handler_result = p_handler(p_fullpath, &find_data);
-		if(true != handler_result)
+		if (true != handler_result)
 		{
 			break;
 		}
 		free(p_fullpath);
 		p_fullpath = NULL;
 		find_next_result = FindNextFile(file_handle, &find_data);
-	} while(0 != find_next_result);
-	if(NULL != p_fullpath)
+	} while (0 != find_next_result);
+	if (NULL != p_fullpath)
 	{
 		free(p_fullpath);
 		p_fullpath = NULL;
@@ -560,24 +563,24 @@ static bool file_clone_data_u(const char* const p_source_path,
 	const char* const p_sink_path)
 {
 	bool result = false;
-	if((NULL == p_source_path) || (NULL == p_sink_path))
+	if ((NULL == p_source_path) || (NULL == p_sink_path))
 	{
 		goto END;
 	}
 
 	FILE* p_source = fopen(p_source_path, "r");
-	if(NULL == p_source)
+	if (NULL == p_source)
 	{
 		goto END;
 	}
 	FILE* p_sink = fopen(p_sink_path, "w");
-	if(NULL == p_sink)
+	if (NULL == p_sink)
 	{
 		goto CLEAN;
 	}
 
 	char next_byte = fgetc(p_source);
-	while(next_byte != EOF)
+	while (next_byte != EOF)
 	{
 		fputc(next_byte, p_sink);
 		next_byte = fgetc(p_source);
@@ -585,11 +588,11 @@ static bool file_clone_data_u(const char* const p_source_path,
 
 	result = true;
 CLEAN:
-	if(NULL != p_source)
+	if (NULL != p_source)
 	{
 		(void)fclose(p_source);
 	}
-	if(NULL != p_sink)
+	if (NULL != p_sink)
 	{
 		(void)fclose(p_sink);
 	}
@@ -602,14 +605,14 @@ END:
 bool path_is_dir(const char* const p_path, const bool follow_links)
 {
 	bool result = false;
-	if(NULL == p_path)
+	if (NULL == p_path)
 	{
 		goto END;
 	}
 #ifdef __linux__
 	struct stat path_stat = {0};
 	int stat_result = -1;
-	if(true == follow_links)
+	if (true == follow_links)
 	{
 		stat_result = stat(p_path, &path_stat);
 	}
@@ -617,7 +620,7 @@ bool path_is_dir(const char* const p_path, const bool follow_links)
 	{
 		stat_result = lstat(p_path, &path_stat);
 	}
-	if(0 != stat_result)
+	if (0 != stat_result)
 	{
 		goto END;
 	}
@@ -635,14 +638,14 @@ size_t path_file_size_3(const char* const p_path, const bool follow_links,
 {
 	//!TODO See TODOs
 	size_t result = SIZE_MAX;
-	if(NULL == p_path)
+	if (NULL == p_path)
 	{
 		goto END;
 	}
 #ifdef __linux__
 	struct stat file_stat = {0};
 	int stat_result = -1;
-	if(true == follow_links)
+	if (true == follow_links)
 	{
 		stat_result = stat(p_path, &file_stat);
 	}
@@ -650,15 +653,15 @@ size_t path_file_size_3(const char* const p_path, const bool follow_links,
 	{
 		stat_result = lstat(p_path, &file_stat);
 	}
-	if(0 != stat_result)
+	if (0 != stat_result)
 	{
 		goto END;
 	}
 	const bool is_dir = S_ISDIR(file_stat.st_mode);
-	if(true == is_dir)
+	if (true == is_dir)
 	{
 		result = 0u;
-		if(true != recursive)
+		if (true != recursive)
 		{
 			goto END;
 		}
@@ -683,20 +686,20 @@ inline size_t path_file_size(const char* const p_path, const bool follow_links)
 
 void path_perms_fprint(FILE* const p_file, const char* const p_path)
 {
-	if((NULL == p_file) || (NULL == p_path))
+	if ((NULL == p_file) || (NULL == p_path))
 	{
 		goto END;
 	}
 #ifdef __linux__
 	struct stat file_stat = {0};
 	const int lstat_result = lstat(p_path, &file_stat);
-	if(0 > lstat_result)
+	if (0 > lstat_result)
 	{
 		goto END;
 	}
 	mode_t_fprint(stdout, file_stat.st_mode);
 	const bool has_acl = path_has_acl(p_path);
-	if(true == has_acl)
+	if (true == has_acl)
 	{
 		fprintf(p_file, "+");
 	}
@@ -713,7 +716,7 @@ bool file_clone_data(const char* const p_source_path,
 	const char* const p_sink_path, const bool follow_links)
 {
 	bool result = false;
-	if((NULL == p_source_path) || (NULL == p_sink_path))
+	if ((NULL == p_source_path) || (NULL == p_sink_path))
 	{
 		goto END;
 	}
@@ -732,7 +735,7 @@ bool file_clone_meta(const char* const p_source_path,
 	const char* const p_sink_path, const bool follow_links)
 {
 	bool result = false;
-	if((NULL == p_source_path) || (NULL == p_sink_path))
+	if ((NULL == p_source_path) || (NULL == p_sink_path))
 	{
 		goto END;
 	}
@@ -749,14 +752,14 @@ bool file_clone_to(const char* const p_source_path,
 	const char* const p_sink_path, const bool follow_links)
 {
 	bool result = false;
-	if((NULL == p_source_path) || (NULL == p_sink_path))
+	if ((NULL == p_source_path) || (NULL == p_sink_path))
 	{
 		goto END;
 	}
 	const bool data_result = file_clone_data(
 		p_source_path, p_sink_path, follow_links
 	);
-	if(true != data_result)
+	if (true != data_result)
 	{
 		goto END;
 	}
@@ -770,7 +773,7 @@ bool for_each_file_4(const char* const p_path,
 	const bool handle_dirs, const bool recursive)
 {
 	bool result = false;
-	if((NULL == p_path) || (NULL == p_handler))
+	if ((NULL == p_path) || (NULL == p_handler))
 	{
 		goto END;
 	}

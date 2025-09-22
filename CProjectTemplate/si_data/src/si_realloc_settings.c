@@ -10,12 +10,12 @@ extern "C" {
 void si_resize_mode_fprint(FILE* p_file, const si_resize_mode_t resize_mode)
 {
 	// Validate parameter
-	if(NULL == p_file)
+	if (NULL == p_file)
 	{
 		goto END;
 	}
 	// Begin
-	switch(resize_mode)
+	switch (resize_mode)
 	{
 		case(NEVER):
 			fprintf(p_file, "%s", "NEVER");
@@ -66,7 +66,7 @@ size_t si_realloc_settings_next_grow_capacity(
 	{
 		goto END;
 	}
-	if(p_settings->max_capacity == current_capacity)
+	if (p_settings->max_capacity == current_capacity)
 	{
 		goto END;
 	}
@@ -120,7 +120,7 @@ size_t si_realloc_settings_next_grow_capacity(
 			break;
 	}
 	// Cap capacity to max.
-	if(new_capacity > p_settings->max_capacity)
+	if (new_capacity > p_settings->max_capacity)
 	{
 		new_capacity = p_settings->max_capacity;
 	}
@@ -209,7 +209,7 @@ bool si_realloc_settings_grow(
 	const size_t new_capacity = si_realloc_settings_next_grow_capacity(
 		p_settings, p_array->capacity
 	);
-	if(new_capacity == p_array->capacity)
+	if (new_capacity == p_array->capacity)
 	{
 		goto END;
 	}
@@ -232,7 +232,7 @@ bool si_realloc_settings_shrink(
 	const size_t new_capacity = si_realloc_settings_next_shrink_capacity(
 		p_settings, p_array->capacity
 	);
-	if(new_capacity == p_array->capacity)
+	if (new_capacity == p_array->capacity)
 	{
 		goto END;
 	}
@@ -247,7 +247,7 @@ void si_realloc_settings_fprint(FILE* p_file,
 	const si_realloc_settings_t* p_settings)
 {
 	// Validate parameters
-	if((NULL == p_file) || (NULL == p_settings))
+	if ((NULL == p_file) || (NULL == p_settings))
 	{
 		goto END;
 	}
@@ -255,7 +255,7 @@ void si_realloc_settings_fprint(FILE* p_file,
 	fprintf(p_file, "{Grow : ");
 	si_resize_mode_fprint(p_file, p_settings->grow_mode);
 	fprintf(p_file, "@%f Max Capacity: ", p_settings->grow_value);
-	if(p_settings->max_capacity == SIZE_MAX)
+	if (p_settings->max_capacity == SIZE_MAX)
 	{
 		fprintf(p_file, "MAX");
 	}
@@ -264,7 +264,7 @@ void si_realloc_settings_fprint(FILE* p_file,
 		fprintf(p_file, "%lu", p_settings->max_capacity);
 	}
 	fprintf(p_file, " Max Size: ");
-	if(p_settings->max_size == SIZE_MAX)
+	if (p_settings->max_size == SIZE_MAX)
 	{
 		fprintf(p_file, "MAX");
 	}

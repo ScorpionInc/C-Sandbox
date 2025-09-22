@@ -4,7 +4,7 @@
 void si_parray_init_2(si_parray_t* const p_array,
 	const size_t initial_capacity)
 {
-	if(NULL == p_array)
+	if (NULL == p_array)
 	{
 		goto END;
 	}
@@ -24,7 +24,7 @@ si_parray_t* si_parray_new_1(const size_t initial_capacity)
 {
 	si_parray_t* p_result = NULL;
 	p_result = calloc(1u, sizeof(si_parray_t));
-	if(NULL == p_result)
+	if (NULL == p_result)
 	{
 		goto END;
 	}
@@ -41,7 +41,7 @@ inline si_parray_t* si_parray_new()
 size_t si_parray_size(const si_parray_t* const p_array)
 {
 	size_t result = SIZE_MAX;
-	if(NULL == p_array)
+	if (NULL == p_array)
 	{
 		goto END;
 	}
@@ -53,15 +53,15 @@ END:
 size_t si_parray_count(const si_parray_t* const p_array)
 {
 	size_t result = SIZE_MAX;
-	if(NULL == p_array)
+	if (NULL == p_array)
 	{
 		goto END;
 	}
 	result++;
-	for(size_t iii = 0u; iii < p_array->array.capacity; iii++)
+	for (size_t iii = 0u; iii < p_array->array.capacity; iii++)
 	{
 		const bool is_set = si_parray_is_set(p_array, iii);
-		if(false == is_set)
+		if (false == is_set)
 		{
 			// Values are contigious
 			break;
@@ -75,7 +75,7 @@ END:
 bool si_parray_fit(si_parray_t* const p_array)
 {
 	bool result = false;
-	if(NULL == p_array)
+	if (NULL == p_array)
 	{
 		goto END;
 	}
@@ -89,7 +89,7 @@ bool si_parray_is_pointer_within(si_parray_t* const p_array,
 	const void* const p_pointer)
 {
 	bool result = false;
-	if(NULL == p_array)
+	if (NULL == p_array)
 	{
 		goto END;
 	}
@@ -102,7 +102,7 @@ bool si_parray_is_pointer_valid(si_parray_t* const p_array,
 	const void** const pp_pointer)
 {
 	bool result = false;
-	if(NULL == p_array)
+	if (NULL == p_array)
 	{
 		goto END;
 	}
@@ -115,7 +115,7 @@ size_t si_parray_pointer_to_index(si_parray_t* const p_array,
 	const void** const pp_pointer)
 {
 	size_t result = SIZE_MAX;
-	if(NULL == p_array)
+	if (NULL == p_array)
 	{
 		goto END;
 	}
@@ -128,26 +128,26 @@ size_t si_parray_find(const si_parray_t* const p_array,
 	const void* const p_value, int (*p_cmp_f)(const void*, const void*))
 {
 	size_t index = SIZE_MAX;
-	if(NULL == p_array)
+	if (NULL == p_array)
 	{
 		goto END;
 	}
-	for(size_t iii = 0u; iii < p_array->array.capacity; iii++)
+	for (size_t iii = 0u; iii < p_array->array.capacity; iii++)
 	{
 		const void** const pp_next = si_array_at(&(p_array->array), iii);
-		if(NULL == pp_next)
+		if (NULL == pp_next)
 		{
 			goto END;
 		}
-		if(p_value == *pp_next)
+		if (p_value == *pp_next)
 		{
 			index = iii;
 			goto END;
 		}
-		if(NULL != p_cmp_f)
+		if (NULL != p_cmp_f)
 		{
 			const int cmp_result = p_cmp_f(p_value, *pp_next);
-			if(0 == cmp_result)
+			if (0 == cmp_result)
 			{
 				index = iii;
 				goto END;
@@ -162,7 +162,7 @@ bool si_parray_contains(const si_parray_t* const p_array,
 	const void* const p_value, int (*p_cmp_f)(const void*, const void*))
 {
 	bool result = false;
-	if(NULL == p_array)
+	if (NULL == p_array)
 	{
 		goto END;
 	}
@@ -176,12 +176,12 @@ void* si_parray_at(const si_parray_t* const p_array,
 	const size_t index)
 {
 	void** pp_result = NULL;
-	if(NULL == p_array)
+	if (NULL == p_array)
 	{
 		goto END;
 	}
 	pp_result = si_array_at(&(p_array->array), index);
-	if(NULL == pp_result)
+	if (NULL == pp_result)
 	{
 		goto END;
 	}
@@ -193,12 +193,12 @@ END:
 bool si_parray_is_set(const si_parray_t* const p_array, const size_t index)
 {
 	bool result = false;
-	if(NULL == p_array)
+	if (NULL == p_array)
 	{
 		goto END;
 	}
 	void** pp_value = si_array_at(&(p_array->array), index);
-	if(NULL == pp_value)
+	if (NULL == pp_value)
 	{
 		goto END;
 	}
@@ -210,7 +210,7 @@ END:
 void** si_parray_first(const si_parray_t* const p_array)
 {
 	void** pp_result = NULL;
-	if(NULL == p_array)
+	if (NULL == p_array)
 	{
 		goto END;
 	}
@@ -222,11 +222,11 @@ END:
 void** si_parray_last(const si_parray_t* const p_array)
 {
 	void** pp_result = NULL;
-	if(NULL == p_array)
+	if (NULL == p_array)
 	{
 		goto END;
 	}
-	if(0u >= p_array->array.capacity)
+	if (0u >= p_array->array.capacity)
 	{
 		goto END;
 	}
@@ -238,12 +238,12 @@ END:
 void** si_parray_tail(const si_parray_t* const p_array)
 {
 	void** pp_result = NULL;
-	if(NULL == p_array)
+	if (NULL == p_array)
 	{
 		goto END;
 	}
 	const size_t count = si_parray_count(p_array);
-	if(0u >= count)
+	if (0u >= count)
 	{
 		goto END;
 	}
@@ -262,11 +262,11 @@ END:
 static bool handle_shrink(si_parray_t* const p_array)
 {
 	bool result = false;
-	if(NULL == p_array)
+	if (NULL == p_array)
 	{
 		goto END;
 	}
-	if(NULL == p_array->p_settings)
+	if (NULL == p_array->p_settings)
 	{
 		// Not specified how to handle shrink.
 		// We will fit the array capacity to its count.
@@ -279,7 +279,7 @@ static bool handle_shrink(si_parray_t* const p_array)
 			p_array->p_settings,
 			p_array->array.capacity
 		);
-		if(next_capacity < count)
+		if (next_capacity < count)
 		{
 			goto END;
 		}
@@ -295,33 +295,33 @@ END:
 bool si_parray_remove_at(si_parray_t* const p_array, const size_t index)
 {
 	bool result = false;
-	if(NULL == p_array)
+	if (NULL == p_array)
 	{
 		goto END;
 	}
 	size_t counter = index;
 	void** pp_target = si_array_at(&(p_array->array), index);
-	if(NULL == pp_target)
+	if (NULL == pp_target)
 	{
 		// index or array is invalid
 		goto END;
 	}
-	if(NULL != p_array->p_free_value)
+	if (NULL != p_array->p_free_value)
 	{
 		p_array->p_free_value(*pp_target);
 		*pp_target = NULL;
 	}
 	void** const pp_tail = si_parray_tail(p_array);
-	if(NULL == pp_tail)
+	if (NULL == pp_tail)
 	{
 		// Array is empty
 		goto END;
 	}
 	void** pp_next = NULL;
-	while(pp_target != pp_tail)
+	while (pp_target != pp_tail)
 	{
 		// Sanity check
-		if(counter >= p_array->array.capacity)
+		if (counter >= p_array->array.capacity)
 		{
 			goto END;
 		}
@@ -329,14 +329,14 @@ bool si_parray_remove_at(si_parray_t* const p_array, const size_t index)
 		pp_next = &(pp_target[1]);
 		*pp_target = *pp_next;
 		pp_target = pp_next;
-		if(NULL == *pp_target)
+		if (NULL == *pp_target)
 		{
 			goto END;
 		}
 		counter++;
 	}
 	// Remove tail
-	if(NULL != p_array->p_free_value)
+	if (NULL != p_array->p_free_value)
 	{
 		p_array->p_free_value(*pp_tail);
 	}
@@ -349,22 +349,22 @@ END:
 
 void si_parray_clear(si_parray_t* const p_array)
 {
-	if(NULL == p_array)
+	if (NULL == p_array)
 	{
 		goto END;
 	}
-	for(size_t iii = 0u; iii < p_array->array.capacity; iii++)
+	for (size_t iii = 0u; iii < p_array->array.capacity; iii++)
 	{
 		void** pp_value = si_array_at(&(p_array->array), iii);
-		if(NULL == pp_value)
+		if (NULL == pp_value)
 		{
 			break;
 		}
-		if(NULL == *pp_value)
+		if (NULL == *pp_value)
 		{
 			continue;
 		}
-		if(NULL != p_array->p_free_value)
+		if (NULL != p_array->p_free_value)
 		{
 			p_array->p_free_value(*pp_value);
 		}
@@ -390,30 +390,30 @@ END:
 static bool claim_value_ownership(si_parray_t* const p_array)
 {
 	bool result = false;
-	if(NULL == p_array)
+	if (NULL == p_array)
 	{
 		goto END;
 	}
-	if(NULL != p_array->p_free_value)
+	if (NULL != p_array->p_free_value)
 	{
 		// Pointer array already own's it's value freeing responsibility
 		goto END;
 	}
 	// Convert direct pointers to indirect heap pointers
-	for(size_t iii = 0u; iii < p_array->array.capacity; iii++)
+	for (size_t iii = 0u; iii < p_array->array.capacity; iii++)
 	{
 		const bool is_set = si_parray_is_set(p_array, iii);
-		if(false == is_set)
+		if (false == is_set)
 		{
 			break;
 		}
 		void** pp_direct = si_array_at(&(p_array->array), iii);
 		void** pp_indirect = calloc(1u, sizeof(void*));
-		if(NULL == pp_indirect)
+		if (NULL == pp_indirect)
 		{
 			// Failed to convert to indirect!
 			// Undo changes and return false
-			for(size_t jjj = 0u; (jjj < (iii - 1u)) && (0u < iii); jjj++)
+			for (size_t jjj = 0u; (jjj < (iii - 1u)) && (0u < iii); jjj++)
 			{
 				pp_indirect = si_array_at(&(p_array->array), jjj);
 				pp_direct = *pp_indirect;
@@ -435,18 +435,18 @@ END:
 void si_parray_set(si_parray_t* const p_array, const size_t index,
 	const void* p_value)
 {
-	if((NULL == p_array) || (NULL == p_value))
+	if ((NULL == p_array) || (NULL == p_value))
 	{
 		goto END;
 	}
-	if(index >= p_array->array.capacity)
+	if (index >= p_array->array.capacity)
 	{
 		goto END;
 	}
 	void* p_old_value = si_parray_at(p_array, index);
-	if(NULL != p_old_value)
+	if (NULL != p_old_value)
 	{
-		if(NULL != p_array->p_free_value)
+		if (NULL != p_array->p_free_value)
 		{
 			p_array->p_free_value(p_old_value);
 		}
@@ -460,23 +460,23 @@ END:
 void si_parray_set_clone(si_parray_t* const p_array, const size_t index,
 	const void* p_source, const size_t source_size)
 {
-	if((NULL == p_array) || (NULL == p_source))
+	if ((NULL == p_array) || (NULL == p_source))
 	{
 		goto END;
 	}
-	if((index >= p_array->array.capacity) || (0u >= source_size))
+	if ((index >= p_array->array.capacity) || (0u >= source_size))
 	{
 		goto END;
 	}
 	void* p_value = calloc(1u, source_size);
-	if(NULL == p_value)
+	if (NULL == p_value)
 	{
 		goto END;
 	}
-	if(NULL == p_array->p_free_value)
+	if (NULL == p_array->p_free_value)
 	{
 		const bool is_claimed = claim_value_ownership(p_array);
-		if(false == is_claimed)
+		if (false == is_claimed)
 		{
 			free(p_value);
 			p_value = NULL;
@@ -492,15 +492,15 @@ END:
 size_t si_parray_append(si_parray_t* const p_array, const void* const p_value)
 {
 	size_t result = SIZE_MAX;
-	if((NULL == p_array) || (NULL == p_value))
+	if ((NULL == p_array) || (NULL == p_value))
 	{
 		goto END;
 	}
 	const size_t count = si_parray_count(p_array);
-	if(count >= p_array->array.capacity)
+	if (count >= p_array->array.capacity)
 	{
 		bool did_grow = false;
-		if(NULL == p_array->p_settings)
+		if (NULL == p_array->p_settings)
 		{
 			did_grow = si_array_resize(&(p_array->array), count + 1u);
 		}
@@ -511,7 +511,7 @@ size_t si_parray_append(si_parray_t* const p_array, const void* const p_value)
 				&(p_array->array)
 			);
 		}
-		if(false == did_grow)
+		if (false == did_grow)
 		{
 			goto END;
 		}
@@ -526,23 +526,23 @@ size_t si_parray_append_clone(si_parray_t* const p_array,
 	const void* const p_source, const size_t source_size)
 {
 	size_t result = SIZE_MAX;
-	if((NULL == p_array) || (NULL == p_source))
+	if ((NULL == p_array) || (NULL == p_source))
 	{
 		goto END;
 	}
-	if(0u >= source_size)
+	if (0u >= source_size)
 	{
 		goto END;
 	}
 	void* p_value = calloc(1u, source_size);
-	if(NULL == p_value)
+	if (NULL == p_value)
 	{
 		goto END;
 	}
-	if(NULL == p_array->p_free_value)
+	if (NULL == p_array->p_free_value)
 	{
 		const bool is_claimed = claim_value_ownership(p_array);
-		if(false == is_claimed)
+		if (false == is_claimed)
 		{
 			free(p_value);
 			p_value = NULL;
@@ -558,20 +558,20 @@ END:
 void si_parray_fprint(FILE* p_file, const si_parray_t* const p_array,
 	void (*p_print_value)(FILE*, void*))
 {
-	if((NULL == p_file) || (NULL == p_array))
+	if ((NULL == p_file) || (NULL == p_array))
 	{
 		goto END;
 	}
 	const size_t count = si_parray_count(p_array);
 	fprintf(p_file, "%s", "{");
-	for(size_t iii = 0u; iii < count; iii++)
+	for (size_t iii = 0u; iii < count; iii++)
 	{
 		void* p_value = si_parray_at(p_array, iii);
-		if(NULL == p_value)
+		if (NULL == p_value)
 		{
 			break;
 		}
-		if(NULL == p_print_value)
+		if (NULL == p_print_value)
 		{
 			fprintf(p_file, "%p", p_value);
 		}
@@ -579,7 +579,7 @@ void si_parray_fprint(FILE* p_file, const si_parray_t* const p_array,
 		{
 			p_print_value(p_file, p_value);
 		}
-		if(iii < (count - 1u))
+		if (iii < (count - 1u))
 		{
 			fprintf(p_file, ", ");
 		}
@@ -591,7 +591,7 @@ END:
 
 void si_parray_free(si_parray_t* const p_array)
 {
-	if(NULL == p_array)
+	if (NULL == p_array)
 	{
 		goto END;
 	}
@@ -604,11 +604,11 @@ END:
 
 void si_parray_destroy(si_parray_t** pp_array)
 {
-	if(NULL == pp_array)
+	if (NULL == pp_array)
 	{
 		goto END;
 	}
-	if(NULL == *pp_array)
+	if (NULL == *pp_array)
 	{
 		// Already freed
 		goto END;

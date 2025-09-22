@@ -44,7 +44,7 @@ void parray_test_modify(void)
 	const int data[] = { 5, 4, 3, 2, 1, 0, 42 };
 	const size_t data_size = 7u;
 	printf("Initial data conditions:\n");
-	for(size_t iii = 0u; iii < data_size; iii++)
+	for (size_t iii = 0u; iii < data_size; iii++)
 	{
 		printf("\tdata[%lu]: %d @ %p\n", iii, data[iii], &data[iii]);
 	}
@@ -61,7 +61,7 @@ void parray_test_modify(void)
 	TEST_ASSERT_EQUAL_size_t(SIZE_MAX, si_parray_append(NULL, NULL));
 	TEST_ASSERT_EQUAL_size_t(SIZE_MAX, si_parray_append(p_array, NULL));
 	TEST_ASSERT_EQUAL_size_t(SIZE_MAX, si_parray_append(NULL, &data[0u]));
-	for(size_t iii = 0u; iii < data_size; iii++)
+	for (size_t iii = 0u; iii < data_size; iii++)
 	{
 		TEST_ASSERT_EQUAL_size_t(iii, si_parray_count(p_array));
 		TEST_ASSERT_EQUAL_size_t(iii, si_parray_append(p_array, &data[iii]));
@@ -78,7 +78,7 @@ void parray_test_modify(void)
 	TEST_ASSERT_NULL(si_parray_at(NULL, SIZE_MAX));
 	TEST_ASSERT_NULL(si_parray_at(NULL, 0u));
 	TEST_ASSERT_NULL(si_parray_at(p_array, SIZE_MAX));
-	for(size_t iii = 0u; iii < data_size; iii++)
+	for (size_t iii = 0u; iii < data_size; iii++)
 	{
 		TEST_ASSERT_EQUAL_PTR(&data[iii], si_parray_at(p_array, iii));
 		TEST_ASSERT_TRUE(si_parray_contains(p_array, &data[iii], NULL));
@@ -91,7 +91,7 @@ void parray_test_modify(void)
 	TEST_ASSERT_FALSE(si_parray_remove_at(NULL, SIZE_MAX));
 	TEST_ASSERT_FALSE(si_parray_remove_at(p_array, SIZE_MAX));
 	TEST_ASSERT_FALSE(si_parray_remove_at(NULL, 0u));
-	for(size_t iii = 0u; iii < data_size; iii++)
+	for (size_t iii = 0u; iii < data_size; iii++)
 	{
 		TEST_ASSERT_EQUAL_size_t(data_size - iii, si_parray_count(p_array));
 		TEST_ASSERT_TRUE(si_parray_remove_at(p_array, 0u));
@@ -104,13 +104,13 @@ void parray_test_modify(void)
 	printf("Testing pointer ownership:");
 	const size_t direct_count = 3u;
 	TEST_ASSERT_NOT_EQUAL_size_t(direct_count, data_size);
-	for(size_t iii = 0u; iii < direct_count; iii++)
+	for (size_t iii = 0u; iii < direct_count; iii++)
 	{
 		TEST_ASSERT_EQUAL_size_t(iii, si_parray_append(p_array, &data[iii]));
 	}
 	si_parray_fprint(stdout, p_array, NULL); fprintf(stdout, "\n");
 	// Now should become owner after cloning.
-	for(size_t iii = direct_count; iii < data_size; iii++)
+	for (size_t iii = direct_count; iii < data_size; iii++)
 	{
 		TEST_ASSERT_EQUAL_size_t(iii, si_parray_append_clone(
 			p_array,

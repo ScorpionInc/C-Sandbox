@@ -6,14 +6,14 @@ void si_singular_blist_init_4(si_singular_blist_t* const p_list,
 	const bool is_circular, const size_t initial_capacity,
 	int (*p_cmp_f)(const void* const, const void* const))
 {
-	if(NULL == p_list)
+	if (NULL == p_list)
 	{
 		goto END;
 	}
 	p_list->count = 0u;
 	p_list->p_tail = NULL;
 	p_list->p_head = si_singular_list_new_2(is_circular, initial_capacity);
-	if(NULL == p_list->p_head)
+	if (NULL == p_list->p_head)
 	{
 		goto END;
 	}
@@ -48,7 +48,7 @@ si_singular_blist_t* si_singular_blist_new_3(const bool is_circular,
 {
 	si_singular_blist_t* p_new = NULL;
 	p_new = calloc(1u, sizeof(si_singular_blist_t));
-	if(NULL == p_new)
+	if (NULL == p_new)
 	{
 		goto END;
 	}
@@ -78,7 +78,7 @@ si_singular_list_t* si_singular_blist_node_at(
 	const si_singular_blist_t* const p_list, const size_t index)
 {
 	si_singular_list_t* p_result = NULL;
-	if(NULL == p_list)
+	if (NULL == p_list)
 	{
 		goto END;
 	}
@@ -91,7 +91,7 @@ void* si_singular_blist_at(const si_singular_blist_t* const p_list,
     const size_t index)
 {
 	void* p_result = NULL;
-	if(NULL == p_list)
+	if (NULL == p_list)
 	{
 		goto END;
 	}
@@ -104,7 +104,7 @@ size_t si_singular_blist_find_3(const si_singular_blist_t* const p_list,
 	const void* const p_data, const size_t start_index)
 {
 	size_t result = SIZE_MAX;
-	if(NULL == p_list)
+	if (NULL == p_list)
 	{
 		goto END;
 	}
@@ -123,7 +123,7 @@ size_t si_singular_blist_find(const si_singular_blist_t* const p_list,
 bool si_singular_blist_sort(si_singular_blist_t* const p_list)
 {
 	bool result = false;
-	if(NULL == p_list)
+	if (NULL == p_list)
 	{
 		goto END;
 	}
@@ -136,12 +136,12 @@ bool si_singular_blist_insert(si_singular_blist_t* const p_list,
 	const void* const p_data, const size_t index)
 {
 	bool result = false;
-	if(NULL == p_list)
+	if (NULL == p_list)
 	{
 		goto END;
 	}
 	result = si_singular_list_insert(p_list->p_head, p_data, index);
-	if(true == result)
+	if (true == result)
 	{
 		p_list->count++;
 		p_list->capacity++;
@@ -153,11 +153,11 @@ END:
 void si_singular_blist_set_circular_2(si_singular_blist_t* const p_list,
 	const bool is_circular)
 {
-	if(NULL == p_list)
+	if (NULL == p_list)
 	{
 		goto END;
 	}
-	if(NULL == p_list->p_tail)
+	if (NULL == p_list->p_tail)
 	{
 		goto END;
 	}
@@ -174,11 +174,11 @@ inline void si_singular_blist_set_circular(si_singular_blist_t* const p_list)
 bool si_singular_blist_is_circular(si_singular_blist_t* const p_list)
 {
 	bool result = false;
-	if(NULL == p_list)
+	if (NULL == p_list)
 	{
 		goto END;
 	}
-	if((NULL == p_list->p_head) || (NULL == p_list->p_tail))
+	if ((NULL == p_list->p_head) || (NULL == p_list->p_tail))
 	{
 		goto END;
 	}
@@ -191,18 +191,18 @@ size_t si_singular_blist_grow_by(si_singular_blist_t* const p_list,
 	const size_t amount)
 {
 	size_t result = 0u;
-	if(NULL == p_list)
+	if (NULL == p_list)
 	{
 		goto END;
 	}
-	if(NULL == p_list->p_tail)
+	if (NULL == p_list->p_tail)
 	{
 		goto END;
 	}
-	for(size_t iii = 0u; iii < amount; iii++)
+	for (size_t iii = 0u; iii < amount; iii++)
 	{
 		const bool success = si_singular_list_insert_next(p_list->p_tail, NULL);
-		if(false == success)
+		if (false == success)
 		{
 			break;
 		}
@@ -217,12 +217,12 @@ size_t si_singular_blist_grow_to(si_singular_blist_t* const p_list,
 	const size_t capacity)
 {
 	size_t result = 0u;
-	if(NULL == p_list)
+	if (NULL == p_list)
 	{
 		goto END;
 	}
 	result = p_list->capacity;
-	if(result >= capacity)
+	if (result >= capacity)
 	{
 		goto END;
 	}
@@ -235,16 +235,16 @@ size_t si_singular_blist_shrink_by(si_singular_blist_t* const p_list,
 	const size_t amount)
 {
 	size_t result = 0u;
-	if(NULL == p_list)
+	if (NULL == p_list)
 	{
 		goto END;
 	}
 	result = si_singular_list_shrink_by(p_list->p_head, amount);
-	if(0u < result)
+	if (0u < result)
 	{
 		p_list->p_tail = si_singular_list_last_node(p_list->p_head);
 		p_list->capacity -= result;
-		if(p_list->count > p_list->capacity)
+		if (p_list->count > p_list->capacity)
 		{
 			p_list->count = p_list->capacity;
 		}
@@ -257,16 +257,16 @@ size_t si_singular_blist_shrink_to(si_singular_blist_t* const p_list,
     const size_t capacity)
 {
 	size_t result = 0u;
-	if(NULL == p_list)
+	if (NULL == p_list)
 	{
 		goto END;
 	}
 	result = si_singular_list_shrink_to(p_list->p_head, capacity);
-	if(result != p_list->capacity)
+	if (result != p_list->capacity)
 	{
 		p_list->p_tail = si_singular_list_last_node(p_list->p_head);
 		p_list->capacity = result;
-		if(p_list->count > p_list->capacity)
+		if (p_list->count > p_list->capacity)
 		{
 			p_list->count = p_list->capacity;
 		}
@@ -278,11 +278,11 @@ END:
 void si_singular_blist_resize(si_singular_blist_t* const p_list,
 	const size_t capacity)
 {
-	if(NULL == p_list)
+	if (NULL == p_list)
 	{
 		goto END;
 	}
-	if(capacity >= p_list->capacity)
+	if (capacity >= p_list->capacity)
 	{
 		si_singular_blist_grow_to(p_list, capacity);
 		goto END;
@@ -296,12 +296,12 @@ bool si_singular_blist_append(si_singular_blist_t* const p_list,
 	const void* const p_data)
 {
 	bool result = false;
-	if(NULL == p_list)
+	if (NULL == p_list)
 	{
 		goto END;
 	}
 	result = si_singular_list_insert_next(p_list->p_tail, p_data);
-	if(true == result)
+	if (true == result)
 	{
 		p_list->count++;
 		p_list->capacity++;
@@ -314,12 +314,12 @@ bool si_singular_blist_remove_at(si_singular_blist_t* p_list,
 	const size_t index)
 {
 	bool result = false;
-	if(NULL == p_list)
+	if (NULL == p_list)
 	{
 		goto END;
 	}
 	result = si_singular_list_remove_at(p_list->p_head, index);
-	if(true == result)
+	if (true == result)
 	{
 		p_list->count--;
 		p_list->capacity--;
@@ -332,11 +332,11 @@ size_t si_singular_blist_push(si_singular_blist_t* const p_list,
 	const void* const p_data)
 {
 	size_t result = SIZE_MAX;
-	if(NULL == p_list)
+	if (NULL == p_list)
 	{
 		goto END;
 	}
-	if(NULL == p_list->p_head)
+	if (NULL == p_list->p_head)
 	{
 		goto END;
 	}
@@ -344,10 +344,10 @@ size_t si_singular_blist_push(si_singular_blist_t* const p_list,
 	si_singular_list_t* p_iterator = p_list->p_head;
 	do
 	{
-		if(false == assigned)
+		if (false == assigned)
 		{
 			result++;
-			if(NULL == p_iterator->p_data)
+			if (NULL == p_iterator->p_data)
 			{
 				// Available spot. Assign data.
 				p_iterator->p_data = (void*)p_data;
@@ -355,11 +355,11 @@ size_t si_singular_blist_push(si_singular_blist_t* const p_list,
 				assigned = true;
 			}
 		}
-		if((NULL == p_iterator->p_next) ||
+		if ((NULL == p_iterator->p_next) ||
 			(p_list->p_head == p_iterator->p_next))
 		{
 			// This is the last node
-			if(true == assigned)
+			if (true == assigned)
 			{
 				p_list->p_tail = p_iterator;
 				goto END;
@@ -367,10 +367,10 @@ size_t si_singular_blist_push(si_singular_blist_t* const p_list,
 			break;
 		}
 		p_iterator = p_iterator->p_next;
-	} while(NULL != p_iterator);
+	} while (NULL != p_iterator);
 	// No available spot to assign. Append data instead.
 	const bool success = si_singular_blist_append(p_list, p_data);
-	if(true == success)
+	if (true == success)
 	{
 		result = (p_list->count - 1u);
 	}
@@ -385,12 +385,12 @@ END:
 void* si_singular_blist_pop(si_singular_blist_t* const p_list)
 {
 	void* p_result = NULL;
-	if(NULL == p_result)
+	if (NULL == p_result)
 	{
 		goto END;
 	}
 	p_result = si_singular_list_pop(p_list->p_head);
-	if(NULL != p_result)
+	if (NULL != p_result)
 	{
 		p_list->count--;
 	}
@@ -400,13 +400,13 @@ END:
 
 void si_singular_blist_free(si_singular_blist_t* p_list)
 {
-	if(NULL == p_list)
+	if (NULL == p_list)
 	{
 		goto END;
 	}
 	p_list->count = 0u;
 	p_list->capacity = 0u;
-	if(NULL != p_list->p_head)
+	if (NULL != p_list->p_head)
 	{
 		si_singular_list_free(p_list->p_head);
 	}
@@ -420,7 +420,7 @@ END:
 
 void si_singular_blist_free_at(si_singular_blist_t** const pp_list)
 {
-	if(NULL == pp_list)
+	if (NULL == pp_list)
 	{
 		goto END;
 	}

@@ -47,12 +47,12 @@ static void* looping_task(si_logger_t* p_param)
 
 static void* returns_value_task(int* p_num)
 {
-	if(NULL == p_num)
+	if (NULL == p_num)
 	{
 		goto END;
 	}
 	const int divisor = 42u;
-	while(divisor <= *p_num)
+	while (divisor <= *p_num)
 	{
 		*p_num -= divisor;
 	}
@@ -62,7 +62,7 @@ END:
 
 static void handle_signal(int signal)
 {
-	if(NULL != p_threadpool)
+	if (NULL != p_threadpool)
 	{
 		si_threadpool_destroy(&p_threadpool);
 	}
