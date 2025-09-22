@@ -172,7 +172,7 @@ check_errors()
 		"${check}" "${@}"
 
 	check=$(
-		grep -n --binary-files=without-match -R -P '^\s*((const|volatile)\s+)?([a-zA-Z_]+[0-9]*[a-zA-Z_]*)[*]+\s+(const\s+([^p\s]|[p]+[^p_\s])|((?!const\s+)[^p\s]|[p]+[^p_\s]))[^*]+' |
+		grep -n --binary-files=without-match -R -P '^\s*((const|volatile)\s+)?([a-zA-Z_]+[0-9]*[a-zA-Z_]*)[*]+\s+(const\s+([^Pp\s]|[Pp]+[^Pp_\s])|((?!const\s+)[^Pp\s]|[Pp]+[^Pp_\s]))[^*]+' |
 		grep -v -E '([(]|[)])' |
 		grep -v -E "${BASE_FILTER}" |
 		sort --unique
@@ -246,6 +246,17 @@ check_errors()
 	check_error\
 		"BARR-C Line length"\
 		"Per BARR-C all lines must be less than or equal to 80 chars in length."\
+		"${check}" "${@}"
+
+	check=$(
+		grep -n --binary-files=without-match -R -P '\s*(if|while|for|switch)[(]' |
+		grep -v -E "${BASE_FILTER}" |
+		grep -E "${C_LNG_MATCH}" |
+		sort --unique
+	)
+	check_error\
+		"a space after certain keywords"\
+		"Per BARR-C 3.1a if,while,for,switch,return are followed by a space if more code is after it."\
 		"${check}" "${@}"
 
 	printf "${UPBAR}"
