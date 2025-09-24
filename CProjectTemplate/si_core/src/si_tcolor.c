@@ -431,7 +431,7 @@ bool si_terminfo_set_color_3(si_terminfo_t* const p_terminfo,
 		// Falls back on basic ANSI Color support
 		ANSI_Color a_color = si_true_color_to_basic(p_color);
 		const bool is_intense = si_true_color_is_intense(p_color);
-		si_terminfo_set_ansi_color_4(
+		result = si_terminfo_set_ansi_color_4(
 			p_terminfo, a_color, foreground, is_intense
 		);
 		goto END;
@@ -441,6 +441,7 @@ bool si_terminfo_set_color_3(si_terminfo_t* const p_terminfo,
 		p_terminfo, "\e[%d;2;%d;%d;%dm", op_code,
 		p_color->red, p_color->green, p_color->blue
 	);
+	result = true;
 END:
 	return result;
 }
