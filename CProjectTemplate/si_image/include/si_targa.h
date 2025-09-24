@@ -194,6 +194,13 @@ void si_tga_init(si_tga_t* const p_tga);
 si_tga_t* si_tga_new();
 
 /** Doxygen
+ * @brief Heap allocates and initializes a clone of an existing si_tga_t struct
+ * 
+ * @return Returns heap pointer on success. Returns NULL otherwise.
+ */
+si_tga_t* si_tga_clone(const si_tga_t* const p_original);
+
+/** Doxygen
  * @brief Reads a tga image into memory from a FILE*
  * 
  * @param p_tga Pointer to si_tga_t struct to hold values in.

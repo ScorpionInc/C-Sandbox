@@ -523,6 +523,65 @@ END:
 	return p_result;
 }
 
+si_tga_t* si_tga_clone(const si_tga_t* const p_original)
+{
+	si_tga_t* p_new = NULL;
+	if (NULL == p_original)
+	{
+		goto END;
+	}
+	p_new = calloc(1u, sizeof(si_tga_t));
+	if (NULL == p_new)
+	{
+		goto END;
+	}
+
+	memcpy(p_new, p_original, sizeof(si_tga_t));
+	p_new->p_colormaps = NULL;
+	p_new->p_data = NULL;
+	p_new->p_img_id = NULL;
+	
+	if(NULL != p_original->p_colormaps)
+	{
+		p_new->p_colormaps = calloc(1u, sizeof(si_tga_cmap_t));
+		if(NULL == p_new->p_colormaps)
+		{
+			si_tga_destroy(&p_new);
+			goto END;
+		}
+		memcpy(
+			p_new->p_colormaps, p_original->p_colormaps, sizeof(si_tga_cmap_t)
+		);
+	}
+	
+	const size_t data_size = si_tga_header_data_size(&(p_original->header));
+	if(NULL != p_original->p_data)
+	{
+		p_new->p_data = calloc(data_size, sizeof(uint8_t));
+		if(NULL == p_new->p_data)
+		{
+			si_tga_destroy(&p_new);
+			goto END;
+		}
+		memcpy(p_new->p_data, p_original->p_data, data_size);
+	}
+
+	if(NULL != p_original->p_img_id)
+	{
+		p_new->p_img_id = calloc(p_original->header.id_len, sizeof(uint8_t));
+		if(NULL == p_new->p_img_id)
+		{
+			si_tga_destroy(&p_new);
+			goto END;
+		}
+		memcpy(
+			p_new->p_img_id, p_original->p_img_id, p_original->header.id_len
+		);
+	}
+END:
+	return p_new;
+}
+
 bool si_tga_fread(si_tga_t* const p_tga, FILE* const p_file)
 {
 	bool result = false;
