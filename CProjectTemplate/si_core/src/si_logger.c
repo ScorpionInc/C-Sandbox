@@ -90,7 +90,7 @@ END:
  */
 static char* const si_logger_select_header(const size_t msg_level)
 {
-	const char* p_result = NULL;
+	char* p_result = NULL;
 	switch (msg_level)
 	{
 		case(SI_LOGGER_ALL):
@@ -126,7 +126,7 @@ static char* const si_logger_select_header(const size_t msg_level)
  */
 static char* const si_logger_select_color(const size_t msg_level)
 {
-	const char* p_ansi = "";
+	char* p_ansi = "";
 	if (SI_LOGGER_ALL == msg_level)
 	{
 		// Light Gray
