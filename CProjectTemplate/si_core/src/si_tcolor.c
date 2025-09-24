@@ -44,7 +44,7 @@ void si_tcolor_set_color_4(FILE* const p_file, const ANSI_Color color,
 	{
 		goto END;
 	}
-	si_tui_send_ansi(p_file, "\e[%dm", ansi_code);
+	si_tui_send_ansi(p_file, "\033[%dm", ansi_code);
 END:
 	return;
 }
@@ -367,7 +367,7 @@ void si_true_color_apply_3(FILE* const p_file,
 	}
 	const int op_code = foreground ? ANSI_FR_TRUE : ANSI_BK_TRUE;
 	si_tui_send_ansi(
-		p_file, "\e[%d;2;%d;%d;%dm", op_code,
+		p_file, "\033[%d;2;%d;%d;%dm", op_code,
 		p_color->red, p_color->green, p_color->blue
 	);
 END:
@@ -396,7 +396,7 @@ bool si_terminfo_set_ansi_color_4(si_terminfo_t* const p_terminfo,
 	{
 		goto END;
 	}
-	si_terminfo_send_ansi(p_terminfo, "\e[%dm", ansi_code);
+	si_terminfo_send_ansi(p_terminfo, "\033[%dm", ansi_code);
 END:
 	return result;
 }
@@ -438,7 +438,7 @@ bool si_terminfo_set_color_3(si_terminfo_t* const p_terminfo,
 	}
 	const int op_code = foreground ? ANSI_FR_TRUE : ANSI_BK_TRUE;
 	si_terminfo_send_ansi(
-		p_terminfo, "\e[%d;2;%d;%d;%dm", op_code,
+		p_terminfo, "\033[%d;2;%d;%d;%dm", op_code,
 		p_color->red, p_color->green, p_color->blue
 	);
 	result = true;

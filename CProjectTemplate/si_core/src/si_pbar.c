@@ -66,8 +66,8 @@ void si_pbar_terminal_setup(const si_pbar_t* const p_bar,
 		break;
 	}
 
-	// Save current cursor position (\e7)
-	si_terminfo_send_ansi(p_terminfo, "\e7");
+	// Save current cursor position (\0337)
+	si_terminfo_send_ansi(p_terminfo, "\0337");
 	si_terminfo_send_ansi(p_terminfo, "\033[s");
 
 	// Switch case fall-through is an intended behavior.
@@ -76,13 +76,13 @@ void si_pbar_terminal_setup(const si_pbar_t* const p_bar,
 	case(PBAR_ALIGN_BOTTOM):
 		// Set the scrollable margin
 		si_terminfo_send_ansi(
-			p_terminfo, "\e[0;%dr", (p_terminfo->ROWS - 1u)
+			p_terminfo, "\033[0;%dr", (p_terminfo->ROWS - 1u)
 		);
 		break;
 	case(PBAR_ALIGN_TOP):
 		// Set the scrollable margin
 		si_terminfo_send_ansi(
-			p_terminfo, "\e[1;%dr", (p_terminfo->ROWS)
+			p_terminfo, "\033[1;%dr", (p_terminfo->ROWS)
 		);
 		break;
 	case(PBAR_ALIGN_UNSPECIFIED):
@@ -92,9 +92,9 @@ void si_pbar_terminal_setup(const si_pbar_t* const p_bar,
 		break;
 	}
 
-	// Restore original cursor position (\e8)
+	// Restore original cursor position (\0338)
 	si_terminfo_send_ansi(p_terminfo, "\033[u");
-	si_terminfo_send_ansi(p_terminfo, "\e8");
+	si_terminfo_send_ansi(p_terminfo, "\0338");
 
 	// Switch case fall-through is an intended behavior.
 	switch (p_bar->alignment)
@@ -103,7 +103,7 @@ void si_pbar_terminal_setup(const si_pbar_t* const p_bar,
 	case(PBAR_ALIGN_UNSPECIFIED):
 	case(PBAR_ALIGN_INLINE):
 		// Move cursor back up from new line
-		si_terminfo_send_ansi(p_terminfo, "\e[1A");
+		si_terminfo_send_ansi(p_terminfo, "\033[1A");
 		break;
 	case(PBAR_ALIGN_TOP):
 	case(PBAR_ALIGN_INVALID):
@@ -195,7 +195,7 @@ static void si_pbar_fprint_label(const si_pbar_t* const p_bar,
 	fprintf(p_terminfo->p_file, "%.*lf%%", p_bar->precision, scaled_percentage);
 	if (NULL != p_bar->p_label_color)
 	{
-		si_terminfo_send_ansi(p_terminfo, "\e[%dm", ANSI_FR_RESET);
+		si_terminfo_send_ansi(p_terminfo, "\033[%dm", ANSI_FR_RESET);
 	}
 	fflush(p_terminfo->p_file);
 END:
@@ -320,7 +320,7 @@ static void si_pbar_fprint_bar(const si_pbar_t* const p_bar,
 		}
 		else
 		{
-			si_terminfo_send_ansi(p_terminfo, "\e[%dm", ANSI_FR_RESET);
+			si_terminfo_send_ansi(p_terminfo, "\033[%dm", ANSI_FR_RESET);
 		}
 	}
 	fprintf(p_terminfo->p_file, "%c", p_bar->right_bar_char);
@@ -341,8 +341,8 @@ void si_pbar_fprint(const si_pbar_t* const p_bar,
 		goto END;
 	}
 
-	// Save current cursor position (\e7)
-	si_terminfo_send_ansi(p_terminfo, "\e7");
+	// Save current cursor position (\0337)
+	si_terminfo_send_ansi(p_terminfo, "\0337");
 	si_terminfo_send_ansi(p_terminfo, "\033[s");
 
 	// Switch case fall-through is an intended behavior.
@@ -351,13 +351,13 @@ void si_pbar_fprint(const si_pbar_t* const p_bar,
 	case(PBAR_ALIGN_TOP):
 		// Move cursor to progress bar line (top)
 		si_terminfo_send_ansi(
-			p_terminfo, "\e[%d;0H", (0)
+			p_terminfo, "\033[%d;0H", (0)
 		);
 		break;
 	case(PBAR_ALIGN_BOTTOM):
 		// Move cursor to progress bar line (bottom)
 		si_terminfo_send_ansi(
-			p_terminfo, "\e[%d;0H", (p_terminfo->ROWS)
+			p_terminfo, "\033[%d;0H", (p_terminfo->ROWS)
 		);
 		break;
 	case(PBAR_ALIGN_UNSPECIFIED):
@@ -373,7 +373,7 @@ void si_pbar_fprint(const si_pbar_t* const p_bar,
 	case(PBAR_ALIGN_TOP):
 	case(PBAR_ALIGN_BOTTOM):
 		// Clears the progress bar line.
-		si_terminfo_send_ansi(p_terminfo, "\e[0K");
+		si_terminfo_send_ansi(p_terminfo, "\033[0K");
 		break;
 	case(PBAR_ALIGN_UNSPECIFIED):
 	case(PBAR_ALIGN_INLINE):
@@ -427,9 +427,9 @@ void si_pbar_fprint(const si_pbar_t* const p_bar,
 		break;
 	}
 
-	// Restore original cursor position (\e8)
+	// Restore original cursor position (\0338)
 	si_terminfo_send_ansi(p_terminfo, "\033[u");
-	si_terminfo_send_ansi(p_terminfo, "\e8");
+	si_terminfo_send_ansi(p_terminfo, "\0338");
 END:
 	return;
 }
@@ -437,8 +437,8 @@ END:
 void si_pbar_terminal_restore(const si_pbar_t* const p_bar,
 	si_terminfo_t* const p_terminfo)
 {
-	// Save current cursor position (\e7)
-	si_terminfo_send_ansi(p_terminfo, "\e7");
+	// Save current cursor position (\0337)
+	si_terminfo_send_ansi(p_terminfo, "\0337");
 	si_terminfo_send_ansi(p_terminfo, "\033[s");
 	
 	// Switch case fall-through is an intended behavior.
@@ -448,7 +448,7 @@ void si_pbar_terminal_restore(const si_pbar_t* const p_bar,
 	case(PBAR_ALIGN_BOTTOM):
 		// Restores/Removes the scrollable margin
 		si_terminfo_send_ansi(
-			p_terminfo, "\e[0;%dr", (p_terminfo->ROWS)
+			p_terminfo, "\033[0;%dr", (p_terminfo->ROWS)
 		);
 		break;
 	case(PBAR_ALIGN_UNSPECIFIED):
@@ -464,13 +464,13 @@ void si_pbar_terminal_restore(const si_pbar_t* const p_bar,
 	case(PBAR_ALIGN_TOP):
 		// Move cursor to progress bar line (top)
 		si_terminfo_send_ansi(
-			p_terminfo, "\e[%d;0H", (0)
+			p_terminfo, "\033[%d;0H", (0)
 		);
 		break;
 	case(PBAR_ALIGN_BOTTOM):
 		// Move cursor to progress bar line (bottom)
 		si_terminfo_send_ansi(
-			p_terminfo, "\e[%d;0H", (p_terminfo->ROWS)
+			p_terminfo, "\033[%d;0H", (p_terminfo->ROWS)
 		);
 		break;
 	case(PBAR_ALIGN_UNSPECIFIED):
@@ -486,7 +486,7 @@ void si_pbar_terminal_restore(const si_pbar_t* const p_bar,
 	case(PBAR_ALIGN_TOP):
 	case(PBAR_ALIGN_BOTTOM):
 		// Clears the progress bar line.
-		si_terminfo_send_ansi(p_terminfo, "\e[0K");
+		si_terminfo_send_ansi(p_terminfo, "\033[0K");
 		break;
 	case(PBAR_ALIGN_UNSPECIFIED):
 	case(PBAR_ALIGN_INLINE):
@@ -495,7 +495,7 @@ void si_pbar_terminal_restore(const si_pbar_t* const p_bar,
 		break;
 	}
 
-	// Restore original cursor position (\e8)
+	// Restore original cursor position (\0338)
 	si_terminfo_send_ansi(p_terminfo, "\033[u");
-	si_terminfo_send_ansi(p_terminfo, "\e8");
+	si_terminfo_send_ansi(p_terminfo, "\0338");
 }
