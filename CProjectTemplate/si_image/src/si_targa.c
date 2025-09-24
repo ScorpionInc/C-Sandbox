@@ -190,12 +190,10 @@ bool si_tga_header_is_valid(const si_tga_header_t* const p_header)
 	bool result = false;
 	if (NULL == p_header)
 	{
-		printf("sthiv Header is NULL!\n");//!Debugging
 		goto END;
 	}
 	if (SI_TARGA_MAP_TYPE_PRESENT < p_header->map_type)
 	{
-		printf("sthiv Invalid map type!\n");//!Debugging
 		goto END;
 	}
 	const bool is_valid_data_type = si_tga_header_is_data_type_valid(
@@ -203,7 +201,6 @@ bool si_tga_header_is_valid(const si_tga_header_t* const p_header)
 	);
 	if(true != is_valid_data_type)
 	{
-		printf("sthiv Invalid data type! %hu\n", p_header->data_type);//!Debugging
 		goto END;
 	}
 	if (SI_TARGA_MAP_TYPE_NONE == p_header->map_type)
@@ -212,25 +209,21 @@ bool si_tga_header_is_valid(const si_tga_header_t* const p_header)
 		    (0u != p_header->map_len  ) ||
 		    (0u != p_header->map_depth))
 		{
-			printf("sthiv Invalid map values!\n");//!Debugging
 			goto END;
 		}
 	}
 	if ((0u >= p_header->width) || (0u >= p_header->height))
 	{
-		printf("sthiv Invalid image size!\n");//!Debugging
 		goto END;
 	}
 	const unsigned int mod_result = (p_header->bpp % CHAR_BIT);
 	if (0u != mod_result)
 	{
-		printf("sthiv Invalid bpp!\n");//!Debugging
 		goto END;
 	}
 	const uint8_t zero = (SI_TARGA_IMG_DESC_ZERO_MASK & p_header->img_desc);
 	if(0u != zero)
 	{
-		printf("sthiv Invalid img desc!\n");//!Debugging
 		goto END;
 	}
 	// TODO Temporary shows all mapped images as invalid until implimented.
@@ -249,13 +242,11 @@ uint8_t si_tga_header_channel_count(const si_tga_header_t* const p_header)
 	uint8_t result = 0u;
 	if (NULL == p_header)
 	{
-		printf("sthcc Received a NULL header.\n");//!Debugging
 		goto END;
 	}
 	const bool is_valid = si_tga_header_is_valid(p_header);
 	if (false == is_valid)
 	{
-		printf("sthcc Received an invalid header.\n");//!Debugging
 		goto END;
 	}
 	result = (p_header->bpp / CHAR_BIT);
@@ -268,13 +259,11 @@ size_t si_tga_header_data_size(const si_tga_header_t* const p_header)
 	size_t data_size = 0u;
 	if (NULL == p_header)
 	{
-		printf("sthds Received a NULL header.\n");//!Debugging
 		goto END;
 	}
 	const uint8_t channel_count = si_tga_header_channel_count(p_header);
 	if (0u >= channel_count)
 	{
-		printf("sthds Received a 0 channel_count.\n");//!Debugging
 		goto END;
 	}
 
@@ -282,7 +271,6 @@ size_t si_tga_header_data_size(const si_tga_header_t* const p_header)
 	// Check for overflows
 	if ((stage_a / p_header->height) != p_header->width)
 	{
-		printf("sthds Overflowed stage a.\n");//!Debugging
 		goto END;
 	}
 
@@ -290,7 +278,6 @@ size_t si_tga_header_data_size(const si_tga_header_t* const p_header)
 	// Check for overflows
 	if ((stage_b / channel_count) != stage_a)
 	{
-		printf("sthds Overflowed stage b.\n");//!Debugging
 		goto END;
 	}
 
@@ -502,13 +489,12 @@ void si_tga_init_4(si_tga_t* const p_tga,
 	{
 		goto END;
 	}
-	printf("Calling callon in si_tga_init_4().\n");//!Debugging
 	p_tga->p_data = calloc(pixel_data_size, sizeof(uint8_t));
 	if (NULL == p_tga->p_data)
 	{
 		goto END;
 	}
-	memset(p_tga->p_data, 0xFF, pixel_data_size * sizeof(uint8_t));
+	memset(p_tga->p_data, 0x00, pixel_data_size * sizeof(uint8_t));
 END:
 	return;
 }
@@ -639,6 +625,14 @@ uint8_t* si_tga_pixel_at(const si_tga_t* const p_tga,
 		break;
 		default:
 			fprintf(stderr, "si_tga_pixel_at() Unsupported data_type.\n");
+		goto END;
+	}
+	switch (SI_TARGA_IMG_DESC_ORIGIN_MASK & p_tga->header.img_desc)
+	{
+		case(SI_TARGA_DEFAULT_IMG_DESC):
+		break;
+		default:
+			fprintf(stderr, "si_tga_pixel_at() Unsupported Origin.\n");
 		goto END;
 	}
 	const size_t index = (y_pos * p_tga->header.width) + x_pos;
