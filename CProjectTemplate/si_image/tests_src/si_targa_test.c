@@ -56,8 +56,8 @@ END:
 static void test_generate(void)
 {
 	const char* const P_PATH   = "./example.tga";
-	const uint16_t    width    = 100u;
-	const uint16_t    height   = 100u;
+	const uint16_t    width    = 500u;
+	const uint16_t    height   = 200u;
 	const uint8_t     channels = 3u;
 
 	si_tga_t tga = {0};
@@ -70,8 +70,8 @@ static void test_generate(void)
 
 static void test_clone(void)
 {
-	const uint16_t    new_width  = 10u;
-	const uint16_t    new_height = 10u;
+	const uint16_t    new_width  = 50u;
+	const uint16_t    new_height = 20u;
 	const char* const P_PATH   = "./example.tga";
 	const char* const P_OUTPUT = "./example2.tga";
 

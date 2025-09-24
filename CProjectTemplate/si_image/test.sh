@@ -35,5 +35,7 @@ do
 	valgrind -s --log-fd=1 --fair-sched=yes --leak-check=full --show-leak-kinds=all --track-origins=yes "$outputFinal"
 	rm -f "${outputFinal}"
 done
+rm -rf ./example2.tga
+
 echo
 echo 'End of si_data unit tests.'

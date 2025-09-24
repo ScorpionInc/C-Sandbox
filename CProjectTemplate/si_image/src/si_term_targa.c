@@ -176,14 +176,46 @@ bool si_terminfo_draw_tga_centered(si_terminfo_t* const p_terminfo,
 	const si_tga_t* const p_tga)
 {
 	bool result = false;
+	
+	// Fit to terminal (ignores aspect ratio)
+	si_tga_t* p_clone = si_tga_clone(p_tga);
+	if(NULL == p_clone)
+	{
+		goto END;
+	}
+	uint16_t fit_width = p_clone->header.width;
+	uint16_t fit_height = p_clone->header.height;
+	if(p_terminfo->COLUMNS <= p_clone->header.width)
+	{
+		fit_width = p_terminfo->COLUMNS;
+	}
+	if(p_terminfo->ROWS <= p_clone->header.height)
+	{
+		fit_height = p_terminfo->ROWS;
+	}
+	if((p_terminfo->COLUMNS <= p_clone->header.width) ||
+	   (p_terminfo->ROWS <= p_clone->header.height))
+	{
+		const bool resize_result = si_tga_resize(
+			p_clone, fit_width, fit_height
+		);
+		if(true != resize_result)
+		{
+			goto END;
+		}
+	}
+
+	// Center img in terminal
 	const uint16_t x_pos = si_tga_x_centered(
-		p_terminfo->COLUMNS, p_tga->header.width
+		p_terminfo->COLUMNS, p_clone->header.width
 	);
 	const uint16_t y_pos = si_tga_y_centered(
-		p_terminfo->ROWS, p_tga->header.height
+		p_terminfo->ROWS, p_clone->header.height
 	);
+
+	// Draws the terminal image
 	result = si_terminfo_draw_tga_at(
-		p_terminfo, p_tga, x_pos, y_pos
+		p_terminfo, p_clone, x_pos, y_pos
 	);
 END:
 	return result;
