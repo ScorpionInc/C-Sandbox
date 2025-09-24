@@ -91,17 +91,17 @@ bool si_terminfo_fdraw_tga_at(si_terminfo_t* const p_terminfo,
     const char* const p_path, const uint16_t x_pos, const uint16_t y_pos)
 {
 	bool result = false;
-	if((NULL == p_terminfo) || (NULL == p_path))
+	if ((NULL == p_terminfo) || (NULL == p_path))
 	{
 		goto END;
 	}
-	if((p_terminfo->COLUMNS <= x_pos) || (p_terminfo->ROWS <= y_pos))
+	if ((p_terminfo->COLUMNS <= x_pos) || (p_terminfo->ROWS <= y_pos))
 	{
 		goto END;
 	}
 	si_tga_t tga = {0};
 	const bool read_result = si_tga_fread_from(&tga, p_path);
-	if(true != read_result)
+	if (true != read_result)
 	{
 		goto END;
 	}
@@ -109,7 +109,7 @@ bool si_terminfo_fdraw_tga_at(si_terminfo_t* const p_terminfo,
 		p_terminfo, &tga, x_pos, y_pos
 	);
 	si_tga_free(&tga);
-	if(true != draw_result)
+	if (true != draw_result)
 	{
 		goto END;
 	}
@@ -130,14 +130,14 @@ static uint16_t si_tga_x_centered(const uint16_t terminal_width,
 	const uint16_t img_width)
 {
 	uint16_t result = 1u;
-	if(img_width >= terminal_width)
+	if (img_width >= terminal_width)
 	{
 		goto END;
 	}
 	const uint16_t half_term = (terminal_width / 2);
 	const uint16_t half_imag = (img_width / 2);
 	result = (half_term - half_imag) + 1u;
-	if(terminal_width <= result)
+	if (terminal_width <= result)
 	{
 		result = 1u;
 	}
@@ -157,14 +157,14 @@ static uint16_t si_tga_y_centered(const uint16_t terminal_height,
 	const uint16_t img_height)
 {
 	uint16_t result = 1u;
-	if(img_height >= terminal_height)
+	if (img_height >= terminal_height)
 	{
 		goto END;
 	}
 	const uint16_t half_term = (terminal_height / 2);
 	const uint16_t half_imag = (img_height / 2);
 	result = (half_term - half_imag) + 1u;
-	if(terminal_height <= result)
+	if (terminal_height <= result)
 	{
 		result = 1u;
 	}
@@ -193,13 +193,13 @@ bool si_terminfo_fdraw_tga_centered(si_terminfo_t* const p_terminfo,
 	const char* const p_path)
 {
 	bool result = false;
-	if((NULL == p_terminfo) || (NULL == p_path))
+	if ((NULL == p_terminfo) || (NULL == p_path))
 	{
 		goto END;
 	}
 	si_tga_t tga = {0};
 	const bool read_result = si_tga_fread_from(&tga, p_path);
-	if(true != read_result)
+	if (true != read_result)
 	{
 		goto END;
 	}
@@ -207,7 +207,7 @@ bool si_terminfo_fdraw_tga_centered(si_terminfo_t* const p_terminfo,
 		p_terminfo, &tga
 	);
 	si_tga_free(&tga);
-	if(true != draw_result)
+	if (true != draw_result)
 	{
 		goto END;
 	}
