@@ -541,10 +541,10 @@ si_tga_t* si_tga_clone(const si_tga_t* const p_original)
 	p_new->p_data = NULL;
 	p_new->p_img_id = NULL;
 	
-	if(NULL != p_original->p_colormaps)
+	if (NULL != p_original->p_colormaps)
 	{
 		p_new->p_colormaps = calloc(1u, sizeof(si_tga_cmap_t));
-		if(NULL == p_new->p_colormaps)
+		if (NULL == p_new->p_colormaps)
 		{
 			si_tga_destroy(&p_new);
 			goto END;
@@ -555,10 +555,10 @@ si_tga_t* si_tga_clone(const si_tga_t* const p_original)
 	}
 	
 	const size_t data_size = si_tga_header_data_size(&(p_original->header));
-	if(NULL != p_original->p_data)
+	if (NULL != p_original->p_data)
 	{
 		p_new->p_data = calloc(data_size, sizeof(uint8_t));
-		if(NULL == p_new->p_data)
+		if (NULL == p_new->p_data)
 		{
 			si_tga_destroy(&p_new);
 			goto END;
@@ -566,10 +566,10 @@ si_tga_t* si_tga_clone(const si_tga_t* const p_original)
 		memcpy(p_new->p_data, p_original->p_data, data_size);
 	}
 
-	if(NULL != p_original->p_img_id)
+	if (NULL != p_original->p_img_id)
 	{
 		p_new->p_img_id = calloc(p_original->header.id_len, sizeof(uint8_t));
-		if(NULL == p_new->p_img_id)
+		if (NULL == p_new->p_img_id)
 		{
 			si_tga_destroy(&p_new);
 			goto END;
