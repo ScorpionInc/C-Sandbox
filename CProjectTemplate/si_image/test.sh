@@ -29,9 +29,9 @@ do
 	echo "Building unit test: '$test' -> '$outputFinal'."
 	# -pedantic
 	# Manual dependent library paths
-	#gcc -ggdb -Wall -Wextra -Wundef -Wcast-align -Wconversion "$test" "$libPath" "$unitySrc" ../si_data/src/* ../si_core/src/* -I../si_data/include -I../si_core/include -I./include -I./tests_include -I"$unityInclude" -lm -lacl -o "$outputFinal"
+	gcc -ggdb -Wall -Wextra -Wundef -Wcast-align -Wconversion "$test" "$libPath" "$unitySrc" ../si_data/src/* ../si_core/src/* -I../si_data/include -I../si_core/include -I./include -I./tests_include -I"$unityInclude" -lm -lacl -o "$outputFinal"
 	# For some reason not working(?)
-	gcc -ggdb -Wall -Wextra -Wundef -Wcast-align -Wconversion "$test" "$libPath" "$unitySrc" ../si_core/src/* -I../si_core/include -I./include -I./tests_include -I"$unityInclude" -lm -o "$outputFinal"
+	#gcc -ggdb -Wall -Wextra -Wundef -Wcast-align -Wconversion "$test" "$libPath" "$unitySrc" -I./include -I./tests_include -I"$unityInclude" -lm -o "$outputFinal"
 	valgrind -s --log-fd=1 --fair-sched=yes --leak-check=full --show-leak-kinds=all --track-origins=yes "$outputFinal"
 	rm -f "${outputFinal}"
 done

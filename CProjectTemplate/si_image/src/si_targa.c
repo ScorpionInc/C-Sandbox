@@ -642,6 +642,73 @@ END:
 	return p_pixel;
 }
 
+bool si_tga_resize(si_tga_t* const p_tga,
+	const uint16_t width, const uint16_t height)
+{
+	bool result = false;
+	if(NULL == p_tga)
+	{
+		goto END;
+	}
+	const uint8_t channel_count = si_tga_header_channel_count(
+		&(p_tga->header)
+	);
+	if(0u >= channel_count)
+	{
+		goto END;
+	}
+	const uint16_t old_width = p_tga->header.width;
+	const uint16_t old_height = p_tga->header.height;
+	p_tga->header.width = width;
+	p_tga->header.height = height;
+	const size_t new_size = si_tga_header_data_size(&(p_tga->header));
+	p_tga->header.width = old_width;
+	p_tga->header.height = old_height;
+	if(0u >= new_size)
+	{
+		free(p_tga->p_data);
+		p_tga->p_data = NULL;
+		result = true;
+		goto END;
+	}
+	uint8_t* p_buffer = calloc(new_size, sizeof(uint8_t));
+	if(NULL == p_buffer)
+	{
+		goto END;
+	}
+	// Does nearest neighbor apx. scaling
+	for (uint16_t new_y = 0u; new_y < height; new_y++)
+	{
+		for (uint16_t new_x = 0u; new_x < width; new_x++)
+		{
+			// Find nearest neighbor
+			const uint16_t old_x = (
+				(float)new_x * (float)old_width / (float)width
+			);
+			const uint16_t old_y = (
+				(float)new_y * (float)old_height / (float)height
+			);
+			uint8_t* const p_neighbor = si_tga_pixel_at(p_tga, old_x, old_y);
+			if(NULL == p_neighbor)
+			{
+				goto END;
+			}
+			// Find new pixel address & copy pixel value.
+			const size_t new_index = (new_y * width) + new_x;
+			const size_t next_offset = new_index * channel_count;
+			memmove(&(p_buffer[next_offset]), p_neighbor, channel_count);
+		}
+	}
+
+	free(p_tga->p_data);
+	p_tga->p_data = p_buffer;
+	p_tga->header.width = width;
+	p_tga->header.height = height;
+	result = true;
+END:
+	return result;
+}
+
 bool si_tga_fwrite(si_tga_t* const p_tga, FILE* const p_file)
 {
 	bool result = false;

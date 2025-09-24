@@ -70,13 +70,19 @@ static void test_generate(void)
 
 static void test_clone(void)
 {
-	const char* const P_PATH = "./example.tga";
+	const uint16_t    new_width  = 10u;
+	const uint16_t    new_height = 10u;
+	const char* const P_PATH   = "./example.tga";
 	const char* const P_OUTPUT = "./example2.tga";
 
 	si_tga_t tga = {0};
 	const bool read_result = si_tga_fread_from(&tga, P_PATH);
 	TEST_ASSERT_TRUE(read_result);
 	si_tga_header_fprint(stdout, &tga.header);
+
+	const bool resize_result = si_tga_resize(&tga, new_width, new_height);
+	TEST_ASSERT_TRUE(resize_result);
+
 	const bool write_result = si_tga_fwrite_to(&tga, P_OUTPUT);
 	si_tga_free(&tga);
 	TEST_ASSERT_TRUE(write_result);

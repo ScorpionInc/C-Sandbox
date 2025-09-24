@@ -226,6 +226,18 @@ uint8_t* si_tga_pixel_at(const si_tga_t* const p_tga,
 	const uint16_t x_pos, const uint16_t y_pos);
 
 /** Doxygen
+ * @brief Resizes the pixel data of a si_tga_t on the heap.
+ * 
+ * @param p_tga Pointer to the si_tga_t struct to be resized/modifed.
+ * @param width Desired new horizontal size of the tga being pointed at.
+ * @param height Desired new vertical size of the tga being pointer at.
+ * 
+ * @return Returns a stdbool true on success. Returns a false otherwise.
+ */
+bool si_tga_resize(si_tga_t* const p_tga,
+	const uint16_t width, const uint16_t height);
+	
+/** Doxygen
  * @brief Writes a si_tga_t image from memory into a FILE*
  * 
  * @param p_tga Pointer to the si_tga_t struct to read the data from.
