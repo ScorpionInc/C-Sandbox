@@ -24,8 +24,8 @@ bool si_terminfo_draw_tga_at(si_terminfo_t* const p_terminfo,
 		goto END;
 	}
 
-	// Save current cursor position (\e7)
-	si_terminfo_send_ansi(p_terminfo, "\e7");
+	// Save current cursor position (\0337)
+	si_terminfo_send_ansi(p_terminfo, "\0337");
 	si_terminfo_send_ansi(p_terminfo, "\033[s");
 
 	// Draw image data
@@ -46,7 +46,7 @@ bool si_terminfo_draw_tga_at(si_terminfo_t* const p_terminfo,
 				continue;
 			}
 			si_terminfo_send_ansi(
-				p_terminfo, "\e[%hu;%huH", next_y, next_x
+				p_terminfo, "\033[%hu;%huH", next_y, next_x
 			);
 
 			// Get color information.
@@ -70,7 +70,7 @@ bool si_terminfo_draw_tga_at(si_terminfo_t* const p_terminfo,
 			fprintf(p_terminfo->p_file, "%c", ' ');
 
 			// Reset for next color
-			si_terminfo_send_ansi(p_terminfo, "\e[%dm", ANSI_BK_RESET);
+			si_terminfo_send_ansi(p_terminfo, "\033[%dm", ANSI_BK_RESET);
 		} // For xxx in width
 		if (true != was_success)
 		{
@@ -78,9 +78,9 @@ bool si_terminfo_draw_tga_at(si_terminfo_t* const p_terminfo,
 		}
 	}
 
-	// Restore original cursor position (\e8)
+	// Restore original cursor position (\0338)
 	si_terminfo_send_ansi(p_terminfo, "\033[u");
-	si_terminfo_send_ansi(p_terminfo, "\e8");
+	si_terminfo_send_ansi(p_terminfo, "\0338");
 
 	result = true;
 END:
@@ -107,6 +107,104 @@ bool si_terminfo_fdraw_tga_at(si_terminfo_t* const p_terminfo,
 	}
 	const bool draw_result = si_terminfo_draw_tga_at(
 		p_terminfo, &tga, x_pos, y_pos
+	);
+	si_tga_free(&tga);
+	if(true != draw_result)
+	{
+		goto END;
+	}
+	result = true;
+END:
+	return result;
+}
+
+/** Doxygen 
+ * @brief Local function determines the x coordinate to draw a centered tga at.
+ * 
+ * @param terminal_width Number of COLUMNS currently available in the terminal.
+ * @param img_width Pixel width of the image to be drawn.
+ * 
+ * @return Returns x coordinate on success. Returns 1(home) otherwise.
+ */
+static uint16_t si_tga_x_centered(const uint16_t terminal_width,
+	const uint16_t img_width)
+{
+	uint16_t result = 1u;
+	if(img_width >= terminal_width)
+	{
+		goto END;
+	}
+	const uint16_t half_term = (terminal_width / 2);
+	const uint16_t half_imag = (img_width / 2);
+	result = (half_term - half_imag) + 1u;
+	if(terminal_width <= result)
+	{
+		result = 1u;
+	}
+END:
+	return result;
+}
+
+/** Doxygen 
+ * @brief Local function determines the y coordinate to draw a centered tga at.
+ * 
+ * @param terminal_height Number of ROWS currently available in the terminal.
+ * @param img_height Pixel height of the image to be drawn.
+ * 
+ * @return Returns x coordinate on success. Returns 1(home) otherwise.
+ */
+static uint16_t si_tga_y_centered(const uint16_t terminal_height,
+	const uint16_t img_height)
+{
+	uint16_t result = 1u;
+	if(img_height >= terminal_height)
+	{
+		goto END;
+	}
+	const uint16_t half_term = (terminal_height / 2);
+	const uint16_t half_imag = (img_height / 2);
+	result = (half_term - half_imag) + 1u;
+	if(terminal_height <= result)
+	{
+		result = 1u;
+	}
+END:
+	return result;
+}
+
+bool si_terminfo_draw_tga_centered(si_terminfo_t* const p_terminfo,
+	const si_tga_t* const p_tga)
+{
+	bool result = false;
+	const uint16_t x_pos = si_tga_x_centered(
+		p_terminfo->COLUMNS, p_tga->header.width
+	);
+	const uint16_t y_pos = si_tga_y_centered(
+		p_terminfo->ROWS, p_tga->header.height
+	);
+	result = si_terminfo_draw_tga_at(
+		p_terminfo, p_tga, x_pos, y_pos
+	);
+END:
+	return result;
+}
+
+bool si_terminfo_fdraw_tga_centered(si_terminfo_t* const p_terminfo,
+	const char* const p_path)
+{
+	bool result = false;
+	if((NULL == p_terminfo) || (NULL == p_path))
+	{
+		goto END;
+	}
+	si_tga_t tga = {0};
+	const bool read_result = si_tga_fread_from(&tga, p_path);
+	if(true != read_result)
+	{
+		goto END;
+	}
+	const bool draw_result = si_terminfo_draw_tga_centered(
+		p_terminfo, &tga
 	);
 	si_tga_free(&tga);
 	if(true != draw_result)
