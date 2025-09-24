@@ -88,7 +88,7 @@ END:
  * 
  * @return Returns const C string on success. Returns NULL otherwise.
  */
-static const char* const si_logger_select_header(const size_t msg_level)
+static char* const si_logger_select_header(const size_t msg_level)
 {
 	const char* p_result = NULL;
 	switch (msg_level)
@@ -124,7 +124,7 @@ static const char* const si_logger_select_header(const size_t msg_level)
  * 
  * @return Returns a const C string
  */
-static const char* const si_logger_select_color(const size_t msg_level)
+static char* const si_logger_select_color(const size_t msg_level)
 {
 	const char* p_ansi = "";
 	if (SI_LOGGER_ALL == msg_level)

@@ -62,6 +62,8 @@ END:
 
 static void handle_signal(int signal)
 {
+	// NOP to make -Wpedantic happy.
+	(void)signal;
 	if (NULL != p_threadpool)
 	{
 		si_threadpool_destroy(&p_threadpool);

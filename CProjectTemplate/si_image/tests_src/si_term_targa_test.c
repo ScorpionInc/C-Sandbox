@@ -20,8 +20,26 @@ static void test_draw(void)
 	const char* const P_PATH = "./example.tga";
 	si_terminfo_t terminal_info = {0};
 	si_terminfo_init(&terminal_info, stdout);
+	si_tga_t tga = {0};
+	si_tga_init(&tga);
+	const bool read_result = si_tga_fread_from(&tga, P_PATH);
+	TEST_ASSERT_TRUE(read_result);
 
-	const bool drew = si_terminfo_fdraw_tga_at(&terminal_info, P_PATH, 1u, 1u);
+	size_t x_pos = (terminal_info.COLUMNS / 2) - (tga.header.width  / 2);
+	size_t y_pos = (terminal_info.ROWS    / 2) - (tga.header.height / 2);
+	if(terminal_info.COLUMNS <= x_pos)
+	{
+		x_pos = 1u;
+	}
+	if(terminal_info.ROWS <= y_pos)
+	{
+		y_pos = 1u;
+	}
+	const bool drew = si_terminfo_draw_tga_at(
+		&terminal_info, &tga, x_pos + 1u, y_pos + 1u
+	);
+
+	si_tga_free(&tga);
 	TEST_ASSERT_TRUE(drew);
 }
 

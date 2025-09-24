@@ -379,7 +379,9 @@ END:
  */
 static inline char remap_to_upper(const char old_char, const size_t char_index)
 {
-	return toupper(old_char);
+	// NOP to make -Wpedantic happy.
+	(void)char_index;
+	return (char)toupper(old_char);
 }
 inline void strn_to_uppercase(char* const p_input_str, const size_t input_size)
 {
@@ -400,7 +402,9 @@ inline void str_to_uppercase(char* const p_input_str)
  */
 static inline char remap_to_lower(const char old_char, const size_t char_index)
 {
-	return tolower(old_char);
+	// NOP to make -Wpedantic happy.
+	(void)char_index;
+	return (char)tolower(old_char);
 }
 inline void strn_to_lowercase(char* const p_input_str, const size_t input_size)
 {

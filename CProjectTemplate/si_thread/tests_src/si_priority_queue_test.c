@@ -30,19 +30,19 @@ void si_priority_queue_test_init(void)
 
 void si_priority_queue_test_modify(void)
 {
-	const int p_data[] =     { 0,    1, 2,  3, 5, 42, 69, 420 };
-	const int p_priority[] = { 0,    0, 2,  6, 5,  7,  9,  10 };
-	const int p_expected[] = { 420, 69, 42, 3, 5,  2,  0,   1 };
+	const int    p_data[] =     { 0,    1, 2,  3, 5, 42, 69, 420 };
+	const size_t p_priority[] = { 0,    0, 2,  6, 5,  7,  9,  10 };
+	const int    p_expected[] = { 420, 69, 42, 3, 5,  2,  0,   1 };
 	const size_t data_count = sizeof(p_data) / sizeof(int);
 	const size_t priority_count = 16u;
 
 	si_priority_queue_t* p_queue = si_priority_queue_new(priority_count);
 	TEST_ASSERT_NOT_NULL(p_queue);
 
-	printf("p_data:%lu @ %p {\n", data_count, p_data);
+	printf("p_data:%lu @ %p {\n", data_count, (void*)p_data);
 	for (size_t iii = 0u; iii < data_count; iii++)
 	{
-		printf("\t[%lu]: %d @ %p\n", iii, p_data[iii], &p_data[iii]);
+		printf("\t[%lu]: %d @ %p\n", iii, p_data[iii], (void*)&p_data[iii]);
 	}printf("}\n");
 
 	for (size_t iii = 0u; iii < data_count; iii++)
@@ -54,13 +54,13 @@ void si_priority_queue_test_modify(void)
 		TEST_ASSERT_TRUE(enq_result);
 	}
 
-	printf("p_expected:%lu @ %p {\n", data_count, p_expected);
+	printf("p_expected:%lu @ %p {\n", data_count, (void*)p_expected);
 	for (size_t iii = 0u; iii < data_count; iii++)
 	{
 		int* p_next = si_priority_queue_dequeue(p_queue);
 		TEST_ASSERT_NOT_NULL(p_next);
 		TEST_ASSERT_EQUAL_INT(p_expected[iii], *p_next);
-		printf("\t[%lu]: %d @ %p\n", iii, *p_next, p_next);
+		printf("\t[%lu]: %d @ %p\n", iii, *p_next, (void*)p_next);
 	}printf("}\n");
 	TEST_ASSERT_EQUAL_size_t(0u, si_priority_queue_count(p_queue));
 

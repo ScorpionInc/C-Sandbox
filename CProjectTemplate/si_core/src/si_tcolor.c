@@ -251,7 +251,7 @@ ANSI_Color si_true_color_to_basic(const si_true_color_t* const p_color)
 	goto END;
 
 	// Handle greyscale
-LUMA:
+LUMA:;
 	const bool is_intense = si_true_color_is_intense(p_color);
 	if ((ANSI_COLOR_WHITE == result) && (true != is_intense))
 	{

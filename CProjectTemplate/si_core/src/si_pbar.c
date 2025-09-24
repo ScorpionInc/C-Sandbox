@@ -209,7 +209,7 @@ END:
  * @param p_bar Pointer to progress bar information.
  * @param percentage Double value of current percentage between 0 and 1.
  */
-const uint16_t si_pbar_bar_strlen(const si_pbar_t* const p_bar,
+uint16_t si_pbar_bar_strlen(const si_pbar_t* const p_bar,
 	si_terminfo_t* const p_terminfo, const double percentage)
 {
 	uint16_t bar_size = 0u;
@@ -229,7 +229,12 @@ const uint16_t si_pbar_bar_strlen(const si_pbar_t* const p_bar,
 	{
 		bar_size = p_bar->max_bar_width;
 	}
-	const size_t label_size = (si_pbar_label_strlen(p_bar, percentage) + 1u);
+	size_t label_size = 0u;
+	const int label_len = si_pbar_label_strlen(p_bar, percentage);
+	if(0 < label_len)
+	{
+		label_size = (((size_t)label_len) + 1u);
+	}
 	if (bar_size <= label_size)
 	{
 		goto END;

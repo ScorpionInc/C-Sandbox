@@ -420,14 +420,14 @@ void si_map_fprint(FILE* const p_file, const si_map_t* const p_map)
 	}
 	const size_t count = si_map_count(p_map);
 	fprintf(p_file, "{");
-	fprintf(p_file, "key_comp_func: %p; ", p_map->p_cmp_key_f);
-	fprintf(p_file, "value_comp_func: %p; ", p_map->p_cmp_value_f);
-	fprintf(p_file, "key_free_func: %p; ", p_map->p_free_key_f);
-	fprintf(p_file, "value_free_func: %p; ", p_map->p_free_value_f);
-	fprintf(p_file, "settings: %p;", p_map->p_settings);
+	fprintf(p_file, "key_comp_func: %p; ", (void*)p_map->p_cmp_key_f);
+	fprintf(p_file, "value_comp_func: %p; ", (void*)p_map->p_cmp_value_f);
+	fprintf(p_file, "key_free_func: %p; ", (void*)p_map->p_free_key_f);
+	fprintf(p_file, "value_free_func: %p; ", (void*)p_map->p_free_value_f);
+	fprintf(p_file, "settings: %p;", (void*)p_map->p_settings);
 	fprintf(p_file, "}:%lu/%lux%lu@%p",
 		count, p_map->entries.capacity,
-		p_map->entries.element_size, p_map
+		p_map->entries.element_size, (void*)p_map
 	);
 END:
 	return;

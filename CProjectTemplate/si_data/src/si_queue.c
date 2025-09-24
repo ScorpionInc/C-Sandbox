@@ -234,7 +234,10 @@ void si_queue_fprint(FILE* const p_file, const si_queue_t* const p_queue)
 	const size_t count = si_queue_count(p_queue);
 	fprintf(p_file, "{front: %lu;", p_queue->front);
 	fprintf(p_file, " back: %lu;", p_queue->back);
-	fprintf(p_file, "}:%lu/%lu@%p", count, p_queue->array.capacity, p_queue);
+	fprintf(
+		p_file, "}:%lu/%lu@%p",
+		count, p_queue->array.capacity, (void*)p_queue
+	);
 END:
 	return;
 }
