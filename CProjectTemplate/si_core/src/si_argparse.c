@@ -510,6 +510,24 @@ END:
 	return p_result;
 }
 
+bool si_argparse_is_set(si_argparse_t* const p_parse,
+	const char* const p_id)
+{
+	bool result = false;
+	if((NULL == p_parse) || (NULL == p_id))
+	{
+		goto END;
+	}
+	const si_arg_t* const p_arg = si_argparse_at(p_parse, p_id);
+	if(NULL == p_arg)
+	{
+		goto END;
+	}
+	result = si_arg_is_set(p_arg);
+END:
+	return result;
+}
+
 size_t si_argparse_count_optional(const si_argparse_t* const p_parse)
 {
 	size_t result = SIZE_MAX;

@@ -207,6 +207,17 @@ si_arg_t* si_argparse_at(si_argparse_t* const p_parse,
 	const char* const p_id);
 
 /** Doxygen
+ * @brief Determines if an argument is set within an argparse.
+ * 
+ * @param p_parse Pointer to the argparse to read from.
+ * @param p_id C string to compare with argument ids.
+ * 
+ * @return Returns stdbool true is arg exists & is set. Returns false otherwise
+ */
+bool si_argparse_is_set(si_argparse_t* const p_parse,
+	const char* const p_id);
+
+/** Doxygen
  * @brief Walks the arguments on an argparse counting optional arguments.
  * 
  * @param p_parse Pointer to the si_argparse to walk/count.
