@@ -164,7 +164,7 @@ void double_list_test_all(void)
 	UNITY_END();
 }
 
-int main(int argc, char** pp_argv)
+int main(void)
 {
 	printf("Start of si_double_list unit test.\n");
 	double_list_test_all();

@@ -58,8 +58,10 @@ void si_stack_test_all(void)
 	UNITY_END();
 }
 
-int main(int argc, char** pp_argv)
+int main(void)
 {
+	printf("Start of si_stack unit test.\n");
 	si_stack_test_all();
+	printf("End of si_stack unit test.\n");
 	return 0;
 }

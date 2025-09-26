@@ -112,7 +112,7 @@ void si_map_test_all(void)
 	UNITY_END();
 }
 
-int main(int argc, char** pp_argv)
+int main(void)
 {
 	printf("Start of si_map unit test.\n");
 	si_map_test_all();

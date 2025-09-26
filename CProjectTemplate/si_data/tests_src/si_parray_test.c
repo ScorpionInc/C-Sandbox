@@ -46,7 +46,7 @@ void parray_test_modify(void)
 	printf("Initial data conditions:\n");
 	for (size_t iii = 0u; iii < data_size; iii++)
 	{
-		printf("\tdata[%lu]: %d @ %p\n", iii, data[iii], &data[iii]);
+		printf("\tdata[%lu]: %d @ %p\n", iii, data[iii], (void*)&data[iii]);
 	}
 
 	si_realloc_settings_t settings = {0};
@@ -138,7 +138,7 @@ void parray_test_all(void)
 	UNITY_END();
 }
 
-int main(int argc, char** pp_argv)
+int main(void)
 {
 	printf("Start of parray unit test.\n");
 	parray_test_all();

@@ -34,8 +34,11 @@ void si_hashmap_test_print_map(const si_map_t* p_map)
 		{
 			continue;
 		}
-		printf("{%p: %p(0x%lx)->%p}", *pp_pair, (*pp_pair)->p_key,
-			*((size_t*)(*pp_pair)->p_key), (*pp_pair)->p_value);
+		printf(
+			"{%p: %p(0x%lx)->%p}",
+			(void*)*pp_pair, (void*)(*pp_pair)->p_key,
+			*((size_t*)(*pp_pair)->p_key), (void*)(*pp_pair)->p_value
+		);
 		if (count > (counter + 1u))
 		{
 			printf(", ");
@@ -157,8 +160,10 @@ void si_hashmap_test_all(void)
 	UNITY_END();
 }
 
-int main(int argc, char** pp_argv)
+int main(void)
 {
+	printf("Start of si_hashmap unit test.\n");
 	si_hashmap_test_all();
+	printf("End of si_hashmap unit test.\n");
 	return 0;
 }

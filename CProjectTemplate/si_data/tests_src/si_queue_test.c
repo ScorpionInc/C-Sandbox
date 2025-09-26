@@ -46,7 +46,7 @@ void si_queue_test_modify(void)
 		TEST_ASSERT_EQUAL_size_t(iii + 1u, si_queue_enqueue(p_queue, &chr));
 		printf("Enqueue: %c\tNew Count: %lu\tCapacity: %lu\n", chr,
 			si_queue_count(p_queue), p_queue->array.capacity);
-		chr += 1u;
+		chr += 1;
 	}
 	TEST_ASSERT_FALSE(si_queue_is_empty(p_queue));
 	printf("\n");
@@ -73,7 +73,7 @@ void si_queue_test_modify(void)
 
 void si_queue_test_template(void)
 {
-	size_t data_size = 6u;
+	const size_t data_size = 6u;
 	char_queue_t* p_queue = char_queue_new();
 	TEST_ASSERT_NOT_NULL(p_queue);
 	TEST_ASSERT_TRUE(si_queue_is_empty(p_queue));
@@ -81,7 +81,7 @@ void si_queue_test_template(void)
 	printf("Testing enqueue():\n");
 	for (size_t iii = 0; iii < data_size; iii++)
 	{
-		char chr = 'a' + iii;
+		char chr = 'a' + (char)iii;
 		printf("Count: %lu\t", si_queue_count(p_queue));
 		char_queue_enqueue(p_queue, chr);
 		size_t new_count = char_queue_count(p_queue);
