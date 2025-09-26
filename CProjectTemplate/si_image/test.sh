@@ -5,6 +5,7 @@ outputDir="./build/"
 libName="libsi_image.a"
 unitySrc="../tests_src/unity.c"
 unityInclude="../tests_include/"
+dependentsIncludes=("-I../si_core/include" "../si_core/build/libsi_core.a")
 
 echo 'Building from source via CMake & make.'
 cmake -S . -B "$outputDir"
@@ -28,10 +29,9 @@ do
 	outputFinal="${outputDir}${outputFile}"
 	echo "Building unit test: '$test' -> '$outputFinal'."
 	# -pedantic
-	# Manual dependent library paths
-	gcc -ggdb -Wall -Wextra -Wundef -Wcast-align -Wconversion "$test" "$libPath" "$unitySrc" ../si_data/src/* ../si_core/src/* -I../si_data/include -I../si_core/include -I./include -I./tests_include -I"$unityInclude" -lm -lacl -o "$outputFinal"
-	# For some reason not working(?)
-	#gcc -ggdb -Wall -Wextra -Wundef -Wcast-align -Wconversion "$test" "$libPath" "$unitySrc" -I./include -I./tests_include -I"$unityInclude" -lm -o "$outputFinal"
+	echo "${dependentsIncludes[@]}" |\
+		xargs -n1 -I{} bash -O nullglob -c \
+		"gcc -ggdb -Wall -Wextra -pedantic -Wundef -Wcast-align -Wconversion \"$test\" \"$libPath\" \"$unitySrc\" -I./include -I./tests_include -I\"$unityInclude\" {} -lm -o \"$outputFinal\""
 	valgrind -s --log-fd=1 --fair-sched=yes --leak-check=full --show-leak-kinds=all --track-origins=yes "$outputFinal"
 	rm -f "${outputFinal}"
 done

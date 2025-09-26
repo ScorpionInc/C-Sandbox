@@ -5,6 +5,7 @@ outputDir="./build/"
 libName="libsi_cnet.a"
 unitySrc="../tests_src/unity.c"
 unityInclude="../tests_include/"
+dependentsIncludes=("-lpthread")
 
 echo 'Building from source via CMake & make.'
 cmake -S . -B "$outputDir"
@@ -27,7 +28,9 @@ do
 	outputFile="${filename}.out"
 	outputFinal="${outputDir}${outputFile}"
 	echo "Building unit test: '$test' -> '$outputFinal'."
-	gcc -ggdb -Wall -Wextra -pedantic -Wundef -Wcast-align -Wconversion "$test" "$libPath" "$unitySrc" -I./include -I./tests_include -I"$unityInclude" -lm -lpthread -o "$outputFinal"
+	echo "${dependentsIncludes[@]}" |\
+		xargs -n1 -I{} bash -O nullglob -c \
+		"gcc -ggdb -Wall -Wextra -pedantic -Wundef -Wcast-align -Wconversion \"$test\" \"$libPath\" \"$unitySrc\" -I./include -I./tests_include -I\"$unityInclude\" {} -lm -o \"$outputFinal\""
 	valgrind -s --fair-sched=yes --leak-check=full --show-leak-kinds=all --track-origins=yes "$outputFinal"
 	rm -f "${outputFinal}"
 done

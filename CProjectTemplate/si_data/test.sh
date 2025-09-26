@@ -5,8 +5,10 @@ outputDir="./build/"
 libName="libsi_data.a"
 unitySrc="../tests_src/unity.c"
 unityInclude="../tests_include/"
+dependentsIncludes=("../si_cbig/build/libsi_cbig.a" "-I../si_cbig/include")
 
 echo 'Building from source via CMake & make.'
+rm -rf "${outputDir}*"
 cmake -S . -B "$outputDir"
 cd "$outputDir"
 make
@@ -27,7 +29,9 @@ do
 	outputFile="${filename}.out"
 	outputFinal="${outputDir}${outputFile}"
 	echo "Building unit test: '$test' -> '$outputFinal'."
-	gcc -ggdb -Wall -Wextra -pedantic -Wundef -Wcast-align -Wconversion "$test" "$libPath" "$unitySrc" -I./include -I./tests_include -I"$unityInclude" -lm -o "$outputFinal"
+	echo "${dependentsIncludes[@]}" |\
+		xargs -n1 -I{} bash -O nullglob -c \
+		"gcc -ggdb -Wall -Wextra -pedantic -Wundef -Wcast-align -Wconversion \"$test\" \"$libPath\" \"$unitySrc\" -I./include -I./tests_include -I\"$unityInclude\" {} -lm -o \"$outputFinal\""
 	valgrind -s --log-fd=1 --fair-sched=yes --leak-check=full --show-leak-kinds=all --track-origins=yes "$outputFinal"
 	rm -f "${outputFinal}"
 done
