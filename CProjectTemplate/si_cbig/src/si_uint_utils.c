@@ -150,12 +150,12 @@ bool add_uint_le_bytes(uint8_t* const p_a, const uint8_t* const p_b,
 	for (size_t iii = (full_ull_count * ull_size); iii < size; iii++)
 	{
 		carry_flag = false;
-		if (p_a[iii] > (UINT8_MAX - p_b[iii] - last_carry))
+		if (p_a[iii] > (uint8_t)(UINT8_MAX - p_b[iii] - (int)last_carry))
 		{
 			// Overflow
 			carry_flag = true;
 		}
-		p_a[iii] += p_b[iii] + last_carry;
+		p_a[iii] += (uint8_t)(p_b[iii] + (int)last_carry);
 		last_carry = 0u;
 		if (true == carry_flag)
 		{
