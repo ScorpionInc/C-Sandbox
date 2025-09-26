@@ -158,7 +158,7 @@ bool si_arg_matches(const si_arg_t* const p_arg, const char* p_str)
 		// Handle flags (-?)
 		// strnchr() doesn't exist, so using memchr() instead.
 		char* p_match = (char*)memchr(&p_str[1u], p_arg->flag, (str_len - 1u));
-		if(NULL != p_match)
+		if (NULL != p_match)
 		{
 			result = true;
 			goto END;
@@ -167,7 +167,7 @@ bool si_arg_matches(const si_arg_t* const p_arg, const char* p_str)
 	if (('-' == p_str[1u]) && (NULL != p_arg->p_full))
 	{
 		// Handle fulls (--help)
-		if(full_len != (str_len - 2u))
+		if (full_len != (str_len - 2u))
 		{
 			goto END;
 		}
