@@ -17,7 +17,7 @@
  * 
  * @return Returns stdbool true on valid. Returns false otherwise.
  */
-bool port_validator(void* p_port);
+bool port_validator(const void* const p_port);
 
 /** Doxygen
  * @brief Validates path is a directory
@@ -26,6 +26,6 @@ bool port_validator(void* p_port);
  * 
  * @return Returns true when p_path is valid. Returns false otherwise.
  */
-bool dir_validator(void* p_path);
+bool dir_validator(const void* const p_path);
 
 #endif//SI_ARG_VALIDATORS_H

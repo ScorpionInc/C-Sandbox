@@ -9,7 +9,7 @@
  * 
  * @return Returns heap pointer to port number on success. NULL otherwise.
  */
-void* port_parser(const char* p_str)
+void* port_parser(const char* const p_str)
 {
     uint16_t* p_port = NULL;
     if (NULL == p_str)
@@ -47,7 +47,7 @@ END:
     return (void*)p_port;
 }
 
-void* dir_parser(const char* p_str)
+void* dir_parser(const char* const p_str)
 {
     void* p_result = NULL;
     if (NULL == p_str)

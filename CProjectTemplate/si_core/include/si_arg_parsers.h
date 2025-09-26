@@ -18,7 +18,7 @@
  * 
  * @return Returns heap pointer to port number on success. NULL otherwise.
  */
-void* port_parser(const char* p_str);
+void* port_parser(const char* const p_str);
 
 /** Doxygen
  * @brief Attempts to parse a string to a new heap path.
@@ -27,6 +27,6 @@ void* port_parser(const char* p_str);
  * 
  * @return Heap pointer to new path on success. NULL otherwise.
  */
-static void* dir_parser(const char* p_str);
+void* dir_parser(const char* const p_str);
 
 #endif//SI_ARG_PARSERS_H

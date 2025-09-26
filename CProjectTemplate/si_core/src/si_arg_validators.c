@@ -2,7 +2,7 @@
 
 #include "si_arg_validators.h"
 
-bool port_validator(void* p_port)
+bool port_validator(const void* const p_port)
 {
     bool result = false;
     if (NULL == p_port)
@@ -18,7 +18,7 @@ END:
     return result;
 }
 
-bool dir_validator(void* p_path)
+bool dir_validator(const void* const p_path)
 {
     bool result = false;
     // On linux any NULL-terminated string can be a path.
