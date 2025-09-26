@@ -129,11 +129,11 @@ bool si_arg_matches(const si_arg_t* const p_arg, const char* p_str)
 	const size_t str_len  = strnlen(p_str, __INT_MAX__);
 	
 	int cmp = -1;
-	// Direct string compare(s)
+	// Direct full string compare
 	if (NULL != p_arg->p_full)
 	{
 		full_len = strnlen(p_arg->p_full, __INT_MAX__);
-		if(full_len == str_len)
+		if (full_len == str_len)
 		{
 			cmp = strncmp(p_arg->p_full, p_str, full_len);
 		}
@@ -142,6 +142,15 @@ bool si_arg_matches(const si_arg_t* const p_arg, const char* p_str)
 	{
 		result = true;
 		goto END;
+	}
+	// Direct flag compare
+	if (str_len == 1u)
+	{
+		if (p_arg->flag == p_str[0])
+		{
+			result = true;
+			goto END;
+		}
 	}
 
 	// Handles (-/--) formats
@@ -545,7 +554,13 @@ void* si_argparse_value_of_3(si_argparse_t* const p_parse,
 	{
 		goto END;
 	}
-	p_result = si_array_at(p_arg->p_values, value_index);
+	void** const pp_result = si_array_at(p_arg->p_values, value_index);
+	if (NULL == pp_result)
+	{
+		// Out of bounds or array was invalid.
+		goto END;
+	}
+	p_result = *pp_result;
 END:
 	return p_result;
 }
@@ -652,7 +667,7 @@ END:
 }
 
 bool si_argparse_parse(si_argparse_t* const p_parse,
-	const int argc, char** const pp_argv)
+	const int argc, const char** const pp_argv)
 {
 	bool result = false;
 	if ((NULL == p_parse) || (NULL == pp_argv))
@@ -661,6 +676,7 @@ bool si_argparse_parse(si_argparse_t* const p_parse,
 	}
 	if (1 > argc)
 	{
+		// Expects at least one parameter after the program name.
 		goto END;
 	}
 	if (NULL == p_parse->p_program_name)

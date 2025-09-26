@@ -268,7 +268,7 @@ size_t si_argparse_count(const si_argparse_t* const p_parse);
  * @return Returns stdbool true on success. Returns false otherwise.
  */
 bool si_argparse_parse(si_argparse_t* const p_parse,
-	const int argc, char** const pp_argv);
+	const int argc, const char** const pp_argv);
 
 /** Doxygen
  * @brief Prints generated help to file stream from argparse struct.
