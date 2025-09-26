@@ -155,7 +155,7 @@ static void print_string_array(char** const pp_array, const size_t count)
 	printf("{");
 	for (size_t iii = 0u; iii < count; iii++)
 	{
-		printf("%p:'%s'", &(pp_array[iii]), pp_array[iii]);
+		printf("%p:'%s'", (void*)&(pp_array[iii]), pp_array[iii]);
 		if (count - 1u > iii)
 		{
 			printf(", ");
