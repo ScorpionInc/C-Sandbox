@@ -52,7 +52,7 @@ void si_adler_test_all(void)
 	UNITY_END();
 }
 
-int main(int argc, char** pp_argv)
+int main(void)
 {
 	si_adler_test_all();
 	return 0;
