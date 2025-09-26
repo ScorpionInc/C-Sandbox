@@ -24,9 +24,14 @@ else()
 	find_package(Unity REQUIRED)
 endif()
 
+find_library(si_core NAMES si_cbig PATHS ../si_cbig/)
+
+include_directories(../si_cbig/include)
+
 file(GLOB si_data_SRC CONFIGURE_DEPENDS "src/*.c")
 add_library(si_data STATIC ${si_data_SRC})
 target_include_directories(si_data PUBLIC include)
+target_link_libraries(si_data PUBLIC si_cbig)
 
 find_library(MATH_LIBRARY m)
 if(MATH_LIBRARY)

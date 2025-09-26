@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "si_big_uint.h"
+#include "si_uint_utils.h"
 
 #ifndef SI_ADLER_H
 #define SI_ADLER_H
