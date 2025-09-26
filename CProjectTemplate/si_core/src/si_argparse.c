@@ -9,7 +9,7 @@ void si_arg_init(si_arg_t* const p_arg)
 	}
 	p_arg->is_optional = SI_ARGPARSE_DEFAULT_OPTIONAL;
 	p_arg->p_full = NULL;
-	p_arg->p_flag = NULL;
+	p_arg->flag = '\0';
 	p_arg->p_help = NULL;
 	p_arg->minimum_values = 0u;
 	p_arg->maximum_values = 0u;
@@ -40,7 +40,7 @@ bool si_arg_is_valid(const si_arg_t* const p_arg)
 	{
 		goto END;
 	}
-	if ((NULL == p_arg->p_full) && (NULL == p_arg->p_flag))
+	if ((NULL == p_arg->p_full) && ('\0' == p_arg->flag))
 	{
 		goto END;
 	}
@@ -124,39 +124,60 @@ bool si_arg_matches(const si_arg_t* const p_arg, const char* p_str)
 	{
 		goto END;
 	}
-	result = true;
+	// String lengths
+	size_t       full_len = 0u;
+	const size_t str_len  = strnlen(p_str, __INT_MAX__);
+	
 	int cmp = -1;
-	// Direct compares
+	// Direct string compare(s)
 	if (NULL != p_arg->p_full)
 	{
-		cmp = strcmp(p_arg->p_full, p_str);
-	}
-	if (NULL != p_arg->p_flag)
-	{
-		cmp = strcmp(p_arg->p_flag, p_str);
+		full_len = strnlen(p_arg->p_full, __INT_MAX__);
+		if(full_len == str_len)
+		{
+			cmp = strncmp(p_arg->p_full, p_str, full_len);
+		}
 	}
 	if (0 == cmp)
 	{
+		result = true;
 		goto END;
 	}
-	// Handle -'s
-	size_t str_len = strlen(p_str);
-	if (2u <= str_len)
+
+	// Handles (-/--) formats
+	if (2u > str_len)
 	{
-		if (('-' == p_str[0u]) && (NULL != p_arg->p_flag))
+		goto END;
+	}
+	if ('-' != p_str[0u])
+	{
+		goto END;
+	}
+	if (('-' != p_str[1u]) && ('\0' != p_arg->flag))
+	{
+		// Handle flags (-?)
+		// strnchr() doesn't exist, so using memchr() instead.
+		char* p_match = (char*)memchr(&p_str[1u], p_arg->flag, (str_len - 1u));
+		if(NULL != p_match)
 		{
-			cmp = strcmp(p_arg->p_flag, &p_str[1u]);
-		}
-		if (('-' == p_str[1u]) && (NULL != p_arg->p_full))
-		{
-			cmp = strcmp(p_arg->p_full, &p_str[2u]);
-		}
-		if (0 == cmp)
-		{
+			result = true;
 			goto END;
 		}
 	}
-	result = false;
+	if (('-' == p_str[1u]) && (NULL != p_arg->p_full))
+	{
+		// Handle fulls (--help)
+		if(full_len != (str_len - 2u))
+		{
+			goto END;
+		}
+		cmp = strncmp(p_arg->p_full, &p_str[2u], str_len - 2u);
+	}
+	if (0 == cmp)
+	{
+		result = true;
+		goto END;
+	}
 END:
 	return result;
 }
@@ -197,9 +218,9 @@ void si_arg_fprint_id(const si_arg_t* const p_arg, FILE* const p_file)
 		goto END;
 	}
 	// Start of printing
-	if (NULL != p_arg->p_flag)
+	if ('\0' != p_arg->flag)
 	{
-		fprintf(p_file, "-%s", p_arg->p_flag);
+		fprintf(p_file, "-%c", p_arg->flag);
 		if (NULL != p_arg->p_full)
 		{
 			fprintf(p_file, ", ");
@@ -735,7 +756,7 @@ void si_argparse_fprint_help(si_argparse_t* const p_parse, FILE* const p_file)
 				}
 				else
 				{
-					fprintf(p_file, " <%s>", p_arg->p_flag);
+					fprintf(p_file, " <%c>", p_arg->flag);
 				}
 			}
 		}

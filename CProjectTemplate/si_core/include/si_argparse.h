@@ -36,7 +36,7 @@ typedef struct si_arg_t
 {
 	bool is_optional;
 	const char* p_full;
-	const char* p_flag;
+	char flag;
 	const char* p_help;
 	size_t minimum_values;
 	size_t maximum_values;
