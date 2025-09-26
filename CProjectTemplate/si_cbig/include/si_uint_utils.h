@@ -6,10 +6,10 @@
  * Updated: 20250626
 //*/
 
-#include <endian.h>
+#include <endian.h> // BYTE_ORDER, LITTLE_ENDIAN
 #include <limits.h>
-#include <stdbool.h>
-#include <stdint.h>
+#include <stdbool.h> // bool, false, true
+#include <stdint.h> // uint8_t
 #include <stdio.h>
 #include <string.h>
 
