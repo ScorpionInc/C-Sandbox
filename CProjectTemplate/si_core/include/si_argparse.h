@@ -218,6 +218,20 @@ bool si_argparse_is_set(si_argparse_t* const p_parse,
 	const char* const p_id);
 
 /** Doxygen
+ * @brief Determines the address of an argument value with in argparse.
+ * 
+ * @param p_parse Pointer to the argparse to read from.
+ * @param p_id C string to compare with argument ids.
+ * @param value_index Which value to fetch from the argument. Default(0)
+ * 
+ * @return Returns value address on success. Returns NULL otherwise
+ */
+void* si_argparse_value_of_3(si_argparse_t* const p_parse,
+	const char* const p_id, const size_t value_index);
+void* si_argparse_value_of(si_argparse_t* const p_parse,
+	const char* const p_id);
+
+/** Doxygen
  * @brief Walks the arguments on an argparse counting optional arguments.
  * 
  * @param p_parse Pointer to the si_argparse to walk/count.

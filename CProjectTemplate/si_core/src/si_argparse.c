@@ -514,18 +514,46 @@ bool si_argparse_is_set(si_argparse_t* const p_parse,
 	const char* const p_id)
 {
 	bool result = false;
-	if((NULL == p_parse) || (NULL == p_id))
+	if ((NULL == p_parse) || (NULL == p_id))
 	{
 		goto END;
 	}
 	const si_arg_t* const p_arg = si_argparse_at(p_parse, p_id);
-	if(NULL == p_arg)
+	if (NULL == p_arg)
 	{
 		goto END;
 	}
 	result = si_arg_is_set(p_arg);
 END:
 	return result;
+}
+
+void* si_argparse_value_of_3(si_argparse_t* const p_parse,
+	const char* const p_id, const size_t value_index)
+{
+	void* p_result = NULL;
+	if ((NULL == p_parse) || (NULL == p_id))
+	{
+		goto END;
+	}
+	const si_arg_t* const p_arg = si_argparse_at(p_parse, p_id);
+	if (NULL == p_arg)
+	{
+		goto END;
+	}
+	if (NULL == p_arg->p_values)
+	{
+		goto END;
+	}
+	p_result = si_array_at(p_arg->p_values, value_index);
+END:
+	return p_result;
+}
+inline void* si_argparse_value_of(si_argparse_t* const p_parse,
+	const char* const p_id)
+{
+	// Default value of value_index is (0u)
+	return si_argparse_value_of_3(p_parse, p_id, 0u);
 }
 
 size_t si_argparse_count_optional(const si_argparse_t* const p_parse)
