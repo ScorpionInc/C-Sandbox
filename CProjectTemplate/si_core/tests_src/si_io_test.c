@@ -1,4 +1,4 @@
-//si_io_test.c
+// si_io_test.c
 
 #include <stdbool.h> // bool, false, true
 #include <stdio.h> // remove()

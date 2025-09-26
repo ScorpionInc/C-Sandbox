@@ -1,4 +1,4 @@
-//si_terminfo_test.c
+// si_terminfo_test.c
 
 #include <stdio.h> // printf()
 
