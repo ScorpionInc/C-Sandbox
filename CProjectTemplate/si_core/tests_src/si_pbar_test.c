@@ -36,7 +36,7 @@ static void si_pbar_test_main(void)
 
 	si_pbar_terminal_setup(&progress_bar, &terminal_info);
 	double fake_progress = 0.0;
-	const double fake_step = 0.038;
+	const double fake_step = 0.238;
 	while (1.0 >= fake_progress)
 	{
 		fake_progress += fake_step;
