@@ -622,6 +622,7 @@ bool path_is_dir(const char* const p_path, const bool follow_links)
 	}
 	if (0 != stat_result)
 	{
+		perror("path_is_dir() call to stat() failed");
 		goto END;
 	}
 	result = S_ISDIR(path_stat.st_mode);
