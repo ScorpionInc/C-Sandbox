@@ -41,8 +41,8 @@ typedef struct si_arg_t
 	size_t minimum_values;
 	size_t maximum_values;
 	si_array_t* p_values;
-	bool  (*p_validate)(void*);
-	void* (*p_parser)(const char*);
+	bool  (*p_validate)(const void* const);
+	void* (*p_parser)(const char* const);
 	void  (*p_free_value)(void*);
 } si_arg_t;
 
