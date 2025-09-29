@@ -693,7 +693,9 @@ void* fread_alloc_all(FILE* const p_file, size_t* const p_buffer_size)
 	{
 		goto END;
 	}
-	const size_t read_amount = fread_all(p_file, (void*)p_result, *p_buffer_size);
+	const size_t read_amount = fread_all(
+		p_file, (void*)p_result, *p_buffer_size
+	);
 	if(read_amount < *p_buffer_size)
 	{
 		fprintf(
