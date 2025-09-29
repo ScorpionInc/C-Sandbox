@@ -220,7 +220,7 @@ static bool file_clone_data_l(const char* const p_source_path,
 		send_file_result = sendfile(
 			sink_fd, source_fd, &offset, count
 		);
-		if ((0 > send_file_result) || (0 < offset))
+		if ((0 > send_file_result) || (0 > offset))
 		{
 			goto CLEAN;
 		}
