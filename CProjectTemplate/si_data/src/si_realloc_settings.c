@@ -9,12 +9,10 @@ extern "C" {
 
 void si_resize_mode_fprint(FILE* p_file, const si_resize_mode_t resize_mode)
 {
-	// Validate parameter
 	if (NULL == p_file)
 	{
 		goto END;
 	}
-	// Begin
 	switch (resize_mode)
 	{
 		case(NEVER):
@@ -33,7 +31,6 @@ void si_resize_mode_fprint(FILE* p_file, const si_resize_mode_t resize_mode)
 			fprintf(p_file, "%s", "UNKNOWN");
 			break;
 	}
-	// End
 END:
 	return;
 }
@@ -41,19 +38,16 @@ END:
 
 void si_realloc_settings_new(si_realloc_settings_t* p_settings)
 {
-	// Validate parameter
 	if (NULL == p_settings)
 	{
 		goto END;
 	}
-	// Begin
 	p_settings->grow_mode = SI_DEFAULT_RESIZE_MODE;
 	p_settings->grow_value = SI_DEFAULT_RESIZE_VALUE;
 	p_settings->shrink_mode = SI_DEFAULT_RESIZE_MODE;
 	p_settings->shrink_value = SI_DEFAULT_RESIZE_VALUE;
 	p_settings->max_capacity = SIZE_MAX;
 	p_settings->max_size = SIZE_MAX;
-	// End
 END:
 	return;
 }
@@ -124,7 +118,6 @@ size_t si_realloc_settings_next_grow_capacity(
 	{
 		new_capacity = p_settings->max_capacity;
 	}
-	// End
 END:
 	return new_capacity;
 }
@@ -191,7 +184,6 @@ size_t si_realloc_settings_next_shrink_capacity(
 			//goto END;
 			break;
 	}
-	// End
 END:
 	return new_capacity;
 }
@@ -200,12 +192,10 @@ bool si_realloc_settings_grow(
 	const si_realloc_settings_t* p_settings, si_array_t* p_array)
 {
 	bool result = false;
-	// Validate parameter
 	if (NULL == p_array)
 	{
 		goto END;
 	}
-	// Begin
 	const size_t new_capacity = si_realloc_settings_next_grow_capacity(
 		p_settings, p_array->capacity
 	);
@@ -214,7 +204,6 @@ bool si_realloc_settings_grow(
 		goto END;
 	}
 	result = si_array_resize(p_array, new_capacity);
-	// End
 END:
 	return result;
 }
@@ -223,12 +212,10 @@ bool si_realloc_settings_shrink(
 	const si_realloc_settings_t* p_settings, si_array_t* p_array)
 {
 	bool result = false;
-	// Validate parameter
 	if (NULL == p_array)
 	{
 		goto END;
 	}
-	// Begin
 	const size_t new_capacity = si_realloc_settings_next_shrink_capacity(
 		p_settings, p_array->capacity
 	);
@@ -237,7 +224,6 @@ bool si_realloc_settings_shrink(
 		goto END;
 	}
 	result = si_array_resize(p_array, new_capacity);
-	// End
 END:
 	return result;
 }
@@ -246,12 +232,10 @@ END:
 void si_realloc_settings_fprint(FILE* p_file,
 	const si_realloc_settings_t* p_settings)
 {
-	// Validate parameters
 	if ((NULL == p_file) || (NULL == p_settings))
 	{
 		goto END;
 	}
-	// Begin
 	fprintf(p_file, "{Grow : ");
 	si_resize_mode_fprint(p_file, p_settings->grow_mode);
 	fprintf(p_file, "@%f Max Capacity: ", p_settings->grow_value);
@@ -275,7 +259,6 @@ void si_realloc_settings_fprint(FILE* p_file,
 	fprintf(p_file, "; Shrink: ");
 	si_resize_mode_fprint(p_file, p_settings->shrink_mode);
 	fprintf(p_file, "@%f}", p_settings->shrink_value);
-	// End
 END:
 	return;
 }
