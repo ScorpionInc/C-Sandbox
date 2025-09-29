@@ -56,7 +56,7 @@ si_array_t* si_array_new(const size_t element_size);
  * @param p_array Pointer to si_array_t struct to size.
  * @return Returns the allocated size of the buffer in bytes.
  */
-size_t si_array_size(const si_array_t* p_array);
+size_t si_array_size(const si_array_t* const p_array);
 
 /* Doxygen
  * @brief Sets capacity of buffer of items to new_capacity.
@@ -66,7 +66,7 @@ size_t si_array_size(const si_array_t* p_array);
  *
  * @return Returns true on success. False otherwise.
  */
-bool si_array_resize(si_array_t* p_array,
+bool si_array_resize(si_array_t* const p_array,
 	const size_t new_capacity);
 
 /** Doxygen
@@ -77,7 +77,7 @@ bool si_array_resize(si_array_t* p_array,
  *
  * @return Returns bool true if true. Return false otherwise.
  */
-bool si_array_is_pointer_within(const si_array_t* p_array,
+bool si_array_is_pointer_within(const si_array_t* const p_array,
 	const void* p_test);
 
 /** Doxygen
@@ -88,7 +88,7 @@ bool si_array_is_pointer_within(const si_array_t* p_array,
  *
  * @return On good returns offset of pointer in heap. SIZE_MAX on failure/max.
  */
-size_t si_array_find_pointer_offset(const si_array_t* p_array,
+size_t si_array_find_pointer_offset(const si_array_t* const p_array,
 	const void* p_test);
 
 /** Doxygen
@@ -99,7 +99,7 @@ size_t si_array_find_pointer_offset(const si_array_t* p_array,
  *
  * @return Returns bool true if true. Return false otherwise.
  */
-bool si_array_is_pointer_element(const si_array_t* p_array,
+bool si_array_is_pointer_element(const si_array_t* const p_array,
 	const void* p_test);
 
 /** Doxygen
@@ -110,7 +110,7 @@ bool si_array_is_pointer_element(const si_array_t* p_array,
  *
  * @return On good returns index of element in heap. SIZE_MAX on failure/max.
  */
-size_t si_array_find_pointer_index(const si_array_t* p_array,
+size_t si_array_find_pointer_index(const si_array_t* const p_array,
 	const void* p_test);
 
 /** Doxygen
@@ -121,7 +121,7 @@ size_t si_array_find_pointer_index(const si_array_t* p_array,
  *
  * @return Success returns pointer into heap memory of element_size. Else NULL.
  */
-void* si_array_at(const si_array_t* p_array,
+void* si_array_at(const si_array_t* const p_array,
 	const size_t index);
 
 /** Doxygen
@@ -131,7 +131,7 @@ void* si_array_at(const si_array_t* p_array,
  *
  * @return Returns pointer into heap memory of element size on success. Or NUll
  */
-void* si_array_first(const si_array_t* p_array);
+void* si_array_first(const si_array_t* const p_array);
 
 /** Doxygen
  * @brief Gets and returns last elements address of allocated memory.
@@ -140,7 +140,7 @@ void* si_array_first(const si_array_t* p_array);
  *
  * @return Returns pointer into heap memory of element size on success. Or NUll
  */
-void* si_array_last(const si_array_t* p_array);
+void* si_array_last(const si_array_t* const p_array);
 
 /** Doxygen
  * @brief Assigns aligned bytes inside allocated buffer to p_item bytes @ index
@@ -149,17 +149,17 @@ void* si_array_last(const si_array_t* p_array);
  * @param index Offset in blocks of element_size into buffer to start setting.
  * @param p_item Where to read the bytes from that will be used in buffer.
  */
-void si_array_set(si_array_t* p_array,
+void si_array_set(si_array_t* const p_array,
 	const size_t index, const void* p_item);
 
 /** Doxygen
- * @brief Assigns aligned bytes inside allocated buffer to p_item bytes @ index
+ * @brief Assigns p_item bytes from aligned bytes in allocated buffer @ index
  *
  * @param p_array Pointer to si_array_t struct whose buffer is to be changed.
  * @param index Offset in blocks of element_size into buffer to start setting.
  * @param p_item Where to read the bytes from that will be used in buffer.
  */
-void si_array_get(const si_array_t* p_array,
+void si_array_get(const si_array_t* const p_array,
 	const size_t index, void* p_item);
 
 /**Doxygen

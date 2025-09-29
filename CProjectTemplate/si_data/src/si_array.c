@@ -47,7 +47,7 @@ inline si_array_t* si_array_new(const size_t element_size)
 	return si_array_new_2(element_size, 0u);
 }
 
-size_t si_array_size(const si_array_t* p_array)
+size_t si_array_size(const si_array_t* const p_array)
 {
 	size_t result = 0u;
 	if (NULL == p_array)
@@ -70,7 +70,7 @@ END:
 	return result;
 }
 
-bool si_array_resize(si_array_t* p_array,
+bool si_array_resize(si_array_t* const p_array,
     const size_t new_capacity)
 {
 	bool result = false;
@@ -101,12 +101,12 @@ bool si_array_resize(si_array_t* p_array,
 		result = true;
 		goto END;
 	}
-	void* tmp = realloc(p_array->p_data, new_size);
-	if (NULL == tmp)
+	void* const p_tmp = realloc(p_array->p_data, new_size);
+	if (NULL == p_tmp)
 	{
 		goto END;
 	}
-	p_array->p_data = tmp;
+	p_array->p_data = p_tmp;
 	p_array->capacity = new_capacity;
 	// If grown, initialize new memory to 0x00(NULL).
 	if (new_size > old_size)
@@ -119,7 +119,7 @@ END:
 	return result;
 }
 
-bool si_array_is_pointer_within(const si_array_t* p_array,
+bool si_array_is_pointer_within(const si_array_t* const p_array,
 	const void* p_test)
 {
 	bool result = false;
@@ -142,7 +142,7 @@ END:
 	return result;
 }
 
-size_t si_array_find_pointer_offset(const si_array_t* p_array,
+size_t si_array_find_pointer_offset(const si_array_t* const p_array,
 	const void* p_test)
 {
 	size_t offset = SIZE_MAX;
@@ -159,7 +159,7 @@ END:
 	return offset;
 }
 
-bool si_array_is_pointer_element(const si_array_t* p_array,
+bool si_array_is_pointer_element(const si_array_t* const p_array,
 	const void* p_test)
 {
 	bool result = false;
@@ -179,7 +179,7 @@ END:
 	return result;
 }
 
-size_t si_array_find_pointer_index(const si_array_t* p_array,
+size_t si_array_find_pointer_index(const si_array_t* const p_array,
 	const void* p_test)
 {
 	size_t index = SIZE_MAX;
@@ -196,7 +196,7 @@ END:
 	return index;
 }
 
-void* si_array_at(const si_array_t* p_array,
+void* si_array_at(const si_array_t* const p_array,
 	const size_t index)
 {
 	void* p_item = NULL;
@@ -213,16 +213,16 @@ void* si_array_at(const si_array_t* p_array,
 END:
 	return p_item;
 }
-inline void* si_array_first(const si_array_t* p_array)
+inline void* si_array_first(const si_array_t* const p_array)
 {
 	return si_array_at(p_array, 0u);
 }
-inline void* si_array_last(const si_array_t* p_array)
+inline void* si_array_last(const si_array_t* const p_array)
 {
 	return si_array_at(p_array, p_array->capacity - 1u);
 }
 
-void si_array_set(si_array_t* p_array,
+void si_array_set(si_array_t* const p_array,
 	const size_t index, const void* p_item)
 {
 	if ((NULL == p_array) || (NULL == p_item))
@@ -245,7 +245,7 @@ END:
 	return;
 }
 
-void si_array_get(const si_array_t* p_array,
+void si_array_get(const si_array_t* const p_array,
 	const size_t index, void* p_item)
 {
 	if ((NULL == p_array) || (NULL == p_item))
