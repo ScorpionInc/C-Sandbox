@@ -77,28 +77,35 @@ size_t si_realloc_settings_next_grow_capacity(
 				new_capacity = SIZE_MAX;
 				break;
 			}
-			new_capacity += p_settings->grow_value;
+			// Grow value is intentionally truncated.
+			new_capacity += (size_t)p_settings->grow_value;
 			break;
 		case SCALAR:
+		{
+			const double scaled = (
+				(double)new_capacity * (double)p_settings->grow_value
+			);
 			// Prevent Overflows
 			if (0.0f != p_settings->grow_value)
 			{
 				// Don't divide by zero.
-				if ((new_capacity * p_settings->grow_value) /
-						p_settings->grow_value != new_capacity )
+				if ((scaled / (double)p_settings->grow_value) !=
+				    (double)new_capacity)
 				{
 					// Overflow detected
 					new_capacity = SIZE_MAX;
 					break;
 				}
 			}
-			new_capacity *= p_settings->grow_value;
+			// Truncation here is intended behavior
+			new_capacity *= (size_t)scaled;
 			break;
+		}
 		case EXPONENTIAL:
 		{
 			// Prevent Overflows
-			size_t calculated_result = pow(
-				new_capacity, p_settings->grow_value
+			size_t calculated_result = (size_t)pow(
+				(double)new_capacity, p_settings->grow_value
 			);
 			if (calculated_result < new_capacity)
 			{
@@ -144,23 +151,30 @@ size_t si_realloc_settings_next_shrink_capacity(
 				new_capacity = 0u;
 				break;
 			}
-			new_capacity -= p_settings->shrink_value;
+			// Shrink value is intentionally truncated.
+			new_capacity -= (size_t)p_settings->shrink_value;
 			break;
 		case SCALAR:
+		{
+			const double scaled = (
+				(double)new_capacity / (double)p_settings->shrink_value
+			);
 			// Prevent Underflow
 			if (0.0f != p_settings->shrink_value)
 			{
 				// Don't divide by zero.
-				if ((new_capacity / p_settings->shrink_value) *
-						p_settings->shrink_value != new_capacity)
+				if (scaled * (double)p_settings->shrink_value !=
+				   (double)new_capacity)
 				{
 					// Underflow detected
 					new_capacity = 0u;
 					break;
 				}
 			}
-			new_capacity /= p_settings->shrink_value;
+			// Truncation here is intended behavior
+			new_capacity = (size_t)scaled;
 			break;
+		}
 		case EXPONENTIAL:
 		{
 			// Prevent Underflow
@@ -168,8 +182,10 @@ size_t si_realloc_settings_next_shrink_capacity(
 			if (0.0f != p_settings->shrink_value)
 			{
 				// Don't divide by zero.
-				calculated_result = pow(new_capacity,
-					1.0f / p_settings->shrink_value);
+				calculated_result = (size_t)pow(
+					(double)new_capacity,
+					1.0f / p_settings->shrink_value
+				);
 				if (calculated_result > new_capacity)
 				{
 					// Wrap-around detected Underflow
