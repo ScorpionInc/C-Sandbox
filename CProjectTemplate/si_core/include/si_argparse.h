@@ -6,6 +6,7 @@
  * Updated: 20250811
 //*/
 
+#include <limits.h> // INT_MAX
 #include <stdbool.h>// true, false
 #include <stddef.h> // NULL
 #include <stdio.h> // fprintf(), FILE

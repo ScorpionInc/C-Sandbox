@@ -722,7 +722,8 @@ bool si_argparse_parse(si_argparse_t* const p_parse,
 		}
 		for (size_t jjj = 0u; jjj < p_arg->maximum_values; jjj++)
 		{
-			if (argc <= iii + jjj + offset)
+			const size_t argv_index = (size_t)iii + jjj + offset;
+			if ((size_t)argc <= argv_index)
 			{
 				if (jjj < p_arg->minimum_values)
 				{
@@ -735,7 +736,7 @@ bool si_argparse_parse(si_argparse_t* const p_parse,
 				}
 				break;
 			}
-			p_next = pp_argv[iii + jjj + offset];
+			p_next = pp_argv[argv_index];
 			void* p_parsed_value = NULL;
 			if (NULL != p_arg->p_parser)
 			{
@@ -765,10 +766,13 @@ bool si_argparse_parse(si_argparse_t* const p_parse,
 				fprintf(stderr, "' values.\n");
 			}
 		}
-		if (NULL != p_arg->p_values)
+		int parameter_change = 0;
+		if ((NULL != p_arg->p_values) &&
+		    (INT_MAX >= p_arg->p_values->capacity))
 		{
-			iii += p_arg->p_values->capacity - (!offset);
+			parameter_change = (int)p_arg->p_values->capacity - (!offset);
 		}
+		iii += parameter_change;
 	}
 	result = (required_counter == si_argparse_count_required(p_parse));
 END:
