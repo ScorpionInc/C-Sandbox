@@ -353,8 +353,15 @@ static bool for_each_file_l(const char* const p_path,
 	p_dir_entry = readdir(p_dir);
 	while (NULL != p_dir_entry)
 	{
-		bool is_dot_dir = (0 == strcmp(".", p_dir_entry->d_name));
-		is_dot_dir |= (0 == strcmp("..", p_dir_entry->d_name));
+		const size_t name_len = strnlen(p_dir_entry->d_name, INT64_MAX);
+		if(INT64_MAX <= name_len)
+		{
+			// File name length is way too large.
+			p_dir_entry = readdir(p_dir);
+			continue;
+		}
+		bool is_dot_dir = (0 == strncmp(".", p_dir_entry->d_name, name_len));
+		is_dot_dir |= (0 == strncmp("..", p_dir_entry->d_name, name_len));
 		if (true == is_dot_dir)
 		{
 			// Skip dot dirs
@@ -490,8 +497,15 @@ static bool for_each_file_w(const char* const p_path,
 	int find_next_result = 0;
 	do
 	{
-		bool is_dot_dir = (0 == strcmp(".", find_data.cFileName));
-		is_dot_dir |= (0 == strcmp("..", find_data.cFileName));
+		const size_t name_len = strnlen(find_data.cFileName, INT64_MAX);
+		if(INT_MAX <= name_len)
+		{
+			// File name length is way too large.
+			find_next_result = FindNextFile(file_handle, &find_data);
+			continue;
+		}
+		bool is_dot_dir = (0 == strncmp(".", find_data.cFileName, name_len));
+		is_dot_dir |= (0 == strncmp("..", find_data.cFileName, name_len));
 		if (true == is_dot_dir)
 		{
 			// Skip dot dirs
