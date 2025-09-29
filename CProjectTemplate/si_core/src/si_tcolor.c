@@ -14,7 +14,7 @@ int si_tcolor_get_ansi_color_code_3(const ANSI_Color color,
 	{
 		result += ANSI_INTENSE;
 	}
-	result += color;
+	result += (int)color;
 END:
 	return result;
 }

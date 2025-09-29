@@ -228,6 +228,18 @@ END:
 	return;
 }
 
+/** Doxygen
+ * @brief Local adapter function to use isprint with str_countf()
+ * 
+ * @param chr Character value to pass as an int to isprint().
+ * 
+ * @return Returns the int result of isprint().
+ */
+static inline int is_print(const char chr)
+{
+	return isprint((int)chr);
+}
+
 int si_terminfo_printf_centered(si_terminfo_t* const p_terminfo,
 	const char* const p_format, ...)
 {
@@ -253,7 +265,7 @@ int si_terminfo_printf_centered(si_terminfo_t* const p_terminfo,
 	{
 		goto ERROR;
 	}
-	const size_t output_len = str_countf(p_str, (should_count_char_f)isprint);
+	const size_t output_len = str_countf(p_str, is_print);
 	if ((SIZE_MAX <= output_len) || (0u >= output_len) ||
 	    (p_terminfo->COLUMNS < output_len))
 	{
