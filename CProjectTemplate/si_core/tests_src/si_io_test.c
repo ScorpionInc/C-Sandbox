@@ -41,7 +41,7 @@ static bool handle_file(const char* const p_fullpath, struct dirent* p_entry)
 	{
 		goto END;
 	}
-	printf("%s\n", p_fullpath);
+	printf("Filepath: '%s'\n", p_fullpath);
 	do_next = true;
 END:
 	return do_next;
