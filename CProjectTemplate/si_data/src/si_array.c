@@ -135,7 +135,8 @@ bool si_array_is_pointer_within(const si_array_t* p_array,
 	if (true == result)
 	{
 		const size_t size = si_array_size(p_array);
-		result = (p_test < (p_array->p_data + size));
+		const void* p_end = (void*)(((uint8_t*)p_array->p_data) + size);
+		result = (p_test < p_end);
 	}
 END:
 	return result;
@@ -152,7 +153,8 @@ size_t si_array_find_pointer_offset(const si_array_t* p_array,
 		goto END;
 	}
 	const size_t size = si_array_size(p_array);
-	offset = (p_array->p_data + size) - p_test;
+	const void* p_end = (void*)(((uint8_t*)p_array->p_data) + size);
+	offset = (size_t)((uint8_t*)p_end - (uint8_t*)p_test);
 END:
 	return offset;
 }
@@ -206,7 +208,8 @@ void* si_array_at(const si_array_t* p_array,
 	{
 		goto END;
 	}
-	p_item = (p_array->p_data + (p_array->element_size * index));
+	const uint8_t* p_start = ((uint8_t*)p_array->p_data);
+	p_item = (void*)(p_start + (p_array->element_size * index));
 END:
 	return p_item;
 }
@@ -233,8 +236,11 @@ void si_array_set(si_array_t* p_array,
 	{
 		goto END;
 	}
-	memcpy(p_array->p_data + offset, p_item,
-		p_array->element_size);
+	uint8_t* const p_destination = ((uint8_t*)p_array->p_data) + offset;
+	memcpy(
+		p_destination, p_item,
+		p_array->element_size
+	);
 END:
 	return;
 }
@@ -253,8 +259,11 @@ void si_array_get(const si_array_t* p_array,
 	{
 		goto END;
 	}
-	memcpy(p_item, p_array->p_data + offset,
-		p_array->element_size);
+	uint8_t* const p_source = ((uint8_t*)p_array->p_data) + offset;
+	memcpy(
+		p_item, p_source,
+		p_array->element_size
+	);
 END:
 	return;
 }
