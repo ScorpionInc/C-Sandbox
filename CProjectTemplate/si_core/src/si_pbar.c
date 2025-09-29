@@ -229,8 +229,9 @@ uint16_t si_pbar_bar_strlen(const si_pbar_t* const p_bar,
 	{
 		bar_size = p_bar->max_bar_width;
 	}
+
 	size_t label_size = 0u;
-	const int label_len = si_pbar_label_strlen(p_bar, percentage);
+	const int label_len = si_pbar_label_strlen(p_bar, clamped_percentage);
 	if(0 < label_len)
 	{
 		label_size = (((size_t)label_len) + 1u);
@@ -239,16 +240,29 @@ uint16_t si_pbar_bar_strlen(const si_pbar_t* const p_bar,
 	{
 		goto END;
 	}
-	bar_size -= label_size;
+	bar_size -= (uint16_t)label_size;
+
 	if (NULL != p_bar->p_prefix)
 	{
 		const size_t prefix_len = strnlen(p_bar->p_prefix, INT_MAX);
-		bar_size -= prefix_len;
+		// Prevent Underflows
+		if(prefix_len >= bar_size)
+		{
+			bar_size = 0u;
+			goto END;
+		}
+		bar_size -= (uint16_t)prefix_len;
 	}
 	if (NULL != p_bar->p_suffix)
 	{
 		const size_t suffix_len = strnlen(p_bar->p_suffix, INT_MAX);
-		bar_size -= suffix_len;
+		// Prevent Underflows
+		if(suffix_len >= bar_size)
+		{
+			bar_size = 0u;
+			goto END;
+		}
+		bar_size -= (uint16_t)suffix_len;
 	}
 END:
 	return bar_size;
@@ -279,11 +293,11 @@ static void si_pbar_fprint_bar(const si_pbar_t* const p_bar,
 	uint16_t inner_size = bar_size;
 	if ('\0' != p_bar->left_bar_char)
 	{
-		inner_size -= 1u;
+		inner_size--;
 	}
 	if ('\0' != p_bar->right_bar_char)
 	{
-		inner_size -= 1u;
+		inner_size--;
 	}
 
 	si_true_color_t next_color = {0};
