@@ -602,6 +602,96 @@ END:
 
 #endif // End of OS Specific function implimentations
 
+
+size_t fwrite_all(FILE* const p_file,
+	const void* const p_data, const size_t data_size)
+{
+	size_t amount_written = 0u;
+	if ((NULL == p_file) || (NULL == p_data) || (0u >= data_size))
+	{
+		goto END;
+	}
+	while (amount_written < data_size)
+	{
+		const uint8_t* const p_next_start = &(
+			((uint8_t*)p_data)[amount_written]
+		);
+		const size_t next_result = fwrite(
+			p_next_start, sizeof(uint8_t),
+			(data_size - amount_written), p_file
+		);
+		const bool file_error = ferror(p_file);
+		if ((0u >= next_result) || (true == file_error))
+		{
+			perror("fwrite_all");
+			goto END;
+		}
+		amount_written += next_result;
+	}
+	fflush(p_file);
+END:
+	return amount_written;
+}
+
+size_t fread_all(FILE* const p_file,
+	const void* const p_buffer, const size_t buffer_size)
+{
+	size_t bytes_read = 0u;
+	if ((NULL == p_file) || (NULL == p_buffer) || (0u >= buffer_size))
+	{
+		goto END;
+	}
+	while (bytes_read < buffer_size)
+	{
+		const uint8_t* const p_next_start = &(
+			((uint8_t*)p_buffer)[bytes_read]
+		);
+		const size_t next_read = fread(
+			p_next_start, sizeof(uint8_t),
+			(buffer_size - bytes_read), p_file
+		);
+		const bool file_error = ferror(p_file);
+		if ((0u >= next_read) || (true == file_error))
+		{
+			perror("fread_all");
+			goto END;
+		}
+		bytes_read += next_read;
+	}
+END:
+	return bytes_read;
+}
+
+void* fread_alloc_all(FILE* const p_file, size_t* const p_buffer_size)
+{
+	uint8_t* p_result = NULL;
+	if ((NULL == p_file) || (NULL == p_buffer_size))
+	{
+		goto END;
+	}
+	if (0u >= *p_buffer_size)
+	{
+		goto END;
+	}
+	p_result = calloc(*p_buffer_size, sizeof(uint8_t));
+	if (NULL == p_result)
+	{
+		goto END;
+	}
+	const size_t read_amount = fread_all(p_file, (void*)p_result, *p_buffer_size);
+	if(read_amount < *p_buffer_size)
+	{
+		fprintf(
+			stderr,
+			"fread_alloc_all() Failed to read all %lu bytes.\n",
+			*p_buffer_size
+		);
+	}
+	*p_buffer_size = read_amount;
+END:
+	return (void*)p_result;
+}
+
 bool path_is_dir(const char* const p_path, const bool follow_links)
 {
 	bool result = false;

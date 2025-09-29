@@ -105,6 +105,42 @@ void dirent_fprint(FILE* const p_file, const struct dirent* const p_entry);
 
 
 /** Doxygen
+ * @brief Handles partial writes blocking until all data is written or error.
+ * 
+ * @param p_file Pointer to FILE to be written to.
+ * @param p_data Pointer to the data to be written/read from.
+ * @param data_size size_t count of bytes to be written from p_data.
+ * 
+ * @return Returns the number of bytes written. Error if less than data_size.
+ */
+size_t fwrite_all(FILE* const p_file,
+	const void* const p_data, const size_t data_size);
+
+/** Doxygen
+ * @brief Handles partial reads by blocking until amount is read or error.
+ * 
+ * @param p_file Pointer to the FILE to read from.
+ * @param p_buffer Pointer to the buffer to write the read values into.
+ * @param buffer_size Number of bytes to be read from the file into the buffer.
+ * 
+ * @return Returns the number of bytes read. Error if less than buffer_size.
+ */
+size_t fread_all(FILE* const p_file,
+	const void* const p_buffer, const size_t buffer_size);
+
+/** Doxygen
+ * @brief Allocates a heap buffer of size and fills values from FILE pointer.
+ * 
+ * @param p_file Pointer to FILE to read from.
+ * @param buffer_size Initially stores the amount to read from the FILE into
+ *                    the buffer. Afterwords, stores the results of bytes read.
+ * 
+ * @return Returns heap buffer pointer on success or on a partial read. Returns
+ *         a NULL pointer value otherwise.
+ */
+void* fread_alloc_all(FILE* const p_file, size_t* const p_buffer_size);
+
+/** Doxygen
  * @brief Determines if file type of file object at file path is a directory.
  * 
  * @param p_path C string of file path of file object to be checked.
