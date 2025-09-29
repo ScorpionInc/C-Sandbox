@@ -9,7 +9,12 @@ size_t si_cpu_core_count()
 	GetSystemInfo(&sys_info);
 	count = sys_info.dwNumberOfProcessors;
 #elif defined(__APPLE__) || defined(__linux__) || defined(__unix__)
-	count = sysconf(_SC_NPROCESSORS_ONLN);
+	const long sysconf_result = sysconf(_SC_NPROCESSORS_ONLN);
+	if(0L >= sysconf_result)
+	{
+		goto END;
+	}
+	count = (size_t)sysconf_result;
 #else
 	// Assumes this is a single-core processor.
 #endif // OS Specific implimentation(s)
@@ -474,6 +479,10 @@ END:
 void* si_threadpool_await_results(si_threadpool_t* const p_pool,
 	const size_t task_id)
 {
+	if(NULL == p_pool)
+	{
+		goto END;
+	}
 	void* p_results = NULL;
 	while (NULL == p_results)
 	{
@@ -576,7 +585,7 @@ inline void si_threadpool_start(si_threadpool_t* const p_pool)
 {
 	// Default value of thread_count is si_cpu_core_count()(Machine/OS dependent).
 	const size_t core_count = si_cpu_core_count();
-	return si_threadpool_start_2(p_pool, core_count);
+	si_threadpool_start_2(p_pool, core_count);
 }
 
 void si_threadpool_stop_2(si_threadpool_t* const p_pool,

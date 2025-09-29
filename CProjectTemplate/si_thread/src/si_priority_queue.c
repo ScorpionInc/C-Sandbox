@@ -324,7 +324,7 @@ bool si_priority_queue_enqueue(si_priority_queue_t* const p_pqueue,
 	const size_t new_count = si_queue_enqueue(p_queue, &p_data);
 
 	result = (new_count > queue_count);
-UNLOCK:
+UNLOCK:;
 	int unlock_result = -1;
 	while (0 != unlock_result)
 	{
@@ -373,7 +373,7 @@ static void* si_priority_queue_dequeue_at(si_priority_queue_t* const p_pqueue,
 	}
 	si_queue_dequeue(p_queue, &p_result);
 
-UNLOCK:
+UNLOCK:;
 	int unlock_result = -1;
 	while (0 != unlock_result)
 	{
@@ -395,7 +395,7 @@ void* si_priority_queue_dequeue(si_priority_queue_t* const p_pqueue)
 	{
 		goto END;
 	}
-	for (size_t iii = (priority_count - 1u); 0u <= iii; iii--)
+	for (size_t iii = (priority_count - 1u);; iii--)
 	{
 		p_result = si_priority_queue_dequeue_at(p_pqueue, iii);
 		if (NULL == p_result)
