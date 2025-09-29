@@ -410,6 +410,24 @@ END:
 	return;
 }
 
+void si_array_destroy(si_array_t** const pp_array)
+{
+	if (NULL == pp_array)
+	{
+		goto END;
+	}
+	if(NULL == *pp_array)
+	{
+		// Already Freed.
+		goto END;
+	}
+	si_array_free(*pp_array);
+	free(*pp_array);
+	*pp_array = NULL;
+END:
+	return;
+}
+
 #ifdef __cplusplus
 }
 #endif //__cplusplus

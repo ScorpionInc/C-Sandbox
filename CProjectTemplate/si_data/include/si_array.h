@@ -194,11 +194,18 @@ int si_array_cmp(const si_array_t* const p_array_a,
 void fprint_si_array(FILE* const p_file, const si_array_t* const p_array);
 
 /** Doxygen
- * @brief Frees buffer if allocated.
+ * @brief Frees buffer inside an existing si_array_t if allocated.
  *
  * @param p_array Pointer to si_array_t struct that's to have it's data freed
  */
 void si_array_free(si_array_t* const p_array);
+
+/** Doxygen
+ * @brief Frees heap allocated si_array_t struct and it's data contents.
+ *
+ * @param pp_array Pointer to heap si_array_t struct pointer that's to be freed
+ */
+void si_array_destroy(si_array_t** const pp_array);
 
 #ifdef __cplusplus
 }
