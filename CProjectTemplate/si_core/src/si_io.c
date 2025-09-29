@@ -3,7 +3,7 @@
 
 #ifdef __linux__
 
-bool acl_is_basic(const acl_t const p_acl)
+bool acl_is_basic(const acl_t p_acl)
 {
 	bool result = false;
 	if (NULL == p_acl)
@@ -206,7 +206,7 @@ static bool file_clone_data_l(const char* const p_source_path,
 	int sink_fd = open(
 		p_sink_path, sink_flags, source_stat.st_mode
 	);
-	if (0 > sink_fd)
+	if ((0 > sink_fd) || (0 > source_stat.st_size))
 	{
 		goto CLEAN;
 	}
@@ -216,10 +216,11 @@ static bool file_clone_data_l(const char* const p_source_path,
 	ssize_t send_file_result = 1;
 	while (0 < send_file_result)
 	{
+		const size_t count = ((size_t)source_stat.st_size - (size_t)offset);
 		send_file_result = sendfile(
-			sink_fd, source_fd, &offset, source_stat.st_size - offset
+			sink_fd, source_fd, &offset, count
 		);
-		if (0 > send_file_result)
+		if ((0 > send_file_result) || (0 < offset))
 		{
 			goto CLEAN;
 		}
@@ -643,7 +644,7 @@ size_t fread_all(FILE* const p_file,
 	}
 	while (bytes_read < buffer_size)
 	{
-		const uint8_t* const p_next_start = &(
+		uint8_t* const p_next_start = &(
 			((uint8_t*)p_buffer)[bytes_read]
 		);
 		const size_t next_read = fread(
@@ -758,9 +759,9 @@ size_t path_file_size_3(const char* const p_path, const bool follow_links,
 		}
 		// TODO Impliment directory recursion.
 	}
-	else
+	else if(0 <= file_stat.st_size)
 	{
-		result = file_stat.st_size;
+		result = (size_t)file_stat.st_size;
 	}
 #else
 	//!TODO Adds support for other OSs(?)
