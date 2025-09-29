@@ -1,8 +1,19 @@
 // si_strings_test.c
 
-#include <stdio.h> //printf()
+// Needed for the 'n' version of strndup()
+#ifdef __STDC_ALLOC_LIB__
+#define __STDC_WANT_LIB_EXT2__ 1
+#endif//__STDC_ALLOC_LIB__
+
+#ifdef __linux__
+#if !defined(_POSIX_C_SOURCE)
+#define _POSIX_C_SOURCE 200809L
+#endif//_POSIX_C_SOURCE
+#endif
+
+#include <stdio.h>  // printf()
 #include <stdlib.h> // calloc(), free()
-#include <string.h> // strcmp(), strncmp()
+#include <string.h> // strcmp(), strncmp(), strndup()
 
 #include "unity.h"
 #include "si_strings.h"
@@ -34,10 +45,84 @@ static void si_strings_test_concats(void)
 	const char* const p_string_joined_b =
 		"This is an example string used for testing";
 	const char* const p_spacer = " ";
-	const size_t p_string_a_len = strlen(p_string_a);
-	const size_t p_string_b_len = strlen(p_string_b);
+	const size_t p_string_a_len = strnlen(p_string_a, INT64_MAX);
+	const size_t p_string_b_len = strnlen(p_string_b, INT64_MAX);
+	TEST_ASSERT_LESS_THAN_size_t(INT64_MAX, p_string_a_len);
+	TEST_ASSERT_LESS_THAN_size_t(INT64_MAX, p_string_b_len);
 	char* p_value = NULL;
 	int s_cmp = 0;
+	size_t new_size = 0u;
+
+	printf("Testing strn_lgrow_concat():\n");
+	p_value = strndup(p_string_a, p_string_a_len);
+
+	TEST_ASSERT_EQUAL_size_t(SIZE_MAX, strn_lgrow_concat(NULL, 0u, NULL, 0u));
+	TEST_ASSERT_EQUAL_size_t(
+		SIZE_MAX, strn_lgrow_concat(
+			&p_value, p_string_a_len, NULL, p_string_b_len
+		)
+	);
+	TEST_ASSERT_EQUAL_size_t(
+		SIZE_MAX, strn_lgrow_concat(
+			NULL, p_string_a_len, p_string_b, p_string_b_len
+		)
+	);
+	new_size = strn_lgrow_concat(
+		&p_value, p_string_a_len, p_string_b, p_string_b_len
+	);
+	TEST_ASSERT_NOT_NULL(p_value);
+	TEST_ASSERT_NOT_EQUAL_size_t(SIZE_MAX, new_size);
+	TEST_ASSERT_EQUAL_size_t((p_string_a_len + p_string_b_len), new_size);
+	printf("%s\n", p_value);
+	free(p_value);
+	p_value = NULL;
+
+	printf("Testing str_lgrow_concat():\n");
+	p_value = strndup(p_string_a, p_string_a_len);
+	TEST_ASSERT_NOT_NULL(p_value);
+	TEST_ASSERT_EQUAL_size_t(SIZE_MAX, str_lgrow_concat(NULL, NULL));
+	TEST_ASSERT_EQUAL_size_t(SIZE_MAX, str_lgrow_concat(NULL, p_string_b));
+	new_size = str_lgrow_concat(&p_value, p_string_b);
+	TEST_ASSERT_NOT_EQUAL_size_t(SIZE_MAX, new_size);
+	TEST_ASSERT_EQUAL_size_t((p_string_a_len + p_string_b_len), new_size);
+	printf("%s\n", p_value);
+	free(p_value);
+	p_value = NULL;
+
+	printf("Testing strn_rgrow_concat():\n");
+	p_value = strndup(p_string_b, p_string_b_len);
+	TEST_ASSERT_NOT_NULL(p_value);
+	TEST_ASSERT_EQUAL_size_t(SIZE_MAX, strn_rgrow_concat(NULL, 0u, NULL, 0u));
+	TEST_ASSERT_EQUAL_size_t(
+		SIZE_MAX, strn_rgrow_concat(
+			p_string_a, p_string_a_len, NULL, p_string_b_len
+		)
+	);
+	TEST_ASSERT_EQUAL_size_t(
+		SIZE_MAX, strn_rgrow_concat(
+			NULL, p_string_a_len, &p_value, p_string_b_len
+		)
+	);
+	new_size = strn_rgrow_concat(
+		p_string_a, p_string_a_len, &p_value, p_string_b_len
+	);
+	TEST_ASSERT_NOT_EQUAL_size_t(SIZE_MAX, new_size);
+	TEST_ASSERT_EQUAL_size_t((p_string_a_len + p_string_b_len), new_size);
+	printf("%s\n", p_value);
+	free(p_value);
+	p_value = NULL;
+
+	printf("Testing str_rgrow_concat():\n");
+	p_value = strndup(p_string_b, p_string_b_len);
+	TEST_ASSERT_NOT_NULL(p_value);
+	TEST_ASSERT_EQUAL_size_t(SIZE_MAX, str_rgrow_concat(NULL, NULL));
+	TEST_ASSERT_EQUAL_size_t(SIZE_MAX, str_rgrow_concat(p_string_a, NULL));
+	new_size = str_rgrow_concat(p_string_a, &p_value);
+	TEST_ASSERT_NOT_EQUAL_size_t(SIZE_MAX, new_size);
+	TEST_ASSERT_EQUAL_size_t((p_string_a_len + p_string_b_len), new_size);
+	printf("%s\n", p_value);
+	free(p_value);
+	p_value = NULL;
 
 	printf("Testing strn_clone_concat():\n");
 	TEST_ASSERT_NULL(strn_clone_concat(NULL, 0u, NULL, 0u));

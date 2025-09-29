@@ -8,7 +8,7 @@
 
 #ifdef __linux__
 
-//Avoids redefining
+// Avoid redefining values
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif//_GNU_SOURCE
@@ -20,8 +20,8 @@
 #include <stddef.h> // size_t
 #include <stdint.h> // SIZE_MAX
 #include <stdio.h> // FILE
-#include <stdlib.h> // calloc()
-#include <string.h> // memcpy(), strnlen()
+#include <stdlib.h> // calloc(), realloc(), free()
+#include <string.h> // memcpy(), memmove(), strnlen()
 
 #ifndef SI_STRINGS_H
 #define SI_STRINGS_H
@@ -29,6 +29,34 @@
 #ifdef __cplusplus
 extern "C" {
 #endif //__cplusplus
+
+/** Doxygen
+ * @brief Grows the left string as needed to hold the right string's value.
+ * 
+ * @param p_left Heap C string to grow and to hold string results on success.
+ * @param left_size Size of the left heap string initially.
+ * @param p_right C String to be concated onto the end of the left string.
+ * @param right_size Size of the right C string to be concated.
+ * 
+ * @return Returns size_t SIZE_MAX on failure, returns new strlen on success.
+ */
+size_t strn_lgrow_concat(char** pp_left, const size_t left_size,
+	const char* const p_right, const size_t right_size);
+size_t str_lgrow_concat(char** pp_left, const char* const p_right);
+
+/** Doxygen
+ * @brief Grows the right string as needed to hold the left string's value.
+ * 
+ * @param p_left C string to be concated before the start of the right string.
+ * @param left_size Size of the left C string to be concated.
+ * @param p_right Heap C String to grow and to hold string results on success.
+ * @param right_size Size of the right heap string initially.
+ * 
+ * @return Returns size_t SIZE_MAX on failure, returns new strlen on success.
+ */
+size_t strn_rgrow_concat(const char* const p_left, const size_t left_size,
+	char** pp_right, const size_t right_size);
+size_t str_rgrow_concat(const char* const p_left, char** pp_right);
 
 /** Doxygen
  * @brief Creates new heap C string from joining two other strings by size.

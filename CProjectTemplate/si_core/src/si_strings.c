@@ -1,5 +1,112 @@
-//si_strings.c
+// si_strings.c
 #include "si_strings.h"
+
+size_t strn_lgrow_concat(char** pp_left, const size_t left_size,
+	const char* const p_right, const size_t right_size)
+{
+	size_t result = SIZE_MAX;
+	if ((NULL == pp_left) || (NULL == p_right))
+	{
+		goto END;
+	}
+	if (NULL == *pp_left)
+	{
+		goto END;
+	}
+	const size_t new_size = (left_size + right_size);
+	if (0u >= right_size)
+	{
+		result = new_size;
+		goto END;
+	}
+	char* const p_grow = realloc(*pp_left, new_size + 1u);
+	if (NULL == p_grow)
+	{
+		goto END;
+	}
+	*pp_left = p_grow;
+	// strncat()'s return value is not useful.
+	(void)strncat(*pp_left, p_right, right_size);
+	result = new_size;
+END:
+	return result;
+}
+size_t str_lgrow_concat(char** pp_left, const char* const p_right)
+{
+	size_t result = SIZE_MAX;
+	if ((NULL == pp_left) || (NULL == p_right))
+	{
+		goto END;
+	}
+	if (NULL == *pp_left)
+	{
+		goto END;
+	}
+	const size_t left_size = strnlen(*pp_left, INT64_MAX);
+	const size_t right_size = strnlen(p_right, INT64_MAX);
+	if ((left_size >= INT64_MAX) || (right_size >= INT64_MAX))
+	{
+		goto END;
+	}
+	result = strn_lgrow_concat(pp_left, left_size, p_right, right_size);
+END:
+	return result;
+}
+
+size_t strn_rgrow_concat(const char* const p_left, const size_t left_size,
+	char** pp_right, const size_t right_size)
+{
+	size_t result = SIZE_MAX;
+	if ((NULL == p_left) || (NULL == pp_right))
+	{
+		goto END;
+	}
+	if (NULL == *pp_right)
+	{
+		goto END;
+	}
+	const size_t new_size = (left_size + right_size);
+	if (0u >= left_size)
+	{
+		result = new_size;
+		goto END;
+	}
+	char* const p_grow = realloc(*pp_right, new_size + 1u);
+	if (NULL == p_grow)
+	{
+		goto END;
+	}
+	*pp_right = p_grow;
+	char* const p_right_start = &((*pp_right)[left_size]);
+	// Memory may overlap, must use memmove() not memcpy()
+	memmove(p_right_start, *pp_right, right_size);
+	memmove(*pp_right, p_left, left_size);
+	(*pp_right)[new_size] = '\0';
+	result = new_size;
+END:
+	return result;
+}
+size_t str_rgrow_concat(const char* const p_left, char** pp_right)
+{
+	size_t result = SIZE_MAX;
+	if ((NULL == p_left) || (NULL == pp_right))
+	{
+		goto END;
+	}
+	if (NULL == *pp_right)
+	{
+		goto END;
+	}
+	const size_t left_size = strnlen(p_left, INT64_MAX);
+	const size_t right_size = strnlen(*pp_right, INT64_MAX);
+	if ((left_size >= INT64_MAX) || (right_size >= INT64_MAX))
+	{
+		goto END;
+	}
+	result = strn_rgrow_concat(p_left, left_size, pp_right, right_size);
+END:
+	return result;
+}
 
 char* strn_clone_concat(const char* const p_left, const size_t left_size,
 	const char* const p_right, const size_t right_size)
