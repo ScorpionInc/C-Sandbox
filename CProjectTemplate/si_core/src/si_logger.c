@@ -14,27 +14,37 @@ void fprint_stacktrace_3(FILE* const p_file,
 		p_mut_prefix = p_prefix;
 	}
 #ifdef __linux__
-	const size_t MAX_STACK_DEPTH = 256u;
-	const size_t STACK_BUFFER_SIZE = (MAX_STACK_DEPTH * sizeof(void*));
+	if(__INT_MAX__ <= skip_count)
+	{
+		goto END;
+	}
+	const int MAX_STACK_DEPTH = 256u;
+	const size_t STACK_BUFFER_SIZE = ((size_t)MAX_STACK_DEPTH * sizeof(void*));
 	void* p_addresses = NULL;
 	p_addresses = calloc(1u, STACK_BUFFER_SIZE);
 	if (NULL == p_addresses)
 	{
 		goto END;
 	}
-	const size_t backtrace_size = backtrace(p_addresses, MAX_STACK_DEPTH);
-	char** p_stack_strs = backtrace_symbols(p_addresses, backtrace_size);
+	const int bt_result = backtrace(p_addresses, MAX_STACK_DEPTH);
+	if(0 > bt_result)
+	{
+		free(p_addresses);
+		p_addresses = NULL;
+		goto END;
+	}
+	char** p_stack_strs = backtrace_symbols(p_addresses, bt_result);
 	if (NULL == p_stack_strs)
 	{
 		free(p_addresses);
 		p_addresses = NULL;
 		goto END;
 	}
-	for (size_t iii = skip_count; iii < backtrace_size; iii++)
+	for (int iii = (int)skip_count; iii < bt_result; iii++)
 	{
 		fprintf(p_file, "%s%s\n", p_mut_prefix, p_stack_strs[iii]);
 	}
-	if (backtrace_size >= MAX_STACK_DEPTH)
+	if (bt_result >= MAX_STACK_DEPTH)
 	{
 		fprintf(p_file, "%s(callstack truncated)\n", p_mut_prefix);
 	}
@@ -86,9 +96,9 @@ END:
  * 
  * @param msg_level Log level to get the header of.
  * 
- * @return Returns const C string on success. Returns NULL otherwise.
+ * @return Returns a C string on success. Returns NULL otherwise.
  */
-static char* const si_logger_select_header(const size_t msg_level)
+static char* si_logger_select_header(const size_t msg_level)
 {
 	char* p_result = NULL;
 	switch (msg_level)
@@ -124,7 +134,7 @@ static char* const si_logger_select_header(const size_t msg_level)
  * 
  * @return Returns a const C string
  */
-static char* const si_logger_select_color(const size_t msg_level)
+static char* si_logger_select_color(const size_t msg_level)
 {
 	char* p_ansi = "";
 	if (SI_LOGGER_ALL == msg_level)
