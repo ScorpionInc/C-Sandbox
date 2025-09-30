@@ -315,12 +315,17 @@ static void* si_priority_queue_dequeue_at(si_priority_queue_t* const p_pqueue,
 		goto END;
 	}
 	si_mutex_t* const p_lock = si_parray_at(&(p_pqueue->locks), priority);
-	si_queue_t* const p_queue = si_parray_at(&(p_pqueue->queues), priority);
-	if ((NULL == p_lock) || (NULL == p_queue))
+	if(NULL == p_lock)
 	{
 		goto END;
 	}
 	si_mutex_lock(p_lock);
+
+	si_queue_t* const p_queue = si_parray_at(&(p_pqueue->queues), priority);
+	if (NULL == p_queue)
+	{
+		goto UNLOCK;
+	}
 
 	const size_t count = si_queue_count(p_queue);
 	if (0 >= count)
@@ -350,18 +355,10 @@ void* si_priority_queue_dequeue(si_priority_queue_t* const p_pqueue)
 	{
 		goto END;
 	}
-	for (size_t iii = (priority_count - 1u);; iii--)
+	for (size_t iii = (priority_count - 1u); true; iii--)
 	{
 		p_result = si_priority_queue_dequeue_at(p_pqueue, iii);
-		if (NULL == p_result)
-		{
-			if (0u == iii)
-			{
-				break;
-			}
-			continue;
-		}
-		else
+		if (NULL != p_result)
 		{
 			break;
 		}
