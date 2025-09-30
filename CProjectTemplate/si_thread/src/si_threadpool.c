@@ -17,7 +17,7 @@ size_t si_cpu_core_count()
 	count = (size_t)sysconf_result;
 #else
 	// Assumes this is a single-core processor.
-#endif // OS Specific implimentation(s)
+#endif // OS Specific implementation(s)
 END:
 	return count;
 }
@@ -157,7 +157,7 @@ static void* si_threadpool_worker(si_threadpool_t* const p_param)
 		}
 		else
 		{
-			// Parameter free is a deligated responsibility of caller.
+			// Parameter free is a delegated responsibility of caller.
 			//free(p_task->p_param);
 		}
 		// Handle Results
@@ -168,7 +168,7 @@ static void* si_threadpool_worker(si_threadpool_t* const p_param)
 			{
 				goto CONTINUE;
 			}
-			// NULL out function to prevent unintentional reexecution
+			// NULL out function to prevent unintentional re-execution
 			p_results->p_task = NULL;
 			p_results->p_param = NULL;
 			si_mutex_lock(&(p_pool->results_lock));
@@ -183,6 +183,7 @@ static void* si_threadpool_worker(si_threadpool_t* const p_param)
 			}
 			si_mutex_unlock(&(p_pool->results_lock));
 		}
+		si_cond_signal(&(p_pool->task_completed_signal));
 CONTINUE:
 		// Free and test for cancel/running
 		if (NULL != p_task)
@@ -248,6 +249,7 @@ void si_threadpool_init_2(si_threadpool_t* const p_pool,
 	}
 
 	atomic_store(&(p_pool->task_counter), 0u);
+	si_cond_init(&(p_pool->task_completed_signal));
 	si_array_init_3(&(p_pool->pool), sizeof(pthread_t), 0u);
 	si_parray_init_2(&(p_pool->results), 0u);
 	p_pool->results.p_free_value = free;
@@ -663,6 +665,7 @@ void si_threadpool_free(si_threadpool_t* const p_pool)
 	si_array_free(&(p_pool->pool));
 	si_parray_free(&(p_pool->results));
 	si_priority_queue_free(&(p_pool->queue));
+	si_cond_free(&(p_pool->task_completed_signal));
 
 	si_mutex_unlock(&(p_pool->task_counter_lock));
 	si_mutex_free(&(p_pool->task_counter_lock));
