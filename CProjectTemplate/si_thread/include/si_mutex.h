@@ -36,12 +36,23 @@
 #define SI_MUTEX_H
 
 #ifdef _WIN32
+typedef CONDITION_VARIABLE si_condition_t;
+#define si_cond_wait(c, m) SleepConditionVariableCS(c, m, INFINITE)
+#define si_cond_signal(c) WakeConditionVariable(c)
+#define si_cond_broadcast(c) WakeAllConditionVariable(c)
+
 typedef CRITICAL_SECTION si_mutex_t;
 
 #define si_mutex_lock(m) EnterCriticalSection(m)
 #define si_mutex_unlock(m) LeaveCriticalSection(m)
 #define si_mutex_free(m) DeleteCriticalSection(m)
 #elif defined(__APPLE__) || defined(__linux__) || defined(__unix__)
+typedef pthread_cond_t si_condition_t;
+#define si_cond_wait(c, m) pthread_cond_wait(c, m)
+#define si_cond_signal(c) pthread_cond_signal(c)
+#define si_cond_broadcast(c) pthread_cond_broadcast(c)
+
+
 /** Doxygen
  * @brief Initializes and existing mutex attribute struct with optional type.
  * 

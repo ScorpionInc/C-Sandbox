@@ -162,6 +162,7 @@ void si_mutex_lock(si_mutex_t* const p_mutex)
 	{
 		goto END;
 	}
+	// Loop to handle spurious wakeups
 	int lock_result = SI_PTHREAD_ERROR;
 	while (SI_PTHREAD_SUCCESS != lock_result)
 	{
@@ -177,6 +178,7 @@ void si_mutex_unlock(si_mutex_t* const p_mutex)
 	{
 		goto END;
 	}
+	// Loop to handle spurious wakeups
 	int unlock_result = SI_PTHREAD_ERROR;
 	while (SI_PTHREAD_SUCCESS != unlock_result)
 	{
