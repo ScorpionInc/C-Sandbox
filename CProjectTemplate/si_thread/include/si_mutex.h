@@ -43,7 +43,7 @@ typedef CONDITION_VARIABLE si_cond_t;
 #define si_cond_signal(c) WakeConditionVariable(c)
 #define si_cond_broadcast(c) WakeAllConditionVariable(c)
 // Windows does not have an explicit DestroyConditionVariable function.
-#define si_cond_destroy(c) // NOP
+#define si_cond_free(c) // NOP
 
 
 typedef CRITICAL_SECTION si_mutex_t;
@@ -58,7 +58,7 @@ typedef pthread_cond_t si_cond_t;
 #define si_cond_wait(c, m) pthread_cond_wait(c, m)
 #define si_cond_signal(c) pthread_cond_signal(c)
 #define si_cond_broadcast(c) pthread_cond_broadcast(c)
-#define si_cond_destroy(c) pthread_cond_destroy(c)
+#define si_cond_free(c) pthread_cond_destroy(c)
 
 
 /** Doxygen
