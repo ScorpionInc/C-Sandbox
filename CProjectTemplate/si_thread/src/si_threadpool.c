@@ -540,6 +540,15 @@ inline void si_threadpool_start(si_threadpool_t* const p_pool)
 	si_threadpool_start_2(p_pool, core_count);
 }
 
+#ifdef __linux__
+/** Doxygen
+ * @brief Local function for stoping a pthread
+ */
+static void si_threadpool_stop_pthread(pthread_t* const p_thread)
+{
+}
+#endif// __linux__
+
 #ifdef _GNU_SOURCE
 void si_threadpool_stop_2(si_threadpool_t* const p_pool,
 	const time_t timeout_offset)
@@ -585,20 +594,24 @@ void si_threadpool_stop_2(si_threadpool_t* const p_pool,
 			join_result = pthread_join(*p_thread, NULL);
 		}
 
-		switch (join_result)
+		if (ETIMEDOUT == join_result)
 		{
-			case(ETIMEDOUT):
-				// Join has timed out. Time for the murder signal :)
-				const int sent_kill = pthread_kill(*p_thread, SIGKILL);
-				if (SI_PTHREAD_SUCCESS == sent_kill)
-				{
-					(void)pthread_join(*p_thread, NULL);
-				}
-			break;
-			default:
-				// Thread is already being joined (EBUSY, EDEADLK, EDEADLOCK).
-				// Or an unknown fault has occurred (EFAULT).
-			break;
+			// Join has timed out. Time for the murder signal :)
+			const int sent_kill = pthread_kill(*p_thread, SIGKILL);
+			if (SI_PTHREAD_SUCCESS == sent_kill)
+			{
+				(void)pthread_join(*p_thread, NULL);
+			}
+			else
+			{
+				// Couldn't send thread a kill signal so don't retry the join
+				// as the thread's state was/remains unchanged.
+			}
+		}
+		else
+		{
+			// Thread is already being joined (EBUSY, EDEADLK, EDEADLOCK).
+			// Or an unknown fault has occurred (EFAULT).
 		}
 	}
 	si_array_free(&(p_pool->pool));
