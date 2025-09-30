@@ -36,10 +36,15 @@
 #define SI_MUTEX_H
 
 #ifdef _WIN32
-typedef CONDITION_VARIABLE si_condition_t;
+#define SI_COND_STATIC_INIT CONDITION_VARIABLE_INIT
+typedef CONDITION_VARIABLE si_cond_t;
+#define si_cond_init(c) InitializeConditionVariable(c)
 #define si_cond_wait(c, m) SleepConditionVariableCS(c, m, INFINITE)
 #define si_cond_signal(c) WakeConditionVariable(c)
 #define si_cond_broadcast(c) WakeAllConditionVariable(c)
+// Windows does not have an explicit DestroyConditionVariable function.
+#define si_cond_destroy(c) // NOP
+
 
 typedef CRITICAL_SECTION si_mutex_t;
 
@@ -47,10 +52,13 @@ typedef CRITICAL_SECTION si_mutex_t;
 #define si_mutex_unlock(m) LeaveCriticalSection(m)
 #define si_mutex_free(m) DeleteCriticalSection(m)
 #elif defined(__APPLE__) || defined(__linux__) || defined(__unix__)
-typedef pthread_cond_t si_condition_t;
+#define SI_COND_STATIC_INIT PTHREAD_COND_INITIALIZER
+typedef pthread_cond_t si_cond_t;
+#define si_cond_init(c) pthread_cond_init(c, NULL)
 #define si_cond_wait(c, m) pthread_cond_wait(c, m)
 #define si_cond_signal(c) pthread_cond_signal(c)
 #define si_cond_broadcast(c) pthread_cond_broadcast(c)
+#define si_cond_destroy(c) pthread_cond_destroy(c)
 
 
 /** Doxygen
