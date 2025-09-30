@@ -5,7 +5,7 @@ outputDir="./build/"
 libName="libsi_thread.a"
 unitySrc="../tests_src/unity.c"
 unityInclude="../tests_include/"
-dependentsIncludes=("../si_core/src/*" "-I../si_core/include" "../si_data/build/libsi_data.a" "-I../si_data/include" "-lacl")
+dependentsIncludes=("../si_core/src/*" "-I../si_core/include" "../si_data/build/libsi_data.a" "-I../si_data/include" "-lacl" "-lrt")
 
 echo 'Building from source via CMake & make.'
 rm -rf ./build/*
