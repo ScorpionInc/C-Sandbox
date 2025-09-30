@@ -19,6 +19,8 @@ typedef struct si_priority_queue_t
 {
 	si_realloc_settings_t* p_settings;
 	void (*p_free_value)(void*);
+	si_cond_t enqueue_signal;
+	si_cond_t dequeue_signal;
 	si_parray_t locks;
 	si_parray_t queues;
 } si_priority_queue_t;

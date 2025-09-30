@@ -14,6 +14,8 @@ void si_priority_queue_init(si_priority_queue_t* const p_pqueue,
 	}
 	p_pqueue->p_settings = NULL;
 	p_pqueue->p_free_value = NULL;
+	si_cond_init(&(p_pqueue->enqueue_signal));
+	si_cond_init(&(p_pqueue->dequeue_signal));
 	si_parray_init_2(&(p_pqueue->locks), priority_count);
 	si_parray_init_2(&(p_pqueue->queues), priority_count);
 
@@ -282,6 +284,10 @@ bool si_priority_queue_enqueue(si_priority_queue_t* const p_pqueue,
 	const size_t new_count = si_queue_enqueue(p_queue, &p_data);
 
 	result = (new_count > queue_count);
+	if(true == result)
+	{
+		si_cond_signal(&(p_pqueue->enqueue_signal));
+	}
 UNLOCK:;
 	si_mutex_unlock(p_lock);
 END:
@@ -321,7 +327,11 @@ static void* si_priority_queue_dequeue_at(si_priority_queue_t* const p_pqueue,
 	{
 		goto UNLOCK;
 	}
-	si_queue_dequeue(p_queue, &p_result);
+	const size_t new_count = si_queue_dequeue(p_queue, &p_result);
+	if((NULL != p_result) && (count > new_count))
+	{
+		si_cond_signal(&(p_pqueue->dequeue_signal));
+	}
 UNLOCK:;
 	si_mutex_unlock(p_lock);
 END:
@@ -443,6 +453,8 @@ void si_priority_queue_free(si_priority_queue_t* const p_pqueue)
 	{
 		si_priority_queue_free_at(p_pqueue, iii);
 	}
+	si_cond_free(&(p_pqueue->enqueue_signal));
+	si_cond_free(&(p_pqueue->dequeue_signal));
 	si_parray_free(&(p_pqueue->locks));
 	si_parray_free(&(p_pqueue->queues));
 END:
