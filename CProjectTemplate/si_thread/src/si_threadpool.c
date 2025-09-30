@@ -1,4 +1,4 @@
-//si_threadpool.c
+// si_threadpool.c
 #include "si_threadpool.h"
 
 size_t si_cpu_core_count()
@@ -171,11 +171,7 @@ static void* si_threadpool_worker(si_threadpool_t* const p_param)
 			// NULL out function to prevent unintentional reexecution
 			p_results->p_task = NULL;
 			p_results->p_param = NULL;
-			int results_lock = -1;
-			while (0 != results_lock)
-			{
-				results_lock = pthread_mutex_lock(&(p_pool->results_lock));
-			}
+			si_mutex_lock(&(p_pool->results_lock));
 			const size_t append_index = si_parray_append(
 				&(p_pool->results), p_results
 			);
@@ -185,11 +181,7 @@ static void* si_threadpool_worker(si_threadpool_t* const p_param)
 				free(p_results);
 				goto CONTINUE;
 			}
-			results_lock = -1;
-			while (0 != results_lock)
-			{
-				results_lock = pthread_mutex_unlock(&(p_pool->results_lock));
-			}
+			si_mutex_unlock(&(p_pool->results_lock));
 		}
 CONTINUE:
 		// Free and test for cancel/running
@@ -233,32 +225,24 @@ void si_threadpool_init_2(si_threadpool_t* const p_pool,
 	}
 	atomic_store(&(p_pool->is_running), 0);
 	
-	pthread_mutexattr_t* p_attr = si_mutexattr_new();
-	if (NULL == p_attr)
+	const int task_counter_results = si_mutex_init(
+		&(p_pool->task_counter_lock)
+	);
+	if (SI_PTHREAD_SUCCESS != task_counter_results)
 	{
 		goto END;
 	}
-	const int task_counter_results = pthread_mutex_init(
-		&(p_pool->task_counter_lock), p_attr
+	const int pool_init_results = si_mutex_init(
+		&(p_pool->pool_lock)
 	);
-	if (0 != task_counter_results)
+	if (SI_PTHREAD_SUCCESS != pool_init_results)
 	{
-		si_mutexattr_destroy(&p_attr);
 		goto END;
 	}
-	const int pool_init_results = pthread_mutex_init(
-		&(p_pool->pool_lock), p_attr
+	const int results_init_results = si_mutex_init(
+		&(p_pool->results_lock)
 	);
-	if (0 != pool_init_results)
-	{
-		si_mutexattr_destroy(&p_attr);
-		goto END;
-	}
-	const int results_init_results = pthread_mutex_init(
-		&(p_pool->results_lock), p_attr
-	);
-	si_mutexattr_destroy(&p_attr);
-	if (0 != results_init_results)
+	if (SI_PTHREAD_SUCCESS != results_init_results)
 	{
 		goto END;
 	}
@@ -310,11 +294,7 @@ bool si_threadpool_has_result(si_threadpool_t* const p_pool,
 		goto END;
 	}
 
-	int results_lock = -1;
-	while (0 != results_lock)
-	{
-		results_lock = pthread_mutex_lock(&(p_pool->results_lock));
-	}
+	si_mutex_lock(&(p_pool->results_lock));
 
 	const size_t results_capacity = p_pool->results.array.capacity;
 	for (size_t iii = 0u; iii < results_capacity; iii++)
@@ -331,11 +311,7 @@ bool si_threadpool_has_result(si_threadpool_t* const p_pool,
 		}
 	}
 
-	results_lock = -1;
-	while (0 != results_lock)
-	{
-		results_lock = pthread_mutex_unlock(&(p_pool->results_lock));
-	}
+	si_mutex_unlock(&(p_pool->results_lock));
 END:
 	return result;
 }
@@ -354,18 +330,10 @@ static size_t si_threadpool_next_task_id(si_threadpool_t* const p_pool)
 	{
 		goto END;
 	}
-	pthread_mutex_t* p_lock = &(p_pool->task_counter_lock);
-	int lock_results = -1;
-	while (0 != lock_results)
-	{
-		lock_results = pthread_mutex_lock(p_lock);
-	}
+	si_mutex_t* const p_lock = &(p_pool->task_counter_lock);
+	si_mutex_lock(p_lock);
 	result = atomic_fetch_add(&(p_pool->task_counter), 1u);
-	int unlock_results = -1;
-	while (0 != unlock_results)
-	{
-		unlock_results = pthread_mutex_unlock(p_lock);
-	}
+	si_mutex_unlock(p_lock);
 	if (SI_THREADPOOL_TASK_ID_INVALID == result)
 	{
 		result = 0u;
@@ -445,11 +413,7 @@ void* si_threadpool_pop_results(si_threadpool_t* const p_pool,
 	{
 		goto END;
 	}
-	int results_lock = -1;
-	while (0 != results_lock)
-	{
-		results_lock = pthread_mutex_lock(&(p_pool->results_lock));
-	}
+	si_mutex_lock(&(p_pool->results_lock));
 
 	const size_t results_capacity = p_pool->results.array.capacity;
 	for (size_t iii = 0u; iii < results_capacity; iii++)
@@ -467,11 +431,7 @@ void* si_threadpool_pop_results(si_threadpool_t* const p_pool,
 		}
 	}
 
-	results_lock = -1;
-	while (0 != results_lock)
-	{
-		results_lock = pthread_mutex_unlock(&(p_pool->results_lock));
-	}
+	si_mutex_unlock(&(p_pool->results_lock));
 END:
 	return p_result;
 }
@@ -538,11 +498,7 @@ void si_threadpool_start_2(si_threadpool_t* const p_pool,
 	}
 	atomic_store(&(p_pool->is_running), true);
 
-	int pool_lock = -1;
-	while (0 != pool_lock)
-	{
-		pool_lock = pthread_mutex_lock(&(p_pool->pool_lock));
-	}
+	si_mutex_lock(&(p_pool->pool_lock));
 	
 	if (0u < p_pool->pool.capacity)
 	{
@@ -573,11 +529,7 @@ void si_threadpool_start_2(si_threadpool_t* const p_pool,
 	}
 
 UNLOCK:
-	pool_lock = -1;
-	while (0 != pool_lock)
-	{
-		pool_lock = pthread_mutex_unlock(&(p_pool->pool_lock));
-	}
+	si_mutex_unlock(&(p_pool->pool_lock));
 END:
 	return;
 }
@@ -614,11 +566,7 @@ void si_threadpool_stop_2(si_threadpool_t* const p_pool,
 		timeout.tv_sec += timeout_offset;
 	}
 
-	int pool_lock_result = -1;
-	while (0 != pool_lock_result)
-	{
-		pool_lock_result = pthread_mutex_lock(&(p_pool->pool_lock));
-	}
+	si_mutex_lock(&(p_pool->pool_lock));
 
 	const size_t thread_count = p_pool->pool.capacity;
 	for (size_t iii = 0u; iii < thread_count; iii++)
@@ -651,11 +599,7 @@ void si_threadpool_stop_2(si_threadpool_t* const p_pool,
 	}
 	si_array_free(&(p_pool->pool));
 
-	int pool_unlock_result = -1;
-	while (0 != pool_unlock_result)
-	{
-		pool_unlock_result = pthread_mutex_unlock(&(p_pool->pool_lock));
-	}
+	si_mutex_unlock(&(p_pool->pool_lock));
 END:
 	return;
 }
@@ -673,44 +617,20 @@ void si_threadpool_free(si_threadpool_t* const p_pool)
 	}
 	si_threadpool_stop_2(p_pool, SI_THREADPOOL_DEFAULT_JOIN_TIMEOUT);
 
-	int counter_lock = -1;
-	int pool_lock = -1;
-	int results_lock = -1;
-	while (0 != counter_lock)
-	{
-		counter_lock = pthread_mutex_lock(&(p_pool->task_counter_lock));
-	}
-	while (0 != pool_lock)
-	{
-		pool_lock = pthread_mutex_lock(&(p_pool->pool_lock));
-	}
-	while (0 != results_lock)
-	{
-		results_lock = pthread_mutex_lock(&(p_pool->results_lock));
-	}
+	si_mutex_lock(&(p_pool->task_counter_lock));
+	si_mutex_lock(&(p_pool->pool_lock));
+	si_mutex_lock(&(p_pool->results_lock));
 
 	si_array_free(&(p_pool->pool));
 	si_parray_free(&(p_pool->results));
 	si_priority_queue_free(&(p_pool->queue));
 
-	counter_lock = -1;
-	pool_lock = -1;
-	results_lock = -1;
-	while (0 != counter_lock)
-	{
-		counter_lock = pthread_mutex_unlock(&(p_pool->task_counter_lock));
-	}
-	pthread_mutex_destroy(&(p_pool->task_counter_lock));
-	while (0 != pool_lock)
-	{
-		pool_lock = pthread_mutex_unlock(&(p_pool->pool_lock));
-	}
-	pthread_mutex_destroy(&(p_pool->pool_lock));
-	while (0 != results_lock)
-	{
-		results_lock = pthread_mutex_unlock(&(p_pool->results_lock));
-	}
-	pthread_mutex_destroy(&(p_pool->results_lock));
+	si_mutex_unlock(&(p_pool->task_counter_lock));
+	si_mutex_free(&(p_pool->task_counter_lock));
+	si_mutex_unlock(&(p_pool->pool_lock));
+	si_mutex_free(&(p_pool->pool_lock));
+	si_mutex_unlock(&(p_pool->results_lock));
+	si_mutex_free(&(p_pool->results_lock));
 END:
 	return;
 }

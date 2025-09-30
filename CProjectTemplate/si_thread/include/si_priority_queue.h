@@ -1,24 +1,16 @@
-/* si_priority_queue.h - 20250904 */
+/* si_priority_queue.h
+ * Language: C
+ * Created : 20250904
+ * Purpose : Thread-safe FIFO data structure with priority value ordering.
+ */
 
-#ifdef __linux__
-
-#include <pthread.h> // pthread_mutex_init()
-
-#ifndef PTHREAD_MUTEX_NORMAL
-#define PTHREAD_MUTEX_NORMAL (PTHREAD_MUTEX_TIMED_NP)
-#endif//PTHREAD_MUTEX_NORMAL
-
-#else
-#error Unsupported Operating System
-#endif
+#include "si_mutex.h" // si_mutex_new(), si_mutex_lock(), si_mutex_unlock()
+#include "si_queue.h" // si_queue_t
+#include "si_parray.h" // si_parray_t
+#include "si_realloc_settings.h" // si_realloc_settings_t
 
 #include <stdbool.h> // bool, false, true
 #include <stdlib.h> // calloc(), free()
-
-#include "si_queue.h" // si_queue_t
-#include "si_parray.h" // si_parray_t
-#include "si_pthread_mutex.h" // si_mutexattr_new(), si_mutex_new_1()
-#include "si_realloc_settings.h" // si_realloc_settings_t
 
 #ifndef SI_PRIORITY_QUEUE_H
 #define SI_PRIORITY_QUEUE_H

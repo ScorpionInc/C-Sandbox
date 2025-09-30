@@ -1,5 +1,11 @@
-/* threadpool.h - 20250904
-*/
+/* threadpool.h
+ * Language: C
+ * Created : 20250904
+ * Purpose : Structure for passing work functions to a thread pool of workers.
+ */
+
+#include "si_array.h" // si_array_t
+#include "si_parray.h" // si_parray_t
 
 #ifdef _WIN32
 
@@ -29,10 +35,8 @@
 #include <stdbool.h> //bool, false, true
 #include <time.h> // timespec, time_t, clock_gettime()
 
-#include "si_array.h" // si_array_t
-#include "si_parray.h" // si_parray_t
 #include "si_priority_queue.h" // si_priority_queue_t
-#include "si_pthread_mutex.h" // si_mutexattr_new(), si_mutex_new_1()
+#include "si_mutex.h" // si_mutex_new(), si_mutex_lock(), si_mutex_unlock()
 
 #define SI_THREADPOOL_TASK_ID_INVALID (SIZE_MAX)
 #define SI_THREADPOOL_PRIORITY_MIN (0u)
@@ -48,9 +52,9 @@ typedef void* (*p_task_f)(void*);
 
 typedef struct si_threadpool_t
 {
-	pthread_mutex_t task_counter_lock;
-	pthread_mutex_t pool_lock;
-	pthread_mutex_t results_lock;
+	si_mutex_t task_counter_lock;
+	si_mutex_t pool_lock;
+	si_mutex_t results_lock;
 	volatile atomic_bool is_running;
 	volatile _Atomic size_t task_counter;
 	si_array_t pool;
