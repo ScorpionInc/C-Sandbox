@@ -540,6 +540,7 @@ inline void si_threadpool_start(si_threadpool_t* const p_pool)
 	si_threadpool_start_2(p_pool, core_count);
 }
 
+#ifdef _GNU_SOURCE
 void si_threadpool_stop_2(si_threadpool_t* const p_pool,
 	const time_t timeout_offset)
 {
@@ -547,12 +548,7 @@ void si_threadpool_stop_2(si_threadpool_t* const p_pool,
 	{
 		goto END;
 	}
-
-	const bool is_running = atomic_load(&(p_pool->is_running));
-	if (true == is_running)
-	{
-		atomic_store(&(p_pool->is_running), false);
-	}
+	atomic_store(&(p_pool->is_running), false);
 
 	bool timeout_created = true;
 	struct timespec timeout = {0};
@@ -576,7 +572,9 @@ void si_threadpool_stop_2(si_threadpool_t* const p_pool,
 		{
 			continue;
 		}
-		pthread_cancel(*p_thread);
+		// We verify thread is cancelable when it was created.
+		(void)pthread_cancel(*p_thread);
+
 		int join_result = EXIT_FAILURE;
 		if ((true == timeout_created) && (0 < timeout_offset))
 		{
@@ -586,15 +584,21 @@ void si_threadpool_stop_2(si_threadpool_t* const p_pool,
 		{
 			join_result = pthread_join(*p_thread, NULL);
 		}
-		if (ETIMEDOUT == join_result)
+
+		switch (join_result)
 		{
-			const int sent_kill = pthread_kill(*p_thread, SIGKILL);
-			if (0 != sent_kill)
-			{
-				// Join timed out and can't kill it.
-				continue;
-			}
-			join_result = pthread_join(*p_thread, NULL);
+			case(ETIMEDOUT):
+				// Join has timed out. Time for the murder signal :)
+				const int sent_kill = pthread_kill(*p_thread, SIGKILL);
+				if (SI_PTHREAD_SUCCESS == sent_kill)
+				{
+					(void)pthread_join(*p_thread, NULL);
+				}
+			break;
+			default:
+				// Thread is already being joined (EBUSY, EDEADLK, EDEADLOCK).
+				// Or an unknown fault has occurred (EFAULT).
+			break;
 		}
 	}
 	si_array_free(&(p_pool->pool));
@@ -608,6 +612,37 @@ inline void si_threadpool_stop(si_threadpool_t* const p_pool)
 	// Default value of timeout is 0(blocks forever)
 	si_threadpool_stop_2(p_pool, 0);
 }
+#else
+void si_threadpool_stop(si_threadpool_t* const p_pool)
+{
+	if (NULL == p_pool)
+	{
+		goto END;
+	}
+	atomic_store(&(p_pool->is_running), false);
+
+	si_mutex_lock(&(p_pool->pool_lock));
+
+	const size_t thread_count = p_pool->pool.capacity;
+	for (size_t iii = 0u; iii < thread_count; iii++)
+	{
+		pthread_t* p_thread = si_array_at(&(p_pool->pool), iii);
+		if (NULL == p_thread)
+		{
+			continue;
+		}
+		// We verify thread is cancelable when it was created.
+		(void)pthread_cancel(*p_thread);
+		// If thread is invalid or already we joining continue.
+		(void)pthread_join(*p_thread, NULL);
+	}
+	si_array_free(&(p_pool->pool));
+
+	si_mutex_unlock(&(p_pool->pool_lock));
+END:
+	return;
+}
+#endif//_GNU_SOURCE
 
 void si_threadpool_free(si_threadpool_t* const p_pool)
 {

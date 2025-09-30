@@ -41,7 +41,10 @@
 #define SI_THREADPOOL_TASK_ID_INVALID (SIZE_MAX)
 #define SI_THREADPOOL_PRIORITY_MIN (0u)
 #define SI_THREADPOOL_DEFAULT_PRIORITY_COUNT (1u)
+
+#ifdef _GNU_SOURCE
 #define SI_THREADPOOL_DEFAULT_JOIN_TIMEOUT (100)
+#endif//_GNU_SOURCE
 
 #ifndef SI_THREADPOOL_H
 #define SI_THREADPOOL_H
@@ -153,6 +156,7 @@ void si_threadpool_start_2(si_threadpool_t* const p_pool,
 	const size_t thread_count);
 void si_threadpool_start  (si_threadpool_t* const p_pool);
 
+#ifdef _GNU_SOURCE
 /** Doxygen
  * @brief Stops a started/running threadpool at address with a timeout.
  * 
@@ -161,6 +165,13 @@ void si_threadpool_start  (si_threadpool_t* const p_pool);
  */
 void si_threadpool_stop_2(si_threadpool_t* const p_pool,
 	const time_t timeout);
+#endif//_GNU_SOURCE
+
+/** Doxygen
+ * @brief Blocking stops/joins a started/running threadpool at address.
+ * 
+ * @param p_pool Pointer to the thread pool struct to stop threads of.
+ */
 void si_threadpool_stop  (si_threadpool_t* const p_pool);
 
 /** Doxygen
