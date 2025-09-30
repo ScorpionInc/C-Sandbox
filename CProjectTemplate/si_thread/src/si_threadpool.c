@@ -540,15 +540,6 @@ inline void si_threadpool_start(si_threadpool_t* const p_pool)
 	si_threadpool_start_2(p_pool, core_count);
 }
 
-#ifdef __linux__
-/** Doxygen
- * @brief Local function for stoping a pthread
- */
-static void si_threadpool_stop_pthread(pthread_t* const p_thread)
-{
-}
-#endif// __linux__
-
 #ifdef _GNU_SOURCE
 void si_threadpool_stop_2(si_threadpool_t* const p_pool,
 	const time_t timeout_offset)
