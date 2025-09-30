@@ -202,7 +202,7 @@ END:
 	return;
 }
 
-void si_queue_free_at(si_queue_t** pp_queue)
+void si_queue_destroy(si_queue_t** const pp_queue)
 {
 	if (NULL == pp_queue)
 	{

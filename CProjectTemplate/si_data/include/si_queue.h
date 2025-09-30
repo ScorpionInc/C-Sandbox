@@ -123,7 +123,7 @@ void si_queue_free(si_queue_t* const p_queue);
  * 
  * @param pp_queue Pointer to the heap queue pointer to be freed.
  */
-void si_queue_free_at(si_queue_t** pp_queue);
+void si_queue_destroy(si_queue_t** const pp_queue);
 
 /** Doxygen
  * @brief Writes queue value to a FILE stream. Typically for debugging.

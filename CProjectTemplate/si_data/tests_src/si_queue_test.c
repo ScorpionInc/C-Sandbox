@@ -64,7 +64,7 @@ void si_queue_test_modify(void)
 	}
 	TEST_ASSERT_TRUE(si_queue_is_empty(p_queue));
 
-	si_queue_free_at(&p_queue);
+	si_queue_destroy(&p_queue);
 }
 
 
