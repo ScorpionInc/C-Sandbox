@@ -171,7 +171,7 @@ void** si_parray_first(const si_parray_t* const p_array);
 void** si_parray_last(const si_parray_t* const p_array);
 
 /** Doxygen
- * @brief Fetches last contigiously used item address from array.
+ * @brief Fetches last contiguously used item address from array.
  * 
  * @param p_array Pointer to array to read from.
  * 

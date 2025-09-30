@@ -106,7 +106,7 @@ bool si_priority_queue_enqueue(si_priority_queue_t* const p_pqueue,
 void* si_priority_queue_dequeue(si_priority_queue_t* const p_pqueue);
 
 /** Doxygen
- * @brief Updates the settings of exisiting internal data structures. Call only
+ * @brief Updates the settings of existing internal data structures. Call only
  *        when reassigning settings pointer after priority queue has been used.
  * 
  * @param Pointer to the priority_queue struct to update settings within.

@@ -99,7 +99,7 @@ size_t si_map_find(const si_map_t* const p_map, const void* const p_value);
 void* si_map_at(si_map_t* const p_map, const void* const p_key);
 
 /* Doxygen
- * @brief Tests for the existance of a key within a si_map_t struct.
+ * @brief Tests for the existence of a key within a si_map_t struct.
  *
  * @param p_map Pointer to si_map_t struct to be tested for key.
  * @param p_key Pointer to memory containing key to look for.

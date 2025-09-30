@@ -180,7 +180,7 @@ bool si_array_swp(si_array_t* const p_array,
  * @param p_array_a Pointer to first si_array_t struct to be compared.
  * @param p_array_b Pointer to the second si_array_t struct to be compared.
  *
- * @return Returns int value of 0 if equal. 1 or -1 otherwise simular to memcmp
+ * @return Returns int value of 0 if equal. 1 or -1 otherwise similar to memcmp
  */
 int si_array_cmp(const si_array_t* const p_array_a,
 	const si_array_t* const p_array_b);

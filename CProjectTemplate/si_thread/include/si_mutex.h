@@ -94,7 +94,7 @@ void si_mutexattr_destroy(pthread_mutexattr_t** const pp_attr);
 typedef pthread_mutex_t si_mutex_t;
 
 /** Doxygen
- * @brief Initializes value of an exisiting si_mutex_t of a specific type.
+ * @brief Initializes value of an existing si_mutex_t of a specific type.
  * 
  * @param p_mutex Pointer to the si_mutex_t to be initialized.
  * @param mutex_type PThread mutex type enum type.
@@ -104,7 +104,7 @@ typedef pthread_mutex_t si_mutex_t;
 int si_mutex_init_2(si_mutex_t* const p_mutex, const int mutex_type);
 
 /** Doxygen
- * @brief Allocates & initializes an exisiting si_mutex_t of a specific type.
+ * @brief Allocates & initializes an existing si_mutex_t of a specific type.
  * 
  * @param mutex_type PThread mutex type enum type.
  * 
