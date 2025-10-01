@@ -15,20 +15,20 @@ typedef struct timedjoin_t
 
 static void* timed_joiner(void* p_arg)
 {
-	if(NULL == p_arg)
+	if (NULL == p_arg)
 	{
 		goto END;
 	}
 	timedjoin_t* p_data = (timedjoin_t*)p_arg;
 	(void)pthread_join(p_data->thread, p_data->pp_result);
-	int lock_result = -1;
-	while (0 != lock_result)
+	int lock_result = SI_PTHREAD_ERROR;
+	while (SI_PTHREAD_SUCCESS != lock_result)
 	{
 		lock_result = pthread_mutex_lock(&(p_data->mutex));
 	}
 	p_data->was_joined = true;
-	int unlock_result = -1;
-	while(0 != unlock_result)
+	int unlock_result = SI_PTHREAD_ERROR;
+	while (SI_PTHREAD_SUCCESS != unlock_result)
 	{
 		unlock_result = pthread_mutex_lock(&(p_data->mutex));
 	}
@@ -40,8 +40,8 @@ END:
 int pthread_timedjoin(pthread_t thread, void** pp_result,
 	struct timespec* p_timeout)
 {
-	int result = -1;
-	if((NULL == pp_result) || (NULL == p_timeout))
+	int result = SI_PTHREAD_ERROR;
+	if ((NULL == pp_result) || (NULL == p_timeout))
 	{
 		goto END;
 	}
@@ -51,19 +51,19 @@ int pthread_timedjoin(pthread_t thread, void** pp_result,
 	pthread_mutex_init(&(data.mutex) , NULL);
 	pthread_cond_init (&(data.signal), NULL);
 	
-	int lock_result = -1;
-	while (0 != lock_result)
+	int lock_result = SI_PTHREAD_ERROR;
+	while (SI_PTHREAD_SUCCESS != lock_result)
 	{
 		lock_result = pthread_mutex_lock(&(data.mutex));
 	}
 
 	result = pthread_create(&thread, NULL, timed_joiner, &data);
-	if(0 != result)
+	if (SI_PTHREAD_SUCCESS != result)
 	{
 		goto END;
 	}
 	result = pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
-	if(0 != cancelable)
+	if (SI_PTHREAD_SUCCESS != cancelable)
 	{
 		goto END;
 	}
@@ -75,8 +75,8 @@ int pthread_timedjoin(pthread_t thread, void** pp_result,
 		);
 	} while ((result != ETIMEDOUT) && (true != data.was_joined));
 
-	int unlock_result = -1;
-	while(0 != unlock_result)
+	int unlock_result = SI_PTHREAD_ERROR;
+	while (SI_PTHREAD_SUCCESS != unlock_result)
 	{
 		unlock_result = pthread_mutex_unlock(&(data.mutex));
 	}
@@ -98,9 +98,9 @@ size_t si_cpu_core_count()
 	SYSTEM_INFO sys_info;
 	GetSystemInfo(&sys_info);
 	count = sys_info.dwNumberOfProcessors;
-#elif defined(__APPLE__) || defined(__linux__) || defined(__unix__)
+#elif SI_PTHREAD
 	const long sysconf_result = sysconf(_SC_NPROCESSORS_ONLN);
-	if(0L >= sysconf_result)
+	if (0L >= sysconf_result)
 	{
 		goto END;
 	}
@@ -115,19 +115,19 @@ END:
 si_thread_func_return_t si_thread_join(si_thread_t* const p_thread)
 {
 	si_thread_func_return_t result = (si_thread_func_return_t)0;
-	if(NULL == p_thread)
+	if (NULL == p_thread)
 	{
 		goto END;
 	}
 	const bool is_valid = si_thread_is_valid(*p_thread);
-	if(true != is_valid)
+	if (true != is_valid)
 	{
 		goto END;
 	}
 #ifdef _WIN32
 	(void)WaitForSingleObject(*p_thread, INFINITE);
 	(void)GetExitCodeThread(*p_thread, &result);
-#elif defined(__APPLE__) || defined(__linux__) || defined(__unix__)
+#elif SI_PTHREAD
 	(void)pthread_join(*p_thread, &result);
 #endif// OS Specific implementation(s)
 END:
@@ -137,40 +137,40 @@ END:
 si_thread_func_return_t si_thread_timedjoin(si_thread_t* const p_thread,
 	const uint32_t millisecs)
 {
-	//! TODO
 	si_thread_func_return_t result = (si_thread_func_return_t)0;
-	if(NULL == p_thread)
+	if (NULL == p_thread)
 	{
 		goto END;
 	}
 	const bool is_valid = si_thread_is_valid(*p_thread);
-	if(true != is_valid)
+	if (true != is_valid)
 	{
 		goto END;
 	}
 #ifdef _WIN32
-	if(0u == millisecs)
+	if (0u == millisecs)
 	{
 		result = si_thread_join(p_thread);
 		goto END;
 	}
 	result = WaitForSingleObject(*p_thread, millisecs);
-	if(WAIT_OBJECT_0 != result)
+	if (WAIT_OBJECT_0 != result)
 	{
 		goto END;
 	}
 	(void)GetExitCodeThread(*p_thread, &result);
-#elif defined(__APPLE__) || defined(__linux__) || defined(__unix__)
+#elif SI_PTHREAD
 	struct timespec abs_time = {0};
 	const int get_time = clock_gettime(CLOCK_REALTIME, &abs_time);
-	if (0 != get_time)
+	if (SI_PTHREAD_SUCCESS != get_time)
 	{
 		result = si_thread_join(p_thread);
 		goto END;
 	}
-	const long to_nanosecs = (((long)millisecs) * 1000000L);
+	const long milli_to_nano = 1000000L;
+	const long to_nanosecs = (((long)millisecs) * milli_to_nano);
 	// Handle Overflows
-	if (to_nanosecs / ((long)millisecs) != 1000000L)
+	if (to_nanosecs / ((long)millisecs) != milli_to_nano)
 	{
 		result = si_thread_join(p_thread);
 		goto END;

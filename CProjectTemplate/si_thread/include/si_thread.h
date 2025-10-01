@@ -5,6 +5,12 @@
  *           better cross-platform support.
 */
 
+#if defined(__APPLE__) || defined(__linux__) || defined(__unix__)
+#define SI_PTHREAD (1)
+#else
+#define SI_PTHREAD (0)
+#endif// Test for PThreads
+
 #define SI_PTHREAD_SUCCESS (0)
 #define SI_PTHREAD_ERROR   (-1)
 
@@ -15,7 +21,7 @@
 #include <sysinfoapi.h> // GetSystemInfo(), SYSTEM_INFO
 #include <synchapi.h> // WaitForSingleObject(), WaitForSingleObjectEx()
 
-#elif defined(__APPLE__) || defined(__linux__) || defined(__unix__)
+#elif SI_PTHREAD
 
 #ifndef _POSIX_C_SOURCE
 // Define default minimum POSIX Feature version
@@ -67,7 +73,7 @@ int pthread_timedjoin(pthread_t thread, void** pp_result,
 #define si_thread_free(thread) \
 	((void)CloseHandle(thread); thread = INVALID_HANDLE_VALUE;)
 
-#elif defined(__APPLE__) || defined(__linux__) || defined(__unix__)
+#elif SI_PTHREAD
 
 #define si_thread_t pthread_t
 #define si_thread_id_t unsigned long
