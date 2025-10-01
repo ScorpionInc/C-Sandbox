@@ -181,6 +181,10 @@ static void* si_threadpool_worker(si_threadpool_t* const p_param)
 				free(p_results);
 				goto CONTINUE;
 			}
+			else
+			{
+				si_cond_signal(&(p_pool->results_appended_signal));
+			}
 			si_mutex_unlock(&(p_pool->results_lock));
 		}
 		si_cond_signal(&(p_pool->task_completed_signal));
@@ -249,6 +253,7 @@ void si_threadpool_init_2(si_threadpool_t* const p_pool,
 	}
 
 	atomic_store(&(p_pool->task_counter), 0u);
+	si_cond_init(&(p_pool->results_appended_signal));
 	si_cond_init(&(p_pool->task_completed_signal));
 	si_array_init_3(&(p_pool->pool), sizeof(pthread_t), 0u);
 	si_parray_init_2(&(p_pool->results), 0u);
@@ -407,7 +412,15 @@ inline size_t si_threadpool_enqueue(si_threadpool_t* const p_pool,
 	return si_threadpool_enqueue_3(p_pool, p_task, NULL);
 }
 
-void* si_threadpool_pop_results(si_threadpool_t* const p_pool,
+/** Doxygen
+ * @brief Version of pop_results that doesn't lock for use of an await signal.
+ * 
+ * @param p_pool Pointer to si_threadpool_t to pop results value from.
+ * @param task_id ID of the task to be found and removed/popped.
+ * 
+ * @return Returns value pointer on success. Returns NULL otherwise.
+ */
+static void* local_si_threadpool_pop_results(si_threadpool_t* const p_pool,
 	const size_t task_id)
 {
 	void* p_result = NULL;
@@ -415,8 +428,8 @@ void* si_threadpool_pop_results(si_threadpool_t* const p_pool,
 	{
 		goto END;
 	}
-	si_mutex_lock(&(p_pool->results_lock));
 
+	// *DANGER* This local function intentionally doesn't lock the mutex.
 	const size_t results_capacity = p_pool->results.array.capacity;
 	for (size_t iii = 0u; iii < results_capacity; iii++)
 	{
@@ -432,7 +445,20 @@ void* si_threadpool_pop_results(si_threadpool_t* const p_pool,
 			break;
 		}
 	}
+END:
+	return p_result;
+}
 
+void* si_threadpool_pop_results(si_threadpool_t* const p_pool,
+	const size_t task_id)
+{
+	void* p_result = NULL;
+	if ((NULL == p_pool) || (SI_THREADPOOL_TASK_ID_INVALID == task_id))
+	{
+		goto END;
+	}
+	si_mutex_lock(&(p_pool->results_lock));
+	p_result = local_si_threadpool_pop_results(p_pool, task_id);
 	si_mutex_unlock(&(p_pool->results_lock));
 END:
 	return p_result;
@@ -441,18 +467,25 @@ END:
 void* si_threadpool_await_results(si_threadpool_t* const p_pool,
 	const size_t task_id)
 {
-	if(NULL == p_pool)
+	if((NULL == p_pool) || (SI_THREADPOOL_TASK_ID_INVALID == task_id))
 	{
 		goto END;
 	}
 	void* p_results = NULL;
 	while (NULL == p_results)
 	{
-		p_results = si_threadpool_pop_results(p_pool, task_id);
+		const bool is_running = atomic_load(&(p_pool->is_running));
+		if (true != is_running)
+		{
+			break;
+		}
+		si_mutex_lock(&(p_pool->results_lock));
+		p_results = local_si_threadpool_pop_results(p_pool, task_id);
 		if (NULL == p_results)
 		{
-			sleep(1);
+			si_cond_wait(&(p_pool->results_appended_signal), &(p_pool->results_lock));
 		}
+		si_mutex_unlock(&(p_pool->results_lock));
 	}
 END:
 	return p_results;
@@ -552,6 +585,11 @@ void si_threadpool_stop_2(si_threadpool_t* const p_pool,
 	}
 	atomic_store(&(p_pool->is_running), false);
 
+	// Wake up anything waiting on these signals so they can check the
+	// current/new run state of the threadpool.
+	si_cond_broadcast(&(p_pool->results_appended_signal));
+	si_cond_broadcast(&(p_pool->task_completed_signal));
+
 	bool timeout_created = true;
 	struct timespec timeout = {0};
 	const int gettime_result = clock_gettime(CLOCK_REALTIME, &timeout);
@@ -627,6 +665,11 @@ void si_threadpool_stop(si_threadpool_t* const p_pool)
 	}
 	atomic_store(&(p_pool->is_running), false);
 
+	// Wake up anything waiting on these signals so they can check the
+	// current/new run state of the threadpool.
+	si_cond_broadcast(&(p_pool->results_appended_signal));
+	si_cond_broadcast(&(p_pool->task_completed_signal));
+
 	si_mutex_lock(&(p_pool->pool_lock));
 
 	const size_t thread_count = p_pool->pool.capacity;
@@ -662,9 +705,9 @@ void si_threadpool_free(si_threadpool_t* const p_pool)
 	si_mutex_lock(&(p_pool->pool_lock));
 	si_mutex_lock(&(p_pool->results_lock));
 
-	si_array_free(&(p_pool->pool));
 	si_parray_free(&(p_pool->results));
 	si_priority_queue_free(&(p_pool->queue));
+	si_cond_free(&(p_pool->results_appended_signal));
 	si_cond_free(&(p_pool->task_completed_signal));
 
 	si_mutex_unlock(&(p_pool->task_counter_lock));

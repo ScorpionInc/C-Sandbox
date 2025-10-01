@@ -41,7 +41,7 @@ static void* example_task(si_logger_t* p_param)
 static void* looping_task(si_logger_t* p_param)
 {
 	si_logger_warning(p_param, "Drink Water!");
-	sleep(15);
+	sleep(12);
 	return NULL;
 }
 
@@ -64,10 +64,7 @@ static void handle_signal(int signal)
 {
 	// NOP to make -Wpedantic happy.
 	(void)signal;
-	if (NULL != p_threadpool)
-	{
-		si_threadpool_destroy(&p_threadpool);
-	}
+	si_threadpool_stop(p_threadpool);
 }
 
 static void si_threadpool_test_run(void)
@@ -106,13 +103,19 @@ static void si_threadpool_test_run(void)
 	TEST_ASSERT_NOT_EQUAL_size_t(SI_THREADPOOL_TASK_ID_INVALID, rtask_id);
 
 	si_logger_info(p_logger, "Waiting for results.");
-	si_threadpool_await_results(p_threadpool, rtask_id);
+	void* const p_result = si_threadpool_await_results(p_threadpool, rtask_id);
+	if(NULL == p_result)
+	{
+		// Threadpool was stopped/interupted before results were calculated.
+		goto END;
+	}
 	si_logger_info(
 		p_logger, "Got task results! New value: %d.", int_parameter
 	);
 	si_threadpool_await(&p_threadpool);
-	si_logger_info(p_logger, "No longer awaiting.");
 
+END:
+	si_logger_info(p_logger, "No longer awaiting.");
 	si_logger_destroy(&p_logger);
 	TEST_ASSERT_NULL(p_logger);
 	si_threadpool_destroy(&p_threadpool);

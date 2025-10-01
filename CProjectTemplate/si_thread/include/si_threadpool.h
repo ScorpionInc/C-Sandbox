@@ -60,6 +60,7 @@ typedef struct si_threadpool_t
 	si_mutex_t results_lock;
 	volatile atomic_bool is_running;
 	volatile _Atomic size_t task_counter;
+	si_cond_t results_appended_signal;
 	si_cond_t task_completed_signal;
 	si_array_t pool;
 	si_parray_t results;
