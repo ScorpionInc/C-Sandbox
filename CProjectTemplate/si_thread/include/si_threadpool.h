@@ -1,4 +1,4 @@
-/* threadpool.h
+/* si_threadpool.h
  * Language: C
  * Created : 20250904
  * Purpose : Structure for passing work functions to a thread pool of workers.
@@ -24,7 +24,7 @@
 #define _GNU_SOURCE
 #endif//_GNU_SOURCE
 
-#include <pthread.h>
+#include <pthread.h> // pthread_create()
 #include <signal.h> // pthread_kill()
 #include <unistd.h> // sysconf, usleep
 
