@@ -134,7 +134,7 @@ END:
 	return result;
 }
 
-si_thread_func_return_t si_thread_timedjoin(si_thread_t* const p_thread,
+si_thread_func_return_t si_thread_timedjoin_3(si_thread_t* const p_thread,
 	const uint32_t millisecs, const bool kill)
 {
 	si_thread_func_return_t result = (si_thread_func_return_t)0;
