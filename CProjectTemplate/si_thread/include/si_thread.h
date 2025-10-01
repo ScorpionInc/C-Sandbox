@@ -71,6 +71,7 @@ int pthread_timedjoin(pthread_t thread, void** pp_result,
 #define si_thread_is_running(thread) \
 	(WAIT_TIMEOUT == WaitForSingleObject(thread, 0))
 
+#define si_thread_exit(code) ExitThread(code)
 #define si_thread_kill(thread) \
 	(SI_PTHREAD_SUCCESS != TerminateThread(thread, 0))
 #define si_thread_free(thread) \
@@ -95,6 +96,7 @@ int pthread_timedjoin(pthread_t thread, void** pp_result,
 #define si_thread_is_running(thread) \
 	(si_thread_is_valid(thread))
 
+#define si_thread_exit(p_ret) pthread_exit(p_ret)
 #define si_thread_kill(thread) \
 	(SI_PTHREAD_SUCCESS == pthread_kill(thread, SIGKILL))
 #define si_thread_free(thread) // NOP
