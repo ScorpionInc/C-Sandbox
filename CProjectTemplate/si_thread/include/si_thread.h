@@ -51,6 +51,7 @@ int pthread_timedjoin(pthread_t thread, void** pp_result,
 #warning Unknown/Unsupported Operating System.
 #endif // OS Test
 
+#include <errno.h> // ETIMEDOUT
 #include <stdbool.h> // bool, false, true
 #include <stdint.h> // uint32_t
 
@@ -107,6 +108,9 @@ int pthread_timedjoin(pthread_t thread, void** pp_result,
 size_t si_cpu_core_count();
 
 si_thread_func_return_t si_thread_join(si_thread_t* const p_thread);
+
+si_thread_func_return_t si_thread_timedjoin_3(si_thread_t* const p_thread,
+	const uint32_t millisecs, const bool kill);
 si_thread_func_return_t si_thread_timedjoin(si_thread_t* const p_thread,
 	const uint32_t millisecs);
 

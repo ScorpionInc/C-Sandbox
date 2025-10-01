@@ -135,7 +135,7 @@ END:
 }
 
 si_thread_func_return_t si_thread_timedjoin(si_thread_t* const p_thread,
-	const uint32_t millisecs)
+	const uint32_t millisecs, const bool kill)
 {
 	si_thread_func_return_t result = (si_thread_func_return_t)0;
 	if (NULL == p_thread)
@@ -147,12 +147,12 @@ si_thread_func_return_t si_thread_timedjoin(si_thread_t* const p_thread,
 	{
 		goto END;
 	}
-#ifdef _WIN32
 	if (0u == millisecs)
 	{
 		result = si_thread_join(p_thread);
 		goto END;
 	}
+#ifdef _WIN32
 	result = WaitForSingleObject(*p_thread, millisecs);
 	if (WAIT_OBJECT_0 != result)
 	{
@@ -176,8 +176,27 @@ si_thread_func_return_t si_thread_timedjoin(si_thread_t* const p_thread,
 		goto END;
 	}
 	abs_time.tv_nsec += to_nanosecs;
-	(void)pthread_timedjoin(*p_thread, &result, &abs_time);
+	const int ptj_result = pthread_timedjoin(*p_thread, &result, &abs_time);
+	if(true != kill)
+	{
+		goto END;
+	}
+	if (ETIMEDOUT == ptj_result)
+	{
+		// Patience has expired. Time for thread murder :)
+		const bool sent_kill = si_thread_kill(*p_thread);
+		if (true == sent_kill)
+		{
+			result = si_thread_join(p_thread);
+		}
+	}
 #endif// OS Specific implementation(s)
 END:
 	return result;
+}
+inline si_thread_func_return_t si_thread_timedjoin(si_thread_t* const p_thread,
+	const uint32_t millisecs)
+{
+	// Default value of kill is false.
+	return si_thread_timedjoin_3(p_thread, millisecs, false);
 }
