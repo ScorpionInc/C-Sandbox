@@ -1,4 +1,7 @@
-/* si_arg_validators.h - 20250926
+/* si_arg_validators.h
+ * Language: C
+ * Purpose : Created to provide common validators for use with si_argparse
+ * Created : 20250926
  */
 
 #ifdef __linux__
