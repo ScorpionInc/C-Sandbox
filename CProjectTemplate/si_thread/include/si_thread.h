@@ -39,6 +39,15 @@
 #include <unistd.h> // sysconf, usleep
 
 #if defined(__APPLE__)
+/** Doxygen
+ * @brief Implements a timeout thread for the thread join operation for Mac OS.
+ * 
+ * @param thread pthread_t to be joined.
+ * @param pp_result Address of the returned value pointer to hold thread result
+ * @param p_timeout Pointer to the timespec struct holding the time to expire.
+ * 
+ * @return Returns the same int values of pthread_timedjoin_np() (hopefully).
+ */
 int pthread_timedjoin(pthread_t thread, void** pp_result,
 	struct timespec* p_timeout);
 #else
@@ -107,10 +116,31 @@ int pthread_timedjoin(pthread_t thread, void** pp_result,
 #ifndef SI_THREAD_H
 #define SI_THREAD_H
 
+/** Doxygen
+ * @brief Determines the number of CPU cores available according to the OS.
+ * 
+ * @return Returns the size_t count of CPU cores on success, or 1 otherwise.
+ */
 size_t si_cpu_core_count();
 
+/** Doxygen
+ * @brief Joins a specified si_thread_t and returns its thread value.
+ * 
+ * @param p_thread Pointer to the si_thread_t to be joined.
+ * 
+ * @return Returns the return value type of the thread function(OS specific).
+ */
 si_thread_func_return_t si_thread_join(si_thread_t* const p_thread);
 
+/** Doxygen
+ * @brief Joins a specified si_thread_t with a timeout. Optionally kills thread
+ * 
+ * @param p_thread Pointer to the si_thread_t to be joined.
+ * @param millisecs Millisecs from now to timeout the join(). (0 is blocking)
+ * @param kill Optional stdbool flag says if kill sig should be sent on timeout
+ * 
+ * @return Returns the return value type of the thread function(OS specific).
+ */
 si_thread_func_return_t si_thread_timedjoin_3(si_thread_t* const p_thread,
 	const uint32_t millisecs, const bool kill);
 si_thread_func_return_t si_thread_timedjoin(si_thread_t* const p_thread,
