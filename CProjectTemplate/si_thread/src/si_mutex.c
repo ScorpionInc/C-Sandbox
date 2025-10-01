@@ -45,7 +45,7 @@ END:
 	return p_result;
 }
 
-#elif defined(__APPLE__) || defined(__linux__) || defined(__unix__)
+#elif SI_PTHREAD
 
 void si_mutexattr_init_2(pthread_mutexattr_t* const p_mutexattr,
 	const int mutex_type)
@@ -203,7 +203,7 @@ void si_mutex_free(si_mutex_t* const p_mutex)
 END:
 	return;
 }
-#endif// defined(__APPLE__) || defined(__linux__) || defined(__unix__)
+#endif// SI_PTHREAD
 
 
 void si_mutex_destroy(si_mutex_t** const pp_mutex)

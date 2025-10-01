@@ -4,12 +4,18 @@
  * Purpose: Generalize mutex functions for better cross-platform support.
  */
 
+#if defined(__APPLE__) || defined(__linux__) || defined(__unix__)
+#define SI_PTHREAD (1)
+#else
+#define SI_PTHREAD (0)
+#endif// Test for PThreads
+
 #define SI_PTHREAD_SUCCESS (0)
 #define SI_PTHREAD_ERROR   (-1)
 
 #ifdef _WIN32
 #include <windows.h>
-#elif defined(__APPLE__) || defined(__linux__) || defined(__unix__)
+#elif SI_PTHREAD
 
 #ifndef _POSIX_C_SOURCE
 // Define default minimum POSIX Feature version
@@ -36,6 +42,7 @@
 #define SI_MUTEX_H
 
 #ifdef _WIN32
+
 #define SI_COND_STATIC_INIT CONDITION_VARIABLE_INIT
 typedef CONDITION_VARIABLE si_cond_t;
 #define si_cond_init(c) InitializeConditionVariable(c)
@@ -51,7 +58,9 @@ typedef CRITICAL_SECTION si_mutex_t;
 #define si_mutex_lock(m) EnterCriticalSection(m)
 #define si_mutex_unlock(m) LeaveCriticalSection(m)
 #define si_mutex_free(m) DeleteCriticalSection(m)
-#elif defined(__APPLE__) || defined(__linux__) || defined(__unix__)
+
+#elif SI_PTHREAD
+
 #define SI_COND_STATIC_INIT PTHREAD_COND_INITIALIZER
 typedef pthread_cond_t si_cond_t;
 #define si_cond_init(c) pthread_cond_init(c, NULL)
@@ -158,4 +167,4 @@ si_mutex_t* si_mutex_new();
  */
 void si_mutex_destroy(si_mutex_t** const pp_mutex);
 
-#endif//SI_MUTEX_H
+#endif// SI_MUTEX_H
