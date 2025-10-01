@@ -1,4 +1,7 @@
-/* si_arg_parsers.h - 20250926
+/* si_arg_parsers.h
+ * Language: C
+ * Purpose : Created to provide common parsers for use with si_argparse.
+ * Created : 20250926
  */
 
 #include <errno.h>  // errno, ERANGE
