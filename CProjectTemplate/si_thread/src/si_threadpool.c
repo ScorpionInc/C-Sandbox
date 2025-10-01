@@ -1,28 +1,6 @@
 // si_threadpool.c
 #include "si_threadpool.h"
 
-size_t si_cpu_core_count()
-{
-	size_t count = 1u;
-#ifdef _WIN32
-	SYSTEM_INFO sys_info;
-	GetSystemInfo(&sys_info);
-	count = sys_info.dwNumberOfProcessors;
-#elif defined(__APPLE__) || defined(__linux__) || defined(__unix__)
-	const long sysconf_result = sysconf(_SC_NPROCESSORS_ONLN);
-	if(0L >= sysconf_result)
-	{
-		goto END;
-	}
-	count = (size_t)sysconf_result;
-#else
-	// Assumes this is a single-core processor.
-#endif // OS Specific implementation(s)
-END:
-	return count;
-}
-
-
 // Local scope structure to hold task values in the queue.
 typedef struct local_task_t
 {
@@ -122,13 +100,17 @@ END:
  * 
  * @return Returns the same pointer received.
  */
-static void* si_threadpool_worker(si_threadpool_t* const p_param)
+static si_thread_func_t si_threadpool_worker(void* const p_param)
 {
-	si_threadpool_t* const p_pool = p_param;
-	if (NULL == p_pool)
+	si_thread_func_return_t result = (si_thread_func_return_t)0;
+#ifdef SI_PTHREAD
+	result = p_param;
+#endif// SI_PTHREAD
+	if (NULL == p_param)
 	{
 		goto END;
 	}
+	si_threadpool_t* const p_pool = p_param;
 	local_task_t* p_task = NULL;
 	bool is_running = atomic_load(&(p_pool->is_running));
 	while (true == is_running)
@@ -197,6 +179,7 @@ CONTINUE:
 		}
 		is_running = atomic_load(&(p_pool->is_running));
 
+#ifdef SI_PTHREAD
 		int cancel_result = pthread_setcancelstate(
 			PTHREAD_CANCEL_ENABLE, NULL
 		);
@@ -214,10 +197,10 @@ CONTINUE:
 			// Failed to disable the cancellation state(s).
 			goto END;
 		}
+#endif// SI_PTHREAD
 	}
 END:
-	pthread_exit(p_param);
-	return p_param;
+	return result;
 }
 
 
@@ -255,7 +238,7 @@ void si_threadpool_init_2(si_threadpool_t* const p_pool,
 	atomic_store(&(p_pool->task_counter), 0u);
 	si_cond_init(&(p_pool->results_appended_signal));
 	si_cond_init(&(p_pool->task_completed_signal));
-	si_array_init_3(&(p_pool->pool), sizeof(pthread_t), 0u);
+	si_array_init_3(&(p_pool->pool), sizeof(si_thread_t), 0u);
 	si_parray_init_2(&(p_pool->results), 0u);
 	p_pool->results.p_free_value = free;
 
@@ -544,20 +527,20 @@ void si_threadpool_start_2(si_threadpool_t* const p_pool,
 	{
 		si_array_free(&(p_pool->pool));
 	}
-	si_array_init_3(&(p_pool->pool), sizeof(pthread_t), thread_count);
+	si_array_init_3(&(p_pool->pool), sizeof(si_thread_t), thread_count);
 
 	for (size_t iii = 0u; iii < thread_count; iii++)
 	{
-		pthread_t* p_thread = si_array_at(&(p_pool->pool), iii);
+		si_thread_t* p_thread = si_array_at(&(p_pool->pool), iii);
 		if (NULL == p_thread)
 		{
 			break;
 		}
-		const int create_result = pthread_create(
-			p_thread, NULL,
-			(void* (*)(void*))si_threadpool_worker, (void*)p_pool
+		si_thread_create(
+			p_thread, (void* (*)(void*))si_threadpool_worker, (void*)p_pool
 		);
-		if (0 != create_result)
+		const bool is_valid = si_thread_is_valid(*p_thread);
+		if (true != is_valid)
 		{
 			break;
 		}
@@ -575,9 +558,8 @@ inline void si_threadpool_start(si_threadpool_t* const p_pool)
 	si_threadpool_start_2(p_pool, core_count);
 }
 
-#ifdef _GNU_SOURCE
 void si_threadpool_stop_2(si_threadpool_t* const p_pool,
-	const time_t timeout_offset)
+	const uint32_t timeout_offset)
 {
 	if (NULL == p_pool)
 	{
@@ -590,60 +572,23 @@ void si_threadpool_stop_2(si_threadpool_t* const p_pool,
 	si_cond_broadcast(&(p_pool->results_appended_signal));
 	si_cond_broadcast(&(p_pool->task_completed_signal));
 
-	bool timeout_created = true;
-	struct timespec timeout = {0};
-	const int gettime_result = clock_gettime(CLOCK_REALTIME, &timeout);
-	if (0 != gettime_result)
-	{
-		timeout_created = false;
-	}
-	else
-	{
-		timeout.tv_sec += timeout_offset;
-	}
-
 	si_mutex_lock(&(p_pool->pool_lock));
 
 	const size_t thread_count = p_pool->pool.capacity;
 	for (size_t iii = 0u; iii < thread_count; iii++)
 	{
-		pthread_t* p_thread = si_array_at(&(p_pool->pool), iii);
+		si_thread_t* p_thread = si_array_at(&(p_pool->pool), iii);
 		if (NULL == p_thread)
 		{
 			continue;
 		}
+#ifdef SI_PTHREAD
 		// We verify thread is cancelable when it was created.
 		(void)pthread_cancel(*p_thread);
-
-		int join_result = EXIT_FAILURE;
-		if ((true == timeout_created) && (0 < timeout_offset))
-		{
-			join_result = pthread_timedjoin_np(*p_thread, NULL, &timeout);
-		}
-		else
-		{
-			join_result = pthread_join(*p_thread, NULL);
-		}
-
-		if (ETIMEDOUT == join_result)
-		{
-			// Join has timed out. Time for the murder signal :)
-			const int sent_kill = pthread_kill(*p_thread, SIGKILL);
-			if (SI_PTHREAD_SUCCESS == sent_kill)
-			{
-				(void)pthread_join(*p_thread, NULL);
-			}
-			else
-			{
-				// Couldn't send thread a kill signal so don't retry the join
-				// as the thread's state was/remains unchanged.
-			}
-		}
-		else
-		{
-			// Thread is already being joined (EBUSY, EDEADLK, EDEADLOCK).
-			// Or an unknown fault has occurred (EFAULT).
-		}
+#endif// SI_PTHREAD
+		(void)si_thread_timedjoin_3(
+			p_thread, timeout_offset, true
+		);
 	}
 	si_array_free(&(p_pool->pool));
 
@@ -656,42 +601,6 @@ inline void si_threadpool_stop(si_threadpool_t* const p_pool)
 	// Default value of timeout is 0(blocks forever)
 	si_threadpool_stop_2(p_pool, 0);
 }
-#else
-void si_threadpool_stop(si_threadpool_t* const p_pool)
-{
-	if (NULL == p_pool)
-	{
-		goto END;
-	}
-	atomic_store(&(p_pool->is_running), false);
-
-	// Wake up anything waiting on these signals so they can check the
-	// current/new run state of the threadpool.
-	si_cond_broadcast(&(p_pool->results_appended_signal));
-	si_cond_broadcast(&(p_pool->task_completed_signal));
-
-	si_mutex_lock(&(p_pool->pool_lock));
-
-	const size_t thread_count = p_pool->pool.capacity;
-	for (size_t iii = 0u; iii < thread_count; iii++)
-	{
-		pthread_t* p_thread = si_array_at(&(p_pool->pool), iii);
-		if (NULL == p_thread)
-		{
-			continue;
-		}
-		// We verify thread is cancelable when it was created.
-		(void)pthread_cancel(*p_thread);
-		// If thread is invalid or already we joining continue.
-		(void)pthread_join(*p_thread, NULL);
-	}
-	si_array_free(&(p_pool->pool));
-
-	si_mutex_unlock(&(p_pool->pool_lock));
-END:
-	return;
-}
-#endif//_GNU_SOURCE
 
 void si_threadpool_free(si_threadpool_t* const p_pool)
 {

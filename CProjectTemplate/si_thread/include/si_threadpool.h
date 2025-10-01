@@ -6,37 +6,14 @@
 
 #include "si_array.h" // si_array_t
 #include "si_parray.h" // si_parray_t
-
-#ifdef _WIN32
-
-#include <processthreadsapi.h> // CreateThread
-#include <sysinfoapi.h> // GetSystemInfo(), SYSTEM_INFO
-
-#elif defined(__APPLE__) || defined(__linux__) || defined(__unix__)
-
-#ifndef _POSIX_C_SOURCE
-// Define default minimum POSIX Feature version
-#define _POSIX_C_SOURCE 200809L
-#endif//_POSIX_C_SOURCE
-
-#ifndef _GNU_SOURCE
-// Include GNU Sources
-#define _GNU_SOURCE
-#endif//_GNU_SOURCE
-
-#include <pthread.h> // pthread_create()
-#include <signal.h> // pthread_kill()
-#include <unistd.h> // sysconf, usleep
-
-#endif // OS Test
+#include "si_priority_queue.h" // si_priority_queue_t
+#include "si_thread.h" // si_thread_t
+#include "si_mutex.h" // si_mutex_new(), si_mutex_lock(), si_mutex_unlock()
 
 #include <errno.h> // ETIMEDOUT
 #include <stdatomic.h> // atomic_bool
 #include <stdbool.h> //bool, false, true
 #include <time.h> // timespec, time_t, clock_gettime()
-
-#include "si_priority_queue.h" // si_priority_queue_t
-#include "si_mutex.h" // si_mutex_new(), si_mutex_lock(), si_mutex_unlock()
 
 #define SI_THREADPOOL_TASK_ID_INVALID (SIZE_MAX)
 #define SI_THREADPOOL_PRIORITY_MIN (0u)
@@ -48,8 +25,6 @@
 
 #ifndef SI_THREADPOOL_H
 #define SI_THREADPOOL_H
-
-size_t si_cpu_core_count();
 
 typedef void* (*p_task_f)(void*);
 
@@ -158,16 +133,14 @@ void si_threadpool_start_2(si_threadpool_t* const p_pool,
 	const size_t thread_count);
 void si_threadpool_start  (si_threadpool_t* const p_pool);
 
-#ifdef _GNU_SOURCE
 /** Doxygen
  * @brief Stops a started/running threadpool at address with a timeout.
  * 
  * @param p_pool Pointer to the thread pool struct to stop threads of.
- * @param timeout time_t offset in secs before kill is signaled. 0 = no timeout
+ * @param timeout millisec offset before kill is signaled. 0 = no timeout
  */
 void si_threadpool_stop_2(si_threadpool_t* const p_pool,
-	const time_t timeout);
-#endif//_GNU_SOURCE
+	const uint32_t timeout);
 
 /** Doxygen
  * @brief Blocking stops/joins a started/running threadpool at address.
