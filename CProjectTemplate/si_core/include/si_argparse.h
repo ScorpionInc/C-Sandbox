@@ -1,9 +1,8 @@
 /* si_argparse.h
  * Language: C
- * Authors: ScorpionInc
- * Purpose: Defines struct with functions for parsing program arguments.
- * Created: 20250807
- * Updated: 20250811
+ * Purpose : Defines struct with functions for parsing program arguments.
+ * Created : 20250807
+ * Updated : 20250811
 //*/
 
 #include <limits.h> // INT_MAX
