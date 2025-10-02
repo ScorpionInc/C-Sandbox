@@ -1,384 +1,6 @@
 // si_argparse.c
 #include "si_argparse.h"
 
-void si_arg_init(si_arg_t* const p_arg)
-{
-	if (NULL == p_arg)
-	{
-		goto END;
-	}
-	p_arg->is_optional = SI_ARGPARSE_DEFAULT_OPTIONAL;
-	p_arg->p_full = NULL;
-	p_arg->flag = '\0';
-	p_arg->p_help = NULL;
-	p_arg->minimum_values = 0u;
-	p_arg->maximum_values = 0u;
-	p_arg->p_values = NULL;
-	p_arg->p_validate = NULL;
-	p_arg->p_free_value = NULL;
-END:
-	return;
-}
-
-si_arg_t* si_arg_new()
-{
-	si_arg_t* p_new = NULL;
-	p_new = calloc(1u, sizeof(si_arg_t));
-	if (NULL == p_new)
-	{
-		goto END;
-	}
-	si_arg_init(p_new);
-END:
-	return p_new;
-}
-
-bool si_arg_is_valid(const si_arg_t* const p_arg)
-{
-	bool result = false;
-	if (NULL == p_arg)
-	{
-		goto END;
-	}
-	if ((NULL == p_arg->p_full) && ('\0' == p_arg->flag))
-	{
-		goto END;
-	}
-	if (p_arg->maximum_values < p_arg->minimum_values)
-	{
-		goto END;
-	}
-	result = true;
-END:
-	return result;
-}
-
-bool si_arg_is_valid_values(const si_arg_t* const p_arg)
-{
-	bool result = false;
-	const bool basic_valid = si_arg_is_valid(p_arg);
-	if (false == basic_valid)
-	{
-		goto END;
-	}
-	if (NULL == p_arg->p_values)
-	{
-		if (p_arg->is_optional)
-		{
-			// Not required and no values (which is fine)
-			result = true;
-			goto END;
-		}
-		goto END;
-	}
-	if ((p_arg->minimum_values > p_arg->p_values->capacity) ||
-	    (p_arg->maximum_values < p_arg->p_values->capacity))
-	{
-		goto END;
-	}
-	for (size_t iii = 0u; iii < p_arg->p_values->capacity; iii++)
-	{
-		void** pp_value = si_array_at(p_arg->p_values, iii);
-		if (NULL == pp_value)
-		{
-			goto END;
-		}
-		if (NULL != p_arg->p_validate)
-		{
-			const bool is_valid = p_arg->p_validate(*pp_value);
-			if (false == is_valid)
-			{
-				goto END;
-			}
-		}
-		else
-		{
-			// Simple default validation
-			if (NULL == *pp_value)
-			{
-				goto END;
-			}
-		}
-	}
-	result = true;
-END:
-	return result;
-}
-
-bool si_arg_is_set(const si_arg_t* const p_arg)
-{
-	bool result = false;
-	if (NULL == p_arg)
-	{
-		goto END;
-	}
-	result = (NULL != p_arg->p_values);
-END:
-	return result;
-}
-
-bool si_arg_matches(const si_arg_t* const p_arg, const char* p_str)
-{
-	bool result = false;
-	if ((NULL == p_arg) || (NULL == p_str))
-	{
-		goto END;
-	}
-	// String lengths
-	size_t       full_len = 0u;
-	const size_t str_len  = strnlen(p_str, __INT_MAX__);
-	
-	int cmp = -1;
-	// Direct full string compare
-	if (NULL != p_arg->p_full)
-	{
-		full_len = strnlen(p_arg->p_full, __INT_MAX__);
-		if (full_len == str_len)
-		{
-			cmp = strncmp(p_arg->p_full, p_str, full_len);
-		}
-	}
-	if (0 == cmp)
-	{
-		result = true;
-		goto END;
-	}
-	// Direct flag compare
-	if (str_len == 1u)
-	{
-		if (p_arg->flag == p_str[0])
-		{
-			result = true;
-			goto END;
-		}
-	}
-
-	// Handles (-/--) formats
-	if (2u > str_len)
-	{
-		goto END;
-	}
-	if ('-' != p_str[0u])
-	{
-		goto END;
-	}
-	if (('-' != p_str[1u]) && ('\0' != p_arg->flag))
-	{
-		// Handle flags (-?)
-		// strnchr() doesn't exist, so using memchr() instead.
-		char* p_match = (char*)memchr(&p_str[1u], p_arg->flag, (str_len - 1u));
-		if (NULL != p_match)
-		{
-			result = true;
-			goto END;
-		}
-	}
-	if (('-' == p_str[1u]) && (NULL != p_arg->p_full))
-	{
-		// Handle fulls (--help)
-		if (full_len != (str_len - 2u))
-		{
-			goto END;
-		}
-		cmp = strncmp(p_arg->p_full, &p_str[2u], str_len - 2u);
-	}
-	if (0 == cmp)
-	{
-		result = true;
-		goto END;
-	}
-END:
-	return result;
-}
-
-bool si_arg_append_value(si_arg_t* const p_arg, const void* const p_value)
-{
-	bool result = false;
-	if (NULL == p_arg)
-	{
-		goto END;
-	}
-	if (NULL == p_arg->p_values)
-	{
-		goto END;
-	}
-	const bool did_grow = si_array_resize(
-		p_arg->p_values, p_arg->p_values->capacity + 1u
-	);
-	if (false == did_grow)
-	{
-		goto END;
-	}
-	si_array_set(p_arg->p_values, p_arg->p_values->capacity - 1u, &p_value);
-	result = true;
-END:
-	return result;
-}
-
-void si_arg_fprint_id(const si_arg_t* const p_arg, FILE* const p_file)
-{
-	if (NULL == p_file)
-	{
-		goto END;
-	}
-	const bool basic_valid = si_arg_is_valid(p_arg);
-	if (false == basic_valid)
-	{
-		goto END;
-	}
-	// Start of printing
-	if ('\0' != p_arg->flag)
-	{
-		fprintf(p_file, "-%c", p_arg->flag);
-		if (NULL != p_arg->p_full)
-		{
-			fprintf(p_file, ", ");
-		}
-	}
-	if (NULL != p_arg->p_full)
-	{
-		fprintf(p_file, "--%s", p_arg->p_full);
-	}
-END:
-	return;
-}
-
-void si_arg_fprint(const si_arg_t* const p_arg, FILE* const p_file)
-{
-	if (NULL == p_file)
-	{
-		goto END;
-	}
-	const bool basic_valid = si_arg_is_valid(p_arg);
-	if (false == basic_valid)
-	{
-		goto END;
-	}
-	// Start of printing
-	si_arg_fprint_id(p_arg, p_file);
-	// Print value fields
-	const size_t value_delta = (p_arg->maximum_values - p_arg->minimum_values);
-	if ((0u < p_arg->minimum_values) || (0u < p_arg->maximum_values))
-	{
-		fprintf(p_file, " ");
-	}
-	if (0u < p_arg->minimum_values)
-	{
-		fprintf(p_file, "[v");
-		if (1u < p_arg->maximum_values)
-		{
-			fprintf(p_file, "0");
-		}
-		if (1u < p_arg->minimum_values)
-		{
-			if (2u < p_arg->minimum_values)
-			{
-				fprintf(p_file, "]...[v%lu", p_arg->minimum_values - 1u);
-			}
-			else
-			{
-				fprintf(p_file, "] [v%lu", p_arg->minimum_values - 1u);
-			}
-		}
-		fprintf(p_file, "]");
-	}
-	// Print optional fields
-	if (0u != value_delta)
-	{
-		fprintf(p_file, "(");
-		if (0u < p_arg->minimum_values)
-		{
-			if (1u < value_delta)
-			{
-				fprintf(p_file, "...");
-			}
-		}
-		fprintf(p_file, "[v");
-		if (0u < p_arg->minimum_values)
-		{
-			fprintf(p_file, "%lu", p_arg->maximum_values - 1u);
-		}
-		else
-		{
-			if (1u < p_arg->maximum_values)
-			{
-				fprintf(p_file, "0");
-			}
-		}
-		fprintf(p_file, "]");
-		if (0u >= p_arg->minimum_values)
-		{
-			if (2u < p_arg->maximum_values)
-			{
-				fprintf(p_file, "...");
-			}
-			if (1u < p_arg->maximum_values)
-			{
-				fprintf(p_file, "[v%lu]", p_arg->maximum_values - 1u);
-			}
-		}
-		fprintf(p_file, ")");
-	}
-	// Print help/description
-	fprintf(p_file, " -\t ");
-	if (NULL == p_arg->p_help)
-	{
-		fprintf(p_file, "A program argument");
-	}
-	else
-	{
-		fprintf(p_file, "%s", p_arg->p_help);
-	}
-END:
-	return;
-}
-
-void si_arg_free(si_arg_t* const p_arg)
-{
-	if (NULL == p_arg)
-	{
-		goto END;
-	}
-	if ((NULL != p_arg->p_values) && (NULL != p_arg->p_free_value))
-	{
-		for (size_t iii = 0u; iii < p_arg->p_values->capacity; iii++)
-		{
-			void** pp_value = si_array_at(p_arg->p_values, iii);
-			if (NULL != pp_value)
-			{
-				p_arg->p_free_value(*pp_value);
-			}
-		}
-	}
-	if (NULL != p_arg->p_values)
-	{
-		si_array_free(p_arg->p_values);
-		free(p_arg->p_values);
-		p_arg->p_values = NULL;
-	}
-END:
-	return;
-}
-
-void si_arg_destroy(si_arg_t** pp_arg)
-{
-	if (NULL == pp_arg)
-	{
-		goto END;
-	}
-	if (NULL == *pp_arg)
-	{
-		// Already freed
-		goto END;
-	}
-	si_arg_free(*pp_arg);
-	free(*pp_arg);
-	*pp_arg = NULL;
-END:
-	return;
-}
-
-
 void si_argparse_init(si_argparse_t* const p_parse)
 {
 	if (NULL == p_parse)
@@ -454,11 +76,13 @@ bool si_argparse_is_valid_values(const si_argparse_t* const p_parse)
 		si_arg_t* p_arg = si_array_at(&(p_parse->arguments), iii);
 		if (NULL == p_arg)
 		{
+			printf("si_argparse_is_valid_values() Bad!\n");//!Debugging
 			goto END;
 		}
 		const bool is_valid = si_arg_is_valid_values(p_arg);
 		if (false == is_valid)
 		{
+			printf("si_argparse_is_valid_values() Invalid!\n");//!Debugging
 			goto END;
 		}
 	}
@@ -554,13 +178,11 @@ void* si_argparse_value_of_3(si_argparse_t* const p_parse,
 	{
 		goto END;
 	}
-	void** const pp_result = si_array_at(p_arg->p_values, value_index);
-	if (NULL == pp_result)
+	p_result = si_parray_at(p_arg->p_values, value_index);
+	if (NULL == p_result)
 	{
 		// Out of bounds or array was invalid.
-		goto END;
 	}
-	p_result = *pp_result;
 END:
 	return p_result;
 }
@@ -590,7 +212,8 @@ size_t si_argparse_count_optional(const si_argparse_t* const p_parse)
 		{
 			break;
 		}
-		if (false != p_arg->is_optional)
+		const bool is_optional = SI_ARG_IS_OPTIONAL(p_arg->bit_flags);
+		if (false != is_optional)
 		{
 			result++;
 		}
@@ -629,38 +252,33 @@ END:
 }
 
 /** Doxygen
- * @brief Finds the next required unset argument at or after index in p_parse.
+ * @brief Finds the next required unset argument in p_parse.
  * 
  * @param p_parse Pointer to the argparse struct to get args from.
- * @param index Where in the arguments array to start from.
  * 
  * @return Returns si_arg_t on success. Returns NULL otherwise.
  */
-static si_arg_t* si_argparse_next_required_arg_at(si_argparse_t* const p_parse,
-	const size_t index)
+static si_arg_t* si_argparse_next_required_arg(si_argparse_t* const p_parse)
 {
 	si_arg_t* p_result = NULL;
 	if (NULL == p_parse)
 	{
 		goto END;
 	}
-	for (size_t iii = index; iii < p_parse->arguments.capacity; iii++)
+	for (size_t iii = 0u; iii < p_parse->arguments.capacity; iii++)
 	{
 		si_arg_t* const p_arg = si_array_at(&(p_parse->arguments), iii);
 		if (NULL == p_arg)
 		{
 			goto END;
 		}
-		if (true == p_arg->is_optional)
+		const bool is_optional = SI_ARG_IS_OPTIONAL(p_arg->bit_flags);
+		const bool is_set = si_arg_is_set(p_arg);
+		if((true != is_optional) && (true != is_set))
 		{
-			continue;
+			p_result = p_arg;
+			break;
 		}
-		if (NULL != p_arg->p_values)
-		{
-			continue;
-		}
-		p_result = p_arg;
-		break;
 	}
 END:
 	return p_result;
@@ -670,116 +288,101 @@ bool si_argparse_parse(si_argparse_t* const p_parse,
 	const int argc, const char** const pp_argv)
 {
 	bool result = false;
-	if ((NULL == p_parse) || (NULL == pp_argv))
+	if ((NULL == p_parse) || (1 > argc) || (NULL == pp_argv))
 	{
+		// Expects at least one argument for the program name.
 		goto END;
 	}
-	if (1 > argc)
-	{
-		// Expects at least one parameter after the program name.
-		goto END;
-	}
+	int arg_start_index = 0;
+	// Handle program name
 	if (NULL == p_parse->p_program_name)
 	{
-		p_parse->p_program_name = strdup(pp_argv[0u]);
-		if (NULL == p_parse->p_program_name)
-		{
-			goto END;
-		}
-		p_parse->p_free_program_name = free;
+		p_parse->p_program_name = pp_argv[arg_start_index];
+		arg_start_index++;
 	}
-	size_t required_counter = 0u;
-	for (int iii = 1; iii < argc; iii++)
+	char* p_arg_id = NULL;
+	while (arg_start_index < argc)
 	{
-		const char* p_next = pp_argv[iii];
-		if (NULL == p_next)
+		const char* const p_next_str = pp_argv[arg_start_index];
+		// Try to find an argument by an id string E.G. (-?/--help)
+		si_arg_t* p_arg = si_argparse_at(p_parse, p_next_str);
+		if (NULL != p_arg)
 		{
-			continue;
-		}
-		si_arg_t* p_arg = si_argparse_at(p_parse, p_next);
-		size_t offset = 0u;
-		if (NULL == p_arg)
-		{
-			p_arg = si_argparse_next_required_arg_at(p_parse, required_counter);
-			if (NULL == p_arg)
+			// We have an ID string so we know that this is intended argument.
+			arg_start_index++;
+			p_arg_id = str_from_fprint(
+				(str_fprint_f)si_arg_fprint_id, p_arg
+			);
+			if (NULL == p_arg->p_values)
 			{
-				fprintf(stderr, "Unhandled/Unknown positional parameter: '%s'.\n", p_next);
-				goto END;
+				p_arg->p_values = si_parray_new();
 			}
-			required_counter++;
+			if (NULL == p_arg->p_values)
+			{
+				fprintf(
+					stderr,
+					"Failed to allocate value buffer for argument '%s'.\n",
+					p_arg_id
+				);
+				break;
+			}
+			p_arg->p_values->p_free_value = free;
 		}
 		else
 		{
-			offset = 1u;
-			if (NULL == p_arg->p_values)
+			// Either not an ID string or the id was not found.
+			// We will try the next required positional argument for parsing.
+			p_arg = si_argparse_next_required_arg(p_parse);
+			if (NULL == p_arg)
 			{
-				p_arg->p_values = si_array_new(sizeof(void*));
-			}
-			if (!p_arg->is_optional)
-			{
-				required_counter++;
-			}
-		}
-		for (size_t jjj = 0u; jjj < p_arg->maximum_values; jjj++)
-		{
-			const size_t argv_index = (size_t)iii + jjj + offset;
-			if ((size_t)argc <= argv_index)
-			{
-				if (jjj < p_arg->minimum_values)
-				{
-					fprintf(stderr, "Reached the end of parameter list "
-						"missing required parameters for argument: '"
-					);
-					si_arg_fprint_id(p_arg, stderr);
-					fprintf(stderr, "'.\n");
-					goto END;
-				}
+				// This too has failed. This is an unexpected argument(?)
+				fprintf(
+					stderr,
+					"Unhandled/Unknown positional parameter: '%s'.\n",
+					p_next_str
+				);
 				break;
 			}
-			p_next = pp_argv[argv_index];
-			void* p_parsed_value = NULL;
-			if (NULL != p_arg->p_parser)
-			{
-				p_parsed_value = p_arg->p_parser(p_next);
-			}
-			else
-			{
-				// No parsing is done. Value is C String
-				p_parsed_value = (char*)p_next;
-			}
-			if (NULL == p_parsed_value)
-			{
-				fprintf(stderr, "Failed to parse parameter value: '%s' for '", p_next);
-				si_arg_fprint_id(p_arg, stderr);
-				fprintf(stderr, "'.\n");
-				goto END;
-			}
-			if (NULL == p_arg->p_values)
-			{
-				p_arg->p_values = si_array_new(sizeof(void*));
-			}
-			bool const added_value = si_arg_append_value(p_arg, p_parsed_value);
-			if (false == added_value)
-			{
-				fprintf(stderr, "Failed to add parsed item '%s' to argument '", p_next);
-				si_arg_fprint_id(p_arg, stderr);
-				fprintf(stderr, "' values.\n");
-			}
+			p_arg_id = str_from_fprint(
+				(str_fprint_f)si_arg_fprint_id, p_arg
+			);
 		}
-		int parameter_change = 0;
-		if ((NULL != p_arg->p_values) &&
-		    (INT_MAX >= p_arg->p_values->capacity))
+		// At this point we have identified the argument we want to parse.
+		size_t values_parsed = si_arg_parse(
+			p_arg, argc - arg_start_index, &(pp_argv[arg_start_index])
+		);
+		// Handle Overflows
+		if (INT_MAX <= (values_parsed + ((size_t)arg_start_index)))
 		{
-			parameter_change = (int)p_arg->p_values->capacity - (!offset);
+			break;
 		}
-		iii += parameter_change;
+		const bool do_prompt = SI_ARG_DOES_PROMPT(p_arg->bit_flags);
+		if(true == do_prompt)
+		{
+			values_parsed += si_arg_prompt(p_arg);
+		}
+		arg_start_index += values_parsed;
+		if (values_parsed < p_arg->minimum_values)
+		{
+			fprintf(
+				stderr, "Argument: '%s' expected at least: %d values and got: %lu "
+				"values instead.\n", p_arg_id, p_arg->minimum_values, values_parsed
+			);
+			result = false;
+			si_parray_destroy(&(p_arg->p_values));
+			break;
+		}
+		free((void*)p_arg_id);
+		p_arg_id = NULL;
 	}
-	result = (required_counter == si_argparse_count_required(p_parse));
+	free((void*)p_arg_id);
+	p_arg_id = NULL;
+	result = si_argparse_is_valid_values(p_parse);
 END:
 	return result;
 }
 
-void si_argparse_fprint_help(si_argparse_t* const p_parse, FILE* const p_file)
+void si_argparse_fprint_help(FILE* const p_file, si_argparse_t* const p_parse)
 {
 	if ((NULL == p_parse) || (NULL == p_file))
 	{
@@ -814,7 +417,8 @@ void si_argparse_fprint_help(si_argparse_t* const p_parse, FILE* const p_file)
 			{
 				break;
 			}
-			if (!p_arg->is_optional)
+			const bool is_optional = SI_ARG_IS_OPTIONAL(p_arg->bit_flags);
+			if (true != is_optional)
 			{
 				if (NULL != p_arg->p_full)
 				{
@@ -838,10 +442,11 @@ void si_argparse_fprint_help(si_argparse_t* const p_parse, FILE* const p_file)
 			{
 				break;
 			}
-			if (!p_arg->is_optional)
+			const bool is_optional = SI_ARG_IS_OPTIONAL(p_arg->bit_flags);
+			if (true != is_optional)
 			{
 				fprintf(p_file, "\t");
-				si_arg_fprint(p_arg, p_file);
+				si_arg_fprint(p_file, p_arg);
 				fprintf(p_file, "\n");
 			}
 		}
@@ -857,10 +462,11 @@ void si_argparse_fprint_help(si_argparse_t* const p_parse, FILE* const p_file)
 			{
 				break;
 			}
-			if (p_arg->is_optional)
+			const bool is_optional = SI_ARG_IS_OPTIONAL(p_arg->bit_flags);
+			if (true == is_optional)
 			{
 				fprintf(p_file, "\t");
-				si_arg_fprint(p_arg, p_file);
+				si_arg_fprint(p_file, p_arg);
 				fprintf(p_file, "\n");
 			}
 		}
@@ -878,7 +484,7 @@ END:
 	return;
 }
 
-void si_argparse_fprint_error(si_argparse_t* const p_parse, FILE* const p_file)
+void si_argparse_fprint_error(FILE* const p_file, si_argparse_t* const p_parse)
 {
 	if ((NULL == p_parse) || (NULL == p_file))
 	{
@@ -895,7 +501,7 @@ void si_argparse_fprint_error(si_argparse_t* const p_parse, FILE* const p_file)
 		if (true != arg_valid)
 		{
 			fprintf(p_file, "Invalid or missing required argument: '");
-			si_arg_fprint_id(p_arg, p_file);
+			si_arg_fprint_id(p_file, p_arg);
 			fprintf(p_file, "'.\n");
 		}
 	}
@@ -908,12 +514,6 @@ void si_argparse_free(si_argparse_t* const p_parse)
 	if (NULL == p_parse)
 	{
 		goto END;
-	}
-	if ((NULL != p_parse->p_program_name) &&
-	    (NULL != p_parse->p_free_program_name))
-	{
-		p_parse->p_free_program_name((void*)p_parse->p_program_name);
-		p_parse->p_program_name = NULL;
 	}
 	for (size_t iii = 0u; iii < p_parse->arguments.capacity; iii++)
 	{

@@ -67,7 +67,7 @@ static void si_argparse_test_parsers(void)
 /** Doxygen
  * @brief Sets up arguments and values for testing argparse from test_main().
  * 
- * @param p_argpase Pointer to the argparse to be setup.
+ * @param p_argparse Pointer to the argparse to be setup.
  */
 static void setup_main_parser(si_argparse_t* const p_argparse)
 {
@@ -81,14 +81,14 @@ static void setup_main_parser(si_argparse_t* const p_argparse)
 	help_arg.p_full = "help";
 	help_arg.flag = '?';
 	help_arg.p_help = "Print this help statement and exit.";
-	help_arg.is_optional = true;
+	help_arg.bit_flags = SI_ARG_OPTIONAL;
 
 	si_arg_t version_arg = {0};
 	si_arg_init(&version_arg);
 	version_arg.p_full = "version";
 	version_arg.flag = 'V';
 	version_arg.p_help = "Print the software version and exits.";
-	version_arg.is_optional = true;
+	version_arg.bit_flags = SI_ARG_OPTIONAL;
 
 	si_arg_t port_arg = {0};
 	si_arg_init(&port_arg);
@@ -99,7 +99,6 @@ static void setup_main_parser(si_argparse_t* const p_argparse)
 	port_arg.minimum_values = 1u;
 	port_arg.p_parser = port_parser;
 	port_arg.p_validate = port_validator;
-	port_arg.p_free_value = free;
 
 	si_arg_t dir_arg = {0};
 	si_arg_init(&dir_arg);
@@ -110,7 +109,6 @@ static void setup_main_parser(si_argparse_t* const p_argparse)
 	dir_arg.minimum_values = 1u;
 	dir_arg.p_parser = dir_parser;
 	dir_arg.p_validate = dir_validator;
-	dir_arg.p_free_value = free;
 
 	p_argparse->p_description = "Unit Test Program";
 	si_argparse_add_argument(p_argparse, &help_arg);
@@ -140,15 +138,15 @@ static void run_main_parser(si_argparse_t* const p_argparse,
 	const bool is_parser_valid = si_argparse_is_valid_values(p_argparse);
 	if(true != is_parser_valid)
 	{
-		si_argparse_fprint_error(p_argparse, stderr);
-		si_argparse_fprint_help(p_argparse, stdout);
+		si_argparse_fprint_error(stderr, p_argparse);
+		si_argparse_fprint_help(stdout, p_argparse);
 		TEST_ASSERT_TRUE(is_parser_valid);
 		goto END;
 	}
 	const bool is_help = si_argparse_is_set(p_argparse, "?");
 	if(true == is_help)
 	{
-		si_argparse_fprint_help(p_argparse, stdout);
+		si_argparse_fprint_help(stdout, p_argparse);
 		goto END;
 	}
 	const bool is_version = si_argparse_is_set(p_argparse, "version");
@@ -174,7 +172,7 @@ static void si_argparse_test_main(void)
 {
 	const char* const pp_argv[] =
 	{
-		"si_argparse_test.out", "-p", "3389", "-d", "."
+		"si_argparse_test.out", "-p", "3389", "-d"//, "."
 	};
 	const int argc = sizeof(pp_argv) / sizeof(pp_argv[0]);
 
