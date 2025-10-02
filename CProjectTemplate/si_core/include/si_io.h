@@ -11,14 +11,6 @@ extern "C"
 {
 #endif //__cplusplus
 
-#include <errno.h> // errno
-#include <limits.h>
-#include <stdbool.h> // bool, false, true
-#include <stdio.h> // FILE
-#include <stdlib.h> // free()
-#include <string.h> // strcmp()
-#include <time.h> // timespec
-
 #include "si_strings.h" // strv_clone_concat()
 
 #ifdef __linux__
@@ -33,22 +25,21 @@ extern "C"
 #include <sys/types.h> // DIR, struct dirent
 #include <unistd.h> // close()
 
-// typedef for support of OS specific information(filepath, dirent)
-typedef bool (*for_file_handler)(const char* const, struct dirent* const);
-
 #elif defined _WIN32
 
 #include <windows.h> // FILE_ATTRIBUTE_DIRECTORY, HANDLE, WIN32_FIND_DATA, ect.
 
-// typedef for support of OS specific information(filepath, WIN32_FIND_DATA)
-typedef bool (*for_file_handler)(const char* const, WIN32_FIND_DATA* const);
-
 #else
-
-// Basic information(filepath)
-typedef bool (*for_file_handler)(const char* const);
-
+#warning Unknown/Unsupported OS
 #endif //OS specific includes/defines
+
+#include <errno.h> // errno
+#include <limits.h> // INT_MAX
+#include <stdbool.h> // bool, false, true
+#include <stdio.h> // FILE
+#include <stdlib.h> // free()
+#include <string.h> // strcmp()
+#include <time.h> // timespec
 
 
 #ifndef SI_IO_H
@@ -56,6 +47,9 @@ typedef bool (*for_file_handler)(const char* const);
 
 // Start of OS specific function prototypes
 #ifdef __linux__
+
+// typedef for support of OS specific information(filepath, dirent)
+typedef bool (*for_file_handler)(const char* const, struct dirent* const);
 
 /** Doxygen
  * @brief Determines if a provided acl pointer is basic or extended.
@@ -101,7 +95,15 @@ void mode_t_fprint(FILE* const p_file, const mode_t mode);
 void dirent_fprint(FILE* const p_file, const struct dirent* const p_entry);
 
 #elif defined _WIN32
+
+// typedef for support of OS specific information(filepath, WIN32_FIND_DATA)
+typedef bool (*for_file_handler)(const char* const, WIN32_FIND_DATA* const);
+
 #else
+
+// Basic information(filepath)
+typedef bool (*for_file_handler)(const char* const);
+
 #endif // End of OS specific function prototypes
 
 
@@ -140,6 +142,28 @@ size_t fread_all(FILE* const p_file,
  *         a NULL pointer value otherwise.
  */
 void* fread_alloc_all(FILE* const p_file, size_t* const p_buffer_size);
+
+/** Doxygen
+ * @brief Allocates growing heap buffer of input from file until pattern found.
+ * 
+ * @param p_file Pointer to FILE to read from.
+ * @param p_needle Byte pattern to find in input (not truncated, in buffer)
+ * @param p_needle_size Initially its size of needle, after holds result size.
+ * 
+ * @return Returns heap buffer pointer on success/partial(EOF) or returns NULL.
+ */
+void* fread_alloc_until(FILE* const p_file,
+	const uint8_t* const p_needle, size_t* const p_needle_size);
+
+/** Doxygen
+ * @brief Allocates growing heap buffer from file until new line char is found.
+ * 
+ * @param p_file Pointer to FILE to read from.
+ * @param p_size Optional pointer to be set to the size of the line read.
+ * 
+ * @return Returns heap buffer pointer on success/partial(EOF) or returns NULL.
+ */
+char* fread_alloc_line(FILE* const p_file, size_t* const p_size);
 
 /** Doxygen
  * @brief Determines if file type of file object at file path is a directory.
