@@ -36,7 +36,8 @@
 #define SI_LOGGER_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif //__cplusplus
 
 /** Doxygen

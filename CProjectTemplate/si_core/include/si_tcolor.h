@@ -29,7 +29,8 @@
 #define SI_TCOLOR_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif //__cplusplus
 
 typedef enum ANSI_Color

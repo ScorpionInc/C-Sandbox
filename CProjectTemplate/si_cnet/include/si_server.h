@@ -1,7 +1,7 @@
 /* si_server.h
  * Created: 20250718
  * Updated: 20250729
- * Purpose: Protoype functions and structs for server-side networking.
+ * Purpose: Prototype functions and structs for server-side networking.
  */
 
 #include <errno.h> // errno, strerror()
@@ -50,7 +50,8 @@
 #include "si_logger.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif //__cplusplus
 
 #ifndef SI_SERVER_H

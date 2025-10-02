@@ -24,6 +24,11 @@
 #ifndef SI_SIGNALS_H
 #define SI_SIGNALS_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif //__cplusplus
+
 /** Doxygen
  * @brief Prints some debug information about the current signal state to FILE.
  *
@@ -39,5 +44,9 @@ void fprint_signal_debug(FILE* const p_file);
  * @return Returns stdbool true on success. Returns false otherwise.
  */
 bool set_exit_signal_handler(__sighandler_t p_handler);
+
+#ifdef __cplusplus
+}
+#endif //__cplusplus
 
 #endif//SI_SIGNALS_H

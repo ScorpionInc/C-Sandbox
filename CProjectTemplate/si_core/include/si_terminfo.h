@@ -43,7 +43,8 @@
 #define SI_TERMINFO_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif //__cplusplus
 
 #ifdef __linux__

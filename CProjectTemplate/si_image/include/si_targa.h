@@ -70,6 +70,11 @@
 #ifndef SI_TARGA_H
 #define SI_TARGA_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif //__cplusplus
+
 SI_PACKED_PRE
 typedef struct SI_PACKED_INLINE si_tga_header_t
 {
@@ -277,5 +282,9 @@ void si_tga_free(si_tga_t* const p_tga);
  * @param pp_tga Pointer to si_tga_t heap pointer to be freed.
  */
 void si_tga_destroy(si_tga_t** pp_tga);
+
+#ifdef __cplusplus
+}
+#endif //__cplusplus
 
 #endif//SI_TARGA_H

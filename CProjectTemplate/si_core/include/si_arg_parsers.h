@@ -14,6 +14,11 @@
 #ifndef SI_ARG_PARSERS_H
 #define SI_ARG_PARSERS_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif //__cplusplus
+
 /** Doxygen
  * @brief Attempts to parse a uint16 port number from string.
  * 
@@ -31,5 +36,9 @@ void* port_parser(const char* const p_str);
  * @return Heap pointer to new path on success. NULL otherwise.
  */
 void* dir_parser(const char* const p_str);
+
+#ifdef __cplusplus
+}
+#endif //__cplusplus
 
 #endif//SI_ARG_PARSERS_H

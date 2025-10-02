@@ -26,6 +26,11 @@
 #ifndef SI_THREADPOOL_H
 #define SI_THREADPOOL_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif //__cplusplus
+
 typedef void* (*p_task_f)(void*);
 
 typedef struct si_threadpool_t
@@ -162,5 +167,9 @@ void si_threadpool_free(si_threadpool_t* const p_pool);
  * @param pp_pool Pointer to the thread pool struct's heap pointer to destroy.
  */
 void si_threadpool_destroy(si_threadpool_t** const pp_pool);
+
+#ifdef __cplusplus
+}
+#endif //__cplusplus
 
 #endif // SI_THREADPOOL_H

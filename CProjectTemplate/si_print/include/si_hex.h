@@ -17,7 +17,8 @@
 #include <stdio.h>
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif //__cplusplus
 
 #define SI_BITS_COUNT 8u

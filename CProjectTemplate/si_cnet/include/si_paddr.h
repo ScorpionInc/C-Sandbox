@@ -8,7 +8,8 @@
 #define SI_PADDR_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif //__cplusplus
 
 #include <stdbool.h> // true, false

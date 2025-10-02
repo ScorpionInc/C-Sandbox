@@ -41,6 +41,11 @@
 #ifndef SI_MUTEX_H
 #define SI_MUTEX_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif //__cplusplus
+
 #ifdef _WIN32
 
 #define SI_COND_STATIC_INIT CONDITION_VARIABLE_INIT
@@ -166,5 +171,9 @@ si_mutex_t* si_mutex_new();
  * @param pp_mutex Pointer to mutex heap pointer to be destroyed.
  */
 void si_mutex_destroy(si_mutex_t** const pp_mutex);
+
+#ifdef __cplusplus
+}
+#endif //__cplusplus
 
 #endif// SI_MUTEX_H

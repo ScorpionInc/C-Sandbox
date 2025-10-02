@@ -116,6 +116,11 @@ int pthread_timedjoin(pthread_t thread, void** pp_result,
 #ifndef SI_THREAD_H
 #define SI_THREAD_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif //__cplusplus
+
 /** Doxygen
  * @brief Determines the number of CPU cores available according to the OS.
  * 
@@ -145,5 +150,9 @@ si_thread_func_return_t si_thread_timedjoin_3(si_thread_t* const p_thread,
 	const uint32_t millisecs, const bool kill);
 si_thread_func_return_t si_thread_timedjoin(si_thread_t* const p_thread,
 	const uint32_t millisecs);
+
+#ifdef __cplusplus
+}
+#endif //__cplusplus
 
 #endif//SI_THREAD_H

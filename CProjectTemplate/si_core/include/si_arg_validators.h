@@ -17,6 +17,11 @@
 #ifndef SI_ARG_VALIDATORS_H
 #define SI_ARG_VALIDATORS_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif //__cplusplus
+
 /** Doxygen
  * @brief Validates a pointed at uint16_t is a port number
  * 
@@ -43,5 +48,9 @@ bool file_path_validator(const void* const p_path);
  * @return Returns stdbool true when p_path is valid. Returns false otherwise.
  */
 bool dir_validator(const void* const p_path);
+
+#ifdef __cplusplus
+}
+#endif //__cplusplus
 
 #endif//SI_ARG_VALIDATORS_H

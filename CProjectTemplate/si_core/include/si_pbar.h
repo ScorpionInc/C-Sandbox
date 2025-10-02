@@ -22,7 +22,8 @@
 #define SI_PBAR_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif // __cplusplus
 
 typedef enum si_pbar_alignment

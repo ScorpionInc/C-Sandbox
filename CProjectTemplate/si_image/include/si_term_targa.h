@@ -7,6 +7,11 @@
 #ifndef SI_TERM_TARGA_H
 #define SI_TERM_TARGA_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif //__cplusplus
+
 /** Doxygen
  * @brief Draws the color values from a tga onto the terminal.
  *
@@ -54,5 +59,9 @@ bool si_terminfo_draw_tga_centered(si_terminfo_t* const p_terminfo,
  */
 bool si_terminfo_fdraw_tga_centered(si_terminfo_t* const p_terminfo,
 	const char* const p_path);
+
+#ifdef __cplusplus
+}
+#endif //__cplusplus
 
 #endif//SI_TERM_TARGA_H

@@ -15,6 +15,11 @@
 #ifndef SI_PRIORITY_QUEUE_H
 #define SI_PRIORITY_QUEUE_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif //__cplusplus
+
 typedef struct si_priority_queue_t
 {
 	si_realloc_settings_t* p_settings;
@@ -124,5 +129,9 @@ void si_priority_queue_free(si_priority_queue_t* const p_pqueue);
  * @param Pointer to the priority_queue struct's heap pointer to free.
  */
 void si_priority_queue_destroy(si_priority_queue_t** pp_pqueue);
+
+#ifdef __cplusplus
+}
+#endif //__cplusplus
 
 #endif//SI_PRIORITY_QUEUE_H

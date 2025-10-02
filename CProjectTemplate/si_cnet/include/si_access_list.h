@@ -25,6 +25,11 @@
 #ifndef SI_ACCESSLIST_T
 #define SI_ACCESSLIST_T
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif //__cplusplus
+
 typedef struct si_accesslist_t
 {
 	bool is_blacklist;
@@ -168,5 +173,9 @@ void si_accesslist_free(si_accesslist_t* const p_access);
  * @param pp_access Pointer to pointer of accesslist to be freed.
  */
 void si_accesslist_destroy(si_accesslist_t** pp_access);
+
+#ifdef __cplusplus
+}
+#endif //__cplusplus
 
 #endif//SI_ACCESSLIST_T
