@@ -76,9 +76,9 @@ char* str_clone_concat(const char* const p_left,
 
 /** Doxygen
  * @brief Creates a new NULL-terminated heap C string from joining an arbitrary
- *        number of other C strings by variatic arguments.
+ *        number of other C strings by variadic arguments.
  * 
- * @param argc Only required parameter size_t specifing the number of C strings
+ * @param argc Only required parameter size_t specifying the number of C strs
  *             that are being joined.
  * @param ... Any number of NULL-terminated C Strings to be joined.
  * 
@@ -88,27 +88,27 @@ char* strv_clone_concat(const size_t argc, ...);
 
 /** Doxygen
  * @brief Creates a new heap C string from joining/concatenating the strings in
- *        a string array seperated with an optional C string seperator.
+ *        a string array separated with an optional C string separator.
  * 
  * @param argc Size_t count of strings in the C String array.
- * @param p_seperator Optional C string pointer for seperating array's strings.
+ * @param p_separator Optional C string pointer for separating array's strings.
  * @param pp_argv Pointer to the C string array to read from.
  * 
  * @return Returns heap string pointer on success. Returns NULL otherwise.
  */
-char* str_clone_join(const size_t argc,	const char* const p_seperator,
+char* str_clone_join(const size_t argc,	const char* const p_separator,
 	const char** const pp_argv);
 
 /** Doxygen
- * @brief Creates new heap C string from joining arbitary string arguments.
+ * @brief Creates new heap C string from joining arbitrary string arguments.
  * 
  * @param argc Size_t count of strings in the C String array.
- * @param p_seperator Optional C string that's used to seperate arguments.
+ * @param p_separator Optional C string that's used to separate arguments.
  * @param ... Arbitary number of strings to be concated together.
  * 
  * @return Returns heap pointer on success. Returns NULL otherwise.
  */
-char* strv_clone_join(const size_t argc, const char* const p_seperator, ...);
+char* strv_clone_join(const size_t argc, const char* const p_separator, ...);
 
 /** Doxygen
  * @brief Splits the haystack string by needles into a pointer array size count

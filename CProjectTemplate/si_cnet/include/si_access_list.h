@@ -150,7 +150,7 @@ bool si_accesslist_remove_at(si_accesslist_t* const p_access,
 	const size_t index);
 
 /** Doxygen
- * @brief Removes first occurance of an address from accesslist.
+ * @brief Removes first occurrence of an address from accesslist.
  * 
  * @param p_access Pointer to the accesslist to remove address from.
  * @param p_addr Pointer to the socket address to be removed.
