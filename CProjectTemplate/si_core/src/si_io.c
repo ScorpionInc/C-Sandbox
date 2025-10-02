@@ -170,7 +170,7 @@ END:
 }
 
 /** Doxygen
- * @brief Linux specific implimentation of file_clone_data().
+ * @brief Linux specific implementation of file_clone_data().
  * 
  * @param p_source_path C string file path of file containing data to be read.
  * @param p_sink_path C string file path of file to be overwritten/created.
@@ -243,7 +243,7 @@ END:
 }
 
 /** Doxygen
- * @brief Linux specific implimentation of the file_clone_meta() function.
+ * @brief Linux specific implementation of the file_clone_meta() function.
  * 
  * @param p_source_path C string file path of file containing metadata to read.
  * @param p_sink_path C string file path of file to be modified.
@@ -427,7 +427,7 @@ END:
 #elif defined _WIN32 // End of __linux__
 
 /** Doxygen
- * @brief Windows specific implimentation of file_clone_data().
+ * @brief Windows specific implementation of file_clone_data().
  * 
  * @param p_source_path C string file path of file containing data to be read.
  * @param p_sink_path C string file path of file to be overwritten/created.
@@ -450,7 +450,7 @@ END:
 }
 
 /** Doxygen
- * @brief Windows specific implimentation of the file_clone_meta() function.
+ * @brief Windows specific implementation of the file_clone_meta() function.
  * 
  * @param p_source_path C string file path of file containing metadata to read.
  * @param p_sink_path C string file path of file to be modified.
@@ -567,7 +567,7 @@ END:
 #else // End of _WIN32
 
 /** Doxygen
- * @brief Generic/Unknown implimentation of file_clone_data().
+ * @brief Generic/Unknown implementation of file_clone_data().
  * 
  * @param p_source_path C string file path of file containing data to be read.
  * @param p_sink_path C string file path of file to be overwritten/created.
@@ -615,7 +615,7 @@ END:
 	return result;
 }
 
-#endif // End of OS Specific function implimentations
+#endif // End of OS Specific function implementations
 
 
 size_t fwrite_all(FILE* const p_file,
@@ -709,6 +709,90 @@ END:
 	return (void*)p_result;
 }
 
+void* fread_alloc_until(FILE* const p_file,
+	const uint8_t* const p_needle, size_t* const p_needle_size)
+{
+	//! TODO *BUG* May over-read for large byte patterns.
+	uint8_t* p_result     = NULL;
+	size_t   current_size = 0u;
+	if((NULL == p_file) || (NULL == p_needle) || (NULL == p_needle_size))
+	{
+		goto END;
+	}
+	if(0u >= *p_needle_size)
+	{
+		goto END;
+	}
+
+	current_size = *p_needle_size;
+	p_result = fread_alloc_all(p_file, &current_size);
+	if((NULL == p_result) || (*p_needle_size != current_size))
+	{
+		goto END;
+	}
+
+	uint8_t* p_pattern = NULL;
+	size_t next_size = 0u;
+	while (NULL == p_pattern)
+	{
+		p_pattern = memmem(
+			p_result, current_size, p_needle, *p_needle_size
+		);
+		if(NULL != p_pattern)
+		{
+			break;
+		}
+		p_pattern = realloc(p_result, current_size + *p_needle_size);
+		if(NULL == p_pattern)
+		{
+			break;
+		}
+		p_result = p_pattern;
+		p_pattern = NULL;
+		next_size = fread_all(p_file, &(p_result[current_size]), *p_needle_size);
+		if(0u >= next_size)
+		{
+			break;
+		}
+		current_size += next_size;
+		p_pattern = memmem(
+			p_result, current_size, p_needle, *p_needle_size
+		);
+	}
+END:
+	(*p_needle_size) = current_size;
+	return (void*)p_result;
+}
+
+char* fread_alloc_line(FILE* const p_file, size_t* const p_size)
+{
+	char* p_result = NULL;
+	size_t alloc_size = 0u;
+	if(NULL == p_file)
+	{
+		goto END;
+	}
+	const char* const p_needle = "\n";
+	const size_t needle_len = strnlen(p_needle, INT_MAX);
+	if((INT_MAX <= needle_len) || (0 >= needle_len))
+	{
+		// Should never happen but just in case.
+		goto END;
+	}
+	alloc_size = needle_len;
+	p_result = fread_alloc_until(p_file, p_needle, &alloc_size);
+	if(NULL != p_result)
+	{
+		p_result[alloc_size - 1u] = '\0';
+	}
+END:
+	if (NULL != p_size)
+	{
+		*p_size = alloc_size;
+	}
+	return p_result;
+}
+
 bool path_is_dir(const char* const p_path, const bool follow_links)
 {
 	bool result = false;
@@ -773,7 +857,7 @@ size_t path_file_size_3(const char* const p_path, const bool follow_links,
 		{
 			goto END;
 		}
-		// TODO Impliment directory recursion.
+		// TODO Implement directory recursion.
 	}
 	else if(0 <= file_stat.st_size)
 	{
