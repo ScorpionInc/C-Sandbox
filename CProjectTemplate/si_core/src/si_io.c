@@ -30,6 +30,80 @@ END:
 	return result;
 }
 
+/** Doxygen
+ * @brief Writes a human-readable string value of WRDE return to a FILE.
+ * 
+ * @param p_file Pointer to a FILE to be written to.
+ * @param value wordexp() return value whose string value is to be written.
+ */
+static void WRDE_fprint_return(FILE* const p_file, const int value)
+{
+	if(NULL == p_file)
+	{
+		goto END;
+	}
+	switch(value)
+	{
+		case(WRDE_BADCHAR):
+			fprintf(p_file, "%s", "BADCHAR");
+		break;
+		case(WRDE_BADVAL):
+			fprintf(p_file, "%s", "BADVAL");
+		break;
+		case(WRDE_CMDSUB):
+			fprintf(p_file, "%s", "CMDSUB");
+		break;
+		case(WRDE_NOSPACE):
+			fprintf(p_file, "%s", "NOSPACE");
+		break;
+		case(WRDE_SYNTAX):
+			fprintf(p_file, "%s", "SYNTAX");
+		break;
+		default:
+			fprintf(p_file, "%s", "UNKNOWN");
+		break;
+	}
+END:
+	return;
+}
+
+char* shell_expand_path_l(const char* const p_path)
+{
+	char* p_result = NULL;
+	if(NULL == p_path)
+	{
+		goto END;
+	}
+	wordexp_t word_expansion = {0};
+	const int expansion_result = wordexp(
+		p_path, &word_expansion, (WRDE_NOCMD | WRDE_SHOWERR)
+	);
+	if((EXIT_SUCCESS != expansion_result) || (0u >= word_expansion.we_wordc))
+	{
+		// No words were found/substituted. Or the word expansion failed.
+		p_result = strdup(p_path);
+	}
+	if(EXIT_SUCCESS != expansion_result)
+	{
+		fprintf(
+			stderr,
+			"Path expansion failed with error code: %d => ",
+			expansion_result
+		);
+		WRDE_fprint_return(stderr, expansion_result);
+		fprintf(stderr, ".\n");
+		goto END;
+	}
+	if(0u < word_expansion.we_wordc)
+	{
+		// Path was expanded, clone results onto the heap
+		p_result = strdup(word_expansion.we_wordv[0]);
+	}
+	wordfree(&word_expansion);
+END:
+	return p_result;
+}
+
 bool path_has_acl(const char* const p_path)
 {
 	bool result = false;
@@ -37,7 +111,10 @@ bool path_has_acl(const char* const p_path)
 	{
 		goto END;
 	}
-	acl_t p_acl = acl_get_file(p_path, ACL_TYPE_ACCESS);
+	char* expanded_path = shell_expand_path_l(p_path);
+	acl_t p_acl = acl_get_file(expanded_path, ACL_TYPE_ACCESS);
+	free(expanded_path);
+	expanded_path = NULL;
 	if (NULL == p_acl)
 	{
 		goto END;
@@ -191,7 +268,10 @@ static bool file_clone_data_l(const char* const p_source_path,
 	struct stat source_stat = {0};
 	const int source_flags = O_RDONLY |
 		(follow_links ? 0x00 : O_NOFOLLOW);
-	int source_fd = open(p_source_path, source_flags);
+	char* expanded_path = shell_expand_path_l(p_source_path);
+	int source_fd = open(expanded_path, source_flags);
+	free(expanded_path);
+	expanded_path = NULL;
 	if (0 > source_fd)
 	{
 		goto END;
@@ -203,13 +283,16 @@ static bool file_clone_data_l(const char* const p_source_path,
 	}
 	const int sink_flags = (O_WRONLY | O_CREAT | O_TRUNC) |
 		(follow_links ? 0x00 : O_NOFOLLOW);
+	expanded_path = shell_expand_path_l(p_sink_path);
 	int sink_fd = open(
-		p_sink_path, sink_flags, source_stat.st_mode
+		expanded_path, sink_flags, source_stat.st_mode
 	);
 	if ((0 > sink_fd) || (0 > source_stat.st_size))
 	{
 		goto CLEAN;
 	}
+	free(expanded_path);
+	expanded_path = NULL;
 
 	// Sends the data creating the file as needed.
 	off_t offset = 0;
@@ -254,7 +337,8 @@ END:
 static bool file_clone_meta_l(const char* const p_source_path,
 	const char* const p_sink_path, const bool follow_links)
 {
-	bool result = false;
+	bool result  = false;
+	int  sink_fd = -1;
 	if ((NULL == p_source_path) || (NULL == p_sink_path))
 	{
 		goto END;
@@ -262,21 +346,24 @@ static bool file_clone_meta_l(const char* const p_source_path,
 
 	// Opens file(s) for operation(s)
 	struct stat source_stat = {0};
+	char* source_expanded_path = shell_expand_path_l(p_source_path);
 	const int stat_result = follow_links ?
-		stat(p_source_path, &source_stat) :
-		lstat(p_source_path, &source_stat);
+		stat(source_expanded_path, &source_stat) :
+		lstat(source_expanded_path, &source_stat);
 	if (0 > stat_result)
 	{
-		goto END;
+		goto CLEAN;
 	}
+
+	char* sink_expanded_path = shell_expand_path_l(p_sink_path);
 	const int sink_flags = O_WRONLY |
 		(follow_links ? 0x00 : O_NOFOLLOW);
-	int sink_fd = open(
-		p_sink_path, sink_flags, source_stat.st_mode
+	sink_fd = open(
+		sink_expanded_path, sink_flags, source_stat.st_mode
 	);
 	if (0 > sink_fd)
 	{
-		goto END;
+		goto CLEAN;
 	}
 
 	// Change File Mode
@@ -306,7 +393,7 @@ static bool file_clone_meta_l(const char* const p_source_path,
 	}
 
 	// Clone File ACL(s)
-	acl_t p_acl = acl_get_file(p_source_path, ACL_TYPE_ACCESS);
+	acl_t p_acl = acl_get_file(source_expanded_path, ACL_TYPE_ACCESS);
 	if (NULL == p_acl)
 	{
 		// This may not be an error if no ACL is defined.
@@ -316,11 +403,17 @@ static bool file_clone_meta_l(const char* const p_source_path,
 		}
 		goto CLEAN;
 	}
-	const int acl_result = acl_set_file(p_sink_path, ACL_TYPE_ACCESS, p_acl);
+	const int acl_result = acl_set_file(
+		sink_expanded_path, ACL_TYPE_ACCESS, p_acl
+	);
 	result = (0 <= acl_result);
 	acl_free(p_acl);
 	p_acl = NULL;
 CLEAN:
+	free(source_expanded_path);
+	source_expanded_path = NULL;
+	free(sink_expanded_path);
+	sink_expanded_path = NULL;
 	if (0 <= sink_fd)
 	{
 		(void)close(sink_fd);
@@ -344,7 +437,10 @@ static bool for_each_file_l(const char* const p_path,
 	DIR* p_dir = NULL;
 	struct dirent* p_dir_entry = NULL;
 
-	p_dir = opendir(p_path);
+	char* expanded_path = shell_expand_path_l(p_path);
+	p_dir = opendir(expanded_path);
+	free(expanded_path);
+	expanded_path = NULL;
 	if (NULL == p_dir)
 	{
 		goto END;
@@ -368,7 +464,10 @@ static bool for_each_file_l(const char* const p_path,
 			p_dir_entry = readdir(p_dir);
 			continue;
 		}
-		p_fullpath = strv_clone_concat(3u, p_path, "/", p_dir_entry->d_name);
+		char* expanded_path = shell_expand_path_l(p_path);
+		p_fullpath = strv_clone_concat(3u, expanded_path, "/", p_dir_entry->d_name);
+		free(expanded_path);
+		expanded_path = NULL;
 		if (NULL == p_fullpath)
 		{
 			p_dir_entry = readdir(p_dir);
@@ -803,14 +902,17 @@ bool path_is_dir(const char* const p_path, const bool follow_links)
 #ifdef __linux__
 	struct stat path_stat = {0};
 	int stat_result = -1;
+	char* expanded_path = shell_expand_path_l(p_path);
 	if (true == follow_links)
 	{
-		stat_result = stat(p_path, &path_stat);
+		stat_result = stat(expanded_path, &path_stat);
 	}
 	else
 	{
-		stat_result = lstat(p_path, &path_stat);
+		stat_result = lstat(expanded_path, &path_stat);
 	}
+	free(expanded_path);
+	expanded_path = NULL;
 	if (0 != stat_result)
 	{
 		perror("path_is_dir() call to stat() failed");
@@ -837,14 +939,17 @@ size_t path_file_size_3(const char* const p_path, const bool follow_links,
 #ifdef __linux__
 	struct stat file_stat = {0};
 	int stat_result = -1;
+	char* expanded_path = shell_expand_path_l(p_path);
 	if (true == follow_links)
 	{
-		stat_result = stat(p_path, &file_stat);
+		stat_result = stat(expanded_path, &file_stat);
 	}
 	else
 	{
-		stat_result = lstat(p_path, &file_stat);
+		stat_result = lstat(expanded_path, &file_stat);
 	}
+	free(expanded_path);
+	expanded_path = NULL;
 	if (0 != stat_result)
 	{
 		goto END;

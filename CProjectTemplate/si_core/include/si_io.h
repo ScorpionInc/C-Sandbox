@@ -24,6 +24,7 @@ extern "C"
 #include <sys/stat.h> // stat, stat(), lstat()
 #include <sys/types.h> // DIR, struct dirent
 #include <unistd.h> // close()
+#include <wordexp.h> // wordexp()
 
 #elif defined _WIN32
 
@@ -59,6 +60,15 @@ typedef bool (*for_file_handler)(const char* const, struct dirent* const);
  * @return Returns stdbool true if ACL is basic. Returns false otherwise.
  */
 bool acl_is_basic(const acl_t p_acl);
+
+/** Doxygen
+ * @brief Expand any POSIX-shell specific values in a provided file path.
+ * 
+ * @param p_path C String to be expanded.
+ * 
+ * @return Returns a heap C string on success. Returns NULL otherwise.
+ */
+char* shell_expand_path_l(const char* const p_path);
 
 /** Doxygen
  * @brief Determines if file object at path has an extended ACL.
