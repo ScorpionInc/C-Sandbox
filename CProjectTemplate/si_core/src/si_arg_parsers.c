@@ -54,7 +54,7 @@ void* dir_parser(const char* const p_str)
     {
         goto END;
     }
-    // Ensure value is path seperator terminated.
+    // Ensure value is path separator terminated.
     const size_t str_len = strnlen(p_str, __INT_MAX__);
     if (0u >= str_len)
     {
