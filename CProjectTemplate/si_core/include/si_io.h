@@ -28,7 +28,9 @@ extern "C"
 
 #elif defined _WIN32
 
+#include <io.h> // _fileno(), _get_osfhandle()
 #include <windows.h> // FILE_ATTRIBUTE_DIRECTORY, HANDLE, WIN32_FIND_DATA, ect.
+#include <fileapi.h> // LockFileEx(), UnlockFileEx()
 
 #else
 #warning Unknown/Unsupported OS
@@ -48,6 +50,9 @@ extern "C"
 
 // Start of OS specific function prototypes
 #ifdef __linux__
+
+#define si_flock(p_file) flockfile(p_file)
+#define si_funlock(p_file) funlockfile(p_file)
 
 // typedef for support of OS specific information(filepath, dirent)
 typedef bool (*for_file_handler)(const char* const, struct dirent* const);
@@ -109,6 +114,22 @@ void dirent_fprint(FILE* const p_file, const struct dirent* const p_entry);
 // typedef for support of OS specific information(filepath, WIN32_FIND_DATA)
 typedef bool (*for_file_handler)(const char* const, WIN32_FIND_DATA* const);
 
+/** Doxygen
+ * @brief Get the unbuffered OS specific HANDLE from the C standard FILE type.
+ * 
+ * @param p_file Pointer to a FILE to get the handle of.
+ * 
+ * @return Returns FILE HANDLE on success. Returns INVALID_HANDLE otherwise.
+ */
+HANDLE get_handle_from_file(FILE* const p_file);
+
+#define si_flock(p_file) \
+	(void)LockFileEx(get_handle_from_file(p_file), LOCKFILE_EXCLUSIVE_LOCK, \
+	0, MAXDWORD, MAXDWORD, &((OVERLAPPED){0}))
+#define si_funlock(p_file) \
+	(void)UnlockFileEx(get_handle_from_file(p_file), \
+	0, MAXDWORD, MAXDWORD, &((OVERLAPPED){0}))
+
 #else
 
 // Basic information(filepath)
@@ -116,6 +137,17 @@ typedef bool (*for_file_handler)(const char* const);
 
 #endif // End of OS specific function prototypes
 
+
+/** Doxygen
+ * @brief Variadic function that locks and unlocks a FILE for exclusive
+ *        reading/writing before and after printing respectively.
+ * 
+ * @param p_file Pointer to FILE to be printed to.
+ * @param p_format Format C string.
+ * @param arg_list Variadic optional arguments list.
+ */
+void vfprintf_exclusive(FILE* const p_file, const char* const p_format, va_list arg_list);
+void  fprintf_exclusive(FILE* const p_file, const char* const p_format, ...);
 
 /** Doxygen
  * @brief Handles partial writes blocking until all data is written or error.

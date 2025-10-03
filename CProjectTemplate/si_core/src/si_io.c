@@ -45,22 +45,22 @@ static void WRDE_fprint_return(FILE* const p_file, const int value)
 	switch(value)
 	{
 		case(WRDE_BADCHAR):
-			fprintf(p_file, "%s", "BADCHAR");
+			fprintf_exclusive(p_file, "%s", "BADCHAR");
 		break;
 		case(WRDE_BADVAL):
-			fprintf(p_file, "%s", "BADVAL");
+			fprintf_exclusive(p_file, "%s", "BADVAL");
 		break;
 		case(WRDE_CMDSUB):
-			fprintf(p_file, "%s", "CMDSUB");
+			fprintf_exclusive(p_file, "%s", "CMDSUB");
 		break;
 		case(WRDE_NOSPACE):
-			fprintf(p_file, "%s", "NOSPACE");
+			fprintf_exclusive(p_file, "%s", "NOSPACE");
 		break;
 		case(WRDE_SYNTAX):
-			fprintf(p_file, "%s", "SYNTAX");
+			fprintf_exclusive(p_file, "%s", "SYNTAX");
 		break;
 		default:
-			fprintf(p_file, "%s", "UNKNOWN");
+			fprintf_exclusive(p_file, "%s", "UNKNOWN");
 		break;
 	}
 END:
@@ -85,13 +85,13 @@ char* shell_expand_path_l(const char* const p_path)
 	}
 	if(EXIT_SUCCESS != expansion_result)
 	{
-		fprintf(
+		fprintf_exclusive(
 			stderr,
 			"Path expansion failed with error code: %d => ",
 			expansion_result
 		);
 		WRDE_fprint_return(stderr, expansion_result);
-		fprintf(stderr, ".\n");
+		fprintf_exclusive(stderr, ".\n");
 		goto END;
 	}
 	if(0u < word_expansion.we_wordc)
@@ -207,7 +207,7 @@ void mode_t_fprint(FILE* const p_file, const mode_t mode)
 	const mode_t group_mask = ((mode_t)-1) >>
 		(sizeof(mode_t) * CHAR_BIT - PERMISSION_BITS);
 	const char type_char = mode_type_char(mode);
-	fprintf(p_file, "%c", type_char);
+	fprintf_exclusive(p_file, "%c", type_char);
 	for (size_t iii = 0u; iii < PERMISSION_GROUPS; iii++)
 	{
 		const size_t mask_shift = PERMISSION_BITS *
@@ -215,14 +215,14 @@ void mode_t_fprint(FILE* const p_file, const mode_t mode)
 		const mode_t mode_group = (mode &
 			(group_mask << mask_shift)
 		) >> mask_shift;
-		fprintf(p_file, "%s", (mode_group) >= 4 ? "r" : "-");
-		fprintf(p_file, "%s", (mode_group % 4) >= 2 ? "w" : "-");
+		fprintf_exclusive(p_file, "%s", (mode_group) >= 4 ? "r" : "-");
+		fprintf_exclusive(p_file, "%s", (mode_group % 4) >= 2 ? "w" : "-");
 		if ((0 == iii) && (mode & S_ISUID))
 		{
-			fprintf(p_file, "s");
+			fprintf_exclusive(p_file, "s");
 			continue;
 		}
-		fprintf(p_file, "%s", 1 <= (mode_group % 2) ? "x" : "-");
+		fprintf_exclusive(p_file, "%s", 1 <= (mode_group % 2) ? "x" : "-");
 	}
 END:
 	return;
@@ -234,13 +234,13 @@ void dirent_fprint(FILE* const p_file, const struct dirent* const p_entry)
 	{
 		goto END;
 	}
-	fprintf(p_file, "%lu", p_entry->d_ino);
-	fprintf(p_file, " %s", p_entry->d_name);
+	fprintf_exclusive(p_file, "%lu", p_entry->d_ino);
+	fprintf_exclusive(p_file, " %s", p_entry->d_name);
 #ifdef _DIRENT_HAVE_D_TYPE
-	fprintf(p_file, " %hhu", p_entry->d_type);
+	fprintf_exclusive(p_file, " %hhu", p_entry->d_type);
 #endif//_DIRENT_HAVE_D_TYPE
 #ifdef _DIRENT_HAVE_D_RECLEN
-	fprintf(p_file, " %hu", p_entry->d_reclen);
+	fprintf_exclusive(p_file, " %hu", p_entry->d_reclen);
 #endif//_DIRENT_HAVE_D_RECLEN
 END:
 	return;
@@ -525,6 +525,23 @@ END:
 
 #elif defined _WIN32 // End of __linux__
 
+HANDLE get_handle_from_file(FILE* const p_file)
+{
+	HANDLE result = INVALID_HANDLE_VALUE;
+	if(NULL == p_file)
+	{
+		goto END;
+	}
+	const int file_desc = _fileno(p_file);
+	if(0 > file_desc)
+	{
+		goto END;
+	}
+	result = (HANDLE)_get_osfhandle(file_desc);
+END:
+	return result;
+}
+
 /** Doxygen
  * @brief Windows specific implementation of file_clone_data().
  * 
@@ -717,6 +734,33 @@ END:
 #endif // End of OS Specific function implementations
 
 
+void vfprintf_exclusive(FILE* const p_file, const char* const p_format, va_list arg_list)
+{
+	if((NULL == p_file) || (NULL == p_format))
+	{
+		goto END;
+	}
+	si_flock(p_file);
+	vfprintf(p_file, p_format, arg_list);
+	si_funlock(p_file);
+END:
+	return;
+}
+
+void  fprintf_exclusive(FILE* const p_file, const char* const p_format, ...)
+{
+	if((NULL == p_file) || (NULL == p_format))
+	{
+		goto END;
+	}
+	va_list args = {0};
+	va_start(args, p_format);
+	vfprintf_exclusive(p_file, p_format, args);
+	va_end(args);
+END:
+	return;
+}
+
 size_t fwrite_all(FILE* const p_file,
 	const void* const p_data, const size_t data_size)
 {
@@ -797,7 +841,7 @@ void* fread_alloc_all(FILE* const p_file, size_t* const p_buffer_size)
 	);
 	if(read_amount < *p_buffer_size)
 	{
-		fprintf(
+		fprintf_exclusive(
 			stderr,
 			"fread_alloc_all() Failed to read all %lu bytes.\n",
 			*p_buffer_size
@@ -998,9 +1042,9 @@ void path_perms_fprint(FILE* const p_file, const char* const p_path)
 	const bool has_acl = path_has_acl(p_path);
 	if (true == has_acl)
 	{
-		fprintf(p_file, "+");
+		fprintf_exclusive(p_file, "+");
 	}
-	fprintf(p_file, " %s", p_path);
+	fprintf_exclusive(p_file, " %s", p_path);
 #else
 	//!TODO
 	#warning Unsupported Operating System
