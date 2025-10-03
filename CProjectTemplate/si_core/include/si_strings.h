@@ -104,7 +104,7 @@ char* str_clone_join(const size_t argc,	const char* const p_separator,
  * 
  * @param argc Size_t count of strings in the C String array.
  * @param p_separator Optional C string that's used to separate arguments.
- * @param ... Arbitary number of strings to be concated together.
+ * @param ... Arbitrary number of strings to be concated together.
  * 
  * @return Returns heap pointer on success. Returns NULL otherwise.
  */
@@ -214,7 +214,7 @@ char* str_clone_substitute(const char* const p_haystack,
 	const char* const p_needle, const char* const p_value);
 
 /** Doxygen
- * @brief Seperates the first found C string from a heap buffer of a known size
+ * @brief Separates the first found C string from a heap buffer of a known size
  * 
  * @param pp_buffer Pointer to heap buffer to have C string value removed from.
  * @param buffer_size Pointer to the size of the allocated heap buffer. Changes

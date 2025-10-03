@@ -162,7 +162,7 @@ int sockaddr_in6_cmp(const struct sockaddr_in6* const p_left,
 
 /** Doxygen
  * @brief Compares socket addresses using the family of the structs to select
- *        an implimented compare function(sockaddr_in_cmp / sockaddr_in6_cmp).
+ *        an implemented compare function(sockaddr_in_cmp / sockaddr_in6_cmp).
  * 
  * @param p_left  Pointer to socket address to compare
  * @param p_right Pointer to socket address to compare
@@ -199,7 +199,7 @@ bool sockaddr_is_valid(struct sockaddr* const p_addr);
 /** Doxygen
  * @brief Prints the ipv4 4-byte formatted address from p_address.
  * 
- * @param p_file FILE pointer to write formated value to.
+ * @param p_file FILE pointer to write formatted value to.
  * @param p_address Pointer to byte buffer of 4 bytes holding the raw address.
  */
 void sin_addr_fprint(FILE* const p_file,
@@ -208,7 +208,7 @@ void sin_addr_fprint(FILE* const p_file,
 /** Doxygen
  * @brief Prints the ipv6 16-byte expanded formatted address from p_address.
  * 
- * @param p_file FILE pointer to write formated value to.
+ * @param p_file FILE pointer to write formatted value to.
  * @param p_address Pointer to byte buffer of 16 bytes holding the raw address.
  */
 void sin6_addr_fprint(FILE* const p_file,
@@ -217,7 +217,7 @@ void sin6_addr_fprint(FILE* const p_file,
 /** Doxygen
  * @brief Prints the socket address from p_addr based upon it's socklen value.
  * 
- * @param p_file FILE pointer to write formated value to.
+ * @param p_file FILE pointer to write formatted value to.
  * @param p_addr Pointer to sockaddr struct to be printed.
  */
 void sockaddr_fprint(FILE* const p_file, const struct sockaddr* const p_addr);
