@@ -6,15 +6,6 @@
  * Updated: 20250825
 //*/
 
-#ifdef __linux__
-
-// Avoid redefining values
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif//_GNU_SOURCE
-
-#endif//__linux__
-
 #include <ctype.h> // isprint(), tolower(), toupper()
 #include <stdarg.h> // ...
 #include <stddef.h> // size_t
@@ -30,6 +21,18 @@
 extern "C"
 {
 #endif //__cplusplus
+
+#ifndef _GNU_SOURCE
+/** Doxygen
+ * @brief Cover down for possible missing strndup() GNU function (non-standard)
+ * 
+ * @param p_src Source C string to be duplicated onto the heap.
+ * @param size Number of narrow characters in the C string to be duplicated.
+ * 
+ * @return Return NULL-terminated heap string on success returns NULL otherwise
+ */
+char* strndup(const char* const p_src, const size_t size);
+#endif//_GNU_SOURCE
 
 /** Doxygen
  * @brief Grows the left string as needed to hold the right string's value.

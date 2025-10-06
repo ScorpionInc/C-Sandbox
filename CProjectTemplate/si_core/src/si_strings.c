@@ -1,6 +1,26 @@
 // si_strings.c
 #include "si_strings.h"
 
+#ifndef _GNU_SOURCE
+char* strndup(const char* const p_src, const size_t size)
+{
+	char* p_result = NULL;
+	if((NULL == p_src) || (0u >= size))
+	{
+		goto END;
+	}
+	p_result = calloc(size + 1u, sizeof(char));
+	if(NULL == p_result)
+	{
+		goto END;
+	}
+	memcpy(p_result, p_src, size);
+	p_result[size] = '\0';
+END:
+	return p_result;
+}
+#endif//_GNU_SOURCE
+
 size_t strn_lgrow_concat(char** pp_left, const size_t left_size,
 	const char* const p_right, const size_t right_size)
 {
