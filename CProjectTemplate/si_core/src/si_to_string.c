@@ -151,7 +151,7 @@ char* signed_to_string(const void* const p_value, const size_t size)
 
 inline char* short_to_string_2(const short value, const int pad)
 {
-	return signed_to_string_2(&value, sizeof(short), pad);
+	return signed_to_string_3(&value, sizeof(short), pad);
 }
 inline char* short_to_string(const short value)
 {
@@ -161,7 +161,7 @@ inline char* short_to_string(const short value)
 
 inline char* int_to_string_2(const int value, const int pad)
 {
-	return signed_to_string_2(&value, sizeof(int), pad);
+	return signed_to_string_3(&value, sizeof(int), pad);
 }
 inline char* int_to_string(const int value)
 {
@@ -171,7 +171,7 @@ inline char* int_to_string(const int value)
 
 inline char* long_to_string_2(const long int value, const int pad)
 {
-	return signed_to_string_2(&value, sizeof(long), pad);
+	return signed_to_string_3(&value, sizeof(long), pad);
 }
 inline char* long_to_string(const long int value)
 {
@@ -181,7 +181,7 @@ inline char* long_to_string(const long int value)
 
 inline char* llong_to_string_2(const long long int value, const int pad)
 {
-	return signed_to_string_2(&value, sizeof(long long int), pad);
+	return signed_to_string_3(&value, sizeof(long long int), pad);
 }
 inline char* llong_to_string(const long long int value)
 {
@@ -211,7 +211,8 @@ static size_t unsigned_to_digit_count(const unsigned long long int value)
 	} while (1.0 < next_result);
 	return result;
 }
-char* unsigned_to_string(const void* const p_value, const size_t size)
+char* unsigned_to_string_3(const void* const p_value, const size_t size,
+	const int pad)
 {
 	char* p_result = NULL;
 	if ((NULL == p_value) || (0u >= size) || (sizeof(long long int) < size))
@@ -239,25 +240,56 @@ char* unsigned_to_string(const void* const p_value, const size_t size)
 		goto END;
 	break;
 	}
+	const int abs_pad = (0 > pad) ? (-1 * pad) : pad;
 	const size_t char_count = unsigned_to_digit_count(ul_value);
-	p_result = to_string(char_count, "%llu", ul_value);
+	const size_t result_count = (abs_pad > char_count) ? abs_pad : char_count;
+	p_result = to_string(result_count, "%*llu", pad, ul_value);
 END:
 	return p_result;
 }
+char* unsigned_to_string(const void* const p_value, const size_t size)
+{
+	// Default value of pad is 0(None).
+	return unsigned_to_string_3(p_value, size, SI_TO_STRING_DEFAULT_PADDING);
+}
 
+inline char* ushort_to_string_2(const unsigned short value, const int pad)
+{
+	return unsigned_to_string_3(&value, sizeof(unsigned short), pad);
+}
 inline char* ushort_to_string(const unsigned short value)
 {
-	return unsigned_to_string(&value, sizeof(unsigned short));
+	// Default value of pad is 0(None).
+	return ushort_to_string_2(value, SI_TO_STRING_DEFAULT_PADDING);
+}
+
+inline char* uint_to_string_2(const unsigned int value, const int pad)
+{
+	return unsigned_to_string_3(&value, sizeof(unsigned int), pad);
 }
 inline char* uint_to_string(const unsigned int value)
 {
-	return unsigned_to_string(&value, sizeof(unsigned int));
+	// Default value of pad is 0(None).
+	return uint_to_string_2(value, SI_TO_STRING_DEFAULT_PADDING);
+}
+
+inline char* ulong_to_string_2(const unsigned long int value, const int pad)
+{
+	return unsigned_to_string_3(&value, sizeof(unsigned long int), pad);
 }
 inline char* ulong_to_string(const unsigned long int value)
 {
-	return unsigned_to_string(&value, sizeof(unsigned long int));
+	// Default value of pad is 0(None).
+	return ulong_to_string_2(value, SI_TO_STRING_DEFAULT_PADDING);
+}
+
+inline char* ullong_to_string_2(const unsigned long long int value,
+	const int pad)
+{
+	return unsigned_to_string_3(&value, sizeof(unsigned long long int), pad);
 }
 inline char* ullong_to_string(const unsigned long long int value)
 {
-	return unsigned_to_string(&value, sizeof(unsigned long long int));
+	// Default value of pad is 0(None).
+	return ullong_to_string_2(value, SI_TO_STRING_DEFAULT_PADDING);
 }

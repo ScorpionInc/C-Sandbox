@@ -86,15 +86,22 @@ char* llong_to_string(const long long int value);
  * 
  * @param p_value Pointer to integer value to be converted into a heap string.
  * @param size Number of bytes in the value type to be converted.
+ * @param pad Adds padding spaces to the string output of the conversion.
  * 
  * @return Returns heap string on success. Returns NULL otherwise.
  */
+char* unsigned_to_string_3(const void* const p_value, const size_t size,
+	const int pad);
 char* unsigned_to_string(const void* const p_value, const size_t size);
 
 // Inline support functions for all primitive unsigned integer types.
+char* ushort_to_string_2(const unsigned short value, const int pad);
 char* ushort_to_string(const unsigned short value);
+char* uint_to_string_2(const unsigned int value, const int pad);
 char* uint_to_string(const unsigned int value);
+char* ulong_to_string_2(const unsigned long int value, const int pad);
 char* ulong_to_string(const unsigned long int value);
+char* ullong_to_string_2(const unsigned long long int value, const int pad);
 char* ullong_to_string(const unsigned long long int value);
 
 #ifdef __cplusplus
