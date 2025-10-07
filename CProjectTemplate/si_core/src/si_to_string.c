@@ -107,7 +107,8 @@ static size_t signed_to_digit_count(const long long int value)
 	} while (1.0 < next_result);
 	return result;
 }
-char* signed_to_string(const void* const p_value, const size_t size)
+char* signed_to_string_3(const void* const p_value, const size_t size,
+	const int pad)
 {
 	char* p_result = NULL;
 	if ((NULL == p_value) || (0u >= size) || (sizeof(long long int) < size))
@@ -135,27 +136,57 @@ char* signed_to_string(const void* const p_value, const size_t size)
 		goto END;
 	break;
 	}
+	const int abs_pad = (0 > pad) ? (-1 * pad) : pad;
 	const size_t char_count = signed_to_digit_count(l_value);
-	p_result = to_string(char_count, "%lld", l_value);
+	const size_t result_count = (abs_pad > char_count) ? abs_pad : char_count;
+	p_result = to_string(result_count, "%*lld", pad, l_value);
 END:
 	return p_result;
 }
+char* signed_to_string(const void* const p_value, const size_t size)
+{
+	// Default value of pad is 0(None).
+	return signed_to_string_3(p_value, size, SI_TO_STRING_DEFAULT_PADDING);
+}
 
+inline char* short_to_string_2(const short value, const int pad)
+{
+	return signed_to_string_2(&value, sizeof(short), pad);
+}
 inline char* short_to_string(const short value)
 {
-	return signed_to_string(&value, sizeof(short));
+	// Default value of pad is 0(None).
+	return short_to_string_2(value, SI_TO_STRING_DEFAULT_PADDING);
+}
+
+inline char* int_to_string_2(const int value, const int pad)
+{
+	return signed_to_string_2(&value, sizeof(int), pad);
 }
 inline char* int_to_string(const int value)
 {
-	return signed_to_string(&value, sizeof(int));
+	// Default value of pad is 0(None).
+	return int_to_string_2(value, SI_TO_STRING_DEFAULT_PADDING);
+}
+
+inline char* long_to_string_2(const long int value, const int pad)
+{
+	return signed_to_string_2(&value, sizeof(long), pad);
 }
 inline char* long_to_string(const long int value)
 {
-	return signed_to_string(&value, sizeof(long));
+	// Default value of pad is 0(None).
+	return long_to_string_2(value, SI_TO_STRING_DEFAULT_PADDING);
+}
+
+inline char* llong_to_string_2(const long long int value, const int pad)
+{
+	return signed_to_string_2(&value, sizeof(long long int), pad);
 }
 inline char* llong_to_string(const long long int value)
 {
-	return signed_to_string(&value, sizeof(long long int));
+	// Default value of pad is 0(None).
+	return llong_to_string_2(value, SI_TO_STRING_DEFAULT_PADDING);
 }
 
 /** Doxygen

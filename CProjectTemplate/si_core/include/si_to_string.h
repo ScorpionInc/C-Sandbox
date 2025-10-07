@@ -10,6 +10,8 @@
 #include <limits.h> // INT_MAX
 #include <math.h> // pow()
 
+#define SI_TO_STRING_DEFAULT_PADDING (0)
+
 #ifndef SI_TO_STRING_H
 #define SI_TO_STRING_H
 
@@ -61,15 +63,22 @@ char* bool_to_string(const bool value);
  * 
  * @param p_value Pointer to integer value to be converted into a heap string.
  * @param size Number of bytes in the value type to be converted.
+ * @param pad Adds padding spaces to the string output of the conversion.
  * 
  * @return Returns heap string on success. Returns NULL otherwise.
  */
+char* signed_to_string_3(const void* const p_value, const size_t size,
+	const int pad);
 char* signed_to_string(const void* const p_value, const size_t size);
 
 // Inline support functions for all primitive signed integer types.
+char* short_to_string_2(const short value, const int pad);
 char* short_to_string(const short value);
+char* int_to_string_2(const int value, const int pad);
 char* int_to_string(const int value);
+char* long_to_string_2(const long int value, const int pad);
 char* long_to_string(const long int value);
+char* llong_to_string_2(const long long int value, const int pad);
 char* llong_to_string(const long long int value);
 
 /** Doxygen
