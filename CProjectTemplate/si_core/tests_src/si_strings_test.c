@@ -28,6 +28,71 @@ void tearDown (void)
 }
 
 /** Doxygen
+ * @brief Runs unit test of string generator functions from si_strings.
+ */
+static void si_strings_test_generators(void)
+{
+	const char* const p_pattern  = "abc";
+	const char* const p_expected = "abcabcabcabcab";
+	const size_t expected_len = 14u;
+	int cmp_result = 0;
+	char* p_data = NULL;
+
+	TEST_ASSERT_NULL(str_new(0u, p_pattern));
+	TEST_ASSERT_NULL(str_new(0u, NULL));
+
+	p_data = str_new(expected_len, NULL);
+	TEST_ASSERT_NOT_NULL(p_data);
+	free(p_data);
+	p_data = NULL;
+
+	p_data = str_new(expected_len, p_pattern);
+	TEST_ASSERT_NOT_NULL(p_data);
+	cmp_result = strncmp(p_data, p_expected, expected_len);
+	TEST_ASSERT_EQUAL_INT(0, cmp_result);
+	printf("Generated pattern heap string: '%s'\n", p_data);
+	free(p_data);
+	p_data = NULL;
+}
+
+/** Doxygen
+ * @brief Runs unit test of string padding functions from si_strings.
+ */
+static void si_strings_test_padding(void)
+{
+	const char* const p_base = "It's a feature";
+	const size_t base_len = 14u;
+	const int abs_pad = (int)base_len + 12;
+	const char* const p_left_expected = "            It's a feature";
+	const char* const p_right_expected = "It's a feature            ";
+	int cmp_result = 0;
+	char* p_data = NULL;
+	printf("Non-padded string: '%s'\n", p_base);
+
+	TEST_ASSERT_NULL(strn_clone_pad(NULL, 0u, 0));
+	TEST_ASSERT_NULL(strn_clone_pad(NULL, base_len, 0));
+	TEST_ASSERT_NULL(strn_clone_pad(NULL, base_len, abs_pad));
+	TEST_ASSERT_NULL(strn_clone_pad(p_base, 0u, 0));
+	TEST_ASSERT_NULL(strn_clone_pad(p_base, 0u, abs_pad));
+
+	p_data = strn_clone_pad(p_base, base_len, abs_pad);
+	TEST_ASSERT_NOT_NULL(p_data);
+	printf("Left padded string: '%s'\n", p_data);
+	cmp_result = strncmp(p_left_expected, p_data, (size_t)abs_pad);
+	TEST_ASSERT_EQUAL_INT(0, cmp_result);
+	free(p_data);
+	p_data = NULL;
+
+	p_data = strn_clone_pad(p_base, base_len, -1 * abs_pad);
+	TEST_ASSERT_NOT_NULL(p_data);
+	printf("Right padded string: '%s'\n", p_data);
+	cmp_result = strncmp(p_right_expected, p_data, (size_t)abs_pad);
+	TEST_ASSERT_EQUAL_INT(0, cmp_result);
+	free(p_data);
+	p_data = NULL;
+}
+
+/** Doxygen
  * @brief Tests si_strings functions that join strings on the heap
  */
 static void si_strings_test_concats(void)
@@ -417,6 +482,8 @@ static void si_strings_test_from_fprint(void)
 static void si_strings_test_all(void)
 {
 	UNITY_BEGIN();
+	RUN_TEST(si_strings_test_generators);
+	RUN_TEST(si_strings_test_padding);
 	RUN_TEST(si_strings_test_concats);
 	RUN_TEST(si_strings_test_formatters);
 	RUN_TEST(si_strings_test_split);

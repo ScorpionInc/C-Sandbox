@@ -21,6 +21,157 @@ END:
 }
 #endif//_GNU_SOURCE
 
+
+char* strn_new(const size_t str_len, const char* const p_pattern,
+	const size_t pattern_len)
+{
+	char* p_result = NULL;
+	if (0u >= str_len)
+	{
+		goto END;
+	}
+	p_result = calloc(str_len + 1u, sizeof(char));
+	if ((NULL == p_result) || (NULL == p_pattern) || (0u >= pattern_len))
+	{
+		goto END;
+	}
+	const size_t full_patterns = (str_len / pattern_len);
+	const size_t pattern_part = (str_len % pattern_len);
+	for (size_t iii = 0u; iii < full_patterns; iii++)
+	{
+		// strncat()'s return type cannot be error checked.
+		(void)strncat(p_result, p_pattern, pattern_len);
+	}
+	const size_t full_end = (full_patterns * pattern_len);
+	// strncat()'s return type cannot be error checked.
+	(void)strncat(&(p_result[full_end]), p_pattern, pattern_part);
+	// Should still be NULL but NULL-Terminate just to be safe.
+	p_result[str_len] = '\0';
+END:
+	return p_result;
+}
+char* str_new(const size_t str_len, const char* const p_pattern)
+{
+	char* p_result = NULL;
+	if (0u >= str_len)
+	{
+		goto END;
+	}
+	size_t pattern_len = 0u;
+	if (NULL != p_pattern)
+	{
+		pattern_len = strnlen(p_pattern, INT64_MAX);
+		if (INT64_MAX <= pattern_len)
+		{
+			goto END;
+		}
+	}
+	p_result = strn_new(str_len, p_pattern, pattern_len);
+END:
+	return p_result;
+}
+
+
+size_t strn_pad(char** const pp_str, const size_t str_len, const int pad)
+{
+	size_t result = 0u;
+	if (NULL == pp_str)
+	{
+		goto END;
+	}
+	if (NULL == *pp_str)
+	{
+		goto END;
+	}
+	const char padding_char = ' ';
+	const int abs_pad = (0 > pad) ? (-1 * pad) : pad;
+	const size_t abs_pad_s = (size_t)abs_pad;
+	const size_t expect_len = (str_len >= abs_pad_s) ? str_len : abs_pad_s;
+	const size_t pad_cnt = (expect_len > str_len) ? expect_len - str_len : 0u;
+	char* const p_realloc = realloc(*pp_str, expect_len + 1u);
+	if (NULL == p_realloc)
+	{
+		goto END;
+	}
+	*pp_str = p_realloc;
+	// Was going to use snprintf() for padding here but it doesn't handle
+	// memory overlapping for in place string formatting.
+	if (0 > pad)
+	{
+		// Padding goes on the right-side.
+		memset(&((*pp_str)[str_len]), padding_char, pad_cnt);
+	}
+	else
+	{
+		// Padding goes on the left-side.
+		memmove(&((*pp_str)[pad_cnt]), *pp_str, expect_len - pad_cnt);
+		memset(*pp_str, padding_char, pad_cnt);
+	}
+	// NULL-Terminate the C-String result.
+	(*pp_str)[expect_len] = '\0';
+	result = expect_len;
+END:
+	return result;
+}
+size_t str_pad(char** const pp_str, const int pad)
+{
+	size_t result = 0;
+	if (NULL == pp_str)
+	{
+		goto END;
+	}
+	if (NULL == *pp_str)
+	{
+		goto END;
+	}
+	const size_t str_len = strnlen(*pp_str, INT64_MAX);
+	if (str_len >= INT64_MAX)
+	{
+		goto END;
+	}
+	result = strn_pad(pp_str, str_len, pad);
+END:
+	return result;
+}
+char* strn_clone_pad(const char* const p_str, const size_t str_len, const int pad)
+{
+	char* p_result = NULL;
+	if ((NULL == p_str) || (0u >= str_len))
+	{
+		goto END;
+	}
+	const int abs_pad = (0 > pad) ? (-1 * pad) : pad;
+	const size_t abs_pad_s = (size_t)abs_pad;
+	const size_t expect_len = (str_len >= abs_pad_s) ? str_len : abs_pad_s;
+	p_result = strndup(p_str, str_len);
+	const size_t new_size = strn_pad(&p_result, str_len, pad);
+	if ((0 >= new_size) || (expect_len != new_size))
+	{
+		free(p_result);
+		p_result = NULL;
+		goto END;
+	}
+END:
+	return p_result;
+}
+char* str_clone_pad(const char* const p_str, const int pad)
+{
+	char* p_result = NULL;
+	if (NULL == p_str)
+	{
+		goto END;
+	}
+	const size_t str_len = strnlen(p_str, INT64_MAX);
+	if(INT64_MAX <= str_len)
+	{
+		goto END;
+	}
+	p_result = strn_clone_pad(p_str, str_len, pad);
+END:
+	return p_result;
+}
+
+
 size_t strn_lgrow_concat(char** pp_left, const size_t left_size,
 	const char* const p_right, const size_t right_size)
 {
@@ -212,6 +363,7 @@ END:
 	return p_result;
 }
 
+
 char* str_clone_join(const size_t argc,	const char* const p_seperator,
 	const char** const pp_argv)
 {
@@ -318,6 +470,7 @@ char* strv_clone_join(const size_t argc, const char* const p_seperator, ...)
 END:
 	return p_result;
 }
+
 
 char** strn_split(const char* const p_haystack, const size_t haystack_len,
 	const char* const p_needle, const size_t needle_len,
@@ -426,6 +579,7 @@ END:
 	return;
 }
 
+
 size_t strn_countf(const char* const p_str, const size_t max_len,
 	should_count_char_f should_count_char)
 {
@@ -468,6 +622,7 @@ size_t str_countf(const char* const p_str,
 END:
 	return result;
 }
+
 
 void strn_chr_remap(char* const p_input_str, const size_t input_size,
 	chr_remap_f p_map_chr)
@@ -541,6 +696,7 @@ inline void str_to_lowercase(char* const p_input_str)
 {
 	str_chr_remap(p_input_str, remap_to_lower);
 }
+
 
 char* strn_clone_substitute_7(
 	const char* const p_haystack, const size_t haystack_size,
@@ -677,6 +833,7 @@ inline char* str_clone_substitute(const char* const p_haystack,
 	);
 }
 
+
 char* pop_str_from_heap(uint8_t** const pp_buffer, size_t* const p_buffer_size)
 {
 	char* p_result = NULL;
@@ -712,6 +869,7 @@ char* pop_str_from_heap(uint8_t** const pp_buffer, size_t* const p_buffer_size)
 END:
 	return p_result;
 }
+
 
 char* str_from_fprint(str_fprint_f fprint_f, const void* const p_value, ...)
 {

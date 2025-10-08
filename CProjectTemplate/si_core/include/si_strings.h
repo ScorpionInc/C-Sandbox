@@ -35,6 +35,55 @@ char* strndup(const char* const p_src, const size_t size);
 #endif//_GNU_SOURCE
 
 /** Doxygen
+ * @brief Generates a new heap C String from an optional C string pattern.
+ * 
+ * @details Generates a new heap C String from an optional C string pattern.
+ *          Resulting heap string if created will always be a minimum of 1 byte
+ *          in size(NULL-Terminator). If the optional pattern is not
+ *          provided(NULL), the string is still initialized but filled with
+ *          0x00(NULL) characters. (Basically it's calloc() call cast to char*)
+ * 
+ * @param str_len Desired output length of string(Not counting NULL terminator)
+ * @param p_pattern C string character pattern to repeat in string values.(OPT)
+ * @param pattern_len Count of characters in the pattern to be repeated.(OPT)
+ * 
+ * @return Returns heap c string on success. Returns NULL otherwise.
+ */
+char* strn_new(const size_t str_len, const char* const p_pattern,
+	const size_t pattern_len);
+char* str_new(const size_t str_len, const char* const p_pattern);
+
+/** Doxygen
+ * @brief Applies left or right space padding to an existing heap string.
+ * 
+ * @details If pad is zero string will still be resized to hold only strlen
+ *          characters + NULL.
+ * 
+ * @param pp_str Pointer to heap string pointer to be padded.
+ * @param str_len Current length of the string in characters. (Not NULL)
+ * @param pad Desired padding value of the heap string.
+ * 
+ * @return Returns new size of string on success. Returns SIZE_MAX on error.
+ */
+size_t strn_pad(char** const pp_str, const size_t str_len, const int pad);
+size_t str_pad(char** const pp_str, const int pad);
+
+/** Doxygen
+ * @brief Clones string onto heap with left or right space padding applied.
+ * 
+ * @details If pad is zero this is essentially a call to strndup().
+ * 
+ * @param p_str Pointer to the C String to be cloned and padded.
+ * @param str_len Current length of the string in characters. (Not NULL)
+ * @param pad Desired padding value of the heap string.
+ * 
+ * @return Returns new heap string on success. Returns NULL otherwise.
+ */
+char* strn_clone_pad(const char* const p_str, const size_t str_len, const int pad);
+char* str_clone_pad(const char* const p_str, const int pad);
+
+
+/** Doxygen
  * @brief Grows the left string as needed to hold the right string's value.
  * 
  * @param p_left Heap C string to grow and to hold string results on success.
@@ -89,6 +138,7 @@ char* str_clone_concat(const char* const p_left,
  */
 char* strv_clone_concat(const size_t argc, ...);
 
+
 /** Doxygen
  * @brief Creates a new heap C string from joining/concatenating the strings in
  *        a string array separated with an optional C string separator.
@@ -112,6 +162,7 @@ char* str_clone_join(const size_t argc,	const char* const p_separator,
  * @return Returns heap pointer on success. Returns NULL otherwise.
  */
 char* strv_clone_join(const size_t argc, const char* const p_separator, ...);
+
 
 /** Doxygen
  * @brief Splits the haystack string by needles into a pointer array size count
@@ -138,6 +189,7 @@ char** str_split(const char* const p_haystack, const char* p_needle,
  */
 void str_split_destroy(char*** const ppp_array, const size_t arg_count);
 
+
 typedef int (*should_count_char_f)(const char);
 
 /** Doxygen
@@ -152,6 +204,7 @@ size_t strn_countf(const char* const p_str, const size_t max_len,
 	should_count_char_f should_count_char);
 size_t str_countf(const char* const p_str,
 	should_count_char_f should_count_char);
+
 
 typedef char (* const chr_remap_f)(const char, const size_t);
 
@@ -186,6 +239,7 @@ void str_to_uppercase(char* const p_input_str);
  */
 void strn_to_lowercase(char* const p_input_str, const size_t input_size);
 void str_to_lowercase(char* const p_input_str);
+
 
 /** Doxygen
  * @brief Returns a new heap string cloned from haystack with all needle
@@ -227,6 +281,7 @@ char* str_clone_substitute(const char* const p_haystack,
  */
 char* pop_str_from_heap(uint8_t** const pp_buffer,
 	size_t* const p_buffer_size);
+
 
 typedef int (*str_fprint_f)(FILE* const, const void* const, ...);
 
