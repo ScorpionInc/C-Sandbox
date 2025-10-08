@@ -1,6 +1,5 @@
 /* si_io.h
  * Language: C
- * Authors: ScorpionInc
  * Purpose: Defines function(s)/type(s) for working with files.
  * Created: 20250901
  * Updated: 20250904

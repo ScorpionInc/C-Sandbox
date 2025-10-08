@@ -1,6 +1,5 @@
 /* si_signals.h
  * Language: C
- * Authors: ScorpionInc
  * Purpose: Defines function(s) for working with signals.
  * Created: 20250819
  * Updated: 20250820

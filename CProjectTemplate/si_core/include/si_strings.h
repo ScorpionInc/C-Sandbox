@@ -1,6 +1,5 @@
 /* si_strings.h
  * Language: C
- * Authors: ScorpionInc
  * Purpose: Defines function(s) for working with C Strings.
  * Created: 20250820
  * Updated: 20250825
