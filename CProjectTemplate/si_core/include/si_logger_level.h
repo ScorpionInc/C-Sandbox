@@ -1,9 +1,9 @@
 /* si_logger_level.h - 20251006 */
 
 #include "si_io.h" // si_flock(), si_funlock()
-#include "si_strings.h" // str_lgrow_concat()
+#include "si_strings.h" // str_clone_pad(), str_lgrow_concat()
 #include "si_terminfo.h" // si_tui_is_ansi()
-#include "si_to_string.h" // char_to_string()
+#include "si_to_string.h" // char_to_string(), unsigned_to_string_3()
 
 #ifdef __linux__
 
