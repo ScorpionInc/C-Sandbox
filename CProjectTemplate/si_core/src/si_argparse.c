@@ -76,13 +76,11 @@ bool si_argparse_is_valid_values(const si_argparse_t* const p_parse)
 		si_arg_t* p_arg = si_array_at(&(p_parse->arguments), iii);
 		if (NULL == p_arg)
 		{
-			printf("si_argparse_is_valid_values() Bad!\n");//!Debugging
 			goto END;
 		}
 		const bool is_valid = si_arg_is_valid_values(p_arg);
 		if (false == is_valid)
 		{
-			printf("si_argparse_is_valid_values() Invalid!\n");//!Debugging
 			goto END;
 		}
 	}
@@ -274,7 +272,7 @@ static si_arg_t* si_argparse_next_required_arg(si_argparse_t* const p_parse)
 		}
 		const bool is_optional = SI_ARG_IS_OPTIONAL(p_arg->bit_flags);
 		const bool is_set = si_arg_is_set(p_arg);
-		if((true != is_optional) && (true != is_set))
+		if ((true != is_optional) && (true != is_set))
 		{
 			p_result = p_arg;
 			break;
@@ -357,7 +355,7 @@ bool si_argparse_parse(si_argparse_t* const p_parse,
 			break;
 		}
 		const bool do_prompt = SI_ARG_DOES_PROMPT(p_arg->bit_flags);
-		if(true == do_prompt)
+		if (true == do_prompt)
 		{
 			values_parsed += si_arg_prompt(p_arg);
 		}
