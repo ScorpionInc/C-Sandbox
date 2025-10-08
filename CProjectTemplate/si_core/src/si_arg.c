@@ -378,7 +378,7 @@ size_t si_arg_parse(si_arg_t* const p_arg,
 		result++;
 	}
 
-PROMPT:
+PROMPT:;
 	// Check if we need to prompt and if prompting is enabled.
 	const bool values_are_valid = si_arg_is_valid_values(p_arg);
 	const bool do_prompt = (
