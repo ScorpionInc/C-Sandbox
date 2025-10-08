@@ -8,6 +8,7 @@ unityInclude="../tests_include/"
 dependentsIncludes=("../si_data/build/libsi_data.a" "-I../si_data/include" "-lacl")
 
 echo 'Building from source via CMake & make.'
+rm -rf "${outputDir}*"
 cmake -S . -B "$outputDir"
 cd "$outputDir"
 make
