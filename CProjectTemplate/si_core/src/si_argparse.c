@@ -180,6 +180,7 @@ void* si_argparse_value_of_3(si_argparse_t* const p_parse,
 	if (NULL == p_result)
 	{
 		// Out of bounds or array was invalid.
+		goto END;
 	}
 END:
 	return p_result;
@@ -247,6 +248,34 @@ size_t si_argparse_count(const si_argparse_t* const p_parse)
 	result = p_parse->arguments.capacity;
 END:
 	return result;
+}
+
+/** Doxygen
+ * @brief During parsing prompt for any missing argument values.
+ * 
+ * @param p_parse Pointer to the si_argparse_t to prompt user for.
+ */
+static void si_argparse_prompt_all(si_argparse_t* const p_parse)
+{
+	if(NULL == p_parse)
+	{
+		goto END;
+	}
+	for (size_t iii = 0u; iii < p_parse->arguments.capacity; iii++)
+	{
+		si_arg_t* p_arg = si_array_at(&(p_parse->arguments), iii);
+		if(NULL == p_arg)
+		{
+			break;
+		}
+		const bool is_valid  = si_arg_is_valid_values(p_arg);
+		if(true != is_valid)
+		{
+			(void)si_arg_prompt(p_arg);
+		}
+	}
+END:
+	return;
 }
 
 /** Doxygen
@@ -373,6 +402,7 @@ bool si_argparse_parse(si_argparse_t* const p_parse,
 	}
 	free((void*)p_arg_id);
 	p_arg_id = NULL;
+	si_argparse_prompt_all(p_parse);
 	result = si_argparse_is_valid_values(p_parse);
 END:
 	return result;
