@@ -48,6 +48,11 @@ extern "C"
 #ifndef SI_IO_H
 #define SI_IO_H
 
+#ifndef _GNU_SOURCE
+void* memmem(const void* p_haystack, const size_t haystack_len,
+	const void* p_needle, const size_t needle_len);
+#endif// Add support for used GNU functions.
+
 // Start of OS specific function prototypes
 #ifdef __linux__
 

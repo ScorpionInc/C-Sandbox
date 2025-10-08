@@ -1,6 +1,41 @@
 // si_io.c
 #include "si_io.h"
 
+#ifndef _GNU_SOURCE
+void* memmem(const void* const p_haystack, const size_t haystack_len,
+	const void* const p_needle, const size_t needle_len)
+{
+	const void* p_result = NULL;
+	if((NULL == p_haystack) || (NULL == p_needle))
+	{
+		goto END;
+	}
+	if((0u >= haystack_len) || (needle_len > haystack_len))
+	{
+		goto END;
+	}
+	// This is to maintain compatibility with the GNU implementation.
+	if(0u >= needle_len)
+	{
+		p_result = p_haystack;
+		goto END;
+	}
+	const uint8_t* const p_hay = (uint8_t*)p_haystack;
+	const size_t iterations = (haystack_len - needle_len) + 1u;
+	for(size_t iii = 0u; iii < iterations; iii++)
+	{
+		const int cmp_result = memcmp(&(p_hay[iii]), p_needle, needle_len);
+		if(0 == cmp_result)
+		{
+			p_result = (void*)&(p_hay[iii]);
+			break;
+		}
+	}
+END:
+	return (void*)p_result;
+}
+#endif// Adds support for a used GNU function.
+
 #ifdef __linux__
 
 bool acl_is_basic(const acl_t p_acl)
