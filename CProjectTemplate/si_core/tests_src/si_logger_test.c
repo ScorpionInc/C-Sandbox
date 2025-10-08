@@ -52,18 +52,18 @@ static void si_logger_test_main(void)
 
 	si_logger_t* p_logger = si_logger_new();
 	p_logger->logging_level = SI_LOGGER_ALL;
-	si_logger_critical(p_logger, "Program has encountered a critical error.");
-	si_logger_error(p_logger, "Program has encountered an error.");
-	si_logger_warning(p_logger, "Program is still running.");
-	si_logger_info(p_logger, "Testing output to stdout.");
-	si_logger_debug(p_logger, "Logger is at address: %p.", p_logger);
+	si_logger_critical(p_logger, "Program has encountered a critical error.\n");
+	si_logger_error(p_logger, "Program has encountered an error.\n");
+	si_logger_warning(p_logger, "Program is still running.\n");
+	si_logger_info(p_logger, "Testing output to stdout.\n");
+	si_logger_debug(p_logger, "Logger is at address: %p.\n", p_logger);
 	si_logger_custom(
 		p_logger, SI_LOGGER_DEBUG,
-		"Example object value: ", &example, " with a custom print function.",
+		"Example object value: ", &example, " with a custom print function.\n",
 		(void(*)(FILE* const, const void* const))example_object_fprint
 	);
-	si_logger_log(p_logger, "Critical custom log level message.", 1234567890u);
-	free(p_logger);
+	si_logger_log(p_logger, "Critical custom log level message.\n", 1234567890u);
+	si_logger_destroy(&p_logger);
 }
 
 /** Doxygen
