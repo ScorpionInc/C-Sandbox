@@ -378,7 +378,6 @@ size_t si_arg_parse(si_arg_t* const p_arg,
 	);
 	if (true == do_prompt)
 	{
-		printf("ai_arg_parse() calling arg_prompt()!\n");//!Debugging
 		result += si_arg_prompt(p_arg);
 	}
 END:
