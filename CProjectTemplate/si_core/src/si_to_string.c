@@ -9,7 +9,7 @@ char* vto_string(const size_t max_str_len, const char* const format_str, va_list
 		goto END;
 	}
 	p_result = calloc(max_str_len + 1u, sizeof(char));
-	if(NULL == p_result)
+	if (NULL == p_result)
 	{
 		goto END;
 	}
@@ -90,7 +90,7 @@ static size_t signed_to_digit_count(const long long int value)
 {
 	size_t result = 0u;
 	long long int mut_value = value;
-	if(0 > mut_value)
+	if (0 > mut_value)
 	{
 		mut_value *= -1L;
 		result++;

@@ -6,26 +6,26 @@ void* memmem(const void* const p_haystack, const size_t haystack_len,
 	const void* const p_needle, const size_t needle_len)
 {
 	const void* p_result = NULL;
-	if((NULL == p_haystack) || (NULL == p_needle))
+	if ((NULL == p_haystack) || (NULL == p_needle))
 	{
 		goto END;
 	}
-	if((0u >= haystack_len) || (needle_len > haystack_len))
+	if ((0u >= haystack_len) || (needle_len > haystack_len))
 	{
 		goto END;
 	}
 	// This is to maintain compatibility with the GNU implementation.
-	if(0u >= needle_len)
+	if (0u >= needle_len)
 	{
 		p_result = p_haystack;
 		goto END;
 	}
 	const uint8_t* const p_hay = (uint8_t*)p_haystack;
 	const size_t iterations = (haystack_len - needle_len) + 1u;
-	for(size_t iii = 0u; iii < iterations; iii++)
+	for (size_t iii = 0u; iii < iterations; iii++)
 	{
 		const int cmp_result = memcmp(&(p_hay[iii]), p_needle, needle_len);
-		if(0 == cmp_result)
+		if (0 == cmp_result)
 		{
 			p_result = (void*)&(p_hay[iii]);
 			break;
@@ -73,11 +73,11 @@ END:
  */
 static void WRDE_fprint_return(FILE* const p_file, const int value)
 {
-	if(NULL == p_file)
+	if (NULL == p_file)
 	{
 		goto END;
 	}
-	switch(value)
+	switch (value)
 	{
 		case(WRDE_BADCHAR):
 			fprintf_exclusive(p_file, "%s", "BADCHAR");
@@ -105,7 +105,7 @@ END:
 char* shell_expand_path_l(const char* const p_path)
 {
 	char* p_result = NULL;
-	if(NULL == p_path)
+	if (NULL == p_path)
 	{
 		goto END;
 	}
@@ -113,12 +113,12 @@ char* shell_expand_path_l(const char* const p_path)
 	const int expansion_result = wordexp(
 		p_path, &word_expansion, (WRDE_NOCMD | WRDE_SHOWERR)
 	);
-	if((EXIT_SUCCESS != expansion_result) || (0u >= word_expansion.we_wordc))
+	if ((EXIT_SUCCESS != expansion_result) || (0u >= word_expansion.we_wordc))
 	{
 		// No words were found/substituted. Or the word expansion failed.
 		p_result = strdup(p_path);
 	}
-	if(EXIT_SUCCESS != expansion_result)
+	if (EXIT_SUCCESS != expansion_result)
 	{
 		fprintf_exclusive(
 			stderr,
@@ -129,7 +129,7 @@ char* shell_expand_path_l(const char* const p_path)
 		fprintf_exclusive(stderr, ".\n");
 		goto END;
 	}
-	if(0u < word_expansion.we_wordc)
+	if (0u < word_expansion.we_wordc)
 	{
 		// Path was expanded, clone results onto the heap
 		p_result = strdup(word_expansion.we_wordv[0]);
@@ -485,7 +485,7 @@ static bool for_each_file_l(const char* const p_path,
 	while (NULL != p_dir_entry)
 	{
 		const size_t name_len = strnlen(p_dir_entry->d_name, INT64_MAX);
-		if(INT64_MAX <= name_len)
+		if (INT64_MAX <= name_len)
 		{
 			// File name length is way too large.
 			p_dir_entry = readdir(p_dir);
@@ -563,12 +563,12 @@ END:
 HANDLE get_handle_from_file(FILE* const p_file)
 {
 	HANDLE result = INVALID_HANDLE_VALUE;
-	if(NULL == p_file)
+	if (NULL == p_file)
 	{
 		goto END;
 	}
 	const int file_desc = _fileno(p_file);
-	if(0 > file_desc)
+	if (0 > file_desc)
 	{
 		goto END;
 	}
@@ -649,7 +649,7 @@ static bool for_each_file_w(const char* const p_path,
 	do
 	{
 		const size_t name_len = strnlen(find_data.cFileName, INT64_MAX);
-		if(INT_MAX <= name_len)
+		if (INT_MAX <= name_len)
 		{
 			// File name length is way too large.
 			find_next_result = FindNextFile(file_handle, &find_data);
@@ -771,7 +771,7 @@ END:
 
 void vfprintf_exclusive(FILE* const p_file, const char* const p_format, va_list arg_list)
 {
-	if((NULL == p_file) || (NULL == p_format))
+	if ((NULL == p_file) || (NULL == p_format))
 	{
 		goto END;
 	}
@@ -784,7 +784,7 @@ END:
 
 void  fprintf_exclusive(FILE* const p_file, const char* const p_format, ...)
 {
-	if((NULL == p_file) || (NULL == p_format))
+	if ((NULL == p_file) || (NULL == p_format))
 	{
 		goto END;
 	}
@@ -874,7 +874,7 @@ void* fread_alloc_all(FILE* const p_file, size_t* const p_buffer_size)
 	const size_t read_amount = fread_all(
 		p_file, (void*)p_result, *p_buffer_size
 	);
-	if(read_amount < *p_buffer_size)
+	if (read_amount < *p_buffer_size)
 	{
 		fprintf_exclusive(
 			stderr,
@@ -893,18 +893,18 @@ void* fread_alloc_until(FILE* const p_file,
 	//! TODO *BUG* May over-read for large byte patterns.
 	uint8_t* p_result     = NULL;
 	size_t   current_size = 0u;
-	if((NULL == p_file) || (NULL == p_needle) || (NULL == p_needle_size))
+	if ((NULL == p_file) || (NULL == p_needle) || (NULL == p_needle_size))
 	{
 		goto END;
 	}
-	if(0u >= *p_needle_size)
+	if (0u >= *p_needle_size)
 	{
 		goto END;
 	}
 
 	current_size = *p_needle_size;
 	p_result = fread_alloc_all(p_file, &current_size);
-	if((NULL == p_result) || (*p_needle_size != current_size))
+	if ((NULL == p_result) || (*p_needle_size != current_size))
 	{
 		goto END;
 	}
@@ -916,19 +916,19 @@ void* fread_alloc_until(FILE* const p_file,
 		p_pattern = memmem(
 			p_result, current_size, p_needle, *p_needle_size
 		);
-		if(NULL != p_pattern)
+		if (NULL != p_pattern)
 		{
 			break;
 		}
 		p_pattern = realloc(p_result, current_size + *p_needle_size);
-		if(NULL == p_pattern)
+		if (NULL == p_pattern)
 		{
 			break;
 		}
 		p_result = p_pattern;
 		p_pattern = NULL;
 		next_size = fread_all(p_file, &(p_result[current_size]), *p_needle_size);
-		if(0u >= next_size)
+		if (0u >= next_size)
 		{
 			break;
 		}
@@ -946,20 +946,20 @@ char* fread_alloc_line(FILE* const p_file, size_t* const p_size)
 {
 	char* p_result = NULL;
 	size_t alloc_size = 0u;
-	if(NULL == p_file)
+	if (NULL == p_file)
 	{
 		goto END;
 	}
 	const char* const p_needle = "\n";
 	const size_t needle_len = strnlen(p_needle, INT_MAX);
-	if((INT_MAX <= needle_len) || (0 >= needle_len))
+	if ((INT_MAX <= needle_len) || (0 >= needle_len))
 	{
 		// Should never happen but just in case.
 		goto END;
 	}
 	alloc_size = needle_len;
 	p_result = fread_alloc_until(p_file, p_needle, &alloc_size);
-	if(NULL != p_result)
+	if (NULL != p_result)
 	{
 		p_result[alloc_size - 1u] = '\0';
 	}
@@ -1043,7 +1043,7 @@ size_t path_file_size_3(const char* const p_path, const bool follow_links,
 		}
 		// TODO Implement directory recursion.
 	}
-	else if(0 <= file_stat.st_size)
+	else if (0 <= file_stat.st_size)
 	{
 		result = (size_t)file_stat.st_size;
 	}

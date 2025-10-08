@@ -14,7 +14,7 @@ void fprint_stacktrace_l(FILE* const p_file,
 	{
 		p_mut_prefix = p_prefix;
 	}
-	if(__INT_MAX__ <= skip_count)
+	if (__INT_MAX__ <= skip_count)
 	{
 		goto END;
 	}
@@ -28,7 +28,7 @@ void fprint_stacktrace_l(FILE* const p_file,
 		goto END;
 	}
 	const int bt_result = backtrace(p_addresses, MAX_CALLSTACK_DEPTH);
-	if(0 > bt_result)
+	if (0 > bt_result)
 	{
 		free(p_addresses);
 		p_addresses = NULL;
@@ -218,7 +218,7 @@ char* si_logger_level_generate_header(si_logger_level_t* const p_level,
 			&msg_level, sizeof(msg_level), padding
 		);
 	}
-	if(NULL == p_header)
+	if (NULL == p_header)
 	{
 		free(p_result);
 		p_result = NULL;
@@ -257,11 +257,11 @@ END:
 void si_logger_level_fprint_header(si_logger_level_t* const p_level,
 	const int padding, const size_t msg_level)
 {
-	if(NULL == p_level)
+	if (NULL == p_level)
 	{
 		goto END;
 	}
-	if(NULL == p_level->p_file)
+	if (NULL == p_level->p_file)
 	{
 		goto END;
 	}
@@ -269,7 +269,7 @@ void si_logger_level_fprint_header(si_logger_level_t* const p_level,
 	char* p_header = si_logger_level_generate_header(
 		p_level, padding, msg_level
 	);
-	if(NULL == p_header)
+	if (NULL == p_header)
 	{
 		goto END;
 	}

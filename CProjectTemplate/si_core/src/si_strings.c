@@ -5,12 +5,12 @@
 char* strndup(const char* const p_src, const size_t size)
 {
 	char* p_result = NULL;
-	if((NULL == p_src) || (0u >= size))
+	if ((NULL == p_src) || (0u >= size))
 	{
 		goto END;
 	}
 	p_result = calloc(size + 1u, sizeof(char));
-	if(NULL == p_result)
+	if (NULL == p_result)
 	{
 		goto END;
 	}
@@ -162,7 +162,7 @@ char* str_clone_pad(const char* const p_str, const int pad)
 		goto END;
 	}
 	const size_t str_len = strnlen(p_str, INT64_MAX);
-	if(INT64_MAX <= str_len)
+	if (INT64_MAX <= str_len)
 	{
 		goto END;
 	}

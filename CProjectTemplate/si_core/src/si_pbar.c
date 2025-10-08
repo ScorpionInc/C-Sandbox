@@ -232,7 +232,7 @@ uint16_t si_pbar_bar_strlen(const si_pbar_t* const p_bar,
 
 	size_t label_size = 0u;
 	const int label_len = si_pbar_label_strlen(p_bar, clamped_percentage);
-	if(0 < label_len)
+	if (0 < label_len)
 	{
 		label_size = (((size_t)label_len) + 1u);
 	}
@@ -246,7 +246,7 @@ uint16_t si_pbar_bar_strlen(const si_pbar_t* const p_bar,
 	{
 		const size_t prefix_len = strnlen(p_bar->p_prefix, INT_MAX);
 		// Prevent Underflows
-		if(prefix_len >= bar_size)
+		if (prefix_len >= bar_size)
 		{
 			bar_size = 0u;
 			goto END;
@@ -257,7 +257,7 @@ uint16_t si_pbar_bar_strlen(const si_pbar_t* const p_bar,
 	{
 		const size_t suffix_len = strnlen(p_bar->p_suffix, INT_MAX);
 		// Prevent Underflows
-		if(suffix_len >= bar_size)
+		if (suffix_len >= bar_size)
 		{
 			bar_size = 0u;
 			goto END;

@@ -16,7 +16,7 @@ void si_logger_init_2(si_logger_t* const p_logger, const size_t logging_level)
 		si_critical_level_t
 	};
 	const size_t default_levels_count = sizeof(default_levels) / level_size;
-	for(size_t iii = 0u; iii < default_levels_count; iii++)
+	for (size_t iii = 0u; iii < default_levels_count; iii++)
 	{
 		(void)si_parray_append_clone(
 			&(p_logger->levels), &(default_levels[iii]), level_size
@@ -57,19 +57,19 @@ inline si_logger_t* si_logger_new()
 static int _si_logger_header_len(si_logger_t* const p_logger)
 {
 	int result = 0;
-	if(NULL == p_logger)
+	if (NULL == p_logger)
 	{
 		goto END;
 	}
 	const size_t level_count = si_parray_count(&(p_logger->levels));
-	for(size_t iii = 0u; iii < level_count; iii++)
+	for (size_t iii = 0u; iii < level_count; iii++)
 	{
 		si_logger_level_t* p_next = si_parray_at(&(p_logger->levels), iii);
-		if(NULL == p_next)
+		if (NULL == p_next)
 		{
 			break;
 		}
-		if(NULL == p_next->p_header)
+		if (NULL == p_next->p_header)
 		{
 			continue;
 		}
@@ -159,7 +159,7 @@ static void _si_logger_log(si_logger_t* const p_logger,
 		goto END;
 	}
 	si_logger_level_t* p_level = _si_logger_level(p_logger, msg_level);
-	if(NULL == p_level)
+	if (NULL == p_level)
 	{
 		goto END;
 	}
@@ -177,16 +177,16 @@ void si_logger_custom(si_logger_t* const p_logger, const size_t msg_level,
 	const char* p_prefix, const void* const p_data, const char* p_suffix,
 	void p_print(FILE* const, const void* const))
 {
-	if((NULL == p_logger) || (NULL == p_data) || (NULL == p_print))
+	if ((NULL == p_logger) || (NULL == p_data) || (NULL == p_print))
 	{
 		goto END;
 	}
 	si_logger_level_t* p_level = _si_logger_level(p_logger, msg_level);
-	if(NULL == p_level)
+	if (NULL == p_level)
 	{
 		goto END;
 	}
-	if(NULL == p_level->p_file)
+	if (NULL == p_level->p_file)
 	{
 		goto END;
 	}

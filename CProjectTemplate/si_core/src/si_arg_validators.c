@@ -21,16 +21,16 @@ END:
 bool file_path_validator(const void* const p_path)
 {
 	bool result = false;
-	if(NULL == p_path)
+	if (NULL == p_path)
 	{
 		goto END;
 	}
 #ifdef __linux__
 	size_t sanity_check = 0u;
 	const char* p_str = (const char*)p_path;
-	while('\0' != *p_str)
+	while ('\0' != *p_str)
 	{
-		if(sanity_check > PATH_MAX)
+		if (sanity_check > PATH_MAX)
 		{
 			break;
 		}
