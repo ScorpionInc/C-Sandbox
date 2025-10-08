@@ -5,6 +5,8 @@
 char* strndup(const char* const p_src, const size_t size)
 {
 	char* p_result = NULL;
+	// According to compiler this NULL-check is not needed.
+	// This NULL-check has been retained as better safe than sorry(also BARR-C)
 	if ((NULL == p_src) || (0u >= size))
 	{
 		goto END;

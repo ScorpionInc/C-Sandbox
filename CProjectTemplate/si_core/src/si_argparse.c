@@ -346,6 +346,9 @@ bool si_argparse_parse(si_argparse_t* const p_parse,
 			);
 		}
 		// At this point we have identified the argument we want to parse.
+		const size_t min_values = (
+			(0 > p_arg->minimum_values) ? 0u : (size_t)p_arg->minimum_values
+		);
 		size_t values_parsed = si_arg_parse(
 			p_arg, argc - arg_start_index, &(pp_argv[arg_start_index])
 		);
@@ -354,17 +357,12 @@ bool si_argparse_parse(si_argparse_t* const p_parse,
 		{
 			break;
 		}
-		const bool do_prompt = SI_ARG_DOES_PROMPT(p_arg->bit_flags);
-		if (true == do_prompt)
-		{
-			values_parsed += si_arg_prompt(p_arg);
-		}
-		arg_start_index += values_parsed;
-		if (values_parsed < p_arg->minimum_values)
+		arg_start_index += (int)values_parsed;
+		if (values_parsed < min_values)
 		{
 			fprintf(
-				stderr, "Argument: '%s' expected at least: %d values and got: %lu "
-				"values instead.\n", p_arg_id, p_arg->minimum_values, values_parsed
+				stderr, "Argument: '%s' expected at least: %lu values and got: %lu "
+				"values instead.\n", p_arg_id, min_values, values_parsed
 			);
 			result = false;
 			si_parray_destroy(&(p_arg->p_values));

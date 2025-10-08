@@ -202,7 +202,7 @@ bool si_arg_append_value(si_arg_t* const p_arg, const void* const p_value)
 	{
 		p_arg->p_values = si_parray_new();
 		result = (NULL == p_arg->p_values);
-		if (true != result)
+		if (true == result)
 		{
 			goto END;
 		}
@@ -283,7 +283,7 @@ size_t si_arg_prompt(si_arg_t* const p_arg)
 		p_input_line = NULL;
 
 		// Append value to value list.
-		bool was_added = si_arg_append_value(p_arg, p_parsed_value);
+		const bool was_added = si_arg_append_value(p_arg, p_parsed_value);
 		if (true != was_added)
 		{
 			// Failed to add valid parsed value to argument list.
@@ -307,9 +307,13 @@ size_t si_arg_parse(si_arg_t* const p_arg,
 	const int argc, const char** const pp_argv)
 {
 	size_t result = 0u;
-	if ((NULL == p_arg) || (0 >= argc) || (NULL == pp_argv))
+	if (NULL == p_arg)
 	{
 		goto END;
+	}
+	if ((0 >= argc) || (NULL == pp_argv))
+	{
+		goto PROMPT;
 	}
 	// Determine if the first argument is an id string.
 	int value_read_offset = 0;
@@ -338,7 +342,7 @@ size_t si_arg_parse(si_arg_t* const p_arg,
 		else
 		{
 			// No parsing result is the C String.
-			p_parse_result = (void*)p_next_str;
+			p_parse_result = (void*)strdup(p_next_str);
 		}
 		if (NULL == p_parse_result)
 		{
@@ -356,6 +360,7 @@ size_t si_arg_parse(si_arg_t* const p_arg,
 				if (NULL != p_arg->p_parser)
 				{
 					free(p_parse_result);
+					p_parse_result = NULL;
 				}
 				break;
 			}
@@ -366,11 +371,14 @@ size_t si_arg_parse(si_arg_t* const p_arg,
 		if (true != was_appended)
 		{
 			// Failed to append the parsed value to the argument's value list.
+			free(p_parse_result);
+			p_parse_result = NULL;
 			break;
 		}
 		result++;
 	}
 
+PROMPT:
 	// Check if we need to prompt and if prompting is enabled.
 	const bool values_are_valid = si_arg_is_valid_values(p_arg);
 	const bool do_prompt = (

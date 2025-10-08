@@ -958,7 +958,9 @@ char* fread_alloc_line(FILE* const p_file, size_t* const p_size)
 		goto END;
 	}
 	alloc_size = needle_len;
-	p_result = fread_alloc_until(p_file, p_needle, &alloc_size);
+	p_result = fread_alloc_until(
+		p_file, (const uint8_t*)p_needle, &alloc_size
+	);
 	if (NULL != p_result)
 	{
 		p_result[alloc_size - 1u] = '\0';
