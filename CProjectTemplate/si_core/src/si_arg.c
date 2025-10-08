@@ -72,8 +72,14 @@ bool si_arg_is_valid_values(const si_arg_t* const p_arg)
 		goto END;
 	}
 	const size_t value_count = si_parray_count(p_arg->p_values);
-	if ((p_arg->minimum_values > value_count) ||
-	    (p_arg->maximum_values < value_count))
+	const size_t min_values = (
+		(0 > p_arg->minimum_values) ? 0u : (size_t)p_arg->minimum_values
+	);
+	const size_t max_values = (
+		(0 > p_arg->maximum_values) ? 0u : (size_t)p_arg->maximum_values
+	);
+	if ((min_values > value_count) ||
+	    (max_values < value_count))
 	{
 		goto END;
 	}
@@ -216,22 +222,27 @@ size_t si_arg_prompt(si_arg_t* const p_arg)
 		goto END;
 	}
 	size_t value_count = 0u;
-	if(NULL != p_arg->p_values)
+	if (NULL != p_arg->p_values)
 	{
 		value_count = si_parray_count(p_arg->p_values);
 	}
-	if(INT_MAX <= value_count)
+	if (INT_MAX <= value_count)
 	{
 		goto END;
 	}
 	const int value_count_i = (int)value_count;
 	const int loops         = (p_arg->minimum_values - value_count_i);
+	if (0 >= loops)
+	{
+		goto END;
+	}
+	const size_t loops_s = (size_t)loops;
 
 	size_t read_size      = 0u;
 	char*  p_input_line   = NULL;
 	void*  p_parsed_value = NULL;
 
-	while (result < loops)
+	while (result < loops_s)
 	{
 		// Prompt user for input.
 		fprintf(stdout, "Please enter value for argument '");
@@ -250,7 +261,7 @@ size_t si_arg_prompt(si_arg_t* const p_arg)
 		{
 			p_parsed_value = strndup(p_input_line, read_size);
 		}
-		if(NULL == p_parsed_value)
+		if (NULL == p_parsed_value)
 		{
 			fprintf(stdout,
 				"Failed to parse input value: '%s'.\n", p_input_line);
@@ -259,11 +270,11 @@ size_t si_arg_prompt(si_arg_t* const p_arg)
 
 		// Validate parsed value
 		bool is_valid = true;
-		if(NULL != p_arg->p_validate)
+		if (NULL != p_arg->p_validate)
 		{
 			is_valid = p_arg->p_validate(p_parsed_value);
 		}
-		if(true != is_valid)
+		if (true != is_valid)
 		{
 			fprintf(stdout, "Input '%s' was invalid.\n", p_input_line);
 			goto BAD_INPUT;
@@ -273,7 +284,7 @@ size_t si_arg_prompt(si_arg_t* const p_arg)
 
 		// Append value to value list.
 		bool was_added = si_arg_append_value(p_arg, p_parsed_value);
-		if(true != was_added)
+		if (true != was_added)
 		{
 			// Failed to add valid parsed value to argument list.
 			free((void*)p_parsed_value);
@@ -365,7 +376,7 @@ size_t si_arg_parse(si_arg_t* const p_arg,
 	const bool do_prompt = (
 		SI_ARG_DOES_PROMPT(p_arg->bit_flags) && (true != values_are_valid)
 	);
-	if(true == do_prompt)
+	if (true == do_prompt)
 	{
 		printf("ai_arg_parse() calling arg_prompt()!\n");//!Debugging
 		result += si_arg_prompt(p_arg);
