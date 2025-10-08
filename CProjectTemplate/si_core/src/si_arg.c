@@ -251,6 +251,10 @@ size_t si_arg_prompt(si_arg_t* const p_arg)
 
 		// Read the user's response
 		p_input_line = fread_alloc_line(stdin, &read_size);
+		if(NULL == p_input_line)
+		{
+			break;
+		}
 
 		// Parse input string
 		if (NULL != p_arg->p_parser)
