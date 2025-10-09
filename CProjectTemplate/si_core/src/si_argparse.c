@@ -29,6 +29,36 @@ END:
 	return p_new;
 }
 
+size_t si_argparse_is_stopped(const si_argparse_t* const p_parse)
+{
+	size_t result = SIZE_MAX;
+	if(NULL == p_parse)
+	{
+		goto END;
+	}
+	const size_t count = si_argparse_count(p_parse);
+	if (SIZE_MAX == count)
+	{
+		goto END;
+	}
+	for (size_t iii = 0u; iii < count; iii++)
+	{
+		si_arg_t* p_arg = si_array_at(&(p_parse->arguments), iii);
+		if (NULL == p_arg)
+		{
+			goto END;
+		}
+		const bool is_stopping = si_arg_is_stopping(p_arg);
+		if(true == is_stopping)
+		{
+			result = iii;
+			break;
+		}
+	}
+END:
+	return result;
+}
+
 bool si_argparse_is_valid(const si_argparse_t* const p_parse)
 {
 	bool result = false;
@@ -77,6 +107,11 @@ bool si_argparse_is_valid_values(const si_argparse_t* const p_parse)
 		if (NULL == p_arg)
 		{
 			goto END;
+		}
+		const bool is_stopping = si_arg_is_stopping(p_arg);
+		if (true == is_stopping)
+		{
+			break;
 		}
 		const bool is_valid = si_arg_is_valid_values(p_arg);
 		if (false == is_valid)
@@ -257,19 +292,25 @@ END:
  */
 static void si_argparse_prompt_all(si_argparse_t* const p_parse)
 {
-	if(NULL == p_parse)
+	if (NULL == p_parse)
+	{
+		goto END;
+	}
+	const size_t stopped_index = si_argparse_is_stopped(p_parse);
+	const bool is_stopped = (SIZE_MAX != stopped_index);
+	if (true == is_stopped)
 	{
 		goto END;
 	}
 	for (size_t iii = 0u; iii < p_parse->arguments.capacity; iii++)
 	{
 		si_arg_t* p_arg = si_array_at(&(p_parse->arguments), iii);
-		if(NULL == p_arg)
+		if (NULL == p_arg)
 		{
 			break;
 		}
 		const bool is_valid  = si_arg_is_valid_values(p_arg);
-		if(true != is_valid)
+		if (true != is_valid)
 		{
 			(void)si_arg_prompt(p_arg);
 		}
@@ -397,8 +438,13 @@ bool si_argparse_parse(si_argparse_t* const p_parse,
 			si_parray_destroy(&(p_arg->p_values));
 			break;
 		}
+		const bool does_stop = si_arg_is_stopping(p_arg);
 		free((void*)p_arg_id);
 		p_arg_id = NULL;
+		if (true == does_stop)
+		{
+			break;
+		}
 	}
 	free((void*)p_arg_id);
 	p_arg_id = NULL;

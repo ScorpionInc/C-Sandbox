@@ -13,15 +13,21 @@
 #include <stdint.h> // uint8_t
 
 // Flags bit mask macros
-#define SI_ARG_OPTIONAL (0x01)
+#define SI_ARG_OPTIONAL  (0x01)
 #define SI_ARG_IS_OPTIONAL(bit_flags) (0 < (bit_flags & SI_ARG_OPTIONAL))
-#define SI_ARG_PROMPTS  (0x02)
-#define SI_ARG_DOES_PROMPT(bit_flags) (0 < (bit_flags & SI_ARG_PROMPTS ))
+#define SI_ARG_PROMPT   (0x02)
+#define SI_ARG_DOES_PROMPT(bit_flags) (0 < (bit_flags & SI_ARG_PROMPT))
+#define SI_ARG_STOP     (0x04)
+#define SI_ARG_DOES_STOP  (bit_flags) (0 < (bit_flags & SI_ARG_STOP))
 
 // Arguments are required by default.
 #define SI_ARG_DEFAULT_IS_OPTIONAL (0x00)
 // Prompts for missing required arguments by default.
-#define SI_ARG_DEFAULT_PROMPTS     (SI_ARG_PROMPTS)
+#define SI_ARG_DEFAULT_PROMPT      (SI_ARG_PROMPT)
+// Arguments do not halt all other parsing by default.
+#define SI_ARG_DEFAULT_STOP        (0x00)
+#define SI_ARG_DEFAULT_BIT_FLAGS \
+	(SI_ARG_DEFAULT_IS_OPTIONAL | SI_ARG_DEFAULT_PROMPT | SI_ARG_DEFAULT_STOP)
 
 #ifdef __cplusplus
 extern "C"
@@ -88,6 +94,15 @@ bool si_arg_is_valid_values(const si_arg_t* const p_arg);
  * @return Returns true if argument was found. Returns false otherwise.
  */
 bool si_arg_is_set(const si_arg_t* const p_arg);
+
+/** Doxygen
+ * @brief Determines if this is the argument that halted the parsing or not.
+ * 
+ * @param p_arg Pointer to the si_arg_t struct to be checked.
+ * 
+ * @return Returns stdbool true if stopping. Returns false otherwise.
+ */
+bool si_arg_is_stopping(const si_arg_t* const p_arg);
 
 /** Doxygen
  * @brief Tests if either of an arguments ids match a string.

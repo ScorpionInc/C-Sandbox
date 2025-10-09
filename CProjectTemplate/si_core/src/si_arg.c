@@ -7,7 +7,7 @@ void si_arg_init(si_arg_t* const p_arg)
 	{
 		goto END;
 	}
-	p_arg->bit_flags = (SI_ARG_DEFAULT_IS_OPTIONAL | SI_ARG_DEFAULT_PROMPTS);
+	p_arg->bit_flags = SI_ARG_DEFAULT_BIT_FLAGS;
 	p_arg->p_full = NULL;
 	p_arg->flag = '\0';
 	p_arg->p_help = NULL;
@@ -113,6 +113,20 @@ bool si_arg_is_set(const si_arg_t* const p_arg)
 		goto END;
 	}
 	result = (NULL != p_arg->p_values);
+END:
+	return result;
+}
+
+bool si_arg_is_stopping(const si_arg_t* const p_arg)
+{
+	bool result = false;
+	if(NULL == p_arg)
+	{
+		goto END;
+	}
+	const bool is_set = si_arg_is_set(p_arg);
+	const bool is_stopper = SI_ARG_DOES_STOP(p_arg->bit_flags);
+	result = ((true == is_set) && (true == is_stopper));
 END:
 	return result;
 }

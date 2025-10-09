@@ -57,6 +57,15 @@ void si_argparse_init(si_argparse_t* const p_parse);
 si_argparse_t* si_argparse_new();
 
 /** Doxygen
+ * @brief Checks if parsing stopped due to an argument with the STOP flag.
+ * 
+ * @param p_parse Pointer to the si_argparse struct to be checked.
+ * 
+ * @return Returns index of first stopping arg on success. SIZE_MAX otherwise.
+ */
+size_t si_argparse_is_stopped(const si_argparse_t* const p_parse);
+
+/** Doxygen
  * @brief Tests an argparse's arguments for basic validity.
  * 
  * @param p_parse Pointer to the si_argparse struct to validate.
