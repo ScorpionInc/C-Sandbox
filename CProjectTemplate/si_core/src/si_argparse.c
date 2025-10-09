@@ -32,7 +32,7 @@ END:
 size_t si_argparse_is_stopped(const si_argparse_t* const p_parse)
 {
 	size_t result = SIZE_MAX;
-	if(NULL == p_parse)
+	if (NULL == p_parse)
 	{
 		goto END;
 	}
@@ -49,7 +49,7 @@ size_t si_argparse_is_stopped(const si_argparse_t* const p_parse)
 			goto END;
 		}
 		const bool is_stopping = si_arg_is_stopping(p_arg);
-		if(true == is_stopping)
+		if (true == is_stopping)
 		{
 			result = iii;
 			break;
