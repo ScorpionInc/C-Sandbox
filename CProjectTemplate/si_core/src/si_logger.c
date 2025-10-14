@@ -168,6 +168,8 @@ static void _si_logger_log(si_logger_t* const p_logger,
 	const int header_len = _si_logger_header_len(p_logger);
 	si_logger_level_fprint_header(p_level, header_len, msg_level);
 	vfprintf(p_level->p_file, p_format, args);
+	fprintf(p_level->p_file, "\n");
+	fflush(p_level->p_file);
 	si_funlock(p_level->p_file);
 END:
 	return;
