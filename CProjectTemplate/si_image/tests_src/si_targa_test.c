@@ -88,6 +88,9 @@ static void test_clone(void)
 	TEST_ASSERT_TRUE(write_result);
 }
 
+/** Doxygen
+ * @brief Runs all available static unit tests.
+ */
 static void test_all(void)
 {
 	UNITY_BEGIN();

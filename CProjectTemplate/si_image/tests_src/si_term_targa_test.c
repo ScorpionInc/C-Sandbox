@@ -25,8 +25,8 @@ static void test_draw(void)
 	const bool read_result = si_tga_fread_from(&tga, P_PATH);
 	TEST_ASSERT_TRUE(read_result);
 
-	size_t x_pos = (terminal_info.COLUMNS / 2) - (tga.header.width  / 2);
-	size_t y_pos = (terminal_info.ROWS    / 2) - (tga.header.height / 2);
+	uint16_t x_pos = (terminal_info.COLUMNS / 2) - (tga.header.width  / 2);
+	uint16_t y_pos = (terminal_info.ROWS    / 2) - (tga.header.height / 2);
 	if(terminal_info.COLUMNS <= x_pos)
 	{
 		x_pos = 1u;
@@ -43,6 +43,9 @@ static void test_draw(void)
 	TEST_ASSERT_TRUE(drew);
 }
 
+/** Doxygen
+ * @brief Runs all available static unit tests.
+ */
 static void test_all(void)
 {
 	UNITY_BEGIN();
