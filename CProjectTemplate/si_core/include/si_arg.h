@@ -15,10 +15,10 @@
 // Flags bit mask macros
 #define SI_ARG_OPTIONAL  (0x01)
 #define SI_ARG_IS_OPTIONAL(bit_flags) (0 < (bit_flags & SI_ARG_OPTIONAL))
-#define SI_ARG_PROMPT   (0x02)
+#define SI_ARG_PROMPT    (0x02)
 #define SI_ARG_DOES_PROMPT(bit_flags) (0 < (bit_flags & SI_ARG_PROMPT))
-#define SI_ARG_STOP     (0x04)
-#define SI_ARG_DOES_STOP  (bit_flags) (0 < (bit_flags & SI_ARG_STOP))
+#define SI_ARG_STOP      (0x04)
+#define SI_ARG_DOES_STOP(bit_flags)   (0 < (bit_flags & SI_ARG_STOP))
 
 // Arguments are required by default.
 #define SI_ARG_DEFAULT_IS_OPTIONAL (0x00)
