@@ -78,8 +78,8 @@ void si_priority_queue_test_all(void)
 
 int main(void)
 {
-	printf("Begin testing of si_priority_queue.\n");
+	(void)printf("Begin testing of si_priority_queue.\n");
 	si_priority_queue_test_all();
-	printf("End of si_priority_queue testing.\n");
+	(void)printf("End of si_priority_queue testing.\n");
 	return 0;
 }

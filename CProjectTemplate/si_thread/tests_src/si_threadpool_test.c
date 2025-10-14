@@ -76,7 +76,7 @@ static void si_threadpool_test_run(void)
 	p_threadpool = si_threadpool_new_1(priority_count);
 	si_threadpool_start(p_threadpool);
 	TEST_ASSERT_NOT_NULL(p_threadpool);
-	si_logger_t* p_logger = si_logger_new_2(stdout, SI_LOGGER_ALL);
+	si_logger_t* p_logger = si_logger_new_1(SI_LOGGER_ALL);
 	TEST_ASSERT_NOT_NULL(p_logger);
 
 	const size_t etask_id = si_threadpool_enqueue_4(
@@ -132,8 +132,8 @@ static void si_threadpool_test_all(void)
 
 int main(void)
 {
-	printf("Begin testing of si_threadpool.\n");
+	(void)printf("Begin testing of si_threadpool.\n");
 	si_threadpool_test_all();
-	printf("End of si_threadpool testing.\n");
+	(void)printf("End of si_threadpool testing.\n");
 	return 0;
 }
