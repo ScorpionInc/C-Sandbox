@@ -1,6 +1,6 @@
 /* si_server.h
  * Created: 20250718
- * Updated: 20250729
+ * Updated: 20251020
  * Purpose: Prototype functions and structs for server-side networking.
  */
 
@@ -11,26 +11,22 @@
 #include <stdlib.h> // calloc()
 #include <string.h> // memset()
 
+#include "si_mutex.h" // si_mutex_t
+
 #ifdef __linux__
 
-#ifndef _POSIX_C_SOURCE
-// Defines our minimum target POSIX standard
-#define _POSIX_C_SOURCE 200809L
-#endif//_POSIX_C_SOURCE
-
-#include <arpa/inet.h> // inet_addr() htonl()
+#include <arpa/inet.h> // htonl(), htons()
 
 #include <fcntl.h> // fcntl(), O_NONBLOCK
 #include <netdb.h> // addrinfo
 #include <poll.h> // poll(), pollfd
-#include <pthread.h> // pthread_mutex_t, PTHREAD_MUTEX_RECURSIVE
 
 #include <sys/resource.h> // getrlimit(), rlimit
 #include <sys/socket.h> // socket(), listen(), SOL_SOCKET, SOMAXCONN
 #include <sys/stat.h> // stat()
 #include <sys/types.h> // ssize_t
 
-#include <unistd.h> // read() write()
+#include <unistd.h> // read(), write()
 
 #define SOCKET_SUCCESS (0)
 #define SOCKET_ERROR (-1)
@@ -79,7 +75,7 @@ typedef struct si_server_t
 {
 	sa_family_t family;
 	si_accesslist_t* p_access_list;
-	pthread_mutex_t sockets_lock;
+	si_mutex_t sockets_lock;
 	si_array_t sockets;
 	si_realloc_settings_t* p_settings;
 	event_handler_t p_on_connect;

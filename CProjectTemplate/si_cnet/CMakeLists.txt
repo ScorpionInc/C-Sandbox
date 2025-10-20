@@ -26,12 +26,15 @@ endif()
 
 find_library(si_data NAMES si_data PATHS ../si_data/)
 find_library(si_core NAMES si_core PATHS ../si_core/)
+find_library(si_thread NAMES si_thread PATHS ../si_thread/)
 
 include_directories(../si_data/include)
 include_directories(../si_core/include)
+include_directories(../si_thread/include)
 
 file(GLOB si_cnet_SRC CONFIGURE_DEPENDS "src/*.c")
 add_library(si_cnet STATIC ${si_cnet_SRC})
 target_include_directories(si_cnet PUBLIC include)
 target_link_libraries(si_cnet PUBLIC si_data)
 target_link_libraries(si_cnet PUBLIC si_core)
+target_link_libraries(si_cnet PUBLIC si_thread)

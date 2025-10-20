@@ -64,48 +64,6 @@ END:
 }
 
 /** Doxygen
- * @brief Local function initializes a pthread mutex, and assigns it's
- *        default attributes.
- * 
- * @param p_mutex Pointer to pthread mutex to be initialized.
- * 
- * @return Returns stdbool true on success. Returns false otherwise.
- */
-static bool si_server_init_rmutex(pthread_mutex_t* const p_mutex)
-{
-	bool result = false;
-	if (NULL == p_mutex)
-	{
-		goto END;
-	}
-	int func_result = 0;
-	pthread_mutexattr_t mutex_attributes = {0};
-	func_result = pthread_mutexattr_init(&mutex_attributes);
-	if (SOCKET_SUCCESS != func_result)
-	{
-		goto END;
-	}
-	func_result = pthread_mutexattr_settype(
-		&mutex_attributes, PTHREAD_MUTEX_RECURSIVE
-	);
-	if (SOCKET_SUCCESS != func_result)
-	{
-		goto END;
-	}
-	func_result = pthread_mutex_init(
-		p_mutex, &mutex_attributes
-	);
-	if (SOCKET_SUCCESS != func_result)
-	{
-		goto END;
-	}
-	func_result = pthread_mutexattr_destroy(&mutex_attributes);
-	result = (SOCKET_SUCCESS == func_result);
-END:
-	return result;
-}
-
-/** Doxygen
  * @brief Local function binds an existing server socket 2 all local interfaces
  * 
  * @param server_fd Server socket int file descriptor
@@ -113,7 +71,7 @@ END:
  * @param port Local port number to bind server socket to
  * @param p_logger Optional pointer to si_logger_t for error messages
  * 
- * @return Returns stdbool true on sucess. Returns false otherwise.
+ * @return Returns stdbool true on success. Returns false otherwise.
 */
 static bool si_server_socket_bind(const int server_fd,
 	const sa_family_t family, const uint16_t port,
@@ -201,7 +159,7 @@ END:
  * @param max_client_queue Maximum number(int) of client connections to queue.
  * @param p_logger Optional pointer to si_logger_t for error messages
  * 
- * @return Returns stdbool true on sucess. Returns false otherwise.
+ * @return Returns stdbool true on success. Returns false otherwise.
  */
 static bool si_server_socket_defaults(const int server_fd,
 	const sa_family_t family, const uint16_t port, const int max_client_queue,
@@ -301,8 +259,12 @@ void si_server_init_7(si_server_t* const p_server, const uint16_t port,
 	p_server->p_settings = p_settings;
 	p_server->p_logger = p_logger;
 
-	// Initialize the pthread mutex for multithreading support
-	const bool init_mutex = si_server_init_rmutex(&(p_server->sockets_lock));
+	// Initialize the mutex for multithreading support
+	const bool init_mutex = (
+		SI_PTHREAD_SUCCESS == si_mutex_init_2(
+			&(p_server->sockets_lock), PTHREAD_MUTEX_RECURSIVE
+		)
+	);
 	if (true != init_mutex)
 	{
 		si_logger_error(p_server->p_logger,
@@ -443,39 +405,25 @@ bool si_server_is_blocking(si_server_t* const p_server)
 	{
 		goto END;
 	}
-	int lock_result = SOCKET_ERROR;
-	int unlock_result = SOCKET_ERROR;
-	while (SOCKET_SUCCESS != lock_result)
-	{
-		lock_result = pthread_mutex_lock(&(p_server->sockets_lock));
-	}
+	si_mutex_lock(&(p_server->sockets_lock));
 	struct pollfd* p_server_struct = (struct pollfd*)(si_array_at(
 		&(p_server->sockets), 0u
 	));
 	if (NULL == p_server_struct)
 	{
-		while (SOCKET_SUCCESS != unlock_result)
-		{
-			unlock_result = pthread_mutex_unlock(&(p_server->sockets_lock));
-		}
+		si_mutex_unlock(&(p_server->sockets_lock));
 		goto END;
 	}
 	const int server_fd = p_server_struct->fd;
 	if (SOCKET_SUCCESS > server_fd)
 	{
-		while (SOCKET_SUCCESS != unlock_result)
-		{
-			unlock_result = pthread_mutex_unlock(&(p_server->sockets_lock));
-		}
+		si_mutex_unlock(&(p_server->sockets_lock));
 		goto END;
 	}
 
 	// in fcntl() the kernel ignores 3rd argument with F_GETFL.
 	const int flags = fcntl(server_fd, F_GETFL, 0);
-	while (SOCKET_SUCCESS != unlock_result)
-	{
-		unlock_result = pthread_mutex_unlock(&(p_server->sockets_lock));
-	}
+	si_mutex_unlock(&(p_server->sockets_lock));
 	if (SOCKET_ERROR >= flags)
 	{
 		goto END;
@@ -493,11 +441,7 @@ bool si_server_set_blocking(si_server_t* const p_server,
 	{
 		goto END;
 	}
-	int lock_results = SOCKET_ERROR;
-	while (SOCKET_SUCCESS != lock_results)
-	{
-		lock_results = pthread_mutex_lock(&(p_server->sockets_lock));
-	}
+	si_mutex_lock(&(p_server->sockets_lock));
 	const int server_fd =
 		((struct pollfd*)si_array_at(&(p_server->sockets), 0u))->fd;
 	if (SOCKET_SUCCESS > server_fd)
@@ -536,11 +480,7 @@ bool si_server_set_blocking(si_server_t* const p_server,
 	}
 	result = true;
 UNLOCK:
-	int unlock_results = SOCKET_ERROR;
-	while (SOCKET_SUCCESS != unlock_results)
-	{
-		unlock_results = pthread_mutex_unlock(&(p_server->sockets_lock));
-	}
+	si_mutex_unlock(&(p_server->sockets_lock));
 END:
 	return result;
 }
@@ -552,20 +492,12 @@ bool si_server_is_keepalive(si_server_t* const p_server)
 	{
 		goto END;
 	}
-	int lock_result = -1;
-	int unlock_result = -1;
-	while (SOCKET_SUCCESS != lock_result)
-	{
-		lock_result = pthread_mutex_lock(&(p_server->sockets_lock));
-	}
+	si_mutex_lock(&(p_server->sockets_lock));
 	const int server_fd =
 		((struct pollfd*)si_array_at(&(p_server->sockets), 0u))->fd;
 	if (SOCKET_SUCCESS > server_fd)
 	{
-		while (SOCKET_SUCCESS != unlock_result)
-		{
-			unlock_result = pthread_mutex_unlock(&(p_server->sockets_lock));
-		}
+		si_mutex_unlock(&(p_server->sockets_lock));
 		goto END;
 	}
 
@@ -576,10 +508,7 @@ bool si_server_is_keepalive(si_server_t* const p_server)
 		server_fd, SOL_SOCKET, SO_KEEPALIVE,
 		&value, &value_size
 	);
-	while (SOCKET_SUCCESS != unlock_result)
-	{
-		unlock_result = pthread_mutex_unlock(&(p_server->sockets_lock));
-	}
+	si_mutex_unlock(&(p_server->sockets_lock));
 	if ((SOCKET_SUCCESS > get_result) || (value_size != c_value_size))
 	{
 		goto END;
@@ -596,19 +525,11 @@ bool si_server_set_keepalive(si_server_t* const p_server, const bool keepalive)
 	{
 		goto END;
 	}
-	int lock_result = SOCKET_ERROR;
-	while (SOCKET_SUCCESS != lock_result)
-	{
-		lock_result = pthread_mutex_lock(&(p_server->sockets_lock));
-	}
+	si_mutex_lock(&(p_server->sockets_lock));
 	const int server_fd =
 		((struct pollfd*)si_array_at(&(p_server->sockets), 0u))->fd;
 	result = si_socket_set_keepalive(server_fd, keepalive);
-	int unlock_result = SOCKET_ERROR;
-	while (SOCKET_SUCCESS != unlock_result)
-	{
-		unlock_result = pthread_mutex_unlock(&(p_server->sockets_lock));
-	}
+	si_mutex_unlock(&(p_server->sockets_lock));
 END:
 	return result;
 }
@@ -621,11 +542,7 @@ bool si_server_add_socket(si_server_t* const p_server, const int socket_fd)
 		goto END;
 	}
 	// Attempt assign to open slot
-	int lock_result = SOCKET_ERROR;
-	while (SOCKET_SUCCESS != lock_result)
-	{
-		lock_result = pthread_mutex_lock(&(p_server->sockets_lock));
-	}
+	si_mutex_lock(&(p_server->sockets_lock));
 	const size_t current_capacity = p_server->sockets.capacity;
 	for (size_t iii = 0u; iii < current_capacity; iii++)
 	{
@@ -698,11 +615,7 @@ bool si_server_add_socket(si_server_t* const p_server, const int socket_fd)
 	}
 	result = si_server_add_socket(p_server, socket_fd);
 UNLOCK:
-	int unlock_results = SOCKET_ERROR;
-	while (SOCKET_SUCCESS != unlock_results)
-	{
-		unlock_results = pthread_mutex_unlock(&(p_server->sockets_lock));
-	}
+	si_mutex_unlock(&(p_server->sockets_lock));
 END:
 	return result;
 }
@@ -714,11 +627,7 @@ static void si_server_drop_socket_at(si_server_t* const p_server,
 	{
 		goto END;
 	}
-	int lock_result = SOCKET_ERROR;
-	while (SOCKET_SUCCESS != lock_result)
-	{
-		lock_result = pthread_mutex_lock(&(p_server->sockets_lock));
-	}
+	si_mutex_lock(&(p_server->sockets_lock));
 	if (index >= p_server->sockets.capacity)
 	{
 		goto END;
@@ -735,11 +644,7 @@ static void si_server_drop_socket_at(si_server_t* const p_server,
 	}
 	p_poll->fd = SOCKET_ERROR;
 	p_poll->revents = 0;
-	int unlock_result = SOCKET_ERROR;
-	while (SOCKET_SUCCESS != unlock_result)
-	{
-		pthread_mutex_unlock(&(p_server->sockets_lock));
-	}
+	si_mutex_unlock(&(p_server->sockets_lock));
 END:
 	return;
 }
@@ -750,11 +655,7 @@ void si_server_drop_socket(si_server_t* const p_server, const int socket_fd)
 	{
 		goto END;
 	}
-	int lock_result = SOCKET_ERROR;
-	while (SOCKET_SUCCESS != lock_result)
-	{
-		lock_result = pthread_mutex_lock(&(p_server->sockets_lock));
-	}
+	si_mutex_lock(&(p_server->sockets_lock));
 	for (size_t iii = 0u; iii < p_server->sockets.capacity; iii++)
 	{
 		struct pollfd* p_poll = (struct pollfd*)(si_array_at(
@@ -784,11 +685,7 @@ void si_server_drop_socket(si_server_t* const p_server, const int socket_fd)
 			si_server_drop_socket_at(p_server, iii);
 		}
 	}
-	int unlock_result = SOCKET_ERROR;
-	while (SOCKET_SUCCESS != unlock_result)
-	{
-		unlock_result = pthread_mutex_unlock(&(p_server->sockets_lock));
-	}
+	si_mutex_unlock(&(p_server->sockets_lock));
 END:
 	return;
 }
@@ -800,17 +697,9 @@ void si_server_accept(si_server_t* const p_server)
 		goto END;
 	}
 	const bool is_blocking = si_server_is_blocking(p_server);
-	int lock_result = SOCKET_ERROR;
-	while (SOCKET_SUCCESS != lock_result)
-	{
-		lock_result = pthread_mutex_lock(&(p_server->sockets_lock));
-	}
+	si_mutex_lock(&(p_server->sockets_lock));
 	const struct pollfd* p_server_fd = si_array_at(&(p_server->sockets), 0u);
-	int unlock_result = SOCKET_ERROR;
-	while (SOCKET_SUCCESS != unlock_result)
-	{
-		unlock_result = pthread_mutex_unlock(&(p_server->sockets_lock));
-	}
+	si_mutex_unlock(&(p_server->sockets_lock));
 	if (NULL == p_server_fd)
 	{
 		// Invalid array
@@ -864,7 +753,7 @@ void si_server_accept(si_server_t* const p_server)
 	}
 	si_logger_custom(
 		p_server->p_logger, SI_LOGGER_INFO,
-		"Client connected: ", &client_addr, NULL,
+		"Client connected: ", &client_addr, "\n",
 		(void(*)(FILE* const,  const void* const))sockaddr_fprint
 	);
 	if (NULL != p_server->p_on_connect)
@@ -901,11 +790,7 @@ void si_server_broadcast(si_server_t* const p_server,
 	{
 		goto END;
 	}
-	int lock_result = SOCKET_ERROR;
-	while (SOCKET_SUCCESS != lock_result)
-	{
-		lock_result = pthread_mutex_lock(&(p_server->sockets_lock));
-	}
+	si_mutex_lock(&(p_server->sockets_lock));
 	for (size_t iii = 1u; iii < p_server->sockets.capacity; iii++)
 	{
 		struct pollfd* p_next_poll = si_array_at(&(p_server->sockets), iii);
@@ -927,17 +812,13 @@ void si_server_broadcast(si_server_t* const p_server,
 			continue;
 		}
 	}
-	int unlock_result = SOCKET_ERROR;
-	while (SOCKET_SUCCESS != unlock_result)
-	{
-		unlock_result = pthread_mutex_unlock(&(p_server->sockets_lock));
-	}
+	si_mutex_unlock(&(p_server->sockets_lock));
 END:
 	return;
 }
 
 /** Doxygen
- * @brief Calls the server's handle_read/heandle_write functions based upon the
+ * @brief Calls the server's handle_read/handle_write functions based upon the
  *        poll event results for a single socket. Handles disconnects / errors.
  * 
  * @param p_server Pointer to the si_server struct to call functions from.
@@ -1003,11 +884,7 @@ void si_server_handle_events(si_server_t* const p_server)
 	{
 		goto END;
 	}
-	int lock_results = SOCKET_ERROR;
-	while (SOCKET_SUCCESS != lock_results)
-	{
-		lock_results = pthread_mutex_lock(&(p_server->sockets_lock));
-	}
+	si_mutex_lock(&(p_server->sockets_lock));
 	const bool is_blocking = si_server_is_blocking(p_server);
 	const int timeout_mills = is_blocking ? -1 : DEFAULT_POLL_TIMEOUT;
 	const size_t capacity = p_server->sockets.capacity;
@@ -1035,11 +912,7 @@ void si_server_handle_events(si_server_t* const p_server)
 		si_server_handle_socket(p_server, p_fd);
 	}
 UNLOCK:
-	int unlock_result = SOCKET_ERROR;
-	while (SOCKET_SUCCESS != unlock_result)
-	{
-		unlock_result = pthread_mutex_unlock(&(p_server->sockets_lock));
-	}
+	si_mutex_unlock(&(p_server->sockets_lock));
 END:
 	return;
 }
@@ -1052,7 +925,7 @@ void si_server_free(si_server_t* p_server)
 	}
 	p_server->family = AF_UNSPEC;
 	p_server->p_access_list = NULL;
-	pthread_mutex_destroy(&(p_server->sockets_lock));
+	si_mutex_free(&(p_server->sockets_lock));
 	si_array_free(&(p_server->sockets));
 	p_server->p_settings = NULL;
 	p_server->p_on_connect = NULL;
