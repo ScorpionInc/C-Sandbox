@@ -63,10 +63,10 @@ typedef CONDITION_VARIABLE si_cond_t;
 
 typedef CRITICAL_SECTION si_mutex_t;
 
-#define si_mutex_lock(m) EnterCriticalSection(&m)
-#define si_mutex_try_lock(m) TryEnterCriticalSection(&m)
-#define si_mutex_unlock(m) LeaveCriticalSection(&m)
-#define si_mutex_free(m) DeleteCriticalSection(&m)
+#define si_mutex_lock(m) EnterCriticalSection(m)
+#define si_mutex_try_lock(m) TryEnterCriticalSection(m)
+#define si_mutex_unlock(m) LeaveCriticalSection(m)
+#define si_mutex_free(m) DeleteCriticalSection(m)
 
 #elif SI_PTHREAD
 
@@ -148,7 +148,7 @@ bool si_mutex_timedlock(si_mutex_t* const p_mutex, const uint32_t millisecs);
 void si_mutex_lock(si_mutex_t* const p_mutex);
 
 // Returns a boolean just like the Windows try_lock implementation.
-#define si_mutex_try_lock(m) (SI_PTHREAD_SUCCESS == pthread_mutex_trylock(&m))
+#define si_mutex_try_lock(m) (SI_PTHREAD_SUCCESS == pthread_mutex_trylock(m))
 
 /** Doxygen
  * @brief Blocking mode unlocks a si_mutex_t by pointer.
