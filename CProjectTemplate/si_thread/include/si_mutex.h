@@ -13,28 +13,31 @@
 #define SI_PTHREAD_SUCCESS (0)
 #define SI_PTHREAD_ERROR   (-1)
 
+
 #ifdef _WIN32
+#include <synchapi.h> // EnterCriticalSection(), TryEnterCriticalSection()
 #include <windows.h>
 #elif SI_PTHREAD
 
 #ifndef _POSIX_C_SOURCE
 // Define default minimum POSIX Feature version
-#define _POSIX_C_SOURCE 200809L
+#define _POSIX_C_SOURCE (200809L) // CLOCK_REALTIME
 #endif//_POSIX_C_SOURCE
+#include <time.h>
 
-#ifndef _GNU_SOURCE
-// Include GNU Sources
-#define _GNU_SOURCE
-#endif//_GNU_SOURCE
-
+#define __USE_UNIX98 // PTHREAD_MUTEX_ERRORCHECK
 #include <pthread.h>
 #define SI_PTHREAD_MUTEX_DEFAULT_TYPE (PTHREAD_MUTEX_ERRORCHECK)
+
 #else
 #warning Unknown/Unsupported OS
 #endif // OS Specific Includes and Defines
 
+
 // OS Specific feature flags must go before standard includes
 #include <errno.h> // EBUSY, errno
+#include <stdbool.h> // bool, false, true
+#include <stdint.h> // uint32_t
 #include <stdlib.h> // calloc(), free()
 
 
@@ -60,9 +63,10 @@ typedef CONDITION_VARIABLE si_cond_t;
 
 typedef CRITICAL_SECTION si_mutex_t;
 
-#define si_mutex_lock(m) EnterCriticalSection(m)
-#define si_mutex_unlock(m) LeaveCriticalSection(m)
-#define si_mutex_free(m) DeleteCriticalSection(m)
+#define si_mutex_lock(m) EnterCriticalSection(&m)
+#define si_mutex_try_lock(m) TryEnterCriticalSection(&m)
+#define si_mutex_unlock(m) LeaveCriticalSection(&m)
+#define si_mutex_free(m) DeleteCriticalSection(&m)
 
 #elif SI_PTHREAD
 
@@ -127,11 +131,24 @@ int si_mutex_init_2(si_mutex_t* const p_mutex, const int mutex_type);
 si_mutex_t* si_mutex_new_1(const int mutex_type);
 
 /** Doxygen
+ * @brief Attempts to lock a si_mutex_t within a given time.
+ * 
+ * @param p_mutex Pointer to the mutex to be locked.
+ * @param nanosecs Time from now in nanosecs that the lock attempt will expire.
+ * 
+ * @return Returns stdbool true on success. Returns false on timeout/error.
+ */
+bool si_mutex_timedlock(si_mutex_t* const p_mutex, const uint32_t millisecs);
+
+/** Doxygen
  * @brief Blocking mode locks a si_mutex_t by pointer.
  * 
  * @param p_mutex Pointer to the mutex to be locked.
  */
 void si_mutex_lock(si_mutex_t* const p_mutex);
+
+// Returns a boolean just like the Windows try_lock implementation.
+#define si_mutex_try_lock(m) (SI_PTHREAD_SUCCESS == pthread_mutex_trylock(&m))
 
 /** Doxygen
  * @brief Blocking mode unlocks a si_mutex_t by pointer.

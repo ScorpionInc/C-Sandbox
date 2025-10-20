@@ -156,6 +156,38 @@ inline si_mutex_t* si_mutex_new()
 	return si_mutex_new_1(SI_PTHREAD_MUTEX_DEFAULT_TYPE);
 }
 
+bool si_mutex_timedlock(si_mutex_t* const p_mutex, const uint32_t millisecs)
+{
+	bool result = false;
+	if ((NULL == p_mutex) || (0u >= millisecs))
+	{
+		goto END;
+	}
+	struct timespec abs_time = {0};
+	const int get_time = clock_gettime(CLOCK_REALTIME, &abs_time);
+	if (SI_PTHREAD_SUCCESS != get_time)
+	{
+		goto END;
+	}
+	const long milli_to_nano = 1000000L;
+	const long to_nanosecs = (((long)millisecs) * milli_to_nano);
+	// Handle Overflows
+	if (to_nanosecs / ((long)millisecs) != milli_to_nano)
+	{
+		goto END;
+	}
+	abs_time.tv_nsec += to_nanosecs;
+	// Handle Overflows
+	if (abs_time.tv_nsec < to_nanosecs)
+	{
+		goto END;
+	}
+	int timed_result = pthread_mutex_timedlock(p_mutex, &abs_time);
+	result = (SI_PTHREAD_SUCCESS == timed_result);
+END:
+	return result;
+}
+
 void si_mutex_lock(si_mutex_t* const p_mutex)
 {
 	if (NULL == p_mutex)
