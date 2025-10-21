@@ -36,7 +36,6 @@ typedef struct si_accesslist_t
 	bool is_ipv4;
 	pthread_mutex_t entries_lock;
 	si_parray_t entries;
-	si_realloc_settings_t settings;
 } si_accesslist_t;
 
 /** Doxygen

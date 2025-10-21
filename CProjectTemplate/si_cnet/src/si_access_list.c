@@ -42,8 +42,7 @@ void si_accesslist_init_4(si_accesslist_t* const p_access,
 	si_parray_init_2(&(p_access->entries), 0u);
 	if (NULL != p_settings)
 	{
-		memcpy(&(p_access->settings), p_settings,
-			sizeof(si_realloc_settings_t));
+		(p_access->entries).p_settings = (si_realloc_settings_t*)p_settings;
 	}
 END:
 	return;
