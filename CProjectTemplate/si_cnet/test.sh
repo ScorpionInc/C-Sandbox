@@ -5,7 +5,7 @@ outputDir="./build/"
 libName="libsi_cnet.a"
 unitySrc="../tests_src/unity.c"
 unityInclude="../tests_include/"
-dependentsIncludes=("../si_data/build/libsi_data.a" "../si_core/build/libsi_core.a" "../si_thread/build/libsi_thread.a" "-I../si_data/include" "-I../si_core/include" "-I../si_thread/include" "-lpthread")
+dependentsIncludes=("../si_data/build/libsi_data.a" "../si_core/build/libsi_core.a" "../si_thread/build/libsi_thread.a" "-I../si_data/include" "-I../si_core/include" "-I../si_thread/include" "-lacl" "-lpthread")
 
 echo 'Building from source via CMake & make.'
 cmake -S . -B "$outputDir"

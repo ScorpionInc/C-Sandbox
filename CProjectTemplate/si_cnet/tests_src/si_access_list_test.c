@@ -19,6 +19,10 @@ void tearDown (void)
 static void si_access_list_test_main(void)
 {
 	//!TODO
+	si_accesslist_t* p_accesslist = si_accesslist_new_3(true, true, NULL);
+	TEST_ASSERT_NOT_NULL(p_accesslist);
+	si_accesslist_destroy(&p_accesslist);
+	TEST_ASSERT_NULL(p_accesslist);
 }
 
 /** Doxygen

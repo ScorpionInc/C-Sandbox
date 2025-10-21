@@ -19,6 +19,17 @@ void tearDown (void)
 static void si_server_test_main(void)
 {
 	//!TODO
+	si_server_t* p_server = NULL;
+	const uint16_t port = 42069u;
+	const int max_client_queue = 42;
+	
+	p_server = si_server_new_6(
+		port, SOCK_STREAM, AF_INET,
+		max_client_queue, NULL, NULL
+	);
+	TEST_ASSERT_NOT_NULL(p_server);
+	si_server_free_at(&p_server);
+	TEST_ASSERT_NULL(p_server);
 }
 
 /** Doxygen
