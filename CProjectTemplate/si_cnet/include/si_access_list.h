@@ -7,9 +7,9 @@
 #include <stdbool.h> // true, false
 #include <string.h> // memcpy(), memset()
 
-#ifdef __linux__
+#include "si_mutex.h" // si_mutex_t
 
-#include <pthread.h> // pthread_mutex_t
+#ifdef __linux__
 
 #include <sys/socket.h> // sockaddr, AF_INET, AF_INET6
 #define SOCKET_SUCCESS (0)
@@ -34,7 +34,7 @@ typedef struct si_accesslist_t
 {
 	bool is_blacklist;
 	bool is_ipv4;
-	pthread_mutex_t entries_lock;
+	si_mutex_t entries_lock;
 	si_parray_t entries;
 } si_accesslist_t;
 
