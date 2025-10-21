@@ -12,10 +12,10 @@ extern "C"
 {
 #endif //__cplusplus
 
-#include <stdbool.h> // true, false
+#include <stdbool.h> // bool, false, true
 #include <stdint.h> // SIZE_MAX
 #include <stdio.h> // printf()
-#include <stdlib.h> // calloc()
+#include <stdlib.h> // calloc(), free()
 #include <string.h> // memcmp()
 
 #ifdef __linux__
