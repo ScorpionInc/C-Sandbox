@@ -231,6 +231,15 @@ si_server_t* si_server_new_unix_2(const char* const p_path,
 si_server_t* si_server_new_unix(const char* const p_path);
 
 /** Doxygen
+ * @brief Determines the number of valid client file descriptors in server.
+ * 
+ * @param p_server Pointer to the si_server_t to check.
+ * 
+ * @return Returns client count on success. Returns SIZE_MAX otherwise.
+ */
+size_t si_server_count_clients(si_server_t* const p_server);
+
+/** Doxygen
  * @brief Determines if server is configured to function in a blocking mode.
  * 
  * @param p_server Pointer to the si_server_t to check.

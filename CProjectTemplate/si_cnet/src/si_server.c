@@ -730,6 +730,31 @@ inline si_server_t* si_server_new_unix(const char* const p_path)
 	return si_server_new_unix_2(p_path, DEFAULT_TYPE);
 }
 
+size_t si_server_count_clients(si_server_t* const p_server)
+{
+	size_t result = 0u;
+	if (NULL == p_server)
+	{
+		goto END;
+	}
+	si_mutex_lock(&(p_server->sockets_lock));
+	for (size_t iii = 1u; iii < p_server->sockets.capacity; iii++)
+	{
+		int* p_socket_fd = si_array_at(&(p_server->sockets), iii);
+		if (NULL == p_socket_fd)
+		{
+			break;
+		}
+		if (SOCKET_ERROR < *p_socket_fd)
+		{
+			result++;
+		}
+	}
+	si_mutex_unlock(&(p_server->sockets_lock));
+END:
+	return result;
+}
+
 bool si_server_is_blocking(si_server_t* const p_server)
 {
 	bool result = false;
