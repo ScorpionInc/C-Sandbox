@@ -484,7 +484,8 @@ static bool for_each_file_l(const char* const p_path,
 	p_dir_entry = readdir(p_dir);
 	while (NULL != p_dir_entry)
 	{
-		const size_t name_len = strnlen(p_dir_entry->d_name, INT64_MAX);
+		const size_t name_size = sizeof(p_dir_entry->d_name);
+		const size_t name_len = strnlen(p_dir_entry->d_name, name_size);
 		if (INT64_MAX <= name_len)
 		{
 			// File name length is way too large.
