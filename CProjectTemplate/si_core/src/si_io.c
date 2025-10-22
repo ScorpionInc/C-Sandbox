@@ -180,6 +180,174 @@ END:
 	return result;
 }
 
+bool fd_can_read(const int file_d)
+{
+	bool result = false;
+	if (0 > file_d)
+	{
+		// Invalid file
+		goto END;
+	}
+	struct pollfd pfd = {0};
+	pfd.fd = file_d;
+	pfd.events = POLLIN;
+	const int poll_result = poll(&pfd, 1, 0);
+	if (0 > poll_result)
+	{
+		goto END;
+	}
+	result = (pfd.revents & POLLIN);
+END:
+	return result;
+}
+
+size_t fd_write_all(const int file_d,
+	const uint8_t* const p_data, const size_t data_size)
+{
+	size_t result = 0u;
+	if (0 > file_d)
+	{
+		// Invalid file
+		goto END;
+	}
+	if ((NULL == p_data) || (0u >= data_size))
+	{
+		goto END;
+	}
+	while(result < data_size)
+	{
+		ssize_t next_write = write(
+			file_d, &(p_data[result]), data_size - result
+		);
+		if (0 > next_write)
+		{
+			break;
+		}
+		result += next_write;
+	}
+END:
+	return result;
+}
+
+size_t fd_read_all(const int file_d,
+	uint8_t* const p_data, const size_t data_size)
+{
+	size_t result = 0u;
+	if (0 > file_d)
+	{
+		// Invalid file
+		goto END;
+	}
+	if ((NULL == p_data) || (0u >= data_size))
+	{
+		goto END;
+	}
+	while (result < data_size)
+	{
+		ssize_t next_read = read(
+			file_d, &(p_data[result]), data_size - result
+		);
+		if (0 > next_read)
+		{
+			break;
+		}
+		result += next_read;
+	}
+END:
+	return result;
+}
+
+char* fd_read_alloc_all(const int file_d, size_t* const p_size)
+{
+	char* p_result = NULL;
+	if ((0 > file_d) || (NULL == p_size))
+	{
+		goto END;
+	}
+	const size_t alloc_size = *p_size;
+	*p_size = 0u;
+	p_result = calloc(alloc_size, sizeof(char));
+	if (NULL == p_result)
+	{
+		goto END;
+	}
+	const size_t read_amount = fd_read_all(file_d, p_result, alloc_size);
+	*p_size = read_amount;
+END:
+	return p_result;
+}
+
+char* fd_read_alloc_until(const int file_d,
+	const uint8_t* const p_needle, size_t* const p_needle_size)
+{
+	char* p_result = NULL;
+	if ((0 > file_d) || (NULL == p_needle) || (NULL == p_needle_size))
+	{
+		goto END;
+	}
+	const size_t needle_size = *p_needle_size;
+	p_result = fd_read_alloc_all(file_d, p_needle_size);
+	if (NULL == p_result)
+	{
+		goto END;
+	}
+	uint8_t* p_match = (uint8_t*)memmem(
+		p_result, *p_needle_size, p_needle, needle_size
+	);
+	while (NULL == p_match)
+	{
+		uint8_t* p_tmp = NULL;
+		p_tmp = realloc(p_result, (*p_needle_size) + 1u);
+		if (NULL == p_tmp)
+		{
+			break;
+		}
+		p_result = p_tmp;
+		ssize_t read_next = 0;
+		while (1 > read_next)
+		{
+			read_next = read(file_d, &(p_result[*p_needle_size]), 1u);
+			if (0 > read_next)
+			{
+				break;
+			}
+			*p_needle_size += read_next;
+		}
+		if (0 > read_next)
+		{
+			break;
+		}
+		p_match = (uint8_t*)memmem(
+			p_result, *p_needle_size, p_needle, needle_size
+		);
+	}
+END:
+	return p_result;
+}
+
+char* fd_read_alloc_line(const int file_d, size_t* const p_size)
+{
+	size_t needle_size = 0u;
+	char* p_result = NULL;
+	if (0 > file_d)
+	{
+		goto END;
+	}
+	needle_size = 1u;
+	p_result = fd_read_alloc_until(file_d, "\n", &needle_size);
+	if (NULL == p_result)
+	{
+		goto END;
+	}
+	p_result[needle_size - 1u] = '\0';
+END:
+	if (NULL != p_size)
+	{
+		*p_size = needle_size;
+	}
+	return p_result;
+}
+
 /** Doxygen
  * @brief Maps the mode value from file stat struct and returns type char.
  *
@@ -971,6 +1139,25 @@ END:
 	{
 		*p_size = alloc_size;
 	}
+	return p_result;
+}
+
+char* prompt(const char* const p_format, ...)
+{
+	char* p_result = NULL;
+	const char* const default_prompt = "=> ";
+	va_list args = {0};
+	va_start(args, p_format);
+	if (NULL == p_format)
+	{
+		printf("%s", default_prompt);
+	}
+	else
+	{
+		vprintf(p_format, args);
+	}
+	p_result = fread_alloc_line(stdin, NULL);
+	va_end(args);
 	return p_result;
 }
 

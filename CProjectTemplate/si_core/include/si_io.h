@@ -35,8 +35,10 @@ extern "C"
 #warning Unknown/Unsupported OS
 #endif //OS specific includes/defines
 
-#include <errno.h> // errno
+#include <errno.h> // errno, perror()
 #include <limits.h> // INT_MAX
+#include <poll.h> // pollfd
+#include <stdarg.h> // ...
 #include <stdbool.h> // bool, false, true
 #include <stdio.h> // FILE
 #include <stdlib.h> // free()
@@ -96,6 +98,73 @@ bool path_has_acl(const char* const p_path);
  * @return Returns stdbool true if ACL extended. Returns false otherwise.
  */
 bool fd_has_acl(const int file_d);
+
+/** Doxygen
+ * @brief Determines if the file descriptor has data available to be read.
+ * 
+ * @param file_d File descriptor int to check for available data.
+ * 
+ * @return Returns stdbool true if data is available. Otherwise returns false.
+ */
+bool fd_can_read(const int file_d);
+
+/** Doxygen
+ * @brief Writes all buffer data to a file by it's descriptor.
+ * 
+ * @param file_d File descriptor int to write to.
+ * @param p_data Pointer to the data to be written.
+ * @param data_size Number of bytes in the buffer to write.
+ * 
+ * @return Returns amount written. Error if less than data_size.
+ */
+size_t fd_write_all(const int file_d,
+	const uint8_t* const p_data, const size_t data_size);
+
+/** Doxygen
+ * @brief Reads all buffer data from a file by it's descriptor.
+ * 
+ * @param file_d File descriptor int to read from.
+ * @param p_data Pointer to the buffer to hold the read data.
+ * @param data_size Size fo the read buffer in bytes.
+ * 
+ * @return Returns amount read in. Error if less than data_size.
+ */
+size_t fd_read_all(const int file_d,
+	uint8_t* const p_data, const size_t data_size);
+
+/** Doxygen
+ * @brief Allocates a heap buffer of size and fills values from file descriptor.
+ * 
+ * @param file_d File descriptor int to read from.
+ * @param buffer_size Initially stores the amount to read from the file into
+ *                    the buffer. Afterwords, stores the results of bytes read.
+ * 
+ * @return Returns heap buffer pointer on success or on a partial read. Returns
+ *         a NULL pointer value otherwise.
+ */
+char* fd_read_alloc_all(const int file_d, size_t* const p_size);
+
+/** Doxygen
+ * @brief Allocates growing heap buffer of input from file until pattern found.
+ * 
+ * @param file_d File descriptor int to read from.
+ * @param p_needle Byte pattern to find in input (not truncated, in buffer)
+ * @param p_needle_size Initially its size of needle, after holds result size.
+ * 
+ * @return Returns heap buffer pointer on success/partial(EOF) or returns NULL.
+ */
+char* fd_read_alloc_until(const int file_d,
+	const uint8_t* const p_needle, size_t* const p_needle_size);
+
+/** Doxygen
+ * @brief Allocates growing heap buffer from file until new line char is found.
+ * 
+ * @param file_d File descriptor int to read from.
+ * @param p_size Optional pointer to be set to the size of the line read.
+ * 
+ * @return Returns heap buffer pointer on success/partial(EOF) or returns NULL.
+ */
+char* fd_read_alloc_line(const int file_d, size_t* const p_size);
 
 /** Doxygen
  * @brief Prints values of a mode_t struct to a FILE stream.
@@ -210,6 +279,15 @@ void* fread_alloc_until(FILE* const p_file,
  * @return Returns heap buffer pointer on success/partial(EOF) or returns NULL.
  */
 char* fread_alloc_line(FILE* const p_file, size_t* const p_size);
+
+/** Doxygen
+ * @brief Prompts user for input via stdin.
+ * 
+ * @param p_format (Optional) Formatter C string to send to stdout before read.
+ * 
+ * @return Returns heap C string on success. Otherwise returns NULL.
+ */
+char* prompt(const char* const p_format, ...);
 
 /** Doxygen
  * @brief Determines if file type of file object at file path is a directory.
