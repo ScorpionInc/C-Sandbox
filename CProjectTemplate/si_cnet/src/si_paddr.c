@@ -1,6 +1,76 @@
-//si_paddr.c
+// si_paddr.c
 
 #include "si_paddr.h"
+
+#ifdef __linux__
+
+bool sockaddr_un_is_valid(const struct sockaddr_un* const p_addr)
+{
+	bool result = false;
+#ifdef AF_UNIX
+	if (NULL == p_addr)
+	{
+		goto END;
+	}
+	result = (AF_UNIX == p_addr->sun_family);
+	if (true != result)
+	{
+		goto END;
+	}
+	result = (NULL != p_addr->sun_path);
+#endif//AF_UNIX
+END:
+	return result;
+}
+
+int sockaddr_un_cmp(const struct sockaddr_un* const p_left,
+	const struct sockaddr_un* const p_right)
+{
+	int result = 0;
+	if (p_left == p_right)
+	{
+		// Pointing to the same thing.
+		goto END;
+	}
+	if (NULL == p_left)
+	{
+		result = 1;
+		goto END;
+	}
+	if (NULL == p_right)
+	{
+		result = -1;
+		goto END;
+	}
+	result = memcmp(
+		&(p_left->sun_family), &(p_right->sun_family), sizeof(sa_family_t)
+	);
+	if (0 != result)
+	{
+		goto END;
+	}
+	if (p_left->sun_path == p_right->sun_path)
+	{
+		// Using the same path buffer
+		goto END;
+	}
+	if (NULL == p_left->sun_path)
+	{
+		result = 1;
+		goto END;
+	}
+	if (NULL == p_right->sun_path)
+	{
+		result = -1;
+		goto END;
+	}
+	const size_t sun_path_len = sizeof(p_left->sun_path);
+	result = strncmp(p_left->sun_path, p_right->sun_path, sun_path_len);
+END:
+	return result;
+}
+
+#endif//__linux__
 
 void convert_ipv4_addr_to_network(
 	uint8_t p_address[INET_ADDRESS_SIZE],
@@ -126,15 +196,21 @@ bool is_localhost_address(const struct sockaddr* const p_address)
 	{
 		case(AF_INET):
 			result = is_localhost_address_v4((struct sockaddr_in*)p_address);
-			break;
+		break;
 #ifdef AF_INET6
 		case(AF_INET6):
 			result = is_localhost_address_v6((struct sockaddr_in6*)p_address);
-			break;
+		break;
 #endif//AF_INET6
+#ifdef AF_UNIX
+		case(AF_UNIX):
+			// By definition all UNIX sockets exist on the localhost.
+			result = true;
+		break;
+#endif//AF_UNIX
 		default:
 			// Unknown/Unsupported socket family.
-			break;
+		break;
 	}
 END:
 	return result;
@@ -224,15 +300,20 @@ size_t sockaddr_sizeof(const sa_family_t family)
 	{
 		case(AF_INET):
 			result = sizeof(struct sockaddr_in);
-			break;
+		break;
 #ifdef AF_INET6
 		case(AF_INET6):
 			result = sizeof(struct sockaddr_in6);
-			break;
+		break;
 #endif//AF_INET6
+#ifdef AF_UNIX
+		case(AF_UNIX):
+			result = sizeof(struct sockaddr_un);
+		break;
+#endif//AF_UNIX
 		default:
 			// Unsupported Address type.
-			break;
+		break;
 	}
 	return result;
 }
@@ -259,15 +340,20 @@ struct sockaddr* sockaddr_new(const sa_family_t family)
 	{
 		case(AF_INET):
 			((struct sockaddr_in*)result)->sin_family = AF_INET;
-			break;
+		break;
 #ifdef AF_INET6
 		case(AF_INET6):
 			((struct sockaddr_in6*)result)->sin6_family = AF_INET6;
-			break;
+		break;
 #endif//AF_INET6
+#ifdef AF_UNIX
+		case(AF_UNIX):
+			((struct sockaddr_un*)result)->sun_family = AF_UNIX;
+		break;
+#endif//AF_UNIX
 		default:
 			// Unsupported Address type.
-			break;
+		break;
 	}
 END:
 	return result;
@@ -281,9 +367,14 @@ int sockaddr_in_cmp(const struct sockaddr_in* const p_left,
 	{
 		goto END;
 	}
-	result = -1;
 	if (NULL == p_left)
 	{
+		result = 1;
+		goto END;
+	}
+	if (NULL == p_right)
+	{
+		result = -1;
 		goto END;
 	}
 	// Both pointers are not NULL
@@ -323,9 +414,14 @@ int sockaddr_in6_cmp(const struct sockaddr_in6* const p_left,
 	{
 		goto END;
 	}
-	result = -1;
 	if (NULL == p_left)
 	{
+		result = 1;
+		goto END;
+	}
+	if (NULL == p_right)
+	{
+		result = -1;
 		goto END;
 	}
 	// Both pointers are not NULL
@@ -360,7 +456,7 @@ END:
 int sockaddr_cmp(const struct sockaddr* const p_left,
 	const struct sockaddr* const p_right, const bool ignore_ports)
 {
-	int result = 0;
+	int result = -1;
 	if ((NULL == p_left) || (NULL == p_right))
 	{
 		goto END;
@@ -378,7 +474,7 @@ int sockaddr_cmp(const struct sockaddr* const p_left,
 						(struct sockaddr_in*)p_right,
 						ignore_ports
 					);
-					break;
+				break;
 #ifdef AF_INET6
 				case(AF_INET6):
 					result = 1;
@@ -391,13 +487,13 @@ int sockaddr_cmp(const struct sockaddr* const p_left,
 					{
 						result = 0;
 					}
-					break;
+				break;
 #endif//AF_INET6
 				default:
 					// Unsupported/Unknown family type
-					break;
+				break;
 			}
-			break;
+		break;
 #ifdef AF_INET6
 		case(AF_INET6):
 			switch (right_family)
@@ -413,23 +509,34 @@ int sockaddr_cmp(const struct sockaddr* const p_left,
 					{
 						result = 0;
 					}
-					break;
+				break;
 				case(AF_INET6):
 					result = sockaddr_in6_cmp(
 						(struct sockaddr_in6*)p_left,
 						(struct sockaddr_in6*)p_right,
 						ignore_ports
 					);
-					break;
+				break;
 				default:
 					// Unsupported/Unknown family type
-					break;
+				break;
 			}
-			break;
+		break;
 #endif//AF_INET6
+#ifdef AF_UNIX
+		case(AF_UNIX):
+			if (AF_UNIX != right_family)
+			{
+				break;
+			}
+			result = sockaddr_un_cmp(
+				(struct sockaddr_un*)p_left, (struct sockaddr_un*)p_right
+			);
+		break;
+#endif//AF_UNIX
 		default:
 			// Unknown/unsupported struct size.
-			break;
+		break;
 	}
 END:
 	return result;
@@ -497,15 +604,20 @@ bool sockaddr_is_valid(struct sockaddr* const p_addr)
 	{
 		case(AF_INET):
 			result = sockaddr_in_is_valid((struct sockaddr_in*)p_addr);
-			break;
+		break;
 #ifdef AF_INET6
 		case(AF_INET6):
 			result = sockaddr_in6_is_valid((struct sockaddr_in6*)p_addr);
-			break;
+		break;
 #endif//AF_INET6
+#ifdef AF_UNIX
+		case(AF_UNIX):
+			result = sockaddr_un_is_valid((struct sockaddr_un*)p_addr);
+		break;
+#endif//AF_UNIX
 		default:
 			// Unknown/unsupported struct size.
-			break;
+		break;
 	}
 END:
 	return result;
@@ -566,30 +678,45 @@ END:
 
 void sockaddr_fprint(FILE* const p_file, const struct sockaddr* const p_addr)
 {
+	if (NULL == p_addr)
+	{
+		fprintf(p_file, "NULL");
+		goto END;
+	}
 	// Assumes address is in network order
 	const sa_family_t family = p_addr->sa_family;
 	switch (family)
 	{
 		case(AF_INET):
 		{
-			struct sockaddr_in* p_sai = (struct sockaddr_in*)p_addr;
+			struct sockaddr_in* const p_sai = (struct sockaddr_in*)p_addr;
 			sin_addr_fprint(p_file, (uint8_t*)&p_sai->sin_addr);
 			fprintf(p_file, ":%hu", p_sai->sin_port);
-			break;
+		break;
 		}
 #ifdef AF_INET6
 		case(AF_INET6):
 		{
-			struct sockaddr_in6* p_sai6 = (struct sockaddr_in6*)p_addr;
+			struct sockaddr_in6* const p_sai6 = (struct sockaddr_in6*)p_addr;
 			sin6_addr_fprint(p_file, (uint8_t*)&p_sai6->sin6_addr);
 			fprintf(p_file, ":%hu", p_sai6->sin6_port);
-			break;
+		break;
 		}
 #endif//AF_INET6
+#ifdef AF_UNIX
+		case(AF_UNIX):
+			struct sockaddr_un* const p_unix = (struct sockaddr_un*)p_addr;
+			const size_t sun_path_len = sizeof(p_unix->sun_path);
+			p_unix->sun_path[sun_path_len - 1u] = '\0';
+			fprintf(p_file, "%s", p_unix->sun_path);
+		break;
+#endif//AF_UNIX
 		default:
 			// Unknown/Unsupported family type.
-			break;
+		break;
 	}
+END:
+	return;
 }
 
 char* sockaddr_as_str(const struct sockaddr* const p_addr)

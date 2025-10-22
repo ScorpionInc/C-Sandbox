@@ -22,6 +22,27 @@ extern "C"
 
 #include <netinet/in.h> // sockaddr_in, sockaddr_in6, in_port_t
 #include <sys/socket.h> // sockaddr
+#include <sys/un.h> // sockaddr_un
+
+/** Doxygen
+ * @brief Does basic address value validations for a Unix family socket address
+ * 
+ * @param p_addr Pointer to a UNIX socket address to validate.
+ * 
+ * @return Returns a stdbool true if address is valid. Returns false otherwise.
+ */
+bool sockaddr_un_is_valid(const struct sockaddr_un* const p_addr);
+
+/** Doxygen
+ * @brief Compares two unix socket addresses.
+ * 
+ * @param p_left  Pointer to unix address to compare
+ * @param p_right Pointer to unix address to compare
+ * 
+ * @return Returns an int value of: -1, 0, or 1 like memcmp().
+ */
+int sockaddr_un_cmp(const struct sockaddr_un* const p_left,
+	const struct sockaddr_un* const p_right);
 
 #else
 #error Unsupported Operating System.
