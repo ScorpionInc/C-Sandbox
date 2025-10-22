@@ -64,7 +64,7 @@ END:
 }
 
 /** Doxygen
- * @brief Local function binds an existing server socket 2 all local interfaces
+ * @brief Function binds a server socket to all local interfaces on same port
  * 
  * @param server_fd Server socket int file descriptor
  * @param family Socket family enum/id to be initialized as
@@ -72,8 +72,8 @@ END:
  * @param p_logger Optional pointer to si_logger_t for error messages
  * 
  * @return Returns stdbool true on success. Returns false otherwise.
-*/
-static bool si_server_socket_bind(const int server_fd,
+ */
+static bool si_server_socket_bind_port(const int server_fd,
 	const sa_family_t family, const uint16_t port,
 	si_logger_t* const p_logger)
 {
@@ -102,7 +102,7 @@ static bool si_server_socket_bind(const int server_fd,
 	{
 		((struct sockaddr_in*)p_addr)->sin_addr.s_addr = htonl(INADDR_ANY);
 		((struct sockaddr_in*)p_addr)->sin_port = htons(port);
-		break;
+	break;
 	}
 #ifdef AF_INET6
 	case(AF_INET6):
@@ -120,7 +120,7 @@ static bool si_server_socket_bind(const int server_fd,
 
 		((struct sockaddr_in6*)p_addr)->sin6_addr = in6addr_any;
 		((struct sockaddr_in6*)p_addr)->sin6_port = htons(port);
-		break;
+	break;
 	}
 #endif//AF_INET6
 	default:
@@ -128,8 +128,10 @@ static bool si_server_socket_bind(const int server_fd,
 		si_logger_error(p_logger,
 			"Use of an unknown or unsupported family type of: %hu.", family
 		);
+		free(p_addr);
+		p_addr = NULL;
 		goto END;
-		break;
+	break;
 	}
 
 	// Bind server socket to local address at target port number
@@ -149,24 +151,139 @@ END:
 	return result;
 }
 
+#ifdef AF_UNIX
+/** Doxygen
+ * @brief Local function binds an existing server socket to a unix socket file.
+ * 
+ * @param server_fd Server socket int file descriptor
+ * @param p_path Path of the socket to bind to.
+ * @param p_logger Optional pointer to si_logger_t for error messages
+ * 
+ * @return Returns stdbool true on success. Returns false otherwise.
+ */
+static bool si_server_socket_bind_unix(const int server_fd,
+	const char* const p_path, si_logger_t* const p_logger)
+{
+	bool result = false;
+	if ((SOCKET_ERROR >= server_fd) || (NULL == p_path))
+	{
+		goto END;
+	}
+
+	// Create a local address used in the bind function call.
+	struct sockaddr_un* p_addr = (struct sockaddr_un*)sockaddr_new(AF_UNIX);
+	if (NULL == p_addr)
+	{
+		si_logger_error(p_logger,
+			"Failed to allocate socket address of family type: AF_UNIX(%hu).",
+			AF_UNIX
+		);
+		goto END;
+	}
+	p_addr->sun_family = AF_UNIX;
+
+	// Sets the sun_path value from the p_path C string value.
+	const size_t data_size = sizeof(p_addr->sun_path);
+	memset(p_addr->sun_path, 0x00, data_size);
+	const size_t path_size = strnlen(p_path, data_size + 1u);
+	if (path_size >= data_size)
+	{
+		si_logger_error(p_logger,
+			"Requested AF_UNIX(%hu) path '%s' overflows the address buffer.",
+			AF_UNIX, p_path
+		);
+		free(p_addr);
+		p_addr = NULL;
+		goto END;
+	}
+	strncpy(p_addr->sun_path, p_path, data_size - 1u);
+	// Should already be NULL but just in case.
+	(p_addr->sun_path)[data_size - 1u] = '\0';
+
+	// Actually does the socket binding.
+	const int bind_result = bind(
+		server_fd, (struct sockaddr*)p_addr, sizeof(struct sockaddr_un)
+	);
+	free(p_addr);
+	p_addr = NULL;
+	if (SI_PTHREAD_SUCCESS != bind_result)
+	{
+		si_logger_error(p_logger,
+			"Server socket failed to bind with error: %s.", strerror(errno)
+		);
+		goto END;
+	}
+	result = true;
+END:
+	return result;
+}
+#endif//AF_UNIX
+
+/** Doxygen
+ * @brief Local function binds an existing server socket based upon family
+ * 
+ * @param server_fd Server socket int file descriptor
+ * @param family Socket family enum/id to be initialized as
+ * @param p_bind_target Pointer to value to be bound/bind to.
+ * @param p_logger Optional pointer to si_logger_t for error messages
+ * 
+ * @return Returns stdbool true on success. Returns false otherwise.
+ */
+static bool si_server_socket_bind(const int server_fd,
+	const sa_family_t family, const void* const p_bind_target,
+	si_logger_t* const p_logger)
+{
+	bool result = false;
+	if ((SOCKET_ERROR >= server_fd) || (NULL == p_bind_target))
+	{
+		goto END;
+	}
+	// Switch case fall through is intended behavior.
+	switch (family)
+	{
+	case AF_INET:
+#ifdef AF_INET6
+	case AF_INET6:
+#endif//AF_INET6
+		uint16_t* p_port_address = (uint16_t*)p_bind_target;
+		result = si_server_socket_bind_port(
+			server_fd, family, *p_port_address, p_logger
+		);
+	break;
+#ifdef AF_UNIX
+	case AF_UNIX:
+		const char* const p_path = (const char*)p_bind_target;
+		result = si_server_socket_bind_unix(server_fd, p_path, p_logger);
+	break;
+#endif//AF_UNIX
+	default:
+		si_logger_error(p_logger,
+			"Use of an unknown or unsupported family type of: %hu.", family
+		);
+	break;
+	}
+END:
+	return result;
+}
+
 /** Doxygen
  * @brief Local function sets an existing server socket to it's default
  *        options, binds to local interfaces, and listens in passive mode.
  * 
  * @param server_fd Server socket int file descriptor
  * @param family Socket family enum/id to be initialized as
- * @param port Local port number to bind server socket to
+ * @param p_bind_target Pointer to the value to bind the socket to.
  * @param max_client_queue Maximum number(int) of client connections to queue.
  * @param p_logger Optional pointer to si_logger_t for error messages
  * 
  * @return Returns stdbool true on success. Returns false otherwise.
  */
 static bool si_server_socket_defaults(const int server_fd,
-	const sa_family_t family, const uint16_t port, const int max_client_queue,
-	si_logger_t* const p_logger)
+	const sa_family_t family, const void* const p_bind_target,
+	const int max_client_queue, si_logger_t* const p_logger)
 {
 	bool result = false;
-	if ((SOCKET_ERROR >= server_fd) || (0u == port))
+	if ((SOCKET_ERROR >= server_fd) || (NULL == p_bind_target))
 	{
 		goto END;
 	}
@@ -196,9 +313,9 @@ static bool si_server_socket_defaults(const int server_fd,
 		);
 	}
 
-	// Bind server socket to all local addresses by default
+	// Bind the server socket based upon socket family.
 	const bool is_bound = si_server_socket_bind(
-		server_fd, family, port, p_logger
+		server_fd, family, p_bind_target, p_logger
 	);
 	if (true != is_bound)
 	{
@@ -229,11 +346,14 @@ END:
 	return result;
 }
 
-void si_server_init_7(si_server_t* const p_server, const uint16_t port,
-	const int type, const int family, const int max_client_queue,
-	si_realloc_settings_t* const p_settings, si_logger_t* const p_logger)
+
+// Generic family socket server initializers
+void si_server_init_7(si_server_t* const p_server,
+	const void* const p_bind_target, const int type, const int family,
+	const int max_client_queue, const si_realloc_settings_t* const p_settings,
+	si_logger_t* const p_logger)
 {
-	if ((NULL == p_server) || (0u == port))
+	if ((NULL == p_server) || (NULL == p_bind_target))
 	{
 		goto END;
 	}
@@ -255,8 +375,20 @@ void si_server_init_7(si_server_t* const p_server, const uint16_t port,
 	}
 
 	p_server->family = family;
+	if(AF_INET == family)
+	{
+		// Prefer IPv6 over IPv4
+#ifdef AF_INET6
+		const bool is_v6_supported = is_ipv6_supported();
+		if (true == is_v6_supported)
+		{
+			p_server->family = AF_INET6;
+		}
+#endif//AF_INET6
+	}
+
 	p_server->p_access_list = NULL;
-	p_server->p_settings = p_settings;
+	p_server->p_settings = (si_realloc_settings_t*)p_settings;
 	p_server->p_logger = p_logger;
 
 	// Initialize the mutex for multithreading support
@@ -291,7 +423,7 @@ void si_server_init_7(si_server_t* const p_server, const uint16_t port,
 		0
 	);
 	const bool set_socket_options = si_server_socket_defaults(
-		server_fd, p_server->family, port, mut_max_queue, p_server->p_logger
+		server_fd, p_server->family, p_bind_target, mut_max_queue, p_server->p_logger
 	);
 	if (true != set_socket_options)
 	{
@@ -308,94 +440,294 @@ void si_server_init_7(si_server_t* const p_server, const uint16_t port,
 		server_fd = SOCKET_ERROR;
 		goto END;
 	}
-	si_logger_info(
-		p_server->p_logger,
-		"Server bound to local port: %hu.", port
-	);
 END:
 	return;
 }
-void si_server_init_6(si_server_t* const p_server, const uint16_t port,
-	const int type, const int family, const int max_client_queue,
-	si_realloc_settings_t* const p_settings)
+inline void si_server_init_6(si_server_t* const p_server,
+	const void* const p_bind_target, const int type, const int family,
+	const int max_client_queue, const si_realloc_settings_t* const p_settings)
 {
-	// Default value of p_logger = NULL
+	// Default value of p_logger is NULL
 	si_server_init_7(
-		p_server, port, type, family, max_client_queue, p_settings, NULL
+		p_server, p_bind_target, type, family,
+		max_client_queue, p_settings, NULL
 	);
 }
 inline void si_server_init_5(si_server_t* const p_server,
-	const uint16_t port, const int type, const int family,
+	const void* const p_bind_target, const int type, const int family,
 	const int max_client_queue)
 {
-	// Default value of p_settings = NULL
-	si_server_init_6(p_server, port, type, family, max_client_queue, NULL);
+	// Default value of p_settings is NULL
+	si_server_init_6(
+		p_server, p_bind_target, type, family, max_client_queue, NULL
+	);
+}
+void si_server_init_4(si_server_t* const p_server,
+	const void* const p_bind_target, const int type, const int family)
+{
+	// Default value of max_client_queue = get_client_queue_limit()
+	int max_client_queue = 0;
+	const size_t queue_limit = get_client_queue_limit();
+	if (INT_MAX >= queue_limit)
+	{
+		max_client_queue = (int)queue_limit;
+	}
+	si_server_init_5(p_server, p_bind_target, type, family, max_client_queue);
+}
+inline void si_server_init_3(si_server_t* const p_server,
+	const void* const p_bind_target, const int type)
+{
+	// Default value of family is DEFAULT_FAMILY(AF_INET)
+	si_server_init_4(p_server, p_bind_target, type, DEFAULT_FAMILY);
+}
+inline void si_server_init(si_server_t* const p_server,
+	const void* const p_bind_target)
+{
+	// Default value of type is DEFAULT_TYPE(SOCK_STREAM)
+	si_server_init_3(p_server, p_bind_target, DEFAULT_TYPE);
 }
 
-si_server_t* si_server_new_6(const uint16_t port, const int type,
+// Generic family socket server allocators
+si_server_t* si_server_new_6(const void* const p_bind_target, const int type,
 	const int family, const int max_client_queue,
-	si_realloc_settings_t* const p_settings, si_logger_t* const p_logger)
-{
-	si_server_t* p_new = NULL;
-	p_new = calloc(1u, sizeof(si_server_t));
-	if (NULL == p_new)
-	{
-		goto END;
-	}
-	si_server_init_7(p_new,
-		port, type, family, max_client_queue,
-		p_settings, p_logger
-	);
-END:
-	return p_new;
-}
-inline si_server_t* si_server_new_5(const uint16_t port, const int type,
-	const int family, const int max_client_queue,
-	si_realloc_settings_t* const p_settings)
-{
-	// Default value of p_logger is NULL
-	return si_server_new_6(
-		port, type, family, max_client_queue, p_settings, NULL
-	);
-}
-inline si_server_t* si_server_new_4(const uint16_t port, const int type,
-	const int family, const int max_client_queue)
-{
-	// Default value of p_settings is NULL
-	return si_server_new_5(port, type, family, max_client_queue, NULL);
-}
-si_server_t* si_server_new_3(const uint16_t port, const int type,
-	const int family)
+	const si_realloc_settings_t* const p_settings,
+	si_logger_t* const p_logger)
 {
 	si_server_t* p_server = NULL;
-	size_t max_clients = get_client_queue_limit();
-	if (max_clients > INT_MAX)
+	if (NULL == p_bind_target)
 	{
-		p_server = si_server_new_4(port, type, family, 0);
 		goto END;
 	}
-	p_server = si_server_new_4(port, type, family, (int)max_clients);
+	if ((0 >= type) || (SOCK_PACKET <= type))
+	{
+		// Invalid type
+		goto END;
+	}
+	if ((0 > family) || (AF_MAX <= family))
+	{
+		// Invalid family
+		goto END;
+	}
+	p_server = calloc(1u, sizeof(si_server_t));
+	if (NULL == p_server)
+	{
+		// Failed to allocate
+		goto END;
+	}
+	si_server_init_7(
+		p_server, p_bind_target, type, family,
+		max_client_queue, p_settings, p_logger
+	);
 END:
 	return p_server;
 }
-si_server_t* si_server_new_2(const uint16_t port, const int type)
+inline si_server_t* si_server_new_5(const void* const p_bind_target, const int type,
+	const int family, const int max_client_queue,
+	const si_realloc_settings_t* const p_settings)
 {
-	si_server_t* p_new = NULL;
-#ifdef AF_INET6
-	const bool is_v6_supported = is_ipv6_supported();
-	if (true == is_v6_supported)
-	{
-		p_new = si_server_new_3(port, type, AF_INET6);
-		goto END;
-	}
-#endif//AF_INET6
-	p_new = si_server_new_3(port, type, DEFAULT_FAMILY);
-END:
-	return p_new;
+	// Default value of p_logger is NULL
+	return si_server_new_6(
+		p_bind_target, type, family, max_client_queue, p_settings, NULL
+	);
 }
-inline si_server_t* si_server_new(const uint16_t port)
+inline si_server_t* si_server_new_4(const void* const p_bind_target, const int type,
+	const int family, const int max_client_queue)
 {
-	return si_server_new_2(port, DEFAULT_TYPE);
+	// Default value of p_settings is NULL
+	return si_server_new_5(
+		p_bind_target, type, family, max_client_queue, NULL
+	);
+}
+si_server_t* si_server_new_3(const void* const p_bind_target, const int type,
+	const int family)
+{
+	// Default value of max_client_queue is get_client_queue_limit()
+	int max_clients = 0;
+	size_t queue_limit = get_client_queue_limit();
+	if (INT_MAX >= queue_limit)
+	{
+		max_clients = (int)queue_limit;
+	}
+	return si_server_new_4(p_bind_target, type, family, max_clients);
+}
+inline si_server_t* si_server_new_2(const void* const p_bind_target, const int type)
+{
+	// Default value of family is DEFAULT_FAMILY(AF_INET)
+	return si_server_new_3(p_bind_target, type, DEFAULT_FAMILY);
+}
+inline si_server_t* si_server_new(const void* const p_bind_target)
+{
+	// Default value of type is DEFAULT_TYPE(SOCK_STREAM)
+	return si_server_new_2(p_bind_target, DEFAULT_TYPE);
+}
+
+// IPv4/IPv6 socket server initializers
+inline void si_server_init_inet_6(si_server_t* const p_server, const uint16_t port,
+	const int type, const int max_client_queue,
+	const si_realloc_settings_t* const p_settings,
+	si_logger_t* const p_logger)
+{
+	si_server_init_7(
+		p_server, &port, type, AF_INET, max_client_queue, p_settings, p_logger
+	);
+}
+inline void si_server_init_inet_5(si_server_t* const p_server, const uint16_t port,
+	const int type, const int max_client_queue,
+	const si_realloc_settings_t* const p_settings)
+{
+	// Default value of p_logger = NULL
+	si_server_init_inet_6(
+		p_server, port, type, max_client_queue, p_settings, NULL
+	);
+}
+inline void si_server_init_inet_4(si_server_t* const p_server,
+	const uint16_t port, const int type, const int max_client_queue)
+{
+	// Default value of p_settings = NULL
+	si_server_init_inet_5(p_server, port, type, max_client_queue, NULL);
+}
+void si_server_init_inet_3(si_server_t* const p_server,
+	const uint16_t port, const int type)
+{
+	// Default value of max_client_queue = get_client_queue_limit()
+	int max_client_queue = 0;
+	const size_t queue_limit = get_client_queue_limit();
+	if (INT_MAX >= queue_limit)
+	{
+		max_client_queue = (int)queue_limit;
+	}
+	si_server_init_inet_4(p_server, port, type, max_client_queue);
+}
+inline void si_server_init_inet(si_server_t* const p_server,
+	const uint16_t port)
+{
+	// Default value of type is DEFAULT_TYPE(SOCK_STREAM)
+	si_server_init_inet_3(p_server, port, DEFAULT_TYPE);
+}
+
+// IPv4/IPv6 socket server allocators
+inline si_server_t* si_server_new_inet_5(const uint16_t port, const int type,
+	const int max_client_queue, const si_realloc_settings_t* const p_settings,
+	si_logger_t* const p_logger)
+{
+	return si_server_new_6(
+		&port, type, AF_INET, max_client_queue, p_settings, p_logger
+	);
+}
+inline si_server_t* si_server_new_inet_4(const uint16_t port, const int type,
+	const int max_client_queue, const si_realloc_settings_t* const p_settings)
+{
+	// Default value of p_logger is NULL
+	return si_server_new_inet_5(
+		port, type, max_client_queue, p_settings, NULL
+	);
+}
+inline si_server_t* si_server_new_inet_3(const uint16_t port, const int type,
+	const int max_client_queue)
+{
+	// Default value of p_settings is NULL
+	return si_server_new_inet_4(port, type, max_client_queue, NULL);
+}
+si_server_t* si_server_new_inet_2(const uint16_t port, const int type)
+{
+	// Default value of max_client_queue is get_client_queue_limit()
+	int max_clients = 0;
+	size_t queue_limit = get_client_queue_limit();
+	if (INT_MAX >= queue_limit)
+	{
+		max_clients = (int)queue_limit;
+	}
+	return si_server_new_inet_3(port, type, max_clients);
+}
+inline si_server_t* si_server_new_inet(const uint16_t port)
+{
+	// Default value of type is DEFAULT_TYPE(SOCK_STREAM)
+	return si_server_new_inet_2(port, DEFAULT_TYPE);
+}
+
+// Unix socket server initializers
+inline void si_server_init_unix_6(si_server_t* const p_server,
+	const char* const p_path, const int type, const int max_client_queue,
+	const si_realloc_settings_t* const p_settings,
+	si_logger_t* const p_logger)
+{
+	si_server_init_7(
+		p_server, p_path, type, AF_UNIX, max_client_queue, p_settings, p_logger
+	);
+}
+inline void si_server_init_unix_5(si_server_t* const p_server,
+	const char* const p_path, const int type, const int max_client_queue,
+	const si_realloc_settings_t* const p_settings)
+{
+	// Default value of p_logger is NULL
+	si_server_init_unix_6(
+		p_server, p_path, type, max_client_queue, p_settings, NULL
+	);
+}
+inline void si_server_init_unix_4(si_server_t* const p_server,
+	const char* const p_path, const int type, const int max_client_queue)
+{
+	// Default value of p_settings is NULL
+	si_server_init_unix_5(p_server, p_path, type, max_client_queue, NULL);
+}
+void si_server_init_unix_3(si_server_t* const p_server,
+	const char* const p_path, const int type)
+{
+	// Default value of max_client_queue = get_client_queue_limit()
+	int max_client_queue = 0;
+	const size_t queue_limit = get_client_queue_limit();
+	if (INT_MAX >= queue_limit)
+	{
+		max_client_queue = (int)queue_limit;
+	}
+	si_server_init_unix_4(p_server, p_path, type, max_client_queue);
+}
+inline void si_server_init_unix(si_server_t* const p_server,
+	const char* const p_path)
+{
+	// Default value of type is DEFAULT_TYPE(SOCK_STREAM)
+	si_server_init_unix_3(p_server, p_path, DEFAULT_TYPE);
+}
+
+// Unix socket server allocators
+inline si_server_t* si_server_new_unix_5(const char* const p_path,
+	const int type, const int max_client_queue,
+	const si_realloc_settings_t* const p_settings,
+	si_logger_t* const p_logger)
+{
+	return si_server_new_6(
+		p_path, type, AF_UNIX, max_client_queue, p_settings, p_logger
+	);
+}
+inline si_server_t* si_server_new_unix_4(const char* const p_path,
+	const int type, const int max_client_queue,
+	const si_realloc_settings_t* const p_settings)
+{
+	// Default value of p_logger is NULL
+	return si_server_new_unix_5(p_path, type, max_client_queue, p_settings, NULL);
+}
+inline si_server_t* si_server_new_unix_3(const char* const p_path,
+	const int type, const int max_client_queue)
+{
+	// Default value p_settings is NULL
+	return si_server_new_unix_4(p_path, type, max_client_queue, NULL);
+}
+si_server_t* si_server_new_unix_2(const char* const p_path,
+	const int type)
+{
+	// Default value of p_settings is get_client_queue_limit()
+	int max_clients = 0;
+	size_t queue_limit = get_client_queue_limit();
+	if (INT_MAX >= queue_limit)
+	{
+		max_clients = (int)queue_limit;
+	}
+	return si_server_new_unix_3(p_path, type, max_clients);
+}
+inline si_server_t* si_server_new_unix(const char* const p_path)
+{
+	// Default value of type is DEFAULT_TYPE(SOCK_STREAM)
+	return si_server_new_unix_2(p_path, DEFAULT_TYPE);
 }
 
 bool si_server_is_blocking(si_server_t* const p_server)
@@ -917,16 +1249,69 @@ END:
 	return;
 }
 
-void si_server_free(si_server_t* p_server)
+/** Doxygen
+ * @brief Local function closes server socket if open/defined.
+ * 
+ * @param p_server Pointer to the si_server_t to close the server socket of.
+ */
+static void si_server_close(si_server_t* const p_server)
 {
 	if (NULL == p_server)
 	{
 		goto END;
 	}
+	si_mutex_lock(&(p_server->sockets_lock));
+	int* p_server_socket_fd = si_array_at(&(p_server->sockets), 0u);
+	if (NULL == p_server_socket_fd)
+	{
+		si_mutex_unlock(&(p_server->sockets_lock));
+		goto END;
+	}
+#ifdef AF_UNIX
+	const char* p_path = NULL;
+	if (AF_UNIX == p_server->family)
+	{
+		struct sockaddr_un address = {0};
+		socklen_t address_size = sizeof(address);
+		const int get_address_result = getsockname(
+			*p_server_socket_fd, (struct sockaddr*)&address, &address_size
+		);
+		if (SOCKET_SUCCESS == get_address_result)
+		{
+			const size_t sun_path_size = sizeof(address.sun_path);
+			// Just in case ensure NULL terminated
+			address.sun_path[sun_path_size - 1u] = '\0';
+			p_path = address.sun_path;
+		}
+	}
+#endif//AF_UNIX
+	(void)close(*p_server_socket_fd);
+	*p_server_socket_fd = SOCKET_ERROR;
+	si_mutex_unlock(&(p_server->sockets_lock));
+#ifdef AF_UNIX
+	// Cleanup any created socket file(s)
+	if (NULL != p_path)
+	{
+		(void)unlink(p_path);
+	}
+#endif//AF_UNIX
+END:
+	return;
+}
+
+void si_server_free(si_server_t* const p_server)
+{
+	if (NULL == p_server)
+	{
+		goto END;
+	}
+	si_server_close(p_server);
 	p_server->family = AF_UNSPEC;
 	p_server->p_access_list = NULL;
-	si_mutex_free(&(p_server->sockets_lock));
+	si_mutex_lock(&(p_server->sockets_lock));
 	si_array_free(&(p_server->sockets));
+	si_mutex_unlock(&(p_server->sockets_lock));
+	si_mutex_free(&(p_server->sockets_lock));
 	p_server->p_settings = NULL;
 	p_server->p_on_connect = NULL;
 	p_server->p_on_read = NULL;
@@ -937,7 +1322,7 @@ END:
 	return;
 }
 
-void si_server_free_at(si_server_t** pp_server)
+void si_server_destroy(si_server_t** const pp_server)
 {
 	if (NULL == pp_server)
 	{
