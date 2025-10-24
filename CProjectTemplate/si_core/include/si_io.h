@@ -10,7 +10,7 @@ extern "C"
 {
 #endif //__cplusplus
 
-#include "si_strings.h" // strv_clone_concat()
+#include "si_strings.h" // strv_clone_concat(), str_format()
 
 #ifdef __linux__
 
@@ -121,6 +121,17 @@ size_t fd_write_all(const int file_d,
 	const uint8_t* const p_data, const size_t data_size);
 
 /** Doxygen
+ * @brief Writes formatted string data to a file descriptor.
+ * 
+ * @param file_d File descriptor int to write to.
+ * @param p_format Format C string to be used.
+ * @param ... Variadic arguments list.
+ * 
+ * @return Returns stdbool true on success. Returns false otherwise.
+*/
+bool fd_printf(const int file_d, const char* const p_format, ...);
+
+/** Doxygen
  * @brief Reads all buffer data from a file by it's descriptor.
  * 
  * @param file_d File descriptor int to read from.
@@ -229,7 +240,7 @@ void  fprintf_exclusive(FILE* const p_file, const char* const p_format, ...);
  * 
  * @return Returns stdbool true if data is available. Otherwise returns false.
  */
-bool fcan_read(const FILE* p_file);
+bool fcan_read(const FILE* const p_file);
 
 /** Doxygen
  * @brief Handles partial writes blocking until all data is written or error.

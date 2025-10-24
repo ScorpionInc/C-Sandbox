@@ -201,6 +201,42 @@ END:
 	return result;
 }
 
+bool fd_printf(const int file_d, const char* const p_format, ...)
+{
+	bool result = false;
+	if ((0 > file_d) || (NULL == p_format))
+	{
+		goto END;
+	}
+	va_list args = {0};
+	va_start(args, p_format);
+	char* p_str = vstr_format(p_format, args);
+	va_end(args);
+	if (NULL == p_str)
+	{
+		goto END;
+	}
+	const size_t str_len = strnlen(p_str, INT_MAX);
+	if (INT_MAX <= str_len)
+	{
+		free(p_str);
+		p_str = NULL;
+		goto END;
+	}
+	const size_t amount_written = fd_write_all(
+		file_d, (uint8_t*)p_str, str_len
+	);
+	free(p_str);
+	p_str = NULL;
+	if (str_len != amount_written)
+	{
+		goto END;
+	}
+	result = true;
+END:
+	return result;
+}
+
 size_t fd_write_all(const int file_d,
 	const uint8_t* const p_data, const size_t data_size)
 {
@@ -965,7 +1001,7 @@ END:
 	return;
 }
 
-bool fcan_read(const FILE* p_file)
+bool fcan_read(const FILE* const p_file)
 {
 	bool result = false;
 	if (NULL == p_file)
@@ -973,7 +1009,7 @@ bool fcan_read(const FILE* p_file)
 		goto END;
 	}
 #ifdef __linux__
-	const int file_d = fileno(p_file);
+	const int file_d = fileno((FILE*)p_file);
 	if (0 > file_d)
 	{
 		goto END;
