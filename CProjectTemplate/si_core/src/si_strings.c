@@ -872,6 +872,69 @@ END:
 	return p_result;
 }
 
+char* vstr_format(const char* const p_format, va_list args)
+{
+	char* p_result = NULL;
+	if (NULL == p_format)
+	{
+		goto END;
+	}
+#ifdef _GNU_SOURCE
+	const int heap_print_result = vasprintf(&p_result, p_format, args);
+	if (0 > heap_print_result)
+	{
+		perror("vasprintf failure");
+		goto END;
+	}
+#else
+	va_list arg_clone = {0};
+	va_copy(arg_clone, args);
+	const int result_size = vsnprintf(NULL, 0, p_format, arg_clone);
+	va_end(arg_clone);
+	if (0 > result_size)
+	{
+		fprintf(stderr, "vsnprintf() returned invalid size.\n");
+		goto END;
+	}
+
+	p_result = calloc(result_size + 1u, sizeof(char));
+	if (NULL == p_result)
+	{
+		fprintf(stderr, "calloc() failed allocate size: %d.\n", result_size);
+		goto END;
+	}
+
+	const int printed_size = vsnprintf(
+		p_result, result_size + 1u, p_format, args
+	);
+	p_result[result_size] = '\0';
+
+	if (printed_size != result_size)
+	{
+		fprintf(
+			stderr, "vsnprintf() %d expected %d.\n",
+			printed_size, result_size
+		);
+		goto END;
+	}
+#endif//_GNU_SOURCE
+END:
+	return p_result;
+}
+char* str_format(const char* const p_format, ...)
+{
+	char* p_result = NULL;
+	if (NULL == p_format)
+	{
+		goto END;
+	}
+	va_list args = {0};
+	va_start(args, p_format);
+	p_result = vstr_format(p_format, args);
+	va_end(args);
+END:
+	return p_result;
+}
 
 char* str_from_fprint(str_fprint_f fprint_f, const void* const p_value, ...)
 {

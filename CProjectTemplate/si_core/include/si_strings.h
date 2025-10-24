@@ -13,6 +13,10 @@
 #include <stdlib.h> // calloc(), realloc(), free()
 #include <string.h> // memcpy(), memmove(), strnlen()
 
+#ifdef _WIN32
+#define vsnprintf _vsnprintf
+#endif//_WIN32
+
 #ifndef SI_STRINGS_H
 #define SI_STRINGS_H
 
@@ -281,6 +285,17 @@ char* str_clone_substitute(const char* const p_haystack,
 char* pop_str_from_heap(uint8_t** const pp_buffer,
 	size_t* const p_buffer_size);
 
+
+/** Doxygen
+ * @brief Returns a new heap C string from a formater and optionally values.
+ * 
+ * @param p_format C formatter string to be used.
+ * @param args (Optional) Variadic arguments list.
+ * 
+ * @return Returns heap string on success. Returns NULL otherwise.
+ */
+char* vstr_format(const char* const p_format, va_list args);
+char* str_format(const char* const p_format, ...);
 
 typedef int (*str_fprint_f)(FILE* const, const void* const, ...);
 
