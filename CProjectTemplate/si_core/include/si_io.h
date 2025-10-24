@@ -223,6 +223,15 @@ void vfprintf_exclusive(FILE* const p_file, const char* const p_format, va_list 
 void  fprintf_exclusive(FILE* const p_file, const char* const p_format, ...);
 
 /** Doxygen
+ * @brief Determines if the FILE has data available to be read.
+ * 
+ * @param p_file Pointer to FILE to check for available data.
+ * 
+ * @return Returns stdbool true if data is available. Otherwise returns false.
+ */
+bool fcan_read(const FILE* p_file);
+
+/** Doxygen
  * @brief Handles partial writes blocking until all data is written or error.
  * 
  * @param p_file Pointer to FILE to be written to.

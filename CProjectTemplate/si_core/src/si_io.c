@@ -965,6 +965,27 @@ END:
 	return;
 }
 
+bool fcan_read(const FILE* p_file)
+{
+	bool result = false;
+	if (NULL == p_file)
+	{
+		goto END;
+	}
+#ifdef __linux__
+	const int file_d = fileno(p_file);
+	if (0 > file_d)
+	{
+		goto END;
+	}
+	result = fd_can_read(file_d);
+#else
+#warning Unknown/Unsupported OS
+#endif//__linux
+END:
+	return result;
+}
+
 size_t fwrite_all(FILE* const p_file,
 	const void* const p_data, const size_t data_size)
 {
