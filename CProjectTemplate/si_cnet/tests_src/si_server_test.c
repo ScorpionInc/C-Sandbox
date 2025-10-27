@@ -24,11 +24,11 @@ static void si_server_test_main(void)
 	const int max_client_queue = 42;
 	
 	p_server = si_server_new_6(
-		port, SOCK_STREAM, AF_INET,
+		&port, SOCK_STREAM, AF_INET,
 		max_client_queue, NULL, NULL
 	);
 	TEST_ASSERT_NOT_NULL(p_server);
-	si_server_free_at(&p_server);
+	si_server_destroy(&p_server);
 	TEST_ASSERT_NULL(p_server);
 }
 
@@ -44,8 +44,8 @@ static void si_server_test_all(void)
 
 int main(void)
 {
-	(void)printf("Start of si_ unit test.\n");
+	(void)printf("Start of si_server unit test.\n");
 	si_server_test_all();
-	(void)printf("End of si_ unit test.\n");
+	(void)printf("End of si_server unit test.\n");
 	return 0;
 }
