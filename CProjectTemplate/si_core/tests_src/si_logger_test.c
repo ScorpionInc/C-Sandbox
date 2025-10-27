@@ -59,7 +59,7 @@ static void si_logger_test_main(void)
 	si_logger_debug(p_logger, "Logger is at address: %p.", p_logger);
 	si_logger_custom(
 		p_logger, SI_LOGGER_DEBUG,
-		"Example object value: ", &example, " with a custom print function.",
+		"Example object value: ", &example, " with a custom print function.\n",
 		(void(*)(FILE* const, const void* const))example_object_fprint
 	);
 	si_logger_log(p_logger, "Critical custom log level message.", 1234567890u);
