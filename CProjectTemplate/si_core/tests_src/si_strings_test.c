@@ -413,7 +413,7 @@ static void si_strings_test_manipulators(void)
 	}
 }
 
-static struct example_t
+typedef struct example_t
 {
 	uint32_t height_inches;
 	uint32_t age;
@@ -455,7 +455,7 @@ static void si_strings_test_from_fprint(void)
 
 	char* p_str = NULL;
 
-	struct example_t example = {0};
+	example_t example = {0};
 	example.age = age;
 	example.height_inches = height;
 
