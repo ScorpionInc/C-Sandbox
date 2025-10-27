@@ -34,9 +34,11 @@ static void si_io_test_file_clone(void)
 	TEST_ASSERT_EQUAL_INT(0, remove_result);
 }
 
-static bool handle_file(const char* const p_fullpath, struct dirent* p_entry)
+static bool handle_file(const char* const p_fullpath, struct dirent* p_entry, void* const p_param)
 {
 	bool do_next = false;
+	// Unused parameter is a NOP for Clang warning.
+	(void)p_param;
 	if ((NULL == p_fullpath) || (NULL == p_entry))
 	{
 		goto END;
@@ -54,11 +56,11 @@ static void si_io_test_for_each_file(void)
 {
 	const char* const p_list_path = "./tests_resources";
 
-	printf("Testing for_each_file_4():\n");
-	TEST_ASSERT_FALSE(for_each_file_4(NULL, NULL, true, false));
-	TEST_ASSERT_FALSE(for_each_file_4(p_list_path, NULL, false, true));
-	TEST_ASSERT_FALSE(for_each_file_4(NULL, handle_file, false, false));
-	TEST_ASSERT_TRUE(for_each_file_4(p_list_path, handle_file, true, false));
+	printf("Testing for_each_file_5():\n");
+	TEST_ASSERT_FALSE(for_each_file_5(NULL, NULL, NULL, true, false));
+	TEST_ASSERT_FALSE(for_each_file_5(p_list_path, NULL, NULL, false, true));
+	TEST_ASSERT_FALSE(for_each_file_5(NULL, handle_file, NULL, false, false));
+	TEST_ASSERT_TRUE(for_each_file_5(p_list_path, handle_file, NULL, true, false));
 }
 
 /** Doxygen
