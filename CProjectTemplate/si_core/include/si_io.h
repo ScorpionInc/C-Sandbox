@@ -14,6 +14,9 @@ extern "C"
 #include "si_io_windows.h" // file_clone_data_np(), file_clone_meta_np(), ect.
 #include "si_strings.h" // strv_clone_concat(), str_format()
 
+#define SI_IS_OS_SUPPORTED (defined(__linux__) || defined(_WIN32))
+#define SI_IS_OS_NOT_SUPPORTED ((!defined(__linux__)) && (!defined(_WIN32)))
+
 #include <errno.h> // errno, perror()
 #include <limits.h> // INT_MAX
 #include <poll.h> // pollfd
@@ -185,12 +188,12 @@ bool file_clone_to(const char* const p_source_path,
 	const char* const p_sink_path, const bool follow_links);
 
 
-#if (!defined(__linux__)) && (!defined(_WIN32))
+#if SI_IS_OS_NOT_SUPPORTED
 
 // Basic information(filepath)
 typedef bool (*for_file_handler)(const char* const);
 
-#endif//(!defined(__linux__)) && (!defined(_WIN32))
+#endif//SI_IS_OS_NOT_SUPPORTED
 #define SI_IO_DEFAULT_HANDLE_DIRS (false)
 #define SI_IO_DEFAULT_RECURSIVE   (true )
 

@@ -1,7 +1,7 @@
 // si_io.c
 #include "si_io.h"
 
-#if ((!defined(__linux__)) && (!defined(_WIN32)))
+#if SI_IS_OS_NOT_SUPPORTED
 
 /** Doxygen
  * @brief Generic/Unknown implementation of file_clone_data().
@@ -52,7 +52,7 @@ END:
 	return result;
 }
 
-#endif // End of OS Specific function implementations
+#endif // SI_IS_OS_NOT_SUPPORTED
 
 
 void vfprintf_exclusive(FILE* const p_file, const char* const p_format, va_list arg_list)
@@ -421,7 +421,7 @@ bool file_clone_data(const char* const p_source_path,
 	{
 		goto END;
 	}
-#if (defined(__linux__) || defined(_WIN32))
+#if SI_IS_OS_SUPPORTED
 	result = file_clone_data_np(p_source_path, p_sink_path, follow_links);
 #else
 	result = file_clone_data_u(p_source_path, p_sink_path);
@@ -438,7 +438,7 @@ bool file_clone_meta(const char* const p_source_path,
 	{
 		goto END;
 	}
-#if (defined(__linux__) || defined(_WIN32))
+#if SI_IS_OS_SUPPORTED
 	result = file_clone_meta_np(p_source_path, p_sink_path, follow_links);
 #else
 #warning Unsupported OS
@@ -455,7 +455,7 @@ bool file_clone_to(const char* const p_source_path,
 	{
 		goto END;
 	}
-#if (defined(__linux__) || defined(_WIN32))
+#if SI_IS_OS_SUPPORTED
 	result = file_clone_to_np(
 		p_source_path, p_sink_path, follow_links
 	);
@@ -476,7 +476,7 @@ bool for_each_file_5(const char* const p_path,
 	{
 		goto END;
 	}
-#if (defined(__linux__) || defined(_WIN32))
+#if SI_IS_OS_SUPPORTED
 	result = for_each_file_np_5(
 		p_path, p_handler, p_param, handle_dirs, recursive
 	);
