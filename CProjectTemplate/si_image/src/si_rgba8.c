@@ -25,7 +25,7 @@ inline void si_rgba8_init_4(si_rgba8_t* const p_color,
 inline void si_rgba8_init(si_rgba8_t* const p_color)
 {
 	// Default value of color channels is SI_RGBA8_DEFAULT_COLOR(255)
-	si_rgb8_init_4(
+	si_rgba8_init_4(
 		p_color,
 		SI_RGBA8_DEFAULT_COLOR, SI_RGBA8_DEFAULT_COLOR, SI_RGBA8_DEFAULT_COLOR
 	);
