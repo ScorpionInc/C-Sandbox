@@ -4,13 +4,10 @@
  * Purpose: Prototype functions and structs for server-side networking.
  */
 
-#include <errno.h> // errno, strerror()
-#include <limits.h> // INT_MAX, ULONG_MAX
-#include <stdbool.h> // true false
-#include <stdint.h> // SIZE_MAX
-#include <stdlib.h> // calloc()
-#include <string.h> // memset()
-
+#include "si_access_list.h" // si_accesslist_t
+#include "si_poll.h" // si_poll_t
+#include "si_realloc_settings.h" // si_realloc_settings_t
+#include "si_logger.h" // si_logger_t
 #include "si_mutex.h" // si_mutex_t
 
 #ifdef __linux__
@@ -28,9 +25,6 @@
 
 #include <unistd.h> // read(), write()
 
-#define SOCKET_SUCCESS (0)
-#define SOCKET_ERROR (-1)
-
 #define DEFAULT_POLL_TIMEOUT (100)
 // Default is: TCP/IPv4
 #define DEFAULT_FAMILY AF_INET
@@ -40,10 +34,12 @@
 #error Unsupported Operating System.
 #endif // __linux__
 
-#include "si_access_list.h"
-#include "si_array.h"
-#include "si_realloc_settings.h"
-#include "si_logger.h"
+#include <errno.h> // errno, strerror()
+#include <limits.h> // INT_MAX, ULONG_MAX
+#include <stdbool.h> // true false
+#include <stdint.h> // SIZE_MAX
+#include <stdlib.h> // calloc()
+#include <string.h> // memset()
 
 #ifdef __cplusplus
 extern "C"
@@ -52,14 +48,6 @@ extern "C"
 
 #ifndef SI_SERVER_H
 #define SI_SERVER_H
-
-/** Doxygen
- * @brief Uses error code from linux socket() to determine if IPv6 is supported
-          on this machine.
- *
- * @return Returns stdbool true if ipv6 is supported. Returns false otherwise.
- */
-bool is_ipv6_supported(void);
 
 /** Doxygen
  * @brief Gets current system client queue limit
@@ -76,7 +64,7 @@ typedef struct si_server_t
 	sa_family_t family;
 	si_accesslist_t* p_access_list;
 	si_mutex_t sockets_lock;
-	si_array_t sockets;
+	si_poll_t sockets;
 	si_realloc_settings_t* p_settings;
 	event_handler_t p_on_connect;
 	event_handler_t p_on_read;
@@ -284,7 +272,7 @@ bool si_server_set_keepalive(si_server_t* const p_server,
  * 
  * @return Returns stdbool true on success. Returns false otherwise.
  */
-bool si_server_add_socket(si_server_t* const p_server, const int socket_fd);
+bool si_server_add_socket(si_server_t* const p_server, const si_socket_t socket_fd);
 
 /** Doxygen
  * @brief Closes and removes first socket of file descriptor from si_server_t.
@@ -292,7 +280,7 @@ bool si_server_add_socket(si_server_t* const p_server, const int socket_fd);
  * @param p_server Pointer to si_server_t to remove socket from.
  * @param socket_fd Which socket file descriptor value to be removed.
  */
-void si_server_drop_socket(si_server_t* const p_server, const int socket_fd);
+void si_server_drop_socket(si_server_t* const p_server, const si_socket_t socket_fd);
 
 /** Doxygen
  * @brief Accepts a new incoming connection adding them to the client list.
