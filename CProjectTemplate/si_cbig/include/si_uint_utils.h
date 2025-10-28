@@ -1,12 +1,12 @@
 /* si_big_uint.h
  * Language: C
- * Authors: ScorpionInc
  * Purpose: Defines functions for managing a byte buffer as a big unsigned int.
  * Created: 20150626
  * Updated: 20250626
 //*/
 
-#include <endian.h> // BYTE_ORDER, LITTLE_ENDIAN
+#include "si_endian.h" // BYTE_ORDER, LITTLE_ENDIAN
+
 #include <limits.h>
 #include <stdbool.h> // bool, false, true
 #include <stdint.h> // uint8_t

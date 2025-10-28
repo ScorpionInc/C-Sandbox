@@ -1,12 +1,17 @@
-//si_adler.h
+/* si_adler.h
+ * Language: C
+ * Purpose: Defines function(s)/type(s) for implementing n-length Adler Hash
+ * Created: 20250527
+ * Updated: 20251027
+//*/
 
-#include <endian.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
+#include "si_endian.h"
 #include "si_uint_utils.h"
+
+#include <stdint.h> // uint8_t
+#include <stdio.h> // fprintf()
+#include <stdlib.h> // calloc(), free()
+#include <string.h> // memcpy()
 
 #ifndef SI_ADLER_H
 #define SI_ADLER_H
@@ -16,7 +21,6 @@ typedef struct si_adler_t
 	uint8_t* p_hash;
 	size_t block_size;
 } si_adler_t;
-
 
 // Largest prime below 2^8
 #define ADLER_16_PRIME 251ULL
