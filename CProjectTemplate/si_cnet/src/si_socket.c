@@ -366,7 +366,9 @@ void si_socket_close(si_socket_t* const p_socket)
 	{
 		goto END;
 	}
+
 #ifdef AF_UNIX
+	// Handles the removing of created file(s) after a UNIX socket closes.
 	const char* p_path = NULL;
 	struct sockaddr_storage address = {0};
 	socklen_t address_size = sizeof(address);
@@ -387,6 +389,7 @@ void si_socket_close(si_socket_t* const p_socket)
 		}
 	}
 #endif//AF_UNIX
+
 #ifdef SI_UNIX
 	close(*p_socket);
 	*p_socket = si_socket_invalid;
@@ -396,6 +399,7 @@ void si_socket_close(si_socket_t* const p_socket)
 #else
 #warning Unknown/Unsupported OS
 #endif// OS Specific implementation
+
 #ifdef AF_UNIX
 	// Cleanup any created UNIX socket file(s)
 	if (NULL != p_path)
