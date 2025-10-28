@@ -5,7 +5,7 @@
  */
 
 #include <errno.h>  // errno, ERANGE
-#include <limits.h> // UINT16_MAX
+#include <limits.h> // INT_MAX, UINT16_MAX
 #include <stddef.h> // NULL
 #include <stdint.h> // uint16_t
 
