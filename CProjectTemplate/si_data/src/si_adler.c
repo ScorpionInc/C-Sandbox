@@ -126,48 +126,73 @@ void si_adler_update(si_adler_t* const p_hash, const uint8_t* const p_buffer,
 	}
 	const size_t half_bytes = p_hash->block_size / 2u;
 	const size_t buffer_size = half_bytes + 1u;
+	
+	// Declare some block_size buffers
+	uint8_t* p_prm = calloc(buffer_size, sizeof(uint8_t));
+	uint8_t* p_inp = calloc(buffer_size, sizeof(uint8_t));
+	uint8_t* p_lsb = calloc(buffer_size, sizeof(uint8_t));
+	uint8_t* p_msb = calloc(buffer_size, sizeof(uint8_t));
+	if ((NULL == p_prm) || (NULL == p_inp) ||
+	    (NULL == p_lsb) || (NULL == p_msb))
 	{
-		// Declare some block_size buffers
-		uint8_t prime[buffer_size];
-		uint8_t input_buffer[buffer_size];
-		uint8_t lsb_buffer[buffer_size];
-		uint8_t msb_buffer[buffer_size];
-		// Initialize prime number for block size.
-		memset(&prime[0], 0x00, buffer_size);
-		si_adler_init_prime(&prime[0u], p_hash->block_size);
-		// Digest fixed block size input
-		for (size_t iii = 0u; iii < input_buffer_size; iii++)
+		goto CLEAN;
+	}
+	
+	// Initialize prime number for block size.
+	si_adler_init_prime(p_prm, p_hash->block_size);
+	// Digest fixed block size input
+	for (size_t iii = 0u; iii < input_buffer_size; iii++)
+	{
+		// Buffer = LSB with +1 pad
+		memset(p_lsb, 0x00, buffer_size);
+		memcpy(p_lsb, &p_hash->p_hash[0u], half_bytes);
+		// Buffer = MSB with +1 pad
+		memset(p_msb, 0x00, buffer_size);
+		memcpy(p_msb, &p_hash->p_hash[half_bytes], half_bytes);
+		// Buffer input byte +2 pad
+		memset(p_inp, 0x00, buffer_size);
+		if (BYTE_ORDER == LITTLE_ENDIAN)
 		{
-			// Buffer = LSB with +1 pad
-			memset(&lsb_buffer[0u], 0x00, buffer_size);
-			memcpy(&lsb_buffer[0u], &p_hash->p_hash[0u], half_bytes);
-			// Buffer = MSB with +1 pad
-			memset(&msb_buffer[0u], 0x00, buffer_size);
-			memcpy(&msb_buffer[0u], &p_hash->p_hash[half_bytes], half_bytes);
-			// Buffer input byte +2 pad
-			memset(&input_buffer[0u], 0x00, buffer_size);
-			if (BYTE_ORDER == LITTLE_ENDIAN)
-			{
-				input_buffer[0u] = p_buffer[iii];
-			}
-			else
-			{
-				input_buffer[half_bytes - 1u] = p_buffer[iii];
-			}
-			// Add. lsb = lsb + input_buffer
-			add_uint_bytes(&lsb_buffer[0u], &input_buffer[0u], buffer_size);
-			// Mod. lsb = lsb % PRIME
-			mod_uint_bytes(&lsb_buffer[0u], &prime[0], buffer_size);
-			// Add. msb = msb + lsb
-			add_uint_bytes(&msb_buffer[0u], &lsb_buffer[0], buffer_size);
-			// Mod. msb = msb % PRIME
-			mod_uint_bytes(&msb_buffer[0u], &prime[0], buffer_size);
-			// Finished LSB & MSB apply to hash
-			memcpy(&p_hash->p_hash[0u], &lsb_buffer[0u], half_bytes);
-			memcpy(&p_hash->p_hash[half_bytes], &msb_buffer[0u], half_bytes);
+			p_inp[0u] = p_buffer[iii];
 		}
+		else
+		{
+			p_inp[half_bytes - 1u] = p_buffer[iii];
+		}
+		// Add. lsb = lsb + input_buffer
+		add_uint_bytes(p_lsb, p_inp, buffer_size);
+		// Mod. lsb = lsb % PRIME
+		mod_uint_bytes(p_lsb, p_prm, buffer_size);
+		// Add. msb = msb + lsb
+		add_uint_bytes(p_msb, p_lsb, buffer_size);
+		// Mod. msb = msb % PRIME
+		mod_uint_bytes(p_msb, p_prm, buffer_size);
+		// Finished LSB & MSB apply to hash
+		memcpy(&p_hash->p_hash[0u], p_lsb, half_bytes);
+		memcpy(&p_hash->p_hash[half_bytes], p_msb, half_bytes);
 	}
 	// End
+CLEAN:
+	if (NULL == p_prm)
+	{
+		free(p_prm);
+		p_prm = NULL;
+	}
+	if (NULL == p_inp)
+	{
+		free(p_inp);
+		p_inp = NULL;
+	}
+	if (NULL == p_lsb)
+	{
+		free(p_lsb);
+		p_lsb = NULL;
+	}
+	if (NULL == p_msb)
+	{
+		free(p_msb);
+		p_msb = NULL;
+	}
 END:
 	return;
 }

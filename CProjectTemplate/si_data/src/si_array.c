@@ -280,16 +280,19 @@ bool si_array_swp(si_array_t* const p_array,
 	{
 		goto END;
 	}
+	uint8_t* p_buffer = calloc(p_array->element_size, sizeof(uint8_t));
+	if (NULL == p_buffer)
 	{
-		uint8_t buffer[p_array->element_size];
-		memset(&buffer, 0x00, p_array->element_size);
-		memcpy(&buffer, si_array_at(p_array, left), p_array->element_size);
-		memcpy(
-			si_array_at(p_array, left), si_array_at(p_array, right),
-			p_array->element_size
-		);
-		memcpy(si_array_at(p_array, right), &buffer, p_array->element_size);
+		goto END;
 	}
+	memcpy(p_buffer, si_array_at(p_array, left), p_array->element_size);
+	memcpy(
+		si_array_at(p_array, left), si_array_at(p_array, right),
+		p_array->element_size
+	);
+	memcpy(si_array_at(p_array, right), p_buffer, p_array->element_size);
+	free(p_buffer);
+	p_buffer = NULL;
 END:
 	return result;
 }
