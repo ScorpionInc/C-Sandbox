@@ -127,6 +127,17 @@ bool si_accesslist_has(si_accesslist_t* const p_access,
 	const struct sockaddr* const p_addr);
 
 /** Doxygen
+ * @brief Determines if the list would allow an address to pass.
+ * 
+ * @param p_access Pointer to the accesslist to search in.
+ * @param p_addr Pointer to the socket address to test for
+ * 
+ * @return Returns stdbool true if p_addr would pass, false otherwise.
+ */
+bool si_accesslist_is_allowed(si_accesslist_t* const p_access,
+	const struct sockaddr* const p_addr);
+
+/** Doxygen
  * @brief Adds an address to accesslist grows capacity if needed by settings.
  * 
  * @param p_access Pointer to the accesslist to add address to.

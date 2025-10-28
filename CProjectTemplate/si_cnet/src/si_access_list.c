@@ -156,6 +156,24 @@ END:
 	return result;
 }
 
+bool si_accesslist_is_allowed(si_accesslist_t* const p_access,
+	const struct sockaddr* const p_addr)
+{
+	bool result = false;
+	if (NULL == p_access)
+	{
+		goto END;
+	}
+	const bool has = si_accesslist_has(p_access, p_addr);
+	const bool is_blacklist = p_access->is_blacklist;
+	result = (
+		(( true == has) && (false == is_blacklist)) ||
+		((false == has) && (true  == is_blacklist))
+	);
+END:
+	return result;
+}
+
 bool si_accesslist_append(si_accesslist_t* const p_access,
 	const struct sockaddr* const p_addr)
 {
