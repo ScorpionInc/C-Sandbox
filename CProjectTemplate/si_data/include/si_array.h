@@ -6,12 +6,12 @@
  * Updated: 20250813
 //*/
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stdbool.h> // bool, false, true
+#include <stddef.h> // size_t
+#include <stdint.h> // uint8_t
+#include <stdio.h> // fprintf()
+#include <stdlib.h> // calloc(), free()
+#include <string.h> // memcpy()
 
 #ifndef SI_ARRAY_H
 #define SI_ARRAY_H
