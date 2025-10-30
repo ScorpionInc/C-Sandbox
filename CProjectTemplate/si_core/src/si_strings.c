@@ -500,11 +500,13 @@ char** strn_split(const char* const p_haystack, const size_t haystack_len,
 		if (0 == cmp_result)
 		{
 			*p_count += 1u;
-			pp_result = realloc(pp_result, (*p_count) * sizeof(char*));
-			if (NULL == pp_result)
+			char** pp_tmp = NULL;
+			pp_tmp = realloc(pp_result, (*p_count) * sizeof(char*));
+			if (NULL == pp_tmp)
 			{
 				goto END;
 			}
+			pp_result = pp_tmp;
 			const size_t next_len = (iii - tail) + 1u;
 			pp_result[*p_count - 1u] = calloc(next_len, sizeof(char));
 			if (NULL == pp_result[*p_count - 1u])
