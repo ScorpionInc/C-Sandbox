@@ -1,6 +1,8 @@
 /* si_targa.h - 20250923
  */
 
+#include "si_packed.h" // SI_PACKED_INLINE
+
 #include <endian.h> // BYTE_ORDER, BIG_ENDIAN, LITTLE_ENDIAN
 #include <limits.h> // CHAR_BIT
 #include <stdbool.h> // bool, false, true
@@ -8,24 +10,6 @@
 #include <stdio.h> // FILE
 #include <stdlib.h> // calloc(), free()
 #include <string.h> // memset()
-
-// Support packed structs if possible
-#if defined(__GNUC__) || defined(__clang__)
-// Uses an inline attribute
-#define SI_PACKED_PRE
-#define SI_PACKED_INLINE __attribute__((packed))
-#define SI_PACKED_POST
-#elif defined(_MSC_VER)
-// Uses a settings stack
-#define SI_PACKED_PRE #pragma pack(push, 1)
-#define SI_PACKED_INLINE
-#define SI_PACKED_POST #pragma pack(pop)
-#else
-// All are blank meaning no struct packing supported
-#define SI_PACKED_PRE
-#define SI_PACKED_INLINE
-#define SI_PACKED_POST
-#endif// End of compiler check(s)
 
 #define SI_TARGA_HEADER_SIZE (18)
 
