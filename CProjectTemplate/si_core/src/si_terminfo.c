@@ -243,6 +243,7 @@ static inline int is_print(const char chr)
 int si_terminfo_printf_centered(si_terminfo_t* const p_terminfo,
 	const char* const p_format, ...)
 {
+	char* p_str = NULL;
 	int result = -1;
 	if ((NULL == p_terminfo) || (NULL == p_format))
 	{
@@ -258,7 +259,7 @@ int si_terminfo_printf_centered(si_terminfo_t* const p_terminfo,
 	}
 
 	// To string, if we can't determine the output length then can't center it.
-	char* p_str = str_from_fprint(
+	p_str = str_from_fprint(
 		(str_fprint_f)vfprintf, p_format, args
 	);
 	if (NULL == p_str)
