@@ -185,8 +185,8 @@ void* fread_alloc_all(FILE* const p_file, size_t* const p_buffer_size)
 	{
 		fprintf_exclusive(
 			stderr,
-			"fread_alloc_all() Failed to read all %lu bytes.\n",
-			*p_buffer_size
+			"fread_alloc_all() Failed to read all %lu bytes, read: %lu.\n",
+			*p_buffer_size, read_amount
 		);
 	}
 	*p_buffer_size = read_amount;
@@ -213,6 +213,8 @@ void* fread_alloc_until(FILE* const p_file,
 	p_result = fread_alloc_all(p_file, &current_size);
 	if ((NULL == p_result) || (*p_needle_size != current_size))
 	{
+		free(p_result);
+		p_result = NULL;
 		goto END;
 	}
 
