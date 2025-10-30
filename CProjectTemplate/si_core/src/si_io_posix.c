@@ -588,17 +588,15 @@ bool file_clone_meta_np(const char* const p_source_path,
 	bool result                = false;
 	int  sink_fd               = -1;
 	char* sink_expanded_path   = NULL;
-	struct stat source_stat    = {0};
-	char* source_expanded_path = NULL;
-
 	if ((NULL == p_source_path) || (NULL == p_sink_path))
 	{
 		goto END;
 	}
 
 	// Opens file(s) for operation(s)
-	source_expanded_path = shell_expand_path_l(p_source_path);
-	const int stat_result = follow_links ?
+	struct stat source_stat    = {0};
+	char* source_expanded_path = shell_expand_path_l(p_source_path);
+	const int stat_result      = follow_links ?
 		stat(source_expanded_path, &source_stat) :
 		lstat(source_expanded_path, &source_stat);
 	if (0 > stat_result)
