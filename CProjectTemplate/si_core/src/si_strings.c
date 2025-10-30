@@ -361,6 +361,7 @@ char* strv_clone_concat(const size_t argc, ...)
 		p_result = p_tmp;
 		p_tmp = NULL;
 	}
+	va_end(args);
 END:
 	return p_result;
 }
