@@ -1,7 +1,7 @@
 /* si_parray.h
  * Language: C
  * Authors: ScorpionInc
- * Purpose: Defines struct with functions for interacting with a contigious,
+ * Purpose: Defines struct with functions for interacting with a contiguous,
  *          and dynamicly resizing, heap pointer array.
  * Created: 20250812
  * Updated: 20250812
