@@ -169,8 +169,9 @@ int main(int argc, char** pp_argv)
 	si_logger_init(&logger);
 	logger.logging_level = SI_LOGGER_ALL;
 	
+	const uint16_t port = PORT;
 	si_server_t* p_server = si_server_new_6(
-		PORT, DEFAULT_TYPE, DEFAULT_FAMILY,
+		&port, DEFAULT_TYPE, DEFAULT_FAMILY,
 		get_client_queue_limit(), NULL, &logger
 	);
 	if (NULL == p_server)
@@ -220,7 +221,7 @@ int main(int argc, char** pp_argv)
 		free(p_loopback);
 		p_loopback = NULL;
 	}
-	si_server_free_at(&p_server);
+	si_server_destroy(&p_server);
 	p_server = NULL;
 	si_logger_free(&logger);
 END:
