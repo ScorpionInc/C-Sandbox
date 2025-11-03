@@ -22,15 +22,12 @@ void si_map_test_init(void)
 {
 	si_map_t* p_map = si_map_new();
 	TEST_ASSERT_NOT_NULL(p_map);
-	TEST_ASSERT_NOT_NULL(p_map->entries.p_data);
-	TEST_ASSERT_EQUAL_size_t(0u, p_map->entries.capacity);
-	TEST_ASSERT_EQUAL_size_t(sizeof(void*), p_map->entries.element_size);
 	TEST_ASSERT_NOT_NULL(p_map->p_cmp_key_f);
 	TEST_ASSERT_NOT_NULL(p_map->p_cmp_value_f);
 	TEST_ASSERT_NULL(p_map->p_free_key_f);
 	TEST_ASSERT_NULL(p_map->p_free_value_f);
 
-	si_map_free_at(&p_map);
+	si_map_destroy(&p_map);
 }
 
 static void* n_heap_string(const char* p_str, const size_t num)
@@ -66,7 +63,7 @@ void si_map_test_modify(void)
 		(int(*)(const void* const, const void* const))strcmp;
 	p_map->p_free_key_f = free;
 	p_map->p_free_value_f = free;
-	p_map->p_settings = &settings;
+	p_map->entries.p_settings = &settings;
 
 	printf("Testing insert():\n");
 	for (size_t iii = 0u; iii < data_size; iii++)
@@ -98,7 +95,7 @@ void si_map_test_modify(void)
 		TEST_ASSERT_EQUAL_size_t(data_size - (iii + 1u), si_map_count(p_map));
 	}
 
-	si_map_free_at(&p_map);
+	si_map_destroy(&p_map);
 }
 
 /** Doxygen

@@ -20,31 +20,30 @@ void si_hashmap_test_print_map(const si_map_t* p_map)
 		goto END;
 	}
 	const size_t count = si_map_count(p_map);
-	const size_t capacity = p_map->entries.capacity;
+	if (SIZE_MAX == count)
+	{
+		goto END;
+	}
 	size_t counter = 0u;
 	printf("[");
-	for (size_t iii = 0u; iii < capacity; iii++)
+	for (size_t iii = 0u; iii < count; iii++)
 	{
-		si_map_pair_t** pp_pair = si_array_at(&(p_map->entries), iii);
-		if (NULL == pp_pair)
+		si_map_pair_t* p_pair = si_parray_at(&(p_map->entries), iii);
+		if (NULL == p_pair)
 		{
 			break;
 		}
-		if (NULL == *pp_pair)
-		{
-			continue;
-		}
 		printf(
 			"{%p: %p(0x%lx)->%p}",
-			(void*)*pp_pair, (void*)(*pp_pair)->p_key,
-			*((size_t*)(*pp_pair)->p_key), (void*)(*pp_pair)->p_value
+			(void*)p_pair, (void*)p_pair->p_key,
+			*((size_t*)p_pair->p_key), (void*)p_pair->p_value
 		);
 		if (count > (counter + 1u))
 		{
 			printf(", ");
 		}
 	}
-	printf("]%lu/%lu", count, capacity);
+	printf("]%lu/%lu", count, p_map->entries.array.capacity);
 END:
 	return;
 }

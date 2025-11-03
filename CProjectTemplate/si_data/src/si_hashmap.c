@@ -95,7 +95,7 @@ void si_hashmap_update_settings(si_hashmap_t* const p_hashmap)
 		{
 			continue;
 		}
-		(*pp_map)->p_settings = p_hashmap->p_settings;
+		(*pp_map)->entries.p_settings = p_hashmap->p_settings;
 	}
 END:
 	return;
@@ -246,18 +246,14 @@ bool si_hashmap_find(si_hashmap_t* const p_hashmap, const void* const p_value,
 		const size_t index = si_map_find(*pp_next, p_value);
 		if (SIZE_MAX != index)
 		{
-			si_map_pair_t** pp_pair = si_array_at(
+			si_map_pair_t* p_pair = si_parray_at(
 				&((*pp_next)->entries), index
 			);
-			if (NULL == pp_pair)
+			if (NULL == p_pair)
 			{
 				continue;
 			}
-			if (NULL == *pp_pair)
-			{
-				continue;
-			}
-			*pp_hash = (*pp_pair)->p_key;
+			*pp_hash = p_pair->p_key;
 			result = true;
 			break;
 		}
@@ -303,7 +299,7 @@ bool si_hashmap_insert_hash(si_hashmap_t* const p_hashmap, const size_t hash,
 			// Failed to initialize new map.
 			goto END;
 		}
-		(*pp_map)->p_settings = p_hashmap->p_settings;
+		(*pp_map)->entries.p_settings = p_hashmap->p_settings;
 		(*pp_map)->p_cmp_key_f = si_hashmap_compare_hash;
 		(*pp_map)->p_free_key_f = free;
 	}
@@ -408,7 +404,7 @@ void si_hashmap_free(si_hashmap_t* const p_hashmap)
 		{
 			continue;
 		}
-		si_map_free_at(pp_map);
+		si_map_destroy(pp_map);
 	}
 	si_array_free(&(p_hashmap->maps));
 	p_hashmap->p_hash_f = NULL;

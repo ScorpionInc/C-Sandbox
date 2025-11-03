@@ -1,5 +1,4 @@
-//si_map.c
-
+// si_map.c
 #include "si_map.h"
 
 si_map_pair_t* si_map_pair_new(const void* const p_key,
@@ -35,8 +34,7 @@ void si_map_init(si_map_t* const p_map)
 	{
 		goto END;
 	}
-	si_array_init_3(&p_map->entries, sizeof(void*), 0u);
-	p_map->p_settings = NULL;
+	si_parray_init_2(&(p_map->entries), 0u);
 	p_map->p_cmp_key_f = si_map_default_compare;
 	p_map->p_cmp_value_f = si_map_default_compare;
 	p_map->p_free_key_f = NULL;
@@ -65,25 +63,7 @@ size_t si_map_count(const si_map_t* const p_map)
 	{
 		goto END;
 	}
-	if (NULL == p_map->entries.p_data)
-	{
-		goto END;
-	}
-	// Begin
-	result++;
-	for (size_t iii = 0u; iii < p_map->entries.capacity; iii++)
-	{
-		si_map_pair_t** pp_next = si_array_at(&p_map->entries, iii);
-		if (NULL == pp_next)
-		{
-			continue;
-		}
-		if (NULL != *pp_next)
-		{
-			result++;
-		}
-	}
-	// End
+	result = si_parray_count(&(p_map->entries));
 END:
 	return result;
 }
@@ -91,12 +71,7 @@ END:
 size_t si_map_index_of(const si_map_t* const p_map, const void* const p_key)
 {
 	size_t result = SIZE_MAX;
-	// Validation
 	if ((NULL == p_map) || (NULL == p_key))
-	{
-		goto END;
-	}
-	if (NULL == p_map->entries.p_data)
 	{
 		goto END;
 	}
@@ -104,19 +79,20 @@ size_t si_map_index_of(const si_map_t* const p_map, const void* const p_key)
 	{
 		goto END;
 	}
-	// Begin
-	for (size_t iii = 0u; iii < p_map->entries.capacity; iii++)
+
+	const size_t count = si_map_count(p_map);
+	if (SIZE_MAX <= count)
 	{
-		si_map_pair_t** pp_pair = si_array_at(&p_map->entries, iii);
-		if (NULL == pp_pair)
+		goto END;
+	}
+	for (size_t iii = 0u; iii < count; iii++)
+	{
+		si_map_pair_t* p_pair = si_parray_at(&p_map->entries, iii);
+		if (NULL == p_pair)
 		{
-			continue;
+			break;
 		}
-		if (NULL == *pp_pair)
-		{
-			continue;
-		}
-		int cmp_result = p_map->p_cmp_key_f((*pp_pair)->p_key, p_key);
+		const int cmp_result = p_map->p_cmp_key_f(p_pair->p_key, p_key);
 		if (0 == cmp_result)
 		{
 			// Key Match Found!
@@ -124,7 +100,6 @@ size_t si_map_index_of(const si_map_t* const p_map, const void* const p_key)
 			break;
 		}
 	}
-	// End
 END:
 	return result;
 }
@@ -132,12 +107,7 @@ END:
 size_t si_map_find(const si_map_t* const p_map, const void* const p_value)
 {
 	size_t result = SIZE_MAX;
-	// Validation
 	if ((NULL == p_map) || (NULL == p_value))
-	{
-		goto END;
-	}
-	if (NULL == p_map->entries.p_data)
 	{
 		goto END;
 	}
@@ -145,19 +115,20 @@ size_t si_map_find(const si_map_t* const p_map, const void* const p_value)
 	{
 		goto END;
 	}
-	// Begin
-	for (size_t iii = 0u; iii < p_map->entries.capacity; iii++)
+
+	const size_t count = si_map_count(p_map);
+	if (SIZE_MAX <= count)
 	{
-		si_map_pair_t** pp_pair = si_array_at(&p_map->entries, iii);
-		if (NULL == pp_pair)
+		goto END;
+	}
+	for (size_t iii = 0u; iii < count; iii++)
+	{
+		si_map_pair_t* p_pair = si_parray_at(&(p_map->entries), iii);
+		if (NULL == p_pair)
 		{
-			continue;
+			break;
 		}
-		if (NULL == *pp_pair)
-		{
-			continue;
-		}
-		int cmp_result = p_map->p_cmp_value_f((*pp_pair)->p_value, p_value);
+		const int cmp_result = p_map->p_cmp_value_f(p_pair->p_value, p_value);
 		if (0 == cmp_result)
 		{
 			// Value Match Found!
@@ -177,20 +148,16 @@ void* si_map_at(si_map_t* const p_map, const void* const p_key)
 		goto END;
 	}
 	const size_t index = si_map_index_of(p_map, p_key);
-	if (index >= p_map->entries.capacity)
+	if (SIZE_MAX <= index)
 	{
 		goto END;
 	}
-	const si_map_pair_t** const pp_pair = si_array_at(&p_map->entries, index);
-	if (NULL == pp_pair)
+	const si_map_pair_t* const p_pair = si_parray_at(&(p_map->entries), index);
+	if (NULL == p_pair)
 	{
 		goto END;
 	}
-	if (NULL == *pp_pair)
-	{
-		goto END;
-	}
-	p_result = (*pp_pair)->p_value;
+	p_result = p_pair->p_value;
 END:
 	return p_result;
 }
@@ -202,7 +169,7 @@ bool si_map_has(si_map_t* const p_map, const void* const p_key)
 	{
 		goto END;
 	}
-	result = (si_map_index_of(p_map, p_key) < p_map->entries.capacity);
+	result = (SIZE_MAX != si_map_index_of(p_map, p_key));
 END:
 	return result;
 }
@@ -214,33 +181,30 @@ bool si_map_remove_at(si_map_t* const p_map, const size_t index)
 	{
 		goto END;
 	}
-	if (index >= p_map->entries.capacity)
+
+	// NULL/Free pair key/value.
+	si_map_pair_t* p_pair = si_parray_at(&(p_map->entries), index);
+	if (NULL == p_pair)
 	{
 		goto END;
 	}
-	si_map_pair_t** pp_pair = si_array_at(&p_map->entries, index);
-	if (NULL == pp_pair)
+	if ((NULL != p_map->p_free_key_f) &&
+		(NULL != p_pair->p_key))
 	{
-		goto END;
+		p_map->p_free_key_f(p_pair->p_key);
 	}
-	if (NULL != *pp_pair)
+	p_pair->p_key = NULL;
+	if ((NULL != p_map->p_free_value_f) &&
+		(NULL != p_pair->p_value))
 	{
-		if ((NULL != p_map->p_free_key_f) &&
-			(NULL != (*pp_pair)->p_key))
-		{
-			p_map->p_free_key_f((*pp_pair)->p_key);
-		}
-		(*pp_pair)->p_key = NULL;
-		if ((NULL != p_map->p_free_value_f) &&
-			(NULL != (*pp_pair)->p_value))
-		{
-			p_map->p_free_value_f((*pp_pair)->p_value);
-		}
-		(*pp_pair)->p_value = NULL;
-		free(*pp_pair);
-		*pp_pair = NULL;
-		result = true;
+		p_map->p_free_value_f(p_pair->p_value);
 	}
+	p_pair->p_value = NULL;
+	free(p_pair);
+	p_pair = NULL;
+
+	// Remove from parray
+	result = si_parray_remove_at(&(p_map->entries), index);
 END:
 	return result;
 }
@@ -253,7 +217,7 @@ bool si_map_remove(si_map_t* const p_map, const void* const p_key)
 		goto END;
 	}
 	const size_t index = si_map_index_of(p_map, p_key);
-	if (index >= p_map->entries.capacity)
+	if (SIZE_MAX <= index)
 	{
 		goto END;
 	}
@@ -270,50 +234,18 @@ bool si_map_insert_pair(si_map_t* const p_map,
 	{
 		goto END;
 	}
-	if (NULL == p_map->entries.p_data)
-	{
-		goto END;
-	}
+
 	// Ensure key is unique
 	const size_t map_index = si_map_index_of(p_map, p_pair->p_key);
 	if (SIZE_MAX != map_index)
 	{
+		fprintf(stderr, "si_map_insert_pair() Failed due to key collision.\n");
 		goto END;
 	}
-	// Insert pair at first open slot
-	for (size_t iii = 0u; iii < p_map->entries.capacity; iii++)
-	{
-		si_map_pair_t** pp_next = si_array_at(&p_map->entries, iii);
-		if (NULL == pp_next)
-		{
-			continue;
-		}
-		if (NULL == *pp_next)
-		{
-			// Assign
-			si_array_set(&p_map->entries, iii, &p_pair);
-			result = true;
-			goto END;
-		}
-	}
-	// Didn't have an index to assign a new pair in map.
-	bool did_grow = false;
-	if (NULL == p_map->p_settings)
-	{
-		did_grow = si_array_resize(
-			&(p_map->entries), p_map->entries.capacity + 1u
-		);
-	}
-	else
-	{
-		did_grow = si_realloc_settings_grow(
-			p_map->p_settings, &(p_map->entries)
-		);
-	}
-	if (true == did_grow)
-	{
-		result = si_map_insert_pair(p_map, p_pair);
-	}
+
+	// Insert pair value
+	const size_t append_index = si_parray_append(&(p_map->entries), p_pair);
+	result = (SIZE_MAX != append_index);
 END:
 	return result;
 }
@@ -354,16 +286,12 @@ bool si_map_assign(si_map_t* const p_map, const void* const p_key,
 	{
 		goto END;
 	}
-	si_map_pair_t** pp_pair = si_array_at(&p_map->entries, index);
-	if (NULL == pp_pair)
+	si_map_pair_t* p_pair = si_parray_at(&(p_map->entries), index);
+	if (NULL == p_pair)
 	{
 		goto END;
 	}
-	if (NULL == *pp_pair)
-	{
-		goto END;
-	}
-	(*pp_pair)->p_value = (void*)p_value;
+	p_pair->p_value = (void*)p_value;
 	result = true;
 END:
 	return result;
@@ -378,18 +306,24 @@ void si_map_free(si_map_t* const p_map)
 	p_map->p_cmp_key_f = NULL;
 	p_map->p_cmp_value_f = NULL;
 
-	for (size_t iii = 0u; iii < p_map->entries.capacity; iii++)
+	const size_t count = si_map_count(&(p_map->entries));
+	if (SIZE_MAX <= count)
+	{
+		goto CLEAN;
+	}
+	for (size_t iii = 0u; iii < count; iii++)
 	{
 		si_map_remove_at(p_map, iii);
 	}
+CLEAN:
 	p_map->p_free_key_f = NULL;
 	p_map->p_free_value_f = NULL;
-	si_array_free(&p_map->entries);
+	si_parray_free(&(p_map->entries));
 END:
 	return;
 }
 
-void si_map_free_at(si_map_t** const pp_map)
+void si_map_destroy(si_map_t** const pp_map)
 {
 	if (NULL == pp_map)
 	{
@@ -424,10 +358,8 @@ void si_map_fprint(FILE* const p_file, const si_map_t* const p_map)
 	fprintf(p_file, "value_comp_func: %p; ", (void*)p_map->p_cmp_value_f);
 	fprintf(p_file, "key_free_func: %p; ", (void*)p_map->p_free_key_f);
 	fprintf(p_file, "value_free_func: %p; ", (void*)p_map->p_free_value_f);
-	fprintf(p_file, "settings: %p;", (void*)p_map->p_settings);
-	fprintf(p_file, "}:%lu/%lux%lu@%p",
-		count, p_map->entries.capacity,
-		p_map->entries.element_size, (void*)p_map
+	fprintf(p_file, "}:%lu/%lu@%p",
+		count, p_map->entries.array.capacity, (void*)p_map
 	);
 END:
 	return;

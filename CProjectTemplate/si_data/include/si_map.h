@@ -7,7 +7,7 @@
  * Updated: 20250724
 //*/
 
-#include "si_array.h"
+#include "si_parray.h"
 #include "si_realloc_settings.h"
 
 #ifndef SI_MAP_H
@@ -37,8 +37,7 @@ si_map_pair_t* si_map_pair_new(const void* const p_key,
 
 typedef struct si_map_t
 {
-	si_array_t entries;
-	si_realloc_settings_t* p_settings;
+	si_parray_t entries;
 	int  (*p_cmp_key_f)(const void* const, const void* const);
 	int  (*p_cmp_value_f)(const void* const, const void* const);
 	void (*p_free_key_f)(void* const);
@@ -57,7 +56,7 @@ void si_map_init(si_map_t* const p_map);
  * 
  * @return Returns pointer to new si_map_t on success. Returns NULL otherwise.
  */
-si_map_t* si_map_new();
+si_map_t* si_map_new(void);
 
 /* Doxygen
  * @brief Finds the count of key/value pairs stored in p_map.
@@ -175,7 +174,7 @@ void si_map_free(si_map_t* const p_map);
  *
  * @param p_map Pointer to si_map_t struct to have it's contents freed.
  */
-void si_map_free_at(si_map_t** pp_map);
+void si_map_destroy(si_map_t** pp_map);
 
 /** Doxygen
  * @brief Prints map values to FILE stream. Typically used for debugging.
