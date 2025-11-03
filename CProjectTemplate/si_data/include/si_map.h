@@ -174,7 +174,7 @@ void si_map_free(si_map_t* const p_map);
  *
  * @param p_map Pointer to si_map_t struct to have it's contents freed.
  */
-void si_map_destroy(si_map_t** pp_map);
+void si_map_destroy(si_map_t** const pp_map);
 
 /** Doxygen
  * @brief Prints map values to FILE stream. Typically used for debugging.
