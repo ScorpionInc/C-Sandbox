@@ -306,7 +306,7 @@ void si_map_free(si_map_t* const p_map)
 	p_map->p_cmp_key_f = NULL;
 	p_map->p_cmp_value_f = NULL;
 
-	const size_t count = si_map_count(&(p_map->entries));
+	const size_t count = si_map_count(p_map);
 	if (SIZE_MAX <= count)
 	{
 		goto CLEAN;
