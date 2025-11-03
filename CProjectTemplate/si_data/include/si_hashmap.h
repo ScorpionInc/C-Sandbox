@@ -26,7 +26,7 @@ typedef struct si_hashmap_t
 /** Doxygen
  * @brief Initializes values within an already existing si_hashmap_t struct.
  * 
- * @param p_hashmap Pointer to the hashmap struct to be initilized.
+ * @param p_hashmap Pointer to the hashmap struct to be initialized.
  * @param capacity Capacity of the hashmap. Not be be changed after insert.
 */
 void si_hashmap_init(si_hashmap_t* const p_hashmap, const size_t capacity);
@@ -67,7 +67,7 @@ bool si_hashmap_is_empty(const si_hashmap_t* const p_hashmap);
 /** Doxygen
  * @brief Returns a size_t hash of a data buffer of size for hashmap.
  * 
- * @param p_hashmap Pointer to haskmap to get hash function from.
+ * @param p_hashmap Pointer to hashmap to get hash function from.
  * @param p_key Pointer to data buffer to read hash input from.
  * @param key_size Number of bytes in the key buffer to read.
  * 
@@ -136,7 +136,7 @@ bool si_hashmap_find(si_hashmap_t* const p_hashmap, const void* const p_value,
  * @brief Adds a new key/value pair into the pointed at hashmap.
  * 
  * @param p_hashmap Pointer to hashmap to add new pair into.
- * @param p_key Pointer to data to be used to geneterate hash.
+ * @param p_key Pointer to data to be used to generate hash.
  * @param key_size Number of bytes in data buffer to read to hash.
  * @param p_value Data pointer value to be inserted.
  * 
@@ -161,7 +161,7 @@ bool si_hashmap_insert_hash(si_hashmap_t* const p_hashmap, const size_t hash,
  * @brief Sets a new value at key in the pointed at hashmap.
  * 
  * @param p_hashmap Pointer to hashmap to add new pair into.
- * @param p_key Pointer to data to be used to geneterate hash.
+ * @param p_key Pointer to data to be used to generate hash.
  * @param key_size Number of bytes in data buffer to read to hash.
  * @param p_value Data pointer value to be set to.
  * 
@@ -186,7 +186,7 @@ bool si_hashmap_assign_hash(si_hashmap_t* const p_hashmap,
  * @brief Remove a key/value pair from a hashmap.
  * 
  * @param p_hashmap Pointer to si_hashmap_t struct to remove from.
- * @param p_key Pointer to data to be used to geneterate hash.
+ * @param p_key Pointer to data to be used to generate hash.
  * @param key_size Number of bytes in data buffer to read to hash.
  * 
  * @return Returns stdbool true on success. Returns false otherwise.
