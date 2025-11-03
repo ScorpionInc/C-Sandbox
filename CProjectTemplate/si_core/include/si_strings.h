@@ -37,6 +37,14 @@ extern "C"
 char* strndup(const char* const p_src, const size_t size);
 #endif//_GNU_SOURCE
 
+#if defined(__FreeBSD__) || defined(__APPLE__)
+// Has strnstr() as part of string.h
+#else
+// Doesn't have a strnstr() implementation.
+char* strnstr(const char* const p_haystack, const char* const p_needle,
+	const size_t hay_size);
+#endif//strnstr()
+
 /** Doxygen
  * @brief Generates a new heap C String from an optional C string pattern.
  * 

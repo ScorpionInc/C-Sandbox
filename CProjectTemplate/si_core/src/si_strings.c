@@ -23,6 +23,48 @@ END:
 }
 #endif//_GNU_SOURCE
 
+#if defined(__FreeBSD__) || defined(__APPLE__)
+// Has strnstr()
+#else
+char* strnstr(const char* const p_haystack, const char* const p_needle,
+	const size_t hay_size)
+{
+	char* p_result = NULL;
+	if ((NULL == p_haystack) || (0u >= hay_size))
+	{
+		goto END;
+	}
+	if (NULL == p_needle)
+	{
+		p_result = (char*)p_haystack;
+		goto END;
+	}
+
+	const size_t max_len = (INT64_MAX > hay_size) ? (hay_size + 1) : INT64_MAX;
+	const size_t needle_len = strnlen(p_needle, max_len);
+	if (max_len <= needle_len)
+	{
+		goto END;
+	}
+	if (0u == needle_len)
+	{
+		p_result = (char*)p_haystack;
+		goto END;
+	}
+
+	for (size_t iii = 0u; iii < hay_size - needle_len; iii++)
+	{
+		const int cmp_result = strncmp(&p_haystack[iii], p_needle, needle_len);
+		if (0 == cmp_result)
+		{
+			p_result = (char*)&p_haystack[iii];
+			goto END;
+		}
+	}
+END:
+	return p_result;
+}
+#endif//strnstr()
 
 char* strn_new(const size_t str_len, const char* const p_pattern,
 	const size_t pattern_len)
