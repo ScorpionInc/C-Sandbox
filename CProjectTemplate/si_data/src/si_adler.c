@@ -173,22 +173,22 @@ void si_adler_update(si_adler_t* const p_hash, const uint8_t* const p_buffer,
 	}
 	// End
 CLEAN:
-	if (NULL == p_prm)
+	if (NULL != p_prm)
 	{
 		free(p_prm);
 		p_prm = NULL;
 	}
-	if (NULL == p_inp)
+	if (NULL != p_inp)
 	{
 		free(p_inp);
 		p_inp = NULL;
 	}
-	if (NULL == p_lsb)
+	if (NULL != p_lsb)
 	{
 		free(p_lsb);
 		p_lsb = NULL;
 	}
-	if (NULL == p_msb)
+	if (NULL != p_msb)
 	{
 		free(p_msb);
 		p_msb = NULL;
