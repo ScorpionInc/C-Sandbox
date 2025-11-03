@@ -1,11 +1,12 @@
-//si_hashmap.h
+/* si_hashmap.h
+*/
 
-#include <stdbool.h>
-#include <stdlib.h>
+#include <stdbool.h> // bool, false, true
+#include <stdlib.h> // calloc(), free()
 
-#include "si_adler.h"
-#include "si_map.h"
-#include "si_realloc_settings.h"
+#include "si_adler.h" // si_adler_t
+#include "si_map.h" // si_map_t
+#include "si_realloc_settings.h" // si_realloc_settings_t
 
 #ifndef SI_HASHMAP_H
 #define SI_HASHMAP_H
@@ -209,14 +210,14 @@ bool si_hashmap_remove_hash(si_hashmap_t* const p_hashmap, const size_t hash);
  * 
  * @param p_hashmap Pointer to hashmap to have it data freed from.
  */
-void si_hashmap_free(si_hashmap_t* p_hashmap);
+void si_hashmap_free(si_hashmap_t* const p_hashmap);
 
 /** Doxygen
  * @brief Frees si_hashmap_t struct at pointer and all of it's allocated data.
  * 
  * @param pp_hashmap Pointer to hashmap pointer to have it data freed.
  */
-void si_hashmap_free_at(si_hashmap_t** pp_hashmap);
+void si_hashmap_destroy(si_hashmap_t** const pp_hashmap);
 
 #ifdef __cplusplus
 }

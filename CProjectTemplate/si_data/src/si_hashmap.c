@@ -391,7 +391,7 @@ END:
 	return result;
 }
 
-void si_hashmap_free(si_hashmap_t* p_hashmap)
+void si_hashmap_free(si_hashmap_t* const p_hashmap)
 {
 	if (NULL == p_hashmap)
 	{
@@ -416,7 +416,7 @@ END:
 	return;
 }
 
-void si_hashmap_free_at(si_hashmap_t** pp_hashmap)
+void si_hashmap_destroy(si_hashmap_t** const pp_hashmap)
 {
 	if (NULL == pp_hashmap)
 	{

@@ -93,7 +93,7 @@ void si_hashmap_test_init(void)
 	TEST_ASSERT_NOT_NULL(p_hashmap->maps.p_data);
 	TEST_ASSERT_EQUAL_size_t(capacity, p_hashmap->maps.capacity);
 	TEST_ASSERT_EQUAL_size_t(sizeof(void*), p_hashmap->maps.element_size);
-	si_hashmap_free_at(&p_hashmap);
+	si_hashmap_destroy(&p_hashmap);
 	TEST_ASSERT_NULL(p_hashmap);
 }
 
@@ -148,7 +148,7 @@ void si_hashmap_test_modify(void)
 	TEST_ASSERT_NULL(si_hashmap_at(p_hashmap, NULL, SIZE_MAX));
 	TEST_ASSERT_NOT_NULL(si_hashmap_at(p_hashmap, &(keys[0]), sizeof(size_t)));
 
-	si_hashmap_free_at(&p_hashmap);
+	si_hashmap_destroy(&p_hashmap);
 	TEST_ASSERT_NULL(p_hashmap);
 }
 
