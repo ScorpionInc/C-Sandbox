@@ -324,14 +324,20 @@ void si_map_free(si_map_t* const p_map)
 	p_map->p_cmp_key_f = NULL;
 	p_map->p_cmp_value_f = NULL;
 
+	// Remove from back to front for consistent indexing.
 	const size_t count = si_map_count(p_map);
-	if (SIZE_MAX <= count)
+	if ((SIZE_MAX <= count) || (0u >= count))
 	{
 		goto CLEAN;
 	}
-	for (size_t iii = 0u; iii < count; iii++)
+	for (size_t iii = (count - 1u); iii >= 0u; iii--)
 	{
+
 		si_map_remove_at(p_map, iii);
+		if (0u >= iii)
+		{
+			break;
+		}
 	}
 CLEAN:
 	p_map->p_free_key_f = NULL;
