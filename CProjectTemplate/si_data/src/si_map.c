@@ -20,12 +20,30 @@ END:
 	return p_new;
 }
 
-
-static inline int si_map_default_compare(const void* const p_left,
+/** Doxygen
+ * @brief Default simple pointer value comparison function.
+ * 
+ * @param p_left Left pointer to be compared.
+ * @param p_right Right pointer to be compared.
+ * 
+ * @return Returns int results similar to memcmp or strcmp.
+ */
+static int si_map_default_compare(const void* const p_left,
 	const void* const p_right)
 {
 	// Simple pointer compare.
-	return (p_left == p_right);
+	int result = 0;
+	if (p_left == p_right)
+	{
+		goto END;
+	}
+	result = 1;
+	if (p_left < p_right)
+	{
+		result = -1;
+	}
+END:
+	return result;
 }
 
 void si_map_init(si_map_t* const p_map)
