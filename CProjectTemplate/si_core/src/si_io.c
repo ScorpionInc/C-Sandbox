@@ -197,55 +197,61 @@ END:
 void* fread_alloc_until(FILE* const p_file,
 	const uint8_t* const p_needle, size_t* const p_needle_size)
 {
-	//! TODO *BUG* May over-read for large byte patterns.
 	uint8_t* p_result     = NULL;
 	size_t   current_size = 0u;
 	if ((NULL == p_file) || (NULL == p_needle) || (NULL == p_needle_size))
 	{
 		goto END;
 	}
-	if (0u >= *p_needle_size)
+	const size_t needle_size = *p_needle_size;
+	if (0u >= needle_size)
 	{
+		// Nothing to be found.
 		goto END;
 	}
 
-	current_size = *p_needle_size;
+	// Read needle size which is the minimum size for a match.
+	current_size = needle_size;
 	p_result = fread_alloc_all(p_file, &current_size);
-	if ((NULL == p_result) || (*p_needle_size != current_size))
+	if ((NULL == p_result) || (needle_size != current_size))
 	{
 		free(p_result);
 		p_result = NULL;
 		goto END;
 	}
 
+	// Continue to read byte at a time until a pattern match is found.
 	uint8_t* p_pattern = NULL;
-	size_t next_size = 0u;
+	size_t next_read_size = 0u;
 	while (NULL == p_pattern)
 	{
 		p_pattern = memmem(
-			p_result, current_size, p_needle, *p_needle_size
+			p_result, current_size, p_needle, needle_size
 		);
 		if (NULL != p_pattern)
 		{
 			break;
 		}
-		p_pattern = realloc(p_result, current_size + *p_needle_size);
+
+		// Grow p_result buffer using p_pattern as temp pointer.
+		const size_t new_size = (current_size + 1u);
+		p_pattern = realloc(p_result, new_size);
 		if (NULL == p_pattern)
 		{
 			break;
 		}
 		p_result = p_pattern;
 		p_pattern = NULL;
-		next_size = fread_all(p_file, &(p_result[current_size]), *p_needle_size);
-		if (0u >= next_size)
+		// Read a single byte.
+		next_read_size = fread_all(p_file, &(p_result[current_size]), 1u);
+		if (0u >= next_read_size)
 		{
 			break;
 		}
-		current_size += next_size;
-		p_pattern = memmem(
-			p_result, current_size, p_needle, *p_needle_size
-		);
+		// Update and retest
+		current_size += next_read_size;
 	}
+	// Match was found
 END:
 	(*p_needle_size) = current_size;
 	return (void*)p_result;
@@ -266,6 +272,7 @@ char* fread_alloc_line(FILE* const p_file, size_t* const p_size)
 		// Should never happen but just in case.
 		goto END;
 	}
+	// Read until we encounter a newline character.
 	alloc_size = needle_len;
 	p_result = fread_alloc_until(
 		p_file, (const uint8_t*)p_needle, &alloc_size
