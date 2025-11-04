@@ -153,7 +153,11 @@ size_t fread_all(FILE* const p_file,
 		const bool file_error = ferror(p_file);
 		if ((0u >= next_read) || (true == file_error))
 		{
-			perror("fread_all");
+			// EXIT_SUCCESS but 0u read size means EOF.
+			if (EXIT_SUCCESS != errno)
+			{
+				perror("fread_all");
+			}
 			goto END;
 		}
 		bytes_read += next_read;
@@ -185,7 +189,7 @@ void* fread_alloc_all(FILE* const p_file, size_t* const p_buffer_size)
 	{
 		fprintf_exclusive(
 			stderr,
-			"fread_alloc_all() Failed to read all %lu bytes, read: %lu.\n",
+			"fread_alloc_all() Failed to read all %lu byte(s), read: %lu.\n",
 			*p_buffer_size, read_amount
 		);
 	}
@@ -215,8 +219,13 @@ void* fread_alloc_until(FILE* const p_file,
 	p_result = fread_alloc_all(p_file, &current_size);
 	if ((NULL == p_result) || (needle_size != current_size))
 	{
-		free(p_result);
-		p_result = NULL;
+		// Failed to read needle size return what we have if partial
+		if (0u >= current_size)
+		{
+			free(p_result);
+			p_result = NULL;
+			current_size = 0u;
+		}
 		goto END;
 	}
 
@@ -246,12 +255,14 @@ void* fread_alloc_until(FILE* const p_file,
 		next_read_size = fread_all(p_file, &(p_result[current_size]), 1u);
 		if (0u >= next_read_size)
 		{
+			// EOF
+			p_result[current_size] = '\0';
 			break;
 		}
-		// Update and retest
+		// Update and retest for pattern
 		current_size += next_read_size;
 	}
-	// Match was found
+	// Match was found or Error
 END:
 	(*p_needle_size) = current_size;
 	return (void*)p_result;
