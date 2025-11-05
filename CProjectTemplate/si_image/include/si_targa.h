@@ -1,6 +1,7 @@
 /* si_targa.h - 20250923
  */
 
+#include "si_io.h" // fread_all(), fwrite_all()
 #include "si_packed.h" // SI_PACKED_INLINE
 
 #include <endian.h> // BYTE_ORDER, BIG_ENDIAN, LITTLE_ENDIAN
