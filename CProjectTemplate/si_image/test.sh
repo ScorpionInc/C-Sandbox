@@ -5,7 +5,7 @@ outputDir="./build/"
 libName="libsi_image.a"
 unitySrc="../tests_src/unity.c"
 unityInclude="../tests_include/"
-dependentsIncludes=("-I../si_core/include" "../si_core/build/libsi_core.a")
+dependentsIncludes=("-I../si_core/include" "../si_core/build/libsi_core.a" "-lacl")
 
 echo 'Building from source via CMake & make.'
 cmake -S . -B "$outputDir"
