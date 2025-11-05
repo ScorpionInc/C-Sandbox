@@ -2,81 +2,6 @@
 #include "si_targa.h"
 
 /** Doxygen
- * @brief Local function that handles partial writes to a file.
- *
- * @param p_buffer Pointer to data to be written.
- * @param buffer_size Number of bytes to be written.
- * @param p_file Pointer to FILE to write to.
- *
- * @return Returns stdbool true on success. Returns false otherwise.
- */
-static bool fwrite_all(uint8_t* const p_buffer, const size_t buffer_size,
-	FILE* const p_file)
-{
-	bool result = false;
-	if ((NULL == p_buffer) || (0u >= buffer_size) || (NULL == p_file))
-	{
-		goto END;
-	}
-	size_t amount_written = 0u;
-	while (amount_written < buffer_size)
-	{
-		const size_t next_result = fwrite(
-			&(p_buffer[amount_written]), sizeof(uint8_t),
-			buffer_size - amount_written, p_file
-		);
-		const bool file_error = ferror(p_file);
-		if ((0u >= next_result) || (true == file_error))
-		{
-			perror("si_targa file write has encountered an error.");
-			goto END;
-		}
-		amount_written += next_result;
-	}
-	fflush(p_file);
-	result = true;
-END:
-	return result;
-}
-
-/** Doxygen
- * @brief Local function that handles partial reads from file.
- *
- * @param p_buffer Pointer to byte buffer to hold file contents.
- * @param buffer_size Number of bytes that the buffer can hold.
- * @param p_file Pointer to FILE to read from.
- *
- * @return Returns stdbool true on success. Returns false otherwise.
- */
-static bool fread_all(uint8_t* const p_buffer, const size_t buffer_size,
-	FILE* const p_file)
-{
-	bool result = false;
-	if ((NULL == p_buffer) || (0u >= buffer_size) || (NULL == p_file))
-	{
-		goto END;
-	}
-	size_t bytes_read = 0u;
-	while(bytes_read < buffer_size)
-	{
-		const size_t next_read = fread(
-			&(p_buffer[bytes_read]), sizeof(uint8_t),
-			buffer_size - bytes_read, p_file
-		);
-		const bool file_error = ferror(p_file);
-		if ((0u >= next_read) || (true == file_error))
-		{
-			perror("si_targa file read has encountered an error.");
-			goto END;
-		}
-		bytes_read += next_read;
-	}
-	result = true;
-END:
-	return result;
-}
-
-/** Doxygen
  * @brief Allocates a buffer on the heap to hold an amount of data to read from
  *        file. If allocation fails will seek past the amount to be read.
  *
@@ -114,13 +39,12 @@ static bool alloc_fread_all(
 	}
 	else
 	{
-		result = fread_all(*pp_buffer, buffer_size, p_file);
+		const size_t amount_read = fread_all(p_file, *pp_buffer, buffer_size);
+		result = (buffer_size == amount_read);
 	}
 END:
 	return result;
 }
-
-
 
 void si_tga_header_init_4(si_tga_header_t* const p_header,
 	const uint16_t width, const uint16_t height, const uint8_t channels)
@@ -148,7 +72,7 @@ inline void si_tga_header_init_3(si_tga_header_t* const p_header,
 }
 inline void si_tga_header_init(si_tga_header_t* const p_header)
 {
-	// Default image x,y dimesions are (0,0)
+	// Default image x,y dimensions are (0,0)
 	si_tga_header_init_3(p_header, 0u, 0u);
 }
 
@@ -226,10 +150,12 @@ bool si_tga_header_is_valid(const si_tga_header_t* const p_header)
 	{
 		goto END;
 	}
-	// TODO Temporary shows all mapped images as invalid until implimented.
+	// TODO Temporary shows all mapped images as invalid until implemented.
 	if (SI_TARGA_MAP_TYPE_PRESENT == p_header->map_type)
 	{
-		fprintf(stderr, "[ERROR]: si_targa Doesnt yet impliment color maps\n");
+		fprintf(
+			stderr, "[ERROR]: si_targa Doesn't yet implement color maps\n"
+		);
 		goto END;
 	}
 	result = true;
@@ -297,16 +223,18 @@ bool si_tga_header_fread(si_tga_header_t* const p_header, FILE* const p_file)
 	// Utilize a packed struct
 	if (SI_TARGA_HEADER_SIZE == struct_size)
 	{
-		result = fread_all(
-			(uint8_t*)p_header, SI_TARGA_HEADER_SIZE, p_file
+		const size_t read_count = fread_all(
+			p_file, (uint8_t*)p_header, SI_TARGA_HEADER_SIZE
 		);
+		result = (SI_TARGA_HEADER_SIZE == read_count);
 		goto ENDIAN;
 	}
 	// Utilize a stack array buffer
 	uint8_t file_buffer[SI_TARGA_HEADER_SIZE] = {0};
-	result = fread_all(
-		(uint8_t*)&file_buffer[0u], SI_TARGA_HEADER_SIZE, p_file
+	const size_t read_count = fread_all(
+		p_file, (uint8_t*)&file_buffer[0u], SI_TARGA_HEADER_SIZE
 	);
+	result = (SI_TARGA_HEADER_SIZE == read_count);
 	if (false == result)
 	{
 		goto END;
@@ -396,7 +324,10 @@ bool si_tga_header_fwrite(si_tga_header_t* const p_header, FILE* const p_file)
 ENDIAN:
 	// TODO Handle endianess
 	// Write to FILE
-	result = fwrite_all(header_buffer, SI_TARGA_HEADER_SIZE, p_file);
+	const size_t write_count = fwrite_all(
+		p_file, header_buffer, SI_TARGA_HEADER_SIZE
+	);
+	result = (SI_TARGA_HEADER_SIZE == write_count);
 END:
 	return result;
 }
@@ -642,7 +573,18 @@ bool si_tga_fread_from(si_tga_t* const p_tga, const char* const p_path)
 	{
 		goto END;
 	}
-	FILE* p_file = fopen(p_path, "rb");
+	FILE* p_file = NULL;
+	char* expanded_path = shell_expand_path_l(p_path);
+	if (NULL == expanded_path)
+	{
+		p_file = fopen(p_path, "rb");
+	}
+	else
+	{
+		p_file = fopen(expanded_path, "rb");
+	}
+	free(expanded_path);
+	expanded_path = NULL;
 	if (NULL == p_file)
 	{
 		perror("si_tga_fread_from failed to open file for reading");
@@ -792,9 +734,10 @@ bool si_tga_fwrite(si_tga_t* const p_tga, FILE* const p_file)
 	// Write Image ID
 	if ((0u < p_tga->header.id_len) && (NULL != p_tga->p_img_id))
 	{
-		const bool wrote_id = fwrite_all(
-			p_tga->p_img_id, p_tga->header.id_len, p_file
+		const size_t wrote_count = fwrite_all(
+			p_file, p_tga->p_img_id, p_tga->header.id_len
 		);
+		const bool wrote_id = (p_tga->header.id_len == wrote_count);
 		if(true != wrote_id)
 		{
 			goto END;
@@ -804,7 +747,10 @@ bool si_tga_fwrite(si_tga_t* const p_tga, FILE* const p_file)
 	//!TODO Write Colormaps
 
 	// Write Pixel Data
-	const bool wrote_data = fwrite_all(p_tga->p_data, pixel_data_size, p_file);
+	const size_t wrote_count = fwrite_all(
+		p_file, p_tga->p_data, pixel_data_size
+	);
+	const bool wrote_data = (pixel_data_size == wrote_count);
 	if (true != wrote_data)
 	{
 		goto END;
@@ -827,10 +773,21 @@ bool si_tga_fwrite_to(si_tga_t* const p_tga, const char* const p_path)
 	{
 		goto END;
 	}
-	FILE* p_file = fopen(p_path, "wb");
+	FILE* p_file = NULL;
+	char* expanded_path = shell_expand_path_l(p_path);
+	if (NULL == expanded_path)
+	{
+		p_file = fopen(p_path, "wb");
+	}
+	else
+	{
+		p_file = fopen(expanded_path, "wb");
+	}
+	free(expanded_path);
+	expanded_path = NULL;
 	if (NULL == p_file)
 	{
-		perror("si_tga_fread_from failed to open file for writing");
+		perror("si_tga_fwrite_to failed to open file for writing");
 		goto END;
 	}
 	result = si_tga_fwrite(p_tga, p_file);
