@@ -20,16 +20,34 @@ extern "C"
 #endif //__cplusplus
 
 /** Doxygen
- * @brief Attempts to parse a uint16 port number from string.
+ * @brief Attempts to parse a uint8_t number from string.
  * 
- * @param p_str C String to parse port number from.
+ * @param p_str C String to parse uint8_t number from.
  * 
- * @return Returns heap pointer to port number on success. NULL otherwise.
+ * @return Returns heap pointer to uint8_t number on success. NULL otherwise.
  */
-void* port_parser(const char* const p_str);
+void* uint8_parser(const char* const p_str);
 
 /** Doxygen
- * @brief Attempts to parse a string to a new heap path.
+ * @brief Attempts to parse a uint16_t number from string.
+ * 
+ * @param p_str C String to parse uint16_t number from.
+ * 
+ * @return Returns heap pointer to uint16_t number on success. NULL otherwise.
+ */
+void* uint16_parser(const char* const p_str);
+
+/** Doxygen
+ * @brief Attempts to parse a uint32_t number from string.
+ * 
+ * @param p_str C String to parse uint32_t number from.
+ * 
+ * @return Returns heap pointer to uint32_t number on success. NULL otherwise.
+ */
+void* uint32_parser(const char* const p_str);
+
+/** Doxygen
+ * @brief Attempts to parse a string to a new on heap folder path.
  * 
  * @param p_str C str to be parsed.
  * 

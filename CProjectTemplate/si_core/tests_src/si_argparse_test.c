@@ -45,9 +45,9 @@ static void si_argparse_test_parsers(void)
 	const char* const p_invalid_port = "-3389";
 	const char* const p_valid_path = ".";
 
-	TEST_ASSERT_NULL(port_parser(NULL));
-	TEST_ASSERT_NULL(port_parser(p_invalid_port));
-	const uint16_t* p_parsed_port = port_parser(p_valid_port);
+	TEST_ASSERT_NULL(uint16_parser(NULL));
+	TEST_ASSERT_NULL(uint16_parser(p_invalid_port));
+	const uint16_t* p_parsed_port = uint16_parser(p_valid_port);
 	TEST_ASSERT_NOT_NULL(p_parsed_port);
 	printf("Parsed port: '%hu'\n", *p_parsed_port);
 	free((void*)p_parsed_port);
@@ -97,7 +97,7 @@ static void setup_main_parser(si_argparse_t* const p_argparse)
 	port_arg.p_help = "Specifies a required port number.";
 	port_arg.maximum_values = 1u;
 	port_arg.minimum_values = 1u;
-	port_arg.p_parser = port_parser;
+	port_arg.p_parser = uint16_parser;
 	port_arg.p_validate = port_validator;
 
 	si_arg_t dir_arg = {0};

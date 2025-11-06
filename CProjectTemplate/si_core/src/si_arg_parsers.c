@@ -3,21 +3,17 @@
 #include "si_arg_parsers.h"
 
 /** Doxygen
- * @brief Attempts to parse a uint16 port number from string.
+ * @brief Local function to parse unsigned integer values <= ULONG_MAX.
  * 
- * @param p_str C String to parse port number from.
+ * @param p_str C String to parse integer from.
+ * @param max Maximum value less than ULONG_MAX to cap unsigned int value.
  * 
- * @return Returns heap pointer to port number on success. NULL otherwise.
+ * @return Returns max+1 on error. Otherwise returns parsed value.
  */
-void* port_parser(const char* const p_str)
+static unsigned long long parse_uint(const char* const p_str, const unsigned long max)
 {
-    uint16_t* p_port = NULL;
+    unsigned long long result = (unsigned long long)(max + 1UL);
     if (NULL == p_str)
-    {
-        goto END;
-    }
-    p_port = calloc(1u, sizeof(uint16_t));
-    if (NULL == p_port)
     {
         goto END;
     }
@@ -26,25 +22,105 @@ void* port_parser(const char* const p_str)
     parse_buffer = strtoul(p_str, &p_end_ptr, 10);
     if ((p_str == p_end_ptr) || (NULL == p_end_ptr))
     {
-        free(p_port);
-        p_port = NULL;
         goto END;
     }
     if ('\0' != *p_end_ptr)
     {
-        free(p_port);
-        p_port = NULL;
         goto END;
     }
-    if ((ERANGE == errno) || (UINT16_MAX < parse_buffer))
+    if ((ERANGE == errno) || (UINT32_MAX < parse_buffer))
     {
-        free(p_port);
-        p_port = NULL;
         goto END;
     }
-    *p_port = (uint16_t)parse_buffer;
 END:
-    return (void*)p_port;
+    result = (unsigned long long)parse_buffer;
+}
+
+void* uint8_parser(const char* const p_str)
+{
+    uint8_t* p_result = NULL;
+    if (NULL == p_str)
+    {
+        goto END;
+    }
+
+    // Allocate
+    p_result = calloc(1u, sizeof(uint8_t));
+    if (NULL == p_result)
+    {
+        goto END;
+    }
+
+    // Parse
+    unsigned long long parsed = parse_uint(p_str, UINT8_MAX);
+    if (UINT8_MAX < parsed)
+    {
+        // Parse failed.
+        free(p_result);
+        p_result = NULL;
+        goto END;
+    }
+    *p_result = (uint8_t)parsed;
+END:
+    return (void*)p_result;
+}
+
+void* uint16_parser(const char* const p_str)
+{
+    uint16_t* p_result = NULL;
+    if (NULL == p_str)
+    {
+        goto END;
+    }
+
+    // Allocate
+    p_result = calloc(1u, sizeof(uint16_t));
+    if (NULL == p_result)
+    {
+        goto END;
+    }
+
+    // Parse
+    unsigned long long parsed = parse_uint(p_str, UINT16_MAX);
+    if (UINT16_MAX < parsed)
+    {
+        // Parse failed.
+        free(p_result);
+        p_result = NULL;
+        goto END;
+    }
+    *p_result = (uint16_t)parsed;
+END:
+    return (void*)p_result;
+}
+
+void* uint32_parser(const char* const p_str)
+{
+    uint32_t* p_result = NULL;
+    if (NULL == p_str)
+    {
+        goto END;
+    }
+
+    // Allocate
+    p_result = calloc(1u, sizeof(uint32_t));
+    if (NULL == p_result)
+    {
+        goto END;
+    }
+
+    // Parse
+    unsigned long long parsed = parse_uint(p_str, UINT32_MAX);
+    if (UINT32_MAX < parsed)
+    {
+        // Parse failed.
+        free(p_result);
+        p_result = NULL;
+        goto END;
+    }
+    *p_result = (uint32_t)parsed;
+END:
+    return (void*)p_result;
 }
 
 void* dir_parser(const char* const p_str)
