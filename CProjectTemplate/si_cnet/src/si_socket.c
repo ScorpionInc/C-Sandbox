@@ -355,6 +355,42 @@ bool si_socket_set_keepalive(const si_socket_t* const p_socket,
 
 #endif // OS Specific implementation
 
+bool si_socket_set_timeout(const si_socket_t* const p_socket,
+	const uint32_t microseconds)
+{
+	bool result = false;
+	if (NULL == p_socket)
+	{
+		goto END;
+	}
+	const bool is_valid = si_socket_is_valid(p_socket);
+	if (true != is_valid)
+	{
+		goto END;
+	}
+#ifdef _WIN32
+	// Windows
+	float micro_f = (float)microseconds;
+	float milli_f = micro_f / 1000.0f;
+	// Known possible accuracy loss here:
+	DWORD millisecs = (DWORD)milli_f;
+	const int set_result = setsockopt(
+		*p_socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&millisecs, sizeof(millisecs)
+	);
+	result = (0 <= set_result);
+#else
+	// Assumes UNIX
+	struct timeval timeout = {0};
+	timeout.tv_usec = microseconds;
+	const int set_result = setsockopt(
+		*p_socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout)
+	);
+	result = (0 <= set_result);
+#endif// OS Specific implementation
+END:
+	return result;
+}
+
 void si_socket_close(si_socket_t* const p_socket)
 {
 	if (NULL == p_socket)

@@ -16,6 +16,7 @@
 
 #include <fcntl.h> // fcntl(), O_NONBLOCK
 #include <sys/socket.h> // socket(), listen(), SOL_SOCKET, SOMAXCONN
+#include <sys/time.h> // timeval
 #include <sys/un.h> // sockaddr_un
 #include <unistd.h> // close()
 
@@ -24,7 +25,7 @@
 
 #elif defined(_WIN32)
 
-#include <winsock2.h> // closesocket()
+#include <winsock2.h> // closesocket(), timeval
 
 // Needs to be linked with ws2_32
 #pragma comment(lib, "ws2_32.lib")
@@ -40,6 +41,7 @@
 #include <errno.h> // errno
 #include <limits.h> // INT_MAX
 #include <stdbool.h> // bool, false, true
+#include <stdint.h> // uint32_t
 #include <stdlib.h> // calloc(), free()
 
 #ifndef SI_SOCKET_H
@@ -136,6 +138,17 @@ bool si_socket_is_keepalive(const si_socket_t* const p_socket);
  */
 bool si_socket_set_keepalive(const si_socket_t* const p_socket,
 	const bool is_keepalive);
+
+/** Doxygen
+ * @brief Sets the target socket to desired timeout in microseconds.
+ * 
+ * @param p_socket Pointer to si_socket_t to be modified.
+ * @param microseconds Desired number of microseconds until a timeout.
+ * 
+ * @return Returns stdbool true on success. Returns false otherwise.
+*/
+bool si_socket_set_timeout(const si_socket_t* const p_socket,
+	const uint32_t microseconds);
 
 /** Doxygen
  * @brief Closes pointed at socket if it's valid.
