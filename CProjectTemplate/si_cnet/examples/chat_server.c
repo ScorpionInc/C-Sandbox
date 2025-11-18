@@ -142,7 +142,7 @@ static bool handle_leave(struct si_server_t* const p_server,
 	{
 		goto END;
 	}
-	const char* const p_message = "Has left the server.\n";
+	const char* const p_message = "A client has left the server.\n";
 	send_message(p_server, socket_fd, p_message);
 	result = true;
 END:
