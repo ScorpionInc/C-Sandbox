@@ -307,14 +307,31 @@ size_t fd_read_all(const int file_d,
 	}
 	while (result < data_size)
 	{
-		ssize_t next_read = read(
+		const ssize_t next_read = read(
 			file_d, &(p_data[result]), data_size - result
 		);
-		if (0 > next_read)
+		if (0 == next_read)
 		{
+			fprintf_exclusive_np(
+				stderr,
+				"fd_read_all() EOF after %lu/%lu bytes.\n",
+				result, data_size
+			);
 			break;
 		}
-		result += next_read;
+		else if ((0 > next_read) && (EAGAIN != errno))
+		{
+			fprintf_exclusive_np(
+				stderr,
+				"fd_read_all() read() error after %lu/%lu bytes.\n",
+				result, data_size
+			);
+			break;
+		}
+		else if (0 < next_read)
+		{
+			result += next_read;
+		}
 	}
 END:
 	return result;
